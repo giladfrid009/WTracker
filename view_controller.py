@@ -3,10 +3,7 @@ from cv2 import VideoCapture
 import numpy as np
 from typing import Callable
 
-from numpy import ndarray
-
-
-class ViewController:
+class VideoReader:
     def __init__(
         self,
         video_stream: VideoCapture,
@@ -22,7 +19,7 @@ class ViewController:
         frame_width = int(video_stream.get(cv.CAP_PROP_FRAME_WIDTH))
         frame_height = int(video_stream.get(cv.CAP_PROP_FRAME_HEIGHT))
         self._frame_size: tuple[int, int] = (frame_height, frame_width)
-        self._conversion: int = color_conversion
+        self._color_conversion: int = color_conversion
 
         self.set_position(*init_position)
 
@@ -54,8 +51,8 @@ class ViewController:
             value=self._padding_value,
         )
 
-        if self._conversion is not None:
-            frame = cv.cvtColor(frame, self._conversion)
+        if self._color_conversion is not None:
+            frame = cv.cvtColor(frame, self._color_conversion)
 
         return True
 
@@ -73,7 +70,7 @@ class ViewController:
     def move_position(self, dy: int, dx: int):
         self.set_position(self._position[0] + dy, self._position[1] + dx)
 
-    def world_view(self) -> np.ndarray:
+    def frame(self) -> np.ndarray:
         return self._frame.copy()
 
     def get_slice_coords(self, h: int, w: int) -> tuple[int, int, int, int]:
@@ -92,7 +89,7 @@ class ViewController:
         return slice
 
 
-class DeviceEmulator(ViewController):
+class ViewController(VideoReader):
     def __init__(
         self,
         video_stream: VideoCapture,
@@ -102,7 +99,7 @@ class DeviceEmulator(ViewController):
         init_position: tuple[int, int] = (0, 0),
         color_conversion: int = None,
     ):
-        assert camera_size[0] >= micro_size[0] 
+        assert camera_size[0] >= micro_size[0]
         assert camera_size[1] >= micro_size[1]
 
         self._camera_size = camera_size
@@ -135,7 +132,7 @@ class DeviceEmulator(ViewController):
         y_mic, x_mic, h_mic, w_mic = self.get_slice_coords(*self.micro_size())
 
         # Draw bboxes of micro and camera
-        world = self.world_view()
+        world = self.frame()
         cv.rectangle(world, (x_cam, y_cam), (x_cam + w_cam, y_cam + h_cam), (0, 0, 255), 4)
         cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), 4)
         cv.circle(world, (x_mid, y_mid), 1, (255, 0, 0), 2)
