@@ -1,7 +1,7 @@
 import cv2 as cv
 from cv2 import VideoCapture
 import numpy as np
-from typing import Callable
+
 
 class VideoReader:
     def __init__(
@@ -87,6 +87,9 @@ class VideoReader:
         y, x, h, w = self.get_slice_coords(h, w)
         slice = self._frame[y : y + h, x : x + w]
         return slice
+
+    def restart(self):
+        self._video_stream.set(cv.CAP_PROP_POS_FRAMES, 0)
 
 
 class ViewController(VideoReader):
