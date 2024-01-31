@@ -1,2 +1,4 @@
 *.avi
 rois
+__pycache__
+*.pyc
