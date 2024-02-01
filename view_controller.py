@@ -28,18 +28,13 @@ class VideoReader:
         if res is False:
             raise Exception("couldn't read first frame")
 
-    def skip_frames(self, count: int) -> bool:
-        for _ in range(count):
-            res, _ = self._video_stream.read()
-            if res is False:
-                break
-        return self.next_frame()
+    def next_frame(self, n: int = 1) -> bool:
+        assert n >= 1
 
-    def next_frame(self) -> bool:
-        ret, frame = self._video_stream.read()
-        if ret == False:
-            self._frame = None
-            return False
+        for _ in range(n):
+            res, frame = self._video_stream.read()
+            if res is False:
+                return False
 
         self._frame = cv.copyMakeBorder(
             src=frame,
@@ -70,7 +65,7 @@ class VideoReader:
     def move_position(self, dy: int, dx: int):
         self.set_position(self._position[0] + dy, self._position[1] + dx)
 
-    def frame(self) -> np.ndarray:
+    def world_view(self) -> np.ndarray:
         return self._frame.copy()
 
     def get_slice_coords(self, h: int, w: int) -> tuple[int, int, int, int]:
@@ -135,7 +130,7 @@ class ViewController(VideoReader):
         y_mic, x_mic, h_mic, w_mic = self.get_slice_coords(*self.micro_size())
 
         # Draw bboxes of micro and camera
-        world = self.frame()
+        world = self.world_view()
         cv.rectangle(world, (x_cam, y_cam), (x_cam + w_cam, y_cam + h_cam), (0, 0, 255), 4)
         cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), 4)
         cv.circle(world, (x_mid, y_mid), 1, (255, 0, 0), 2)
