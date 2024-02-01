@@ -17,7 +17,7 @@ class VideoReader:
         self._padding_value: tuple[int, int, int] = padding_value
         frame_width = int(video_stream.get(cv.CAP_PROP_FRAME_WIDTH))
         frame_height = int(video_stream.get(cv.CAP_PROP_FRAME_HEIGHT))
-        self._frame_size: tuple[int, int] = (frame_height, frame_width)
+        self._frame_size: tuple[int, int] = (frame_width, frame_height)
         self._color_conversion: int = color_conversion
 
         self.set_position(*init_position)
@@ -38,10 +38,10 @@ class VideoReader:
 
         self._frame = cv.copyMakeBorder(
             src=frame,
-            top=self._padding_size[0],
-            bottom=self._padding_size[0],
-            left=self._padding_size[1],
-            right=self._padding_size[1],
+            left=self._padding_size[0],
+            right=self._padding_size[0],
+            top=self._padding_size[1],
+            bottom=self._padding_size[1],
             borderType=cv.BORDER_CONSTANT,
             value=self._padding_value,
         )
@@ -57,30 +57,26 @@ class VideoReader:
     def position(self) -> tuple[int, int]:
         return self._position
 
-    def set_position(self, y: int, x: int):
-        assert y >= 0 and y < self._frame_size[0]
-        assert x >= 0 and x < self._frame_size[1]
-        self._position = (y, x)
+    def set_position(self, x: int, y: int):
+        assert x >= 0 and x < self._frame_size[0]
+        assert y >= 0 and y < self._frame_size[1]
+        self._position = (x, y)
 
-    def move_position(self, dy: int, dx: int):
-        self.set_position(self._position[0] + dy, self._position[1] + dx)
+    def move_position(self, dx: int, dy: int):
+        self.set_position(self._position[0] + dx, self._position[1] + dy)
 
     def world_view(self) -> np.ndarray:
         return self._frame.copy()
 
-    def get_slice_coords(self, h: int, w: int) -> tuple[int, int, int, int]:
-        y_mid, x_mid = self._position
-        h_pad, w_pad = self._padding_size
-
+    def get_slice_coords(self, w: int, h: int) -> tuple[int, int, int, int]:
         # Calc upper left coord, take padding into account
-        y = y_mid - h // 2 + h_pad
-        x = x_mid - w // 2 + w_pad
+        x = self._position[0] + self._padding_size[0] - w // 2
+        y = self._position[1] + self._padding_size[1] - h // 2
+        return x, y, w, h
 
-        return y, x, h, w
-
-    def get_slice(self, h: int, w: int) -> np.ndarray:
-        y, x, h, w = self.get_slice_coords(h, w)
-        slice = self._frame[y : y + h, x : x + w]
+    def get_slice(self, w: int, h: int) -> np.ndarray:
+        x, y, w, h = self.get_slice_coords(w, h)
+        slice = self._frame[y : y + w, x : x + h]
         return slice
 
     def restart(self):
@@ -130,9 +126,9 @@ class ViewController(VideoReader):
 
     def visualize_world(self):
         # Get positions and views of micro and camera
-        y_mid, x_mid = self.position()
-        y_cam, x_cam, h_cam, w_cam = self.get_slice_coords(*self.camera_size())
-        y_mic, x_mic, h_mic, w_mic = self.get_slice_coords(*self.micro_size())
+        x_mid, y_mid, _, _ = self.get_slice_coords(0, 0)
+        x_cam, y_cam, w_cam, h_cam = self.get_slice_coords(*self.camera_size())
+        x_mic, y_mic, w_mic, h_mic = self.get_slice_coords(*self.micro_size())
 
         # Draw bboxes of micro and camera
         world = self.world_view()
