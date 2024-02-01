@@ -27,8 +27,11 @@ class VideoReader:
         self.restart()
 
     def next_frame(self, n: int = 1) -> bool:
-        assert n >= 1
+        assert n >= 0
         assert self._finished is False
+
+        if n == 0:
+            return True
 
         for _ in range(n):
             res, frame = self._video_stream.read()
