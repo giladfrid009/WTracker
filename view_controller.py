@@ -15,7 +15,6 @@ class VideoReader:
         self._video_stream: VideoCapture = video_stream
         self._padding_size: tuple[int, int] = padding_size
         self._padding_value: tuple[int, int, int] = padding_value
-
         frame_width = int(video_stream.get(cv.CAP_PROP_FRAME_WIDTH))
         frame_height = int(video_stream.get(cv.CAP_PROP_FRAME_HEIGHT))
         self._frame_size: tuple[int, int] = (frame_height, frame_width)
@@ -23,17 +22,18 @@ class VideoReader:
 
         self.set_position(*init_position)
 
+        self._finished: bool = False
         self._frame: np.ndarray = None
-        res = self.next_frame()
-        if res is False:
-            raise Exception("couldn't read first frame")
+        self.restart()
 
     def next_frame(self, n: int = 1) -> bool:
         assert n >= 1
+        assert self._finished is False
 
         for _ in range(n):
             res, frame = self._video_stream.read()
             if res is False:
+                self._finished = True
                 return False
 
         self._frame = cv.copyMakeBorder(
@@ -85,6 +85,11 @@ class VideoReader:
 
     def restart(self):
         self._video_stream.set(cv.CAP_PROP_POS_FRAMES, 0)
+        self._finished = False
+
+        res = self.next_frame()
+        if res is False:
+            raise Exception("couldn't read first frame")
 
 
 class ViewController(VideoReader):
