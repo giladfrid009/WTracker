@@ -68,7 +68,7 @@ class VideoReader:
     def move_position(self, dx: int, dy: int):
         self.set_position(self._position[0] + dx, self._position[1] + dy)
 
-    def world_view(self) -> np.ndarray:
+    def get_frame(self) -> np.ndarray:
         return self._frame.copy()
 
     def get_slice_coords(self, w: int, h: int) -> tuple[int, int, int, int]:
@@ -127,15 +127,15 @@ class ViewController(VideoReader):
     def micro_view(self) -> tuple[int, int]:
         return self.get_slice(*self.micro_size())
 
-    def visualize_world(self):
+    def visualize_world(self, line_width: int = 4):
         # Get positions and views of micro and camera
         x_mid, y_mid, _, _ = self.get_slice_coords(0, 0)
         x_cam, y_cam, w_cam, h_cam = self.get_slice_coords(*self.camera_size())
         x_mic, y_mic, w_mic, h_mic = self.get_slice_coords(*self.micro_size())
 
         # Draw bboxes of micro and camera
-        world = self.world_view()
-        cv.rectangle(world, (x_cam, y_cam), (x_cam + w_cam, y_cam + h_cam), (0, 0, 255), 4)
-        cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), 4)
-        cv.circle(world, (x_mid, y_mid), 1, (255, 0, 0), 2)
+        world = self.get_frame()
+        cv.rectangle(world, (x_cam, y_cam), (x_cam + w_cam, y_cam + h_cam), (0, 0, 255), line_width)
+        cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), line_width)
+        cv.circle(world, (x_mid, y_mid), 1, (255, 0, 0), line_width)
         cv.imshow("world view", world)
