@@ -7,7 +7,7 @@ class VideoReader:
     def __init__(
         self,
         video_stream: VideoCapture,
-        padding_size: tuple[int, int],
+        padding_size: tuple[int, int] = (0, 0),
         padding_value: tuple[int, int, int] = [255, 255, 255],
         init_position: tuple[int, int] = (0, 0),
         color_conversion: int = None,
@@ -39,7 +39,7 @@ class VideoReader:
                 self._finished = True
                 return False
 
-        self._frame = cv.copyMakeBorder(
+        frame = cv.copyMakeBorder(
             src=frame,
             left=self._padding_size[0],
             right=self._padding_size[0],
@@ -52,6 +52,7 @@ class VideoReader:
         if self._color_conversion is not None:
             frame = cv.cvtColor(frame, self._color_conversion)
 
+        self._frame = frame
         return True
 
     def frame_size(self) -> tuple[int, int]:
@@ -82,13 +83,27 @@ class VideoReader:
         slice = self._frame[y : y + w, x : x + h]
         return slice
 
-    def restart(self):
+    def restart(self) -> bool:
         self._video_stream.set(cv.CAP_PROP_POS_FRAMES, 0)
         self._finished = False
 
         res = self.next_frame()
         if res is False:
             raise Exception("couldn't read first frame")
+        return True
+
+    def video_length(self) -> int:
+        return int(self._video_stream.get(cv.CAP_PROP_FRAME_COUNT))
+
+    def seek(self, frame_number: int) -> bool:
+        assert frame_number >= 0
+                
+        if frame_number == 0:
+            return self.restart()
+        
+        self._finished = False
+        self._video_stream.set(cv.CAP_PROP_POS_FRAMES, frame_number - 1)
+        return self.next_frame()
 
 
 class ViewController(VideoReader):
