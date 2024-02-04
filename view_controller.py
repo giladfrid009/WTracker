@@ -95,12 +95,15 @@ class VideoReader:
     def video_length(self) -> int:
         return int(self._video_stream.get(cv.CAP_PROP_FRAME_COUNT))
 
+    def __len__(self) -> int:
+        return self.video_length()
+
     def seek(self, frame_number: int) -> bool:
         assert frame_number >= 0
-                
+
         if frame_number == 0:
             return self.restart()
-        
+
         self._finished = False
         self._video_stream.set(cv.CAP_PROP_POS_FRAMES, frame_number - 1)
         return self.next_frame()
