@@ -13,7 +13,7 @@ class VideoReader:
         color_conversion: int = None,
     ):
         video_stream = VideoCapture(video_path)
-        
+
         assert video_stream.isOpened()
 
         self._path = video_path
@@ -44,7 +44,13 @@ class VideoReader:
 
     def __len__(self) -> int:
         return int(self._stream.get(cv.CAP_PROP_FRAME_COUNT))
-    
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        self.close()
+
     def path(self) -> str:
         return self._path
 
@@ -124,11 +130,16 @@ class VideoReader:
         self._stream.set(cv.CAP_PROP_POS_FRAMES, frame_number - 1)
         return self.next_frame()
 
+    def close(self):
+        self._stream.release()
+        self._finished = True
+        self._stream = None
+
 
 class ViewController(VideoReader):
     def __init__(
         self,
-        video_stream: VideoCapture,
+        video_path: str,
         camera_size: tuple[int, int] = (251, 251),
         micro_size: tuple[int, int] = (45, 45),
         padding_value: tuple[int, int, int] = [255, 255, 255],
@@ -142,7 +153,7 @@ class ViewController(VideoReader):
         self._micro_size = micro_size
 
         super().__init__(
-            video_stream,
+            video_path,
             (camera_size[0] // 2, camera_size[1] // 2),
             padding_value,
             init_position,
