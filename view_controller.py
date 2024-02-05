@@ -80,6 +80,9 @@ class VideoStream:
         self._frame = frame
         return True
 
+    def fps(self) -> int:
+        return int(self._stream.get(cv.CAP_PROP_FPS))
+
     def frame_size(self) -> tuple[int, int]:
         return self._frame_size
 

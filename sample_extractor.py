@@ -18,8 +18,17 @@ class SampleExtractor:
             frame_transform = lambda x: x
         self._transform = frame_transform
 
-        # caching
+        # for caching
         self._video_bboxes = None
+
+    # TODO: implement
+    def _resize_boxes(self, bboxes: np.ndarray, resize_factor: float) -> np.ndarray:
+        assert resize_factor > 0
+
+        # Unpack columns
+        x, y, w, h = bboxes.T
+
+        return bboxes
 
     def calc_video_background(
         self,
@@ -82,13 +91,13 @@ class SampleExtractor:
         # Get matching bbox
         largest_bbox = cv.boundingRect(largest_contour)
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
-
         return largest_bbox
 
     def calc_video_bboxes(
         self,
         bg_probes: int = 100,
         fg_thresh: int = 10,
+        size_factor: float = 1.0,
     ) -> np.ndarray:
         # first, we find the background, which we will use later
         background = self.calc_video_background(bg_probes)
@@ -101,6 +110,8 @@ class SampleExtractor:
         for i, frame in tqdm(enumerate(self._video), desc="extracting bboxes", total=len(self._video)):
             bbox = self.calc_image_bbox(frame, background, fg_thresh)
             bboxes[i] = bbox
+
+        bboxes = self._resize_boxes(bboxes, size_factor)
 
         # update cached variable
         self._video_bboxes = bboxes
@@ -120,9 +131,9 @@ class SampleExtractor:
         """
         # we care only after the `start_index` frame
         bboxes = bboxes[start_index:, :]
-        
+
         # get bbox coordinates
-        left, bottom, width, height = bboxes[:, 0], bboxes[:, 1], bboxes[:, 2], bboxes[:, 3]
+        left, bottom, width, height = bboxes.T
         right = left + width
         top = bottom + height
 
@@ -177,10 +188,13 @@ class SampleExtractor:
         stream = ffmpeg.overwrite_output(stream)
         ffmpeg.run(stream, quiet=True)
 
-    # TODO: add error_margin parameter between 0 and 1 which will pass
-    # slice_width=int(width * (1 - margin)) to the _find_slice function.
-    # its important to later pad the extracted video with margin/2 pixels from each side.
-    def generate_samples(self, count: int, width: int, height: int, save_path: str):
+    def generate_samples(
+        self,
+        count: int,
+        width: int,
+        height: int,
+        save_path: str,
+    ):
         if self._video_bboxes is None:
             raise Exception(f"please run `{self.calc_video_bboxes.__name__}` first")
 
