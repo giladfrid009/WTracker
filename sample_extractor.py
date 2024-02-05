@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from view_controller import VideoReader
+from view_controller import VideoStream
 from tqdm import tqdm
 from typing import Callable
 import ffmpeg
@@ -9,7 +9,7 @@ import ffmpeg
 class SampleExtractor:
     def __init__(
         self,
-        video: VideoReader,
+        video: VideoStream,
         frame_transform: Callable[[np.ndarray], np.ndarray] = None,
     ) -> None:
         self._video = video
@@ -91,12 +91,14 @@ class SampleExtractor:
         bg_samples: int = 100,
         fg_thresh: int = 10,
     ) -> np.ndarray:
+        # first, we find the background, which we will use later
         background = self.extract_background(bg_samples)
 
         self._video.restart()
         length = len(self._video)
         bboxes = np.zeros(shape=(length, 4), dtype=int)
 
+        # extract bbox from each video frame
         for i, frame in tqdm(enumerate(self._video), desc="extracting bboxes", total=len(self._video)):
             bbox = self.extract_frame_bbox(frame, background, fg_thresh)
             bboxes[i] = bbox
@@ -174,19 +176,23 @@ class SampleExtractor:
 
     def crop_video(
         self,
-        dst_path: str,
+        save_path: str,
         trim_range: tuple[int, int],
         crop_dims: tuple[int, int, int, int],
     ):
         from pathlib import Path
 
-        Path(dst_path).parent.mkdir(parents=True, exist_ok=True)
+        # create parent dir if doesn't exist
+        folder = Path(save_path).parent
+        Path(folder).mkdir(parents=True, exist_ok=True)
 
         start, end = trim_range
         x, y, w, h = crop_dims
+
+        # extract matching slice from the video
         stream = ffmpeg.input(self._video.path())
         stream = ffmpeg.crop(stream, x, y, w, h)
         stream = ffmpeg.trim(stream, start_frame=start, end_frame=end)
-        stream = ffmpeg.output(stream, dst_path)
+        stream = ffmpeg.output(stream, save_path)
         stream = ffmpeg.overwrite_output(stream)
         ffmpeg.run(stream, quiet=True)

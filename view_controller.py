@@ -3,29 +3,25 @@ from cv2 import VideoCapture
 import numpy as np
 
 
-class VideoReader:
+class VideoStream:
     def __init__(
         self,
-        video_path: str,
+        source: str | int,
         padding_size: tuple[int, int] = (0, 0),
         padding_value: tuple[int, int, int] = [255, 255, 255],
-        init_position: tuple[int, int] = (0, 0),
         color_conversion: int = None,
     ):
-        video_stream = VideoCapture(video_path)
+        stream = VideoCapture(source)
+        assert stream.isOpened()
 
-        assert video_stream.isOpened()
-
-        self._path = video_path
-        self._stream: VideoCapture = video_stream
+        self._path = source
+        self._stream: VideoCapture = stream
         self._padding_size: tuple[int, int] = padding_size
         self._padding_value: tuple[int, int, int] = padding_value
-        frame_width = int(video_stream.get(cv.CAP_PROP_FRAME_WIDTH))
-        frame_height = int(video_stream.get(cv.CAP_PROP_FRAME_HEIGHT))
+        frame_width = int(stream.get(cv.CAP_PROP_FRAME_WIDTH))
+        frame_height = int(stream.get(cv.CAP_PROP_FRAME_HEIGHT))
         self._frame_size: tuple[int, int] = (frame_width, frame_height)
         self._color_conversion: int = color_conversion
-
-        self.set_position(*init_position)
 
         self._finished: bool = False
         self._frame: np.ndarray = None
@@ -52,7 +48,7 @@ class VideoReader:
         self.close()
 
     def path(self) -> str:
-        return self._path
+        return str(self._path)
 
     def next_frame(self, n: int = 1) -> bool:
         assert n >= 0
@@ -67,6 +63,7 @@ class VideoReader:
                 self._finished = True
                 return False
 
+        # apply padding to the current frame
         frame = cv.copyMakeBorder(
             src=frame,
             left=self._padding_size[0],
@@ -86,30 +83,8 @@ class VideoReader:
     def frame_size(self) -> tuple[int, int]:
         return self._frame_size
 
-    def position(self) -> tuple[int, int]:
-        return self._position
-
-    def set_position(self, x: int, y: int):
-        assert x >= 0 and x < self._frame_size[0]
-        assert y >= 0 and y < self._frame_size[1]
-        self._position = (x, y)
-
-    def move_position(self, dx: int, dy: int):
-        self.set_position(self._position[0] + dx, self._position[1] + dy)
-
     def get_frame(self) -> np.ndarray:
         return self._frame.copy()
-
-    def get_slice_coords(self, w: int, h: int) -> tuple[int, int, int, int]:
-        # Calc upper left coord, take padding into account
-        x = self._position[0] + self._padding_size[0] - w // 2
-        y = self._position[1] + self._padding_size[1] - h // 2
-        return x, y, w, h
-
-    def get_slice(self, w: int, h: int) -> np.ndarray:
-        x, y, w, h = self.get_slice_coords(w, h)
-        slice = self._frame[y : y + w, x : x + h]
-        return slice
 
     def restart(self) -> bool:
         self._stream.set(cv.CAP_PROP_POS_FRAMES, 0)
@@ -136,14 +111,14 @@ class VideoReader:
         self._stream = None
 
 
-class ViewController(VideoReader):
+class ViewController(VideoStream):
     def __init__(
         self,
         video_path: str,
         camera_size: tuple[int, int] = (251, 251),
         micro_size: tuple[int, int] = (45, 45),
-        padding_value: tuple[int, int, int] = [255, 255, 255],
         init_position: tuple[int, int] = (0, 0),
+        padding_value: tuple[int, int, int] = [255, 255, 255],
         color_conversion: int = None,
     ):
         assert camera_size[0] >= micro_size[0]
@@ -151,14 +126,38 @@ class ViewController(VideoReader):
 
         self._camera_size = camera_size
         self._micro_size = micro_size
+        self._position = init_position
 
         super().__init__(
             video_path,
             (camera_size[0] // 2, camera_size[1] // 2),
             padding_value,
-            init_position,
             color_conversion,
         )
+
+        self.set_position(*init_position)
+
+    def position(self) -> tuple[int, int]:
+        return self._position
+
+    def set_position(self, x: int, y: int):
+        assert x >= 0 and x < self._frame_size[0]
+        assert y >= 0 and y < self._frame_size[1]
+        self._position = (x, y)
+
+    def move_position(self, dx: int, dy: int):
+        self.set_position(self._position[0] + dx, self._position[1] + dy)
+
+    def get_slice_coords(self, w: int, h: int) -> tuple[int, int, int, int]:
+        # calc upper left coord, take padding into account
+        x = self._position[0] + self._padding_size[0] - w // 2
+        y = self._position[1] + self._padding_size[1] - h // 2
+        return x, y, w, h
+
+    def custom_view(self, w: int, h: int) -> np.ndarray:
+        x, y, w, h = self.get_slice_coords(w, h)
+        slice = self._frame[y : y + w, x : x + h]
+        return slice
 
     def camera_size(self) -> tuple[int, int]:
         return self._camera_size
@@ -167,10 +166,10 @@ class ViewController(VideoReader):
         return self._micro_size
 
     def camera_view(self) -> tuple[int, int]:
-        return self.get_slice(*self.camera_size())
+        return self.custom_view(*self.camera_size())
 
     def micro_view(self) -> tuple[int, int]:
-        return self.get_slice(*self.micro_size())
+        return self.custom_view(*self.micro_size())
 
     def visualize_world(self, line_width: int = 4):
         # Get positions and views of micro and camera

@@ -1,6 +1,7 @@
 from time import perf_counter
 from contextlib import contextmanager
 
+
 class Timer:
     def __init__(self, silent=False) -> None:
         self._silent = silent
@@ -16,8 +17,9 @@ class Timer:
         if not self._silent:
             print(f"Time: {self.time:.3f} seconds")
 
+
 class TimeBenchmark:
-    def __init__(self, silent = False) -> None:
+    def __init__(self, silent=False) -> None:
         self._iters = 0
         self._time_total = 0
         self._silent = silent
@@ -41,6 +43,6 @@ class TimeBenchmark:
         if self._iters == 0:
             return 0.0
         return self._time_total / self._iters
-    
+
     def __str__(self) -> str:
         return f"Average time: {self.average()} seconds"

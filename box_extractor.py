@@ -185,5 +185,3 @@ def save_samples(image_list: list[np.ndarray], sample_name: str):
     for i, img in enumerate(image_list):
         img_name = sample_name.format(i)
         cv.imwrite(img=img, filename=img_name)
-
-
