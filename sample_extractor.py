@@ -21,46 +21,45 @@ class SampleExtractor:
         # caching
         self._video_bboxes = None
 
-    def extract_background(
+    def calc_video_background(
         self,
-        num_samples: int,
+        num_probes: int,
     ) -> np.ndarray:
         self._video.restart()
         length = len(self._video)
         width, height = self._video.frame_size()
 
         # Randomly select frames
-        frame_ids = np.random.choice(length, size=num_samples, replace=False)
+        frame_ids = np.random.choice(length, size=num_probes, replace=False)
         frame_ids = sorted(frame_ids)
 
         # Store selected frames in an array
-        frames = np.zeros(shape=(num_samples, height, width), dtype=np.uint8)
+        frames = np.zeros(shape=(num_probes, height, width), dtype=np.uint8)
 
         # Extract frames
-        for i, id in tqdm(enumerate(frame_ids), desc="calculating background", total=num_samples):
+        for i, id in tqdm(enumerate(frame_ids), desc="calculating background", total=num_probes):
             self._video.seek(id)
             frame = self._video.get_frame()
 
             # Apply transform
             frame = self._transform(frame).astype(np.uint8)
-
             frames[i] = frame
 
         # Calculate the median along the time axis
         median = np.median(frames, axis=0).astype(np.uint8)
         return median
 
-    def extract_frame_bbox(
+    def calc_image_bbox(
         self,
-        frame: np.ndarray,
+        image: np.ndarray,
         background: np.ndarray,
         diff_thresh: int,
     ) -> np.ndarray:
 
-        frame = self._transform(frame).astype(np.uint8)
+        image = self._transform(image).astype(np.uint8)
 
         # Calculate difference between background and image
-        diff = np.abs(frame.astype(np.int16) - background.astype(np.int16))
+        diff = np.abs(image.astype(np.int16) - background.astype(np.int16))
         diff = diff.astype(np.uint8)
 
         # Turn differences mask to black & white according to a threshold value
@@ -86,13 +85,13 @@ class SampleExtractor:
 
         return largest_bbox
 
-    def extract_video_bboxes(
+    def calc_video_bboxes(
         self,
-        bg_samples: int = 100,
+        bg_probes: int = 100,
         fg_thresh: int = 10,
     ) -> np.ndarray:
         # first, we find the background, which we will use later
-        background = self.extract_background(bg_samples)
+        background = self.calc_video_background(bg_probes)
 
         self._video.restart()
         length = len(self._video)
@@ -100,7 +99,7 @@ class SampleExtractor:
 
         # extract bbox from each video frame
         for i, frame in tqdm(enumerate(self._video), desc="extracting bboxes", total=len(self._video)):
-            bbox = self.extract_frame_bbox(frame, background, fg_thresh)
+            bbox = self.calc_image_bbox(frame, background, fg_thresh)
             bboxes[i] = bbox
 
         # update cached variable
@@ -108,21 +107,24 @@ class SampleExtractor:
 
         return bboxes
 
-    def _find_longest_legal_slice(
+    def _analyze_sample_properties(
         self,
-        object_bboxes: np.ndarray,
+        bboxes: np.ndarray,
         start_index: int,
         slice_width: int,
         slice_height: int,
-    ) -> tuple:
+    ) -> tuple[tuple, tuple]:
         """
         Finds the index bounds and the coordinates of the longest video slice of the provided dimensions,
         for which the bounding boxes of the object are within slice size bounds.
         """
-        left = object_bboxes[start_index:, 0]
-        bottom = object_bboxes[start_index:, 1]
-        right = object_bboxes[start_index:, 0] + object_bboxes[start_index:, 2]
-        top = object_bboxes[start_index:, 1] + object_bboxes[start_index:, 3]
+        # we care only after the `start_index` frame
+        bboxes = bboxes[start_index:, :]
+        
+        # get bbox coordinates
+        left, bottom, width, height = bboxes[:, 0], bboxes[:, 1], bboxes[:, 2], bboxes[:, 3]
+        right = left + width
+        top = bottom + height
 
         # The function calculates cumulative min up to the current index
         # We want to find the first index where the difference between the cumulative mins
@@ -152,29 +154,7 @@ class SampleExtractor:
 
         return slice_indices, slice_bbox
 
-    def create_samples(self, count: int, sample_width: int, sample_height: int, dest_path: str):
-        if self._video_bboxes is None:
-            raise Exception("please run `extract_video_bboxes` first")
-
-        # Randomly select frames
-        start_frames = np.random.choice(len(self._video), size=count, replace=False)
-        start_frames = sorted(start_frames)
-
-        for i, start_frame_idx in tqdm(enumerate(start_frames), desc="creating samples", total=count):
-            # Find the properties of the video slice for the current sample
-            trim_range, crop_dims = self._find_longest_legal_slice(
-                object_bboxes=self._video_bboxes,
-                start_index=start_frame_idx,
-                slice_width=sample_width,
-                slice_height=sample_height,
-            )
-
-            out_path = dest_path.format(i)
-
-            # Create and save a sample
-            self.crop_video(out_path, trim_range, crop_dims)
-
-    def crop_video(
+    def _transform_and_save_sample(
         self,
         save_path: str,
         trim_range: tuple[int, int],
@@ -196,3 +176,24 @@ class SampleExtractor:
         stream = ffmpeg.output(stream, save_path)
         stream = ffmpeg.overwrite_output(stream)
         ffmpeg.run(stream, quiet=True)
+
+    # TODO: add error_margin parameter between 0 and 1 which will pass
+    # slice_width=int(width * (1 - margin)) to the _find_slice function.
+    # its important to later pad the extracted video with margin/2 pixels from each side.
+    def generate_samples(self, count: int, width: int, height: int, save_path: str):
+        if self._video_bboxes is None:
+            raise Exception(f"please run `{self.calc_video_bboxes.__name__}` first")
+
+        # Randomly select frames
+        frame_ids = np.random.choice(len(self._video), size=count, replace=False)
+        frame_ids = sorted(frame_ids)
+
+        for i, fid in tqdm(enumerate(frame_ids), desc="creating samples", total=count):
+            # Find the properties of the video sample starting from `fid` frame
+            trim_range, crop_dims = self._analyze_sample_properties(self._video_bboxes, fid, width, height)
+
+            # format the saving path to match current sample
+            sample_path = save_path.format(i)
+
+            # create and save the sample
+            self._transform_and_save_sample(sample_path, trim_range, crop_dims)

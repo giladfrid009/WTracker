@@ -124,10 +124,6 @@ class ViewController(VideoStream):
         assert camera_size[0] >= micro_size[0]
         assert camera_size[1] >= micro_size[1]
 
-        self._camera_size = camera_size
-        self._micro_size = micro_size
-        self._position = init_position
-
         super().__init__(
             video_path,
             (camera_size[0] // 2, camera_size[1] // 2),
@@ -135,6 +131,9 @@ class ViewController(VideoStream):
             color_conversion,
         )
 
+        self._camera_size = camera_size
+        self._micro_size = micro_size
+        self._position = init_position
         self.set_position(*init_position)
 
     def position(self) -> tuple[int, int]:
