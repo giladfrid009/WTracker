@@ -6,13 +6,18 @@ import numpy as np
 class VideoReader:
     def __init__(
         self,
-        video_stream: VideoCapture,
+        video_path: str,
         padding_size: tuple[int, int] = (0, 0),
         padding_value: tuple[int, int, int] = [255, 255, 255],
         init_position: tuple[int, int] = (0, 0),
         color_conversion: int = None,
     ):
-        self._video_stream: VideoCapture = video_stream
+        video_stream = VideoCapture(video_path)
+        
+        assert video_stream.isOpened()
+
+        self._path = video_path
+        self._stream: VideoCapture = video_stream
         self._padding_size: tuple[int, int] = padding_size
         self._padding_value: tuple[int, int, int] = padding_value
         frame_width = int(video_stream.get(cv.CAP_PROP_FRAME_WIDTH))
@@ -26,6 +31,23 @@ class VideoReader:
         self._frame: np.ndarray = None
         self.restart()
 
+    def __iter__(self):
+        return self
+
+    def __next__(self) -> np.ndarray:
+        if self._finished:
+            raise StopIteration()
+
+        frame = self.get_frame()
+        self.next_frame()
+        return frame
+
+    def __len__(self) -> int:
+        return int(self._stream.get(cv.CAP_PROP_FRAME_COUNT))
+    
+    def path(self) -> str:
+        return self._path
+
     def next_frame(self, n: int = 1) -> bool:
         assert n >= 0
         assert self._finished is False
@@ -34,7 +56,7 @@ class VideoReader:
             return True
 
         for _ in range(n):
-            res, frame = self._video_stream.read()
+            res, frame = self._stream.read()
             if res is False:
                 self._finished = True
                 return False
@@ -84,19 +106,13 @@ class VideoReader:
         return slice
 
     def restart(self) -> bool:
-        self._video_stream.set(cv.CAP_PROP_POS_FRAMES, 0)
+        self._stream.set(cv.CAP_PROP_POS_FRAMES, 0)
         self._finished = False
 
         res = self.next_frame()
         if res is False:
             raise Exception("couldn't read first frame")
         return True
-
-    def video_length(self) -> int:
-        return int(self._video_stream.get(cv.CAP_PROP_FRAME_COUNT))
-
-    def __len__(self) -> int:
-        return self.video_length()
 
     def seek(self, frame_number: int) -> bool:
         assert frame_number >= 0
@@ -105,7 +121,7 @@ class VideoReader:
             return self.restart()
 
         self._finished = False
-        self._video_stream.set(cv.CAP_PROP_POS_FRAMES, frame_number - 1)
+        self._stream.set(cv.CAP_PROP_POS_FRAMES, frame_number - 1)
         return self.next_frame()
 
 

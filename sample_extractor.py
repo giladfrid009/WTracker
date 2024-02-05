@@ -3,120 +3,190 @@ import numpy as np
 from view_controller import VideoReader
 from tqdm import tqdm
 from typing import Callable
+import ffmpeg
 
 
-def calc_background(
-    video: VideoReader,
-    num_samples: int,
-    transform: Callable[[np.ndarray], np.ndarray] = None,
-) -> np.ndarray:
-    video.restart()
-    length = video.video_length()
-    width, height = video.frame_size()
+class SampleExtractor:
+    def __init__(
+        self,
+        video: VideoReader,
+        frame_transform: Callable[[np.ndarray], np.ndarray] = None,
+    ) -> None:
+        self._video = video
 
-    # Randomly select frames
-    frame_ids = np.random.choice(length, size=num_samples, replace=False)
-    frame_ids = sorted(frame_ids)
+        if frame_transform is None:
+            frame_transform = lambda x: x
+        self._transform = frame_transform
 
-    # Store selected frames in an array
-    frames = np.zeros(shape=(num_samples, height, width), dtype=np.uint8)
+        # caching
+        self._video_bboxes = None
 
-    # Extract frames
-    for i, id in tqdm(enumerate(frame_ids), desc="reading frames", total=num_samples):
-        video.seek(id)
-        frame = video.get_frame()
+    def extract_background(
+        self,
+        num_samples: int,
+    ) -> np.ndarray:
+        self._video.restart()
+        length = len(self._video)
+        width, height = self._video.frame_size()
 
-        # Apply transform if needed
-        if transform is not None:
-            frame = transform(frame).astype(np.uint8)
+        # Randomly select frames
+        frame_ids = np.random.choice(length, size=num_samples, replace=False)
+        frame_ids = sorted(frame_ids)
 
-        frames[i] = frame
+        # Store selected frames in an array
+        frames = np.zeros(shape=(num_samples, height, width), dtype=np.uint8)
 
-    # Calculate the median along the time axis
-    median = np.median(frames, axis=0).astype(np.uint8)
-    return median
+        # Extract frames
+        for i, id in tqdm(enumerate(frame_ids), desc="calculating background", total=num_samples):
+            self._video.seek(id)
+            frame = self._video.get_frame()
 
+            # Apply transform
+            frame = self._transform(frame).astype(np.uint8)
 
-def find_largest_box(
-    image: np.ndarray,
-    background: np.ndarray,
-    diff_thresh: int,
-    transform: Callable[[np.ndarray], np.ndarray] = None,
-) -> np.ndarray:
-    if transform is not None:
-        image = transform(image).astype(np.uint8)
+            frames[i] = frame
 
-    # Calculate difference between background and image
-    diff = np.abs(image.astype(np.int16) - background.astype(np.int16))
-    diff = diff.astype(np.uint8)
+        # Calculate the median along the time axis
+        median = np.median(frames, axis=0).astype(np.uint8)
+        return median
 
-    # Turn differences mask to black & white according to a threshold value
-    _, mask = cv.threshold(diff, diff_thresh, 255, cv.THRESH_BINARY)
+    def extract_frame_bbox(
+        self,
+        frame: np.ndarray,
+        background: np.ndarray,
+        diff_thresh: int,
+    ) -> np.ndarray:
 
-    # do some morphological magic to clean up noise from the mask
-    kernel = np.ones((5, 5), np.uint8)
-    mask = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
+        frame = self._transform(frame).astype(np.uint8)
 
-    # dilate to increase all object sizes in the mask
-    kernel = np.ones((3, 3), np.uint8)
-    mask = cv.dilate(mask, kernel, iterations=5)
+        # Calculate difference between background and image
+        diff = np.abs(frame.astype(np.int16) - background.astype(np.int16))
+        diff = diff.astype(np.uint8)
 
-    # find contours in the binary mask
-    contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+        # Turn differences mask to black & white according to a threshold value
+        _, mask = cv.threshold(diff, diff_thresh, 255, cv.THRESH_BINARY)
 
-    # find largest contour
-    largest_contour = max(contours, key=lambda c: cv.contourArea(c))
+        # do some morphological magic to clean up noise from the mask
+        kernel = np.ones((5, 5), np.uint8)
+        mask = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
 
-    # Get matching bbox
-    largest_bbox = cv.boundingRect(largest_contour)
-    largest_bbox = np.asanyarray(largest_bbox, dtype=int)
+        # dilate to increase all object sizes in the mask
+        kernel = np.ones((3, 3), np.uint8)
+        mask = cv.dilate(mask, kernel, iterations=5)
 
-    return largest_bbox
+        # find contours in the binary mask
+        contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
+        # find largest contour
+        largest_contour = max(contours, key=lambda c: cv.contourArea(c))
 
-def extract_boxes(
-    video: VideoReader,
-    background: np.ndarray,
-    diff_thresh=10,
-    transform: Callable[[np.ndarray], np.ndarray] = None,
-):
-    video.restart()
-    length = video.video_length()
-    bboxes = np.zeros(shape=(length, 4), dtype=int)
+        # Get matching bbox
+        largest_bbox = cv.boundingRect(largest_contour)
+        largest_bbox = np.asanyarray(largest_bbox, dtype=int)
 
-    i = 0
-    while video.next_frame():
-        frame = video.get_frame()
-        bbox = find_largest_box(frame, background, diff_thresh, transform)
-        bboxes[i] = bbox
-        i += 1
+        return largest_bbox
 
-    return bboxes
+    def extract_video_bboxes(
+        self,
+        bg_samples: int = 100,
+        fg_thresh: int = 10,
+    ) -> np.ndarray:
+        background = self.extract_background(bg_samples)
 
+        self._video.restart()
+        length = len(self._video)
+        bboxes = np.zeros(shape=(length, 4), dtype=int)
 
-def find_slice_indices(bboxes: np.ndarray, start_idx: int, slice_width: int, slice_height: int) -> tuple[int, int]:
-    left = bboxes[start_idx:, 0]
-    right = bboxes[start_idx:, 0] + bboxes[start_idx:, 2]
-    bottom = bboxes[start_idx:, 1]
-    top = bboxes[start_idx:, 1] + bboxes[start_idx:, 3]
+        for i, frame in tqdm(enumerate(self._video), desc="extracting bboxes", total=len(self._video)):
+            bbox = self.extract_frame_bbox(frame, background, fg_thresh)
+            bboxes[i] = bbox
 
-    # The function calculates cumulative min up to the current index
-    # We want to find the first index where the difference between the cumulative mins
-    # and maxes is larger than the given thresholds
-    left_min = np.minimum.accumulate(left)
-    right_max = np.maximum.accumulate(right)
-    bottom_min = np.minimum.accumulate(bottom)
-    top_max = np.maximum.accumulate(top)
+        # update cached variable
+        self._video_bboxes = bboxes
 
-    # We want that both the width and height conditions to hold
-    is_illegal = (right_max - left_min > slice_width) & (top_max - bottom_min > slice_height)
+        return bboxes
 
-    print(is_illegal)
+    def _find_longest_legal_slice(
+        self,
+        object_bboxes: np.ndarray,
+        start_index: int,
+        slice_width: int,
+        slice_height: int,
+    ) -> tuple:
+        """
+        Finds the index bounds and the coordinates of the longest video slice of the provided dimensions,
+        for which the bounding boxes of the object are within slice size bounds.
+        """
+        left = object_bboxes[start_index:, 0]
+        bottom = object_bboxes[start_index:, 1]
+        right = object_bboxes[start_index:, 0] + object_bboxes[start_index:, 2]
+        top = object_bboxes[start_index:, 1] + object_bboxes[start_index:, 3]
 
-    # Returns the last index where `False` can be inserted while maintaining order of the array
-    # Note that `is_illegal` array is sorted, since it's first always `False`, and then always `True`
-    idx = np.searchsorted(is_illegal, v=False, side="right")
+        # The function calculates cumulative min up to the current index
+        # We want to find the first index where the difference between the cumulative mins
+        # and maxes is larger than the given thresholds
+        min_left = np.minimum.accumulate(left)
+        min_bottom = np.minimum.accumulate(bottom)
+        max_right = np.maximum.accumulate(right)
+        max_top = np.maximum.accumulate(top)
 
-    # Return the exclusive last index
-    end_idx = start_idx + idx + 1
-    return start_idx, end_idx
+        # Find where bboxes are out of legal bounds
+        illegal_width = max_right - min_left > slice_width
+        illegal_height = max_top - min_bottom > slice_height
+        is_illegal = illegal_width | illegal_height
+
+        # Returns the last index where `False` can be inserted while maintaining order of the array
+        # Note that `is_illegal` array is always sorted from `False` to `True`
+        last_legal_idx = np.searchsorted(is_illegal, v=False, side="right")
+
+        if last_legal_idx >= len(is_illegal):
+            last_legal_idx = len(is_illegal) - 1
+
+        # Return the exclusive last legal index
+        slice_indices = (start_index, start_index + last_legal_idx + 1)
+
+        # Get the bbox which matches the legal slice
+        slice_bbox = (min_left[last_legal_idx], min_bottom[last_legal_idx], slice_width, slice_height)
+
+        return slice_indices, slice_bbox
+
+    def create_samples(self, count: int, sample_width: int, sample_height: int, dest_path: str):
+        if self._video_bboxes is None:
+            raise Exception("please run `extract_video_bboxes` first")
+
+        # Randomly select frames
+        start_frames = np.random.choice(len(self._video), size=count, replace=False)
+        start_frames = sorted(start_frames)
+
+        for i, start_frame_idx in tqdm(enumerate(start_frames), desc="creating samples", total=count):
+            # Find the properties of the video slice for the current sample
+            trim_range, crop_dims = self._find_longest_legal_slice(
+                object_bboxes=self._video_bboxes,
+                start_index=start_frame_idx,
+                slice_width=sample_width,
+                slice_height=sample_height,
+            )
+
+            out_path = dest_path.format(i)
+
+            # Create and save a sample
+            self.crop_video(out_path, trim_range, crop_dims)
+
+    def crop_video(
+        self,
+        dst_path: str,
+        trim_range: tuple[int, int],
+        crop_dims: tuple[int, int, int, int],
+    ):
+        from pathlib import Path
+
+        Path(dst_path).parent.mkdir(parents=True, exist_ok=True)
+
+        start, end = trim_range
+        x, y, w, h = crop_dims
+        stream = ffmpeg.input(self._video.path())
+        stream = ffmpeg.crop(stream, x, y, w, h)
+        stream = ffmpeg.trim(stream, start_frame=start, end_frame=end)
+        stream = ffmpeg.output(stream, dst_path)
+        stream = ffmpeg.overwrite_output(stream)
+        ffmpeg.run(stream, quiet=True)
