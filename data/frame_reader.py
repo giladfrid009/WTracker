@@ -67,8 +67,8 @@ class FrameStream:
         if self._idx >= len(self._frame_reader):
             raise StopIteration()
 
-        frame = self._frame_reader[self._idx]
-        self._idx += 1
+        frame = self.read()
+        self.progress(1)
         return frame
 
     def read(self) -> np.ndarray:
@@ -77,12 +77,12 @@ class FrameStream:
 
         return self._frame_reader[self._idx]
 
-    def seek(self, idx: int):
+    def seek(self, idx: int) -> bool:
         self._idx = idx
+        return 0 <= self._idx < len(self._frame_reader)
 
-    def next(self, n: int) -> np.ndarray:
-        self.seek(self._idx + n)
-        return self.read()
+    def progress(self, n: int = 1) -> bool:
+        return self.seek(self._idx + n)
 
     def reset(self):
         self.seek(0)
