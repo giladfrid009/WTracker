@@ -211,3 +211,34 @@ class SampleExtractor:
 
             # create and save the sample
             self._transform_and_save_sample(sample_path, trim_range, crop_dims)
+
+    def generate_all_samples(
+        self,
+        width: int,
+        height: int,
+        save_path: str,
+    ):
+        if self._video_bboxes is None:
+            raise Exception(f"please run `{self.calc_video_bboxes.__name__}` first")
+
+        start_frame = 0
+        iter = 0
+
+        progress_bar = tqdm(desc="creating samples", total=len(self._video), unit="fr")
+        while start_frame < len(self._video):
+            # Find the properties of the video sample starting from start_frame
+            trim_range, crop_dims = self._analyze_sample_properties(self._video_bboxes, start_frame, width, height)
+
+            # format the saving path to match current sample
+            sample_path = save_path.format(iter)
+
+            # create and save the sample
+            self._transform_and_save_sample(sample_path, trim_range, crop_dims)
+
+            # updating progress bar and the next start_frame
+            iter += 1
+            trim_start, trim_end = trim_range
+            start_frame = trim_end
+            progress_bar.update(trim_end - trim_start)
+
+        progress_bar.close()

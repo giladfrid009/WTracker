@@ -22,7 +22,7 @@ class BBox:
 @dataclass
 class BBoxes:
     num_of_samples: int
-    bboxes: np.ndarray = field(init=False)  # ndarray of shape Nx4; each column is (x,y,width,height)^T
+    bboxes: np.ndarray = field(init=False)  # ndarray of shape Nx4; each column is (x,y,w,h)^T
 
     def __post_init__(self):
         self.bboxes = np.full((self.num_of_samples, 4), fill_value=np.nan)

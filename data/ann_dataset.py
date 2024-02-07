@@ -49,8 +49,14 @@ class AnnDataset:
     def __getitem__(self, idx: int) -> Sample:
         return self._sample_list[idx]
 
+    def __iter__(self):
+        return self._sample_list.__iter__()
+
     def add_sample(self, label: Sample):
         self._sample_list.append(label)
 
-    def __iter__(self):
-        return self._sample_list.__iter__()
+    def remove_sample(self, idx: int):
+        self._sample_list.pop(idx)
+
+    def extend(self, other: AnnDataset):
+        self._sample_list.extend(other._sample_list)
