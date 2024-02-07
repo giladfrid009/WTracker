@@ -4,6 +4,12 @@ from typing import Callable, Tuple
 from pathlib import Path
 
 
+# TODO: IS THIS FILE EVEN NEEDED ANYMORE?
+# PERHAPS IT CAN BE USEFUL FOR THE FUTURE TO CHECK IF MULTIPLE WORMS ARE WITHIN A SINGLE IMAGE, 
+# OR EVEN IF THERE ARE ANY WORMS IN AN IMAGE.
+
+# TODO: BORROW SOME METHODS FROM HERE BEFORE DELETING THIS FILE.
+
 class BoxExtractor:
     @staticmethod
     def is_bbox(array: np.ndarray) -> bool:

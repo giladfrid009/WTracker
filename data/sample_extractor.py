@@ -1,74 +1,47 @@
 import cv2 as cv
 import numpy as np
-from view_controller import VideoStream
 from tqdm import tqdm
 from typing import Callable
 import ffmpeg
 
+from data.frame_reader import FrameReader
+
 
 class SampleExtractor:
-    def __init__(
-        self,
-        video: VideoStream,
-        frame_transform: Callable[[np.ndarray], np.ndarray] = None,
-    ) -> None:
-        self._video = video
+    def __init__(self, frame_reader: FrameReader, frame_transform: Callable[[np.ndarray], np.ndarray] = None) -> None:
+        self._frame_reader: FrameReader = frame_reader
 
         if frame_transform is None:
             frame_transform = lambda x: x
         self._transform = frame_transform
 
         # for caching
-        self._video_bboxes = None
+        self._video_bboxes: np.ndarray = None
 
-    # TODO: implement
-    def _resize_boxes(self, bboxes: np.ndarray, resize_factor: float) -> np.ndarray:
-        assert resize_factor > 0
+    def calc_video_background(self, num_probes: int) -> np.ndarray:
+        length = len(self._frame_reader)
 
-        # Unpack columns
-        x, y, w, h = bboxes.T
-
-        return bboxes
-
-    def calc_video_background(
-        self,
-        num_probes: int,
-    ) -> np.ndarray:
-        self._video.restart()
-        length = len(self._video)
-        width, height = self._video.frame_size()
-
-        # Randomly select frames
-        frame_ids = np.random.choice(length, size=num_probes, replace=False)
+        # randomly select frames
+        frame_ids = np.random.choice(length, size=min(num_probes, length), replace=False)
         frame_ids = sorted(frame_ids)
 
-        # Store selected frames in an array
-        frames = np.zeros(shape=(num_probes, height, width), dtype=np.uint8)
-
-        # Extract frames
-        for i, id in tqdm(enumerate(frame_ids), desc="calculating background", total=num_probes):
-            self._video.seek(id)
-            frame = self._video.get_frame()
-
-            # Apply transform
+        # get frames and apply transform
+        extracted_list = []
+        for i in tqdm(frame_ids):
+            frame = self._frame_reader[i]
             frame = self._transform(frame).astype(np.uint8)
-            frames[i] = frame
+            extracted_list.append(frame)
 
-        # Calculate the median along the time axis
-        median = np.median(frames, axis=0).astype(np.uint8)
+        # calculate the median along the time axis
+        extracted = np.stack(extracted_list, axis=0)
+        median = np.median(extracted, axis=0).astype(np.uint8)
         return median
 
-    def calc_image_bbox(
-        self,
-        image: np.ndarray,
-        background: np.ndarray,
-        diff_thresh: int,
-    ) -> np.ndarray:
-
-        image = self._transform(image).astype(np.uint8)
+    def calc_frame_bbox(self, frame: np.ndarray, background: np.ndarray, diff_thresh: int) -> np.ndarray:
+        frame = self._transform(frame).astype(np.uint8)
 
         # Calculate difference between background and image
-        diff = np.abs(image.astype(np.int16) - background.astype(np.int16))
+        diff = np.abs(frame.astype(np.int16) - background.astype(np.int16))
         diff = diff.astype(np.uint8)
 
         # Turn differences mask to black & white according to a threshold value
@@ -93,30 +66,19 @@ class SampleExtractor:
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
         return largest_bbox
 
-    def calc_video_bboxes(
-        self,
-        bg_probes: int = 100,
-        fg_thresh: int = 10,
-        size_factor: float = 1.0,
-    ) -> np.ndarray:
+    def calc_video_bboxes(self, bg_probes: int = 100, fg_thresh: int = 10) -> np.ndarray:
         # first, we find the background, which we will use later
         background = self.calc_video_background(bg_probes)
 
-        self._video.restart()
-        length = len(self._video)
-        bboxes = np.zeros(shape=(length, 4), dtype=int)
-
         # extract bbox from each video frame
-        for i, frame in tqdm(enumerate(self._video), desc="extracting bboxes", total=len(self._video)):
-            bbox = self.calc_image_bbox(frame, background, fg_thresh)
-            bboxes[i] = bbox
-
-        bboxes = self._resize_boxes(bboxes, size_factor)
+        bbox_list = []
+        for frame in tqdm(self._frame_reader, desc="extracting bboxes", total=len(self._frame_reader)):
+            bbox = self.calc_frame_bbox(frame, background, fg_thresh)
+            bbox_list.append(bbox)
 
         # update cached variable
-        self._video_bboxes = bboxes
-
-        return bboxes
+        self._video_bboxes = np.stack(bbox_list, axis=0)
+        return self._video_bboxes
 
     def _analyze_sample_properties(
         self,
@@ -165,6 +127,7 @@ class SampleExtractor:
 
         return slice_indices, slice_bbox
 
+    # TODO: fix to work with FrameReader. we need to create a folder and save them there
     def _transform_and_save_sample(
         self,
         save_path: str,
@@ -181,13 +144,14 @@ class SampleExtractor:
         x, y, w, h = crop_dims
 
         # extract matching slice from the video
-        stream = ffmpeg.input(self._video.path())
+        stream = ffmpeg.input(self._frame_reader.path())
         stream = ffmpeg.crop(stream, x, y, w, h)
         stream = ffmpeg.trim(stream, start_frame=start, end_frame=end)
         stream = ffmpeg.output(stream, save_path)
         stream = ffmpeg.overwrite_output(stream)
         ffmpeg.run(stream, quiet=True)
 
+    # TODO: probably needs a parameter sample name template
     def generate_samples(
         self,
         count: int,
@@ -199,7 +163,7 @@ class SampleExtractor:
             raise Exception(f"please run `{self.calc_video_bboxes.__name__}` first")
 
         # Randomly select frames
-        frame_ids = np.random.choice(len(self._video), size=count, replace=False)
+        frame_ids = np.random.choice(len(self._frame_reader), size=count, replace=False)
         frame_ids = sorted(frame_ids)
 
         for i, fid in tqdm(enumerate(frame_ids), desc="creating samples", total=count):
@@ -212,6 +176,7 @@ class SampleExtractor:
             # create and save the sample
             self._transform_and_save_sample(sample_path, trim_range, crop_dims)
 
+    # TODO: probably needs a parameter sample name template
     def generate_all_samples(
         self,
         width: int,
@@ -224,8 +189,8 @@ class SampleExtractor:
         start_frame = 0
         iter = 0
 
-        progress_bar = tqdm(desc="creating samples", total=len(self._video), unit="fr")
-        while start_frame < len(self._video):
+        progress_bar = tqdm(desc="creating samples", total=len(self._frame_reader), unit="fr")
+        while start_frame < len(self._frame_reader):
             # Find the properties of the video sample starting from start_frame
             trim_range, crop_dims = self._analyze_sample_properties(self._video_bboxes, start_frame, width, height)
 

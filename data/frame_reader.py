@@ -9,19 +9,22 @@ class FrameReader:
     def __init__(
         self,
         root_folder: str,
-        frame_name_template: str,
+        frame_files: list[str],
     ):
         assert os.path.exists(root_folder)
-        self._root_folder = root_folder
-        self._frame_name_template = frame_name_template
+        assert len(frame_files) > 0
 
+        self._root_folder = root_folder
+        self._files: list[str] = frame_files
+        self._frame_shape = self.__getitem__(0).shape
+
+    @staticmethod
+    def create_from_template(root_folder: str, name_format: str) -> FrameReader:
         # get the files in the root folder which match the pattern
         # note that their order is determined by their string-comparison sorting
-        file_fmt = os.path.join(root_folder, frame_name_template.format("[0-9]*"))
-        self._files: list[str] = sorted(glob.glob(file_fmt))
-        assert len(self._files) > 0
-
-        self._frame_shape = self.__getitem__(0).shape
+        name_format = os.path.join(root_folder, name_format.format("[0-9]*"))
+        frame_paths = sorted(glob.glob(name_format))
+        return FrameReader(root_folder, frame_paths)
 
     @property
     def root_folder(self) -> str:
@@ -43,7 +46,7 @@ class FrameReader:
             raise IndexError("index out of bounds")
 
         frame = cv.imread(self._files[idx], cv.IMREAD_GRAYSCALE)
-        return frame
+        return frame.astype(np.uint8)
 
     def __iter__(self):
         return FrameStream(self)

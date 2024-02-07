@@ -3,22 +3,23 @@ import numpy as np
 import PIL.Image
 from dataclasses import dataclass
 
+# TODO: FIX EVERYTHING HERE
 
 @dataclass(frozen=True)
-class ImageMeta:
+class FrameMeta:
     path: str
     size: tuple[int, int]
     pixel_size: float
 
     @staticmethod
-    def from_file(path: str, pixel_size: float) -> ImageMeta:
+    def from_file(path: str, pixel_size: float) -> FrameMeta:
         with PIL.Image.open(path) as image:
-            return ImageMeta(path, image.size, pixel_size)
+            return FrameMeta(path, image.size, pixel_size)
 
 
 @dataclass(frozen=True)
 class Sample:
-    image: ImageMeta
+    frame: FrameMeta
     bboxes: np.ndarray = None
     keypoints: np.ndarray = None
 
@@ -39,7 +40,7 @@ class Sample:
             assert self.bboxes.ndim == self.keypoints.ndim
 
 
-class AnnDataset:
+class FrameDataset:
     def __init__(self, sample_list: list[Sample] = []) -> None:
         self._sample_list: list[Sample] = sample_list
 
@@ -58,5 +59,5 @@ class AnnDataset:
     def remove_sample(self, idx: int):
         self._sample_list.pop(idx)
 
-    def extend(self, other: AnnDataset):
+    def extend(self, other: FrameDataset):
         self._sample_list.extend(other._sample_list)
