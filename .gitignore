@@ -1,8 +1,12 @@
 *.avi
 *.png
 *.jpg
+*.bmp
+*.Bmp
+images
 rois
 samples
+samples_all
 
 
 # Byte-compiled / optimized / DLL files
