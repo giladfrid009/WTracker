@@ -15,10 +15,11 @@ class FrameReader:
         self._root_folder = root_folder
         self._frame_name_template = frame_name_template
 
-        # count number of files matching the frame name template
-        matching_files = glob.glob(os.path.join(root_folder, frame_name_template.format("[0-9]*[0-9]")))
-        self._len: int = len(matching_files)
-        assert self._len > 0
+        # get the files in the root folder which match the pattern
+        # note that their order is determined by their string-comparison sorting
+        file_fmt = os.path.join(root_folder, frame_name_template.format("[0-9]*"))
+        self._files: list[str] = sorted(glob.glob(file_fmt))
+        assert len(self._files) > 0
 
         self._frame_shape = self.__getitem__(0).shape
 
@@ -30,15 +31,18 @@ class FrameReader:
     def frame_shape(self) -> tuple(int, int):
         return self._frame_shape
 
+    @property
+    def files(self):
+        return self._files
+
     def __len__(self):
-        return self._len
+        return len(self._files)
 
     def __getitem__(self, idx: int) -> np.ndarray:
         if idx < 0 or idx >= len(self):
             raise IndexError("index out of bounds")
 
-        sample_path = os.path.join(self.root_folder, self._frame_name_template.format(idx))
-        frame = cv.imread(sample_path, cv.IMREAD_GRAYSCALE)
+        frame = cv.imread(self._files[idx], cv.IMREAD_GRAYSCALE)
         return frame
 
     def __iter__(self):
