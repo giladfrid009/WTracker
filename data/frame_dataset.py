@@ -77,26 +77,3 @@ class FrameDataset:
             raise ValueError("other dataset has non-matching fps")
 
         self.sample_list.extend(other.sample_list)
-
-
-import pickle
-
-
-class Pickler:
-    @staticmethod
-    def save_object(obj, file_path: str):
-        try:
-            with open(file_path, "wb") as f:
-                pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
-        except Exception as e:
-            raise ValueError(f"Error saving object to pickle file: {e}")
-
-    @staticmethod
-    def load_object(file_path: str):
-        try:
-            with open(file_path, "rb") as f:
-                return pickle.load(f)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Error file does not exist: {file_path}")
-        except Exception as e:
-            raise ValueError(f"Error loading object from pickle file: {e}")

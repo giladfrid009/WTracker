@@ -4,6 +4,7 @@ from tqdm import tqdm
 from typing import Callable
 from pathlib import Path
 
+from data.file_helpers import create_directory
 from data.frame_reader import FrameReader
 
 
@@ -133,9 +134,8 @@ class SampleExtractor:
         trim_range: tuple[int, int],
         crop_dims: tuple[int, int, int, int],
     ):
-        # create parent dir if doesn't exist
-        save_folder = Path(save_folder)
-        save_folder.mkdir(parents=True, exist_ok=True)
+        # create dir if doesn't exist
+        create_directory(save_folder)
 
         x, y, w, h = crop_dims
         start, end = trim_range
@@ -147,7 +147,7 @@ class SampleExtractor:
 
             # save frame to sample path
             file_name = Path(self._frame_reader.files[i]).name
-            full_path = save_folder.joinpath(file_name).as_posix()
+            full_path = Path(save_folder).joinpath(file_name).as_posix()
             cv.imwrite(full_path, frame)
 
     def generate_samples(
