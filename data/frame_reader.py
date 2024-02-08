@@ -16,14 +16,24 @@ class FrameReader:
 
         self._root_folder = root_folder
         self._files: list[str] = frame_files
+        self._frame_shape = None
         self._frame_shape = self.__getitem__(0).shape
 
     @staticmethod
     def create_from_template(root_folder: str, name_format: str) -> FrameReader:
-        # get the files in the root folder which match the pattern
-        # note that their order is determined by their string-comparison sorting
-        name_format = os.path.join(root_folder, name_format.format("[0-9]*"))
-        frame_paths = sorted(glob.glob(name_format))
+        # get all files matching name format
+        fmt = os.path.join(root_folder, name_format.format("[0-9]*"))
+        frame_paths = glob.glob(fmt)
+        frame_paths = [f for f in frame_paths if os.path.isfile(f)]
+        frame_paths = sorted(frame_paths)
+        return FrameReader(root_folder, frame_paths)
+
+    @staticmethod
+    def create_from_directory(root_folder) -> FrameReader:
+        # get all files in root
+        frame_paths = glob.glob(root_folder + "/*")
+        frame_paths = [f for f in frame_paths if os.path.isfile(f)]
+        frame_paths = sorted(frame_paths)
         return FrameReader(root_folder, frame_paths)
 
     @property
@@ -42,10 +52,14 @@ class FrameReader:
         return len(self._files)
 
     def __getitem__(self, idx: int) -> np.ndarray:
-        if idx < 0 or idx >= len(self):
+        if idx < 0 or idx >= len(self._files):
             raise IndexError("index out of bounds")
 
         frame = cv.imread(self._files[idx], cv.IMREAD_GRAYSCALE)
+
+        if self.frame_shape and frame.shape != self.frame_shape:
+            raise Exception("shape mismatch")
+
         return frame.astype(np.uint8)
 
     def __iter__(self):

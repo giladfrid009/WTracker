@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 # TODO: FIX EVERYTHING HERE
 
+
 @dataclass(frozen=True)
 class FrameMeta:
     path: str

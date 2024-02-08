@@ -7,6 +7,3 @@ dependencies:
   - opencv
   - tqdm
   - numpy
-  - ffmpeg
-  - pip:
-    - ffmpeg-python

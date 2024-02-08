@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 from tqdm import tqdm
 from typing import Callable
-import ffmpeg
+from pathlib import Path
 
 from data.frame_reader import FrameReader
 
@@ -27,7 +27,7 @@ class SampleExtractor:
 
         # get frames and apply transform
         extracted_list = []
-        for i in tqdm(frame_ids):
+        for i in tqdm(frame_ids, desc="extracting background", unit="fr"):
             frame = self._frame_reader[i]
             frame = self._transform(frame).astype(np.uint8)
             extracted_list.append(frame)
@@ -127,37 +127,35 @@ class SampleExtractor:
 
         return slice_indices, slice_bbox
 
-    # TODO: fix to work with FrameReader. we need to create a folder and save them there
-    def _transform_and_save_sample(
+    def _create_and_save_sample(
         self,
-        save_path: str,
+        save_folder: str,
         trim_range: tuple[int, int],
         crop_dims: tuple[int, int, int, int],
     ):
-        from pathlib import Path
-
         # create parent dir if doesn't exist
-        folder = Path(save_path).parent
-        Path(folder).mkdir(parents=True, exist_ok=True)
+        save_folder = Path(save_folder)
+        save_folder.mkdir(parents=True, exist_ok=True)
 
-        start, end = trim_range
         x, y, w, h = crop_dims
+        start, end = trim_range
 
-        # extract matching slice from the video
-        stream = ffmpeg.input(self._frame_reader.path())
-        stream = ffmpeg.crop(stream, x, y, w, h)
-        stream = ffmpeg.trim(stream, start_frame=start, end_frame=end)
-        stream = ffmpeg.output(stream, save_path)
-        stream = ffmpeg.overwrite_output(stream)
-        ffmpeg.run(stream, quiet=True)
+        for i in range(start, end):
+            # get frame and crop it
+            frame = self._frame_reader[i]
+            frame = frame[y : y + h, x : x + w]
 
-    # TODO: probably needs a parameter sample name template
+            # save frame to sample path
+            file_name = Path(self._frame_reader.files[i]).name
+            full_path = save_folder.joinpath(file_name).as_posix()
+            cv.imwrite(full_path, frame)
+
     def generate_samples(
         self,
         count: int,
         width: int,
         height: int,
-        save_path: str,
+        save_folder: str,
     ):
         if self._video_bboxes is None:
             raise Exception(f"please run `{self.calc_video_bboxes.__name__}` first")
@@ -171,17 +169,16 @@ class SampleExtractor:
             trim_range, crop_dims = self._analyze_sample_properties(self._video_bboxes, fid, width, height)
 
             # format the saving path to match current sample
-            sample_path = save_path.format(i)
+            sample_folder_path = save_folder.format(i)
 
             # create and save the sample
-            self._transform_and_save_sample(sample_path, trim_range, crop_dims)
+            self._create_and_save_sample(sample_folder_path, trim_range, crop_dims)
 
-    # TODO: probably needs a parameter sample name template
     def generate_all_samples(
         self,
         width: int,
         height: int,
-        save_path: str,
+        save_folder: str,
     ):
         if self._video_bboxes is None:
             raise Exception(f"please run `{self.calc_video_bboxes.__name__}` first")
@@ -195,10 +192,10 @@ class SampleExtractor:
             trim_range, crop_dims = self._analyze_sample_properties(self._video_bboxes, start_frame, width, height)
 
             # format the saving path to match current sample
-            sample_path = save_path.format(iter)
+            sample_folder_path = save_folder.format(iter)
 
             # create and save the sample
-            self._transform_and_save_sample(sample_path, trim_range, crop_dims)
+            self._create_and_save_sample(sample_folder_path, trim_range, crop_dims)
 
             # updating progress bar and the next start_frame
             iter += 1
