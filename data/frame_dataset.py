@@ -3,7 +3,13 @@ import numpy as np
 import PIL.Image
 from dataclasses import dataclass
 
-# TODO: FIX EVERYTHING HERE
+
+@dataclass(frozen=True)
+class ExperimentMeta:
+    fps: float
+    orig_resolution: tuple[int, int]
+    pixel_size: float
+    comments: str
 
 
 @dataclass(frozen=True)
@@ -13,9 +19,9 @@ class FrameMeta:
     pixel_size: float
 
     @staticmethod
-    def from_file(path: str, pixel_size: float) -> FrameMeta:
-        with PIL.Image.open(path) as image:
-            return FrameMeta(path, image.size, pixel_size)
+    def from_file(full_path: str, pixel_size: float) -> FrameMeta:
+        with PIL.Image.open(full_path) as image:
+            return FrameMeta(full_path, image.size, pixel_size)
 
 
 @dataclass(frozen=True)
@@ -41,24 +47,56 @@ class Sample:
             assert self.bboxes.ndim == self.keypoints.ndim
 
 
+@dataclass(frozen=True)
 class FrameDataset:
-    def __init__(self, sample_list: list[Sample] = []) -> None:
-        self._sample_list: list[Sample] = sample_list
+    experiment: ExperimentMeta
+    sample_list: list[Sample]
 
     def __len__(self):
-        return len(self._sample_list)
+        return len(self.sample_list)
 
     def __getitem__(self, idx: int) -> Sample:
-        return self._sample_list[idx]
+        return self.sample_list[idx]
 
     def __iter__(self):
-        return self._sample_list.__iter__()
+        return self.sample_list.__iter__()
 
-    def add_sample(self, label: Sample):
-        self._sample_list.append(label)
+    def add_sample(self, sample: Sample):
+        if sample.frame.pixel_size != self.experiment.pixel_size:
+            raise ValueError("sample has non-matching pixel size")
+
+        self.sample_list.append(sample)
 
     def remove_sample(self, idx: int):
-        self._sample_list.pop(idx)
+        self.sample_list.pop(idx)
 
     def extend(self, other: FrameDataset):
-        self._sample_list.extend(other._sample_list)
+        if other.experiment.pixel_size != self.experiment.pixel_size:
+            raise ValueError("other dataset has non-matching pixel size")
+        if other.experiment.fps != self.experiment.fps:
+            raise ValueError("other dataset has non-matching fps")
+
+        self.sample_list.extend(other.sample_list)
+
+
+import pickle
+
+
+class Pickler:
+    @staticmethod
+    def save_object(obj, file_path: str):
+        try:
+            with open(file_path, "wb") as f:
+                pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            raise ValueError(f"Error saving object to pickle file: {e}")
+
+    @staticmethod
+    def load_object(file_path: str):
+        try:
+            with open(file_path, "rb") as f:
+                return pickle.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Error file does not exist: {file_path}")
+        except Exception as e:
+            raise ValueError(f"Error loading object from pickle file: {e}")
