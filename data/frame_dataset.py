@@ -1,8 +1,9 @@
 from __future__ import annotations
+from collections.abc import Iterator
 import numpy as np
 import PIL.Image
 from dataclasses import dataclass
-from bbox_utils import BoxFormat
+from data.bbox_utils import BoxFormat
 
 
 @dataclass(frozen=True)
@@ -10,7 +11,7 @@ class ExperimentMeta:
     fps: float
     orig_resolution: tuple[int, int]
     pixel_size: float
-    comments: str
+    comments: str = ""
 
 
 @dataclass(frozen=True)
@@ -69,7 +70,7 @@ class FrameDataset:
     def __getitem__(self, idx: int) -> Sample:
         return self.sample_list[idx]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Sample]:
         return self.sample_list.__iter__()
 
     def add_sample(self, sample: Sample):

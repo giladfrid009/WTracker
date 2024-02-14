@@ -8,7 +8,7 @@ images
 rois
 samples
 samples_all
-
+tiger-pose
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

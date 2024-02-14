@@ -1,7 +1,8 @@
 import glob
-from file_helpers import create_directory
-from bbox_utils import BoxFormat, BoxUtils
 from pathlib import Path
+
+from data.file_helpers import create_directory
+from data.bbox_utils import BoxFormat, BoxUtils
 from data.frame_dataset import *
 
 
@@ -48,12 +49,16 @@ class DatasetConverter:
 
             dst_img_path.symlink_to(src_img_path)
 
-    def from_yolo(experiment_metadata: ExperimentMeta, yolo_dir: str) -> FrameDataset:
-        dataset = FrameDataset(experiment_metadata)
+    def from_yolo(experiment_metadata: ExperimentMeta, labels_path: str, images_path: str) -> FrameDataset:
+        dataset = FrameDataset(experiment_metadata, [])
 
-        ann_paths = glob.glob(yolo_dir, "*.txt")
-        ann_paths = [Path(p) for p in glob.glob(yolo_dir, "*.txt")]
-        img_paths = [Path(yolo_dir) / Path(ann_file).stem / ".bmp" for ann_file in ann_paths]
+        glob_ann_format = (Path(labels_path) / "*.txt").as_posix()
+        ann_paths = glob.glob(glob_ann_format)
+        ann_paths = sorted([Path(p) for p in ann_paths], key=lambda p: p.stem)
+
+        glob_img_format = (Path(images_path) / "*.*").as_posix()
+        img_paths = glob.glob(glob_img_format)
+        img_paths = sorted([Path(p) for p in img_paths], key=lambda p: p.stem)
 
         for ann_file_path, img_file_path in zip(ann_paths, img_paths):
             frame_meta = FrameMeta.from_file(img_file_path.as_posix(), pixel_size=experiment_metadata.pixel_size)
@@ -75,7 +80,7 @@ class DatasetConverter:
             bboxes[:, 1::2] *= height
             keypoints[:, :, 0] *= width
             keypoints[:, :, 1] *= height
-            
+
             bboxes = bboxes.astype(int)
             keypoints = keypoints.astype(int)
 
@@ -85,3 +90,5 @@ class DatasetConverter:
             sample = Sample(frame_meta, bboxes, BoxFormat.XY_XY, keypoints=keypoints)
 
             dataset.add_sample(sample)
+
+        return dataset
