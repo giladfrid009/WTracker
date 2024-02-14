@@ -25,7 +25,7 @@ class TimeBenchmark:
         self._silent = silent
 
     @contextmanager
-    def measure(self, silent: bool = None) -> Timer:
+    def measure(self, silent: bool = None):
         if silent is None:
             silent = self._silent
 
