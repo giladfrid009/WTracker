@@ -20,11 +20,11 @@ class BoxUtils:
 
     @staticmethod
     def unpack(bbox: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        return np.split(bbox, bbox.shape[-1], axis=-1)
+        return np.split(bbox.astype(int), bbox.shape[-1], axis=-1)
 
     @staticmethod
     def pack(c1: np.ndarray, c2: np.ndarray, c3: np.ndarray, c4: np.ndarray) -> np.ndarray:
-        return np.concatenate((c1, c2, c3, c4), axis=-1)
+        return np.concatenate((c1, c2, c3, c4), axis=-1).astype(int, copy=False)
 
     @staticmethod
     def change_format(bbox: np.ndarray, src_format: Format, dst_format: Format) -> np.ndarray:

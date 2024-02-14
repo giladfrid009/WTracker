@@ -4,7 +4,7 @@ from tqdm import tqdm
 from typing import Callable
 from pathlib import Path
 
-from data.file_helpers import create_directory
+from data.file_utils import create_directory
 from data.frame_reader import FrameReader
 
 

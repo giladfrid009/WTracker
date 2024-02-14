@@ -43,6 +43,8 @@ class Sample:
         if have_bbox:
             if self.bboxes.ndim == 1:
                 self.bboxes = self.bboxes[np.newaxis, :]
+            
+            self.bboxes.astype(int, copy=False)
 
             assert self.bboxes.shape[-1] == 4
             assert self.bboxes.ndim == 2
@@ -53,6 +55,8 @@ class Sample:
                 self.keypoints = self.keypoints[np.newaxis, np.newaxis, :]
             if self.keypoints.ndim == 2:
                 self.keypoints = self.keypoints[np.newaxis, :]
+
+            self.keypoints.astype(int, copy=False)
 
             assert self.keypoints.dtype
             assert self.keypoints.shape[-1] == 2

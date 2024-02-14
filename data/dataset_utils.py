@@ -1,20 +1,21 @@
 import glob
 from pathlib import Path
 
-from data.file_helpers import create_directory
+from data.file_utils import create_directory
 from data.bbox_utils import BoxFormat, BoxUtils
 from data.frame_dataset import *
 
 
 class DatasetConverter:
     @staticmethod
-    def to_yolo(frame_dataset: FrameDataset, dst_dir: str):
-        create_directory(dst_dir)
+    def to_yolo(frame_dataset: FrameDataset, labels_path: str, images_path: str):
+        create_directory(labels_path)
+        create_directory(images_path)
 
         for sample in frame_dataset:
             src_img_path = sample.metadata.path
-            dst_ann_path = Path(dst_dir) / f"{Path(src_img_path).stem}.txt"
-            dst_img_path = Path(dst_dir) / Path(src_img_path).name
+            dst_ann_path = Path(labels_path) / f"{Path(src_img_path).stem}.txt"
+            dst_img_path = Path(images_path) / Path(src_img_path).name
 
             keypoints = sample.keypoints
             bboxes = sample.bboxes
@@ -27,18 +28,22 @@ class DatasetConverter:
 
             # normalize all sizes between 0 and 1
             width, height = sample.metadata.size
-            bboxes[:, ::2] /= width
-            bboxes[:, 1::2] /= height
-            keypoints[:, :, 0] /= width
-            keypoints[:, :, 1] /= height
+            norm_bboxes = np.zeros_like(bboxes, dtype=float)
+            norm_keypoints = np.zeros_like(keypoints, dtype=float)
+            
+            norm_bboxes[:, ::2] = bboxes[:, ::2] / width 
+            norm_bboxes[:, 1::2] = bboxes[:, 1::2] / height
+            
+            norm_keypoints[:, :, 0] = keypoints[:, :, 0] / width
+            norm_keypoints[:, :, 1] = keypoints[:, :, 1] / height
 
             # round values to not save too many digits
-            bboxes = bboxes.round(decimals=4)
-            keypoints = keypoints.round(decimals=4)
+            norm_bboxes = norm_bboxes.round(decimals=4)
+            norm_keypoints = norm_keypoints.round(decimals=4)
 
-            num_objects = bboxes.shape[0]
-            bbox_list = np.split(bboxes, num_objects, axis=0)
-            kps_list = np.split(keypoints, num_objects, axis=0)
+            # unpack along first axis into lists
+            bbox_list = [box for box in norm_bboxes]
+            kps_list = [kp for kp in norm_keypoints]
 
             class_index = 0
             with dst_ann_path.open(mode="w") as ann_file:
@@ -47,7 +52,7 @@ class DatasetConverter:
                     object_str = " ".join([str(x) for x in object_data])
                     ann_file.write(object_str + "\n")
 
-            dst_img_path.symlink_to(src_img_path)
+            dst_img_path.hardlink_to(src_img_path)
 
     def from_yolo(experiment_metadata: ExperimentMeta, labels_path: str, images_path: str) -> FrameDataset:
         dataset = FrameDataset(experiment_metadata, [])
