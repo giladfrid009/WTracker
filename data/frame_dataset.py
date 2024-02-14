@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy as np
 import PIL.Image
 from dataclasses import dataclass
+from bbox_utils import BoxFormat
 
 
 @dataclass(frozen=True)
@@ -26,25 +27,35 @@ class FrameMeta:
 
 @dataclass(frozen=True)
 class Sample:
-    frame: FrameMeta
+    metadata: FrameMeta
     bboxes: np.ndarray = None
+    bbox_format: BoxFormat = None
     keypoints: np.ndarray = None
+
+    # bboxes shape: [sample_number, 4]
+    # keypoints shape: [sample_number, num_keypoints, 2]
 
     def __post_init__(self):
         have_bbox = self.bboxes is not None
         have_keypoints = self.keypoints is not None
 
         if have_bbox:
+            if self.bboxes.ndim == 1:
+                self.bboxes = self.bboxes[np.newaxis, :]
+
             assert self.bboxes.shape[-1] == 4
-            assert 1 <= self.bboxes.ndim <= 2
+            assert self.bboxes.ndim == 2
+            assert self.bbox_format is not None
 
         if have_keypoints:
-            assert self.keypoints.dtype
-            assert self.keypoints.shape[-1] == 4
-            assert 1 <= self.keypoints.ndim <= 2
+            if self.keypoints.ndim == 1:
+                self.keypoints = self.keypoints[np.newaxis, np.newaxis, :]
+            if self.keypoints.ndim == 2:
+                self.keypoints = self.keypoints[np.newaxis, :]
 
-        if have_bbox and have_keypoints:
-            assert self.bboxes.ndim == self.keypoints.ndim
+            assert self.keypoints.dtype
+            assert self.keypoints.shape[-1] == 2
+            assert self.keypoints.ndim == 3
 
 
 @dataclass(frozen=True)
@@ -62,7 +73,7 @@ class FrameDataset:
         return self.sample_list.__iter__()
 
     def add_sample(self, sample: Sample):
-        if sample.frame.pixel_size != self.experiment.pixel_size:
+        if sample.metadata.pixel_size != self.experiment.pixel_size:
             raise ValueError("sample has non-matching pixel size")
 
         self.sample_list.append(sample)
