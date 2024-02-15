@@ -30,19 +30,20 @@ class SampleExtractor:
         self._cached_all_bboxes: np.ndarray = None
         self._cached_background: np.ndarray = None
 
-    @property
     def background(self) -> np.ndarray:
         if self._cached_background is None:
             self._cached_background = self._calc_background()
         return self._cached_background
 
-    @property
     def all_bboxes(self) -> np.ndarray:
         if self._cached_all_bboxes is None:
-            self._cached_all_bboxes = self._calc_all_bboxes(self.background)
+            self._cached_all_bboxes = self._calc_all_bboxes(self.background())
         return self._cached_all_bboxes
 
-    def _initialize(self, cache_bboxes: bool = False):
+    def initialize(self, cache_bboxes: bool = False):
+        """
+        Initialize cached parameters for later use
+        """
         self.background()
         if cache_bboxes:
             self.all_bboxes()
@@ -168,7 +169,7 @@ class SampleExtractor:
 
         for cur_frame in range(start_frame, len(self._frame_reader), step_size):
             frame = self._frame_reader[cur_frame]
-            bbox = self._calc_frame_bbox(frame, self.background)
+            bbox = self._calc_frame_bbox(frame, self.background())
 
             x1, y1, x2, y2 = BoxConverter.change_format(bbox, BoxFormat.XYWH, BoxFormat.XYXY)
 
@@ -221,7 +222,7 @@ class SampleExtractor:
         height: int,
         save_folder_format: str,
     ):
-        self._initialize(cache_bboxes=False)
+        self.initialize(cache_bboxes=False)
 
         # Randomly select frames
         frame_ids = np.random.choice(len(self._frame_reader), size=count, replace=False)
@@ -235,7 +236,7 @@ class SampleExtractor:
                 trim_range, crop_dims = self._calc_sample_bounds_dynamic(fid, width, height)
             else:
                 # otherwise, used numpy accelerated method on cached bboxes
-                trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes, fid, width, height)
+                trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes(), fid, width, height)
 
             # format the saving path to match current sample
             sample_folder_path = save_folder_format.format(i)
@@ -249,7 +250,7 @@ class SampleExtractor:
         height: int,
         save_folder_format: str,
     ):
-        self._initialize(cache_bboxes=True)
+        self.initialize(cache_bboxes=True)
 
         start_frame = 0
         iter = 0
@@ -257,7 +258,7 @@ class SampleExtractor:
         progress_bar = tqdm(desc="creating samples", total=len(self._frame_reader), unit="fr")
         while start_frame < len(self._frame_reader):
             # Find the properties of the video sample starting from start_frame
-            trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes, start_frame, width, height)
+            trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes(), start_frame, width, height)
 
             # format the saving path to match current sample
             sample_folder_path = save_folder_format.format(iter)
