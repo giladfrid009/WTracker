@@ -70,6 +70,9 @@ class FrameReader:
     def __iter__(self):
         return FrameStream(self)
 
+    def make_stream(self):
+        return FrameStream(self)
+
 
 class FrameStream:
     def __init__(self, frame_reader: FrameReader):

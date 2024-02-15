@@ -2,7 +2,7 @@ import glob
 from pathlib import Path
 
 from data.file_utils import create_directory
-from dataset.bbox_utils import BoxFormat, BoxUtils
+from dataset.bbox_utils import BoxFormat, BoxConverter
 from dataset.frame_dataset import *
 
 
@@ -24,7 +24,7 @@ class DatasetConverter:
                 raise Exception("both bboxes and keypoints must be present for YOLO format conversion")
 
             # transfer bbox to yolo format
-            bboxes = BoxUtils.change_format(bboxes, sample.bbox_format, BoxFormat.YOLO)
+            bboxes = BoxConverter.change_format(bboxes, sample.bbox_format, BoxFormat.YOLO)
 
             # normalize all sizes between 0 and 1
             width, height, channels = sample.metadata.shape
@@ -87,7 +87,7 @@ class DatasetConverter:
             keypoints = keypoints.astype(int)
 
             # change bbox format to something normal
-            bboxes = BoxUtils.change_format(bboxes, BoxFormat.YOLO, BoxFormat.XYXY)
+            bboxes = BoxConverter.change_format(bboxes, BoxFormat.YOLO, BoxFormat.XYXY)
 
             sample = FrameSample(frame_meta, bboxes, BoxFormat.XYXY, keypoints=keypoints)
 
