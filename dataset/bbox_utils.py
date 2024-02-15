@@ -3,20 +3,15 @@ from enum import Enum
 
 
 class BoxFormat(Enum):
-    XY_WH = 0
-    XY_XY = 1
-    XYmid_WH = 2
+    XYWH = 0
+    XYXY = 1
+    YOLO = 2
 
 
 class BoxUtils:
     """
     Helper methods for bbox manipulation
     """
-
-    class Format(Enum):
-        XY_WH = 0
-        XY_XY = 1
-        XYmid_WH = 2
 
     @staticmethod
     def unpack(bbox: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -27,17 +22,17 @@ class BoxUtils:
         return np.concatenate((c1, c2, c3, c4), axis=-1).astype(int, copy=False)
 
     @staticmethod
-    def change_format(bbox: np.ndarray, src_format: Format, dst_format: Format) -> np.ndarray:
+    def change_format(bbox: np.ndarray, src_format: BoxFormat, dst_format: BoxFormat) -> np.ndarray:
         if src_format == dst_format:
             return bbox
 
-        if (src_format, dst_format) == (BoxFormat.XY_XY, BoxFormat.XY_WH):
+        if (src_format, dst_format) == (BoxFormat.XYXY, BoxFormat.XYWH):
             x1, y1, x2, y2 = BoxUtils.unpack(bbox)
             w = x2 - x1
             h = y2 - y1
             return BoxUtils.pack(x1, y1, w, h)
 
-        elif (src_format, dst_format) == (BoxFormat.XY_XY, BoxFormat.XYmid_WH):
+        elif (src_format, dst_format) == (BoxFormat.XYXY, BoxFormat.YOLO):
             x1, y1, x2, y2 = BoxUtils.unpack(bbox)
             w = x2 - x1
             h = y2 - y1
@@ -45,19 +40,19 @@ class BoxUtils:
             ym = y1 + h // 2
             return BoxUtils.pack(xm, ym, w, h)
 
-        elif (src_format, dst_format) == (BoxFormat.XY_WH, BoxFormat.XY_XY):
+        elif (src_format, dst_format) == (BoxFormat.XYWH, BoxFormat.XYXY):
             x1, y1, w, h = BoxUtils.unpack(bbox)
             x2 = x1 + w
             y2 = y2 + h
             return BoxUtils.pack(x1, y1, x2, y2)
 
-        elif (src_format, dst_format) == (BoxFormat.XY_WH, BoxFormat.XYmid_WH):
+        elif (src_format, dst_format) == (BoxFormat.XYWH, BoxFormat.YOLO):
             x1, y1, w, h = BoxUtils.unpack(bbox)
             xm = x1 + w // 2
             ym = y1 + h // 2
             return BoxUtils.pack(xm, ym, w, h)
 
-        elif (src_format, dst_format) == (BoxFormat.XYmid_WH, BoxFormat.XY_XY):
+        elif (src_format, dst_format) == (BoxFormat.YOLO, BoxFormat.XYXY):
             xm, ym, w, h = BoxUtils.unpack(bbox)
             x1 = xm - w // 2
             y1 = ym - h // 2
@@ -65,7 +60,7 @@ class BoxUtils:
             y2 = y1 + h
             return BoxUtils.pack(x1, y1, x2, y2)
 
-        elif (src_format, dst_format) == (BoxFormat.XYmid_WH, BoxFormat.XY_WH):
+        elif (src_format, dst_format) == (BoxFormat.YOLO, BoxFormat.XYWH):
             xm, ym, w, h = BoxUtils.unpack(bbox)
             x1 = xm - w // 2
             y1 = ym - h // 2

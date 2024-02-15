@@ -31,7 +31,7 @@ class FrameReader:
     @staticmethod
     def create_from_directory(root_folder) -> FrameReader:
         # get all files in root
-        frame_paths = glob.glob(root_folder + "/*")
+        frame_paths = glob.glob(root_folder + "/*.*")
         frame_paths = [f for f in frame_paths if os.path.isfile(f)]
         frame_paths = sorted(frame_paths)
         return FrameReader(root_folder, frame_paths)
@@ -41,7 +41,10 @@ class FrameReader:
         return self._root_folder
 
     @property
-    def frame_shape(self) -> tuple(int, int):
+    def frame_shape(self) -> tuple[int, int]:
+        """
+        Returns shape in [h, w] order, which matches numpy standard.
+        """
         return self._frame_shape
 
     @property

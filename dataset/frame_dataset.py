@@ -3,7 +3,8 @@ from collections.abc import Iterator
 import numpy as np
 import PIL.Image
 from dataclasses import dataclass
-from data.bbox_utils import BoxFormat
+
+from dataset.bbox_utils import BoxFormat
 
 
 @dataclass(frozen=True)
@@ -17,17 +18,18 @@ class ExperimentMeta:
 @dataclass(frozen=True)
 class FrameMeta:
     path: str
-    size: tuple[int, int]
+    shape: tuple[int, int, int]  # [w, h, c]
     pixel_size: float
 
     @staticmethod
     def from_file(full_path: str, pixel_size: float) -> FrameMeta:
         with PIL.Image.open(full_path) as image:
-            return FrameMeta(full_path, image.size, pixel_size)
+            w, h, c = *image.size, len(image.getbands())
+            return FrameMeta(full_path, (w, h, c), pixel_size)
 
 
 @dataclass(frozen=True)
-class Sample:
+class FrameSample:
     metadata: FrameMeta
     bboxes: np.ndarray = None
     bbox_format: BoxFormat = None
@@ -43,7 +45,7 @@ class Sample:
         if have_bbox:
             if self.bboxes.ndim == 1:
                 self.bboxes = self.bboxes[np.newaxis, :]
-            
+
             self.bboxes.astype(int, copy=False)
 
             assert self.bboxes.shape[-1] == 4
@@ -66,18 +68,18 @@ class Sample:
 @dataclass(frozen=True)
 class FrameDataset:
     experiment: ExperimentMeta
-    sample_list: list[Sample]
+    sample_list: list[FrameSample]
 
     def __len__(self):
         return len(self.sample_list)
 
-    def __getitem__(self, idx: int) -> Sample:
+    def __getitem__(self, idx: int) -> FrameSample:
         return self.sample_list[idx]
 
-    def __iter__(self) -> Iterator[Sample]:
+    def __iter__(self) -> Iterator[FrameSample]:
         return self.sample_list.__iter__()
 
-    def add_sample(self, sample: Sample):
+    def add_sample(self, sample: FrameSample):
         if sample.metadata.pixel_size != self.experiment.pixel_size:
             raise ValueError("sample has non-matching pixel size")
 

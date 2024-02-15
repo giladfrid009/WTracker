@@ -2,8 +2,8 @@ import glob
 from pathlib import Path
 
 from data.file_utils import create_directory
-from data.bbox_utils import BoxFormat, BoxUtils
-from data.frame_dataset import *
+from dataset.bbox_utils import BoxFormat, BoxUtils
+from dataset.frame_dataset import *
 
 
 class DatasetConverter:
@@ -24,16 +24,16 @@ class DatasetConverter:
                 raise Exception("both bboxes and keypoints must be present for YOLO format conversion")
 
             # transfer bbox to yolo format
-            bboxes = BoxUtils.change_format(bboxes, sample.bbox_format, BoxFormat.XYmid_WH)
+            bboxes = BoxUtils.change_format(bboxes, sample.bbox_format, BoxFormat.YOLO)
 
             # normalize all sizes between 0 and 1
-            width, height = sample.metadata.size
+            width, height, channels = sample.metadata.shape
             norm_bboxes = np.zeros_like(bboxes, dtype=float)
             norm_keypoints = np.zeros_like(keypoints, dtype=float)
-            
-            norm_bboxes[:, ::2] = bboxes[:, ::2] / width 
+
+            norm_bboxes[:, ::2] = bboxes[:, ::2] / width
             norm_bboxes[:, 1::2] = bboxes[:, 1::2] / height
-            
+
             norm_keypoints[:, :, 0] = keypoints[:, :, 0] / width
             norm_keypoints[:, :, 1] = keypoints[:, :, 1] / height
 
@@ -41,18 +41,15 @@ class DatasetConverter:
             norm_bboxes = norm_bboxes.round(decimals=4)
             norm_keypoints = norm_keypoints.round(decimals=4)
 
-            # unpack along first axis into lists
-            bbox_list = [box for box in norm_bboxes]
-            kps_list = [kp for kp in norm_keypoints]
-
             class_index = 0
-            with dst_ann_path.open(mode="w") as ann_file:
-                for bbox, kps in zip(bbox_list, kps_list):
+            with dst_ann_path.open(mode="w+") as ann_file:
+                for bbox, kps in zip(norm_bboxes, norm_keypoints):
                     object_data = [class_index] + bbox.tolist() + kps.flatten().tolist()
                     object_str = " ".join([str(x) for x in object_data])
                     ann_file.write(object_str + "\n")
 
-            dst_img_path.hardlink_to(src_img_path)
+            if dst_img_path.exists() == False:
+                dst_img_path.hardlink_to(src_img_path)
 
     def from_yolo(experiment_metadata: ExperimentMeta, labels_path: str, images_path: str) -> FrameDataset:
         dataset = FrameDataset(experiment_metadata, [])
@@ -80,7 +77,7 @@ class DatasetConverter:
             keypoints = data[:, 5:].reshape((data.shape[0], -1, 2))
 
             # resize bboxes and kps from [0-1 x 0-1] to [width x height]
-            width, height = frame_meta.size
+            width, height = frame_meta.shape
             bboxes[:, ::2] *= width
             bboxes[:, 1::2] *= height
             keypoints[:, :, 0] *= width
@@ -90,9 +87,9 @@ class DatasetConverter:
             keypoints = keypoints.astype(int)
 
             # change bbox format to something normal
-            bboxes = BoxUtils.change_format(bboxes, BoxFormat.XYmid_WH, BoxFormat.XY_XY)
+            bboxes = BoxUtils.change_format(bboxes, BoxFormat.YOLO, BoxFormat.XYXY)
 
-            sample = Sample(frame_meta, bboxes, BoxFormat.XY_XY, keypoints=keypoints)
+            sample = FrameSample(frame_meta, bboxes, BoxFormat.XYXY, keypoints=keypoints)
 
             dataset.add_sample(sample)
 
