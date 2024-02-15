@@ -27,7 +27,7 @@ class SampleExtractor:
         self._transform = frame_transform
 
         # for caching
-        self._cached_bboxes: np.ndarray = None
+        self._cached_all_bboxes: np.ndarray = None
         self._cached_background: np.ndarray = None
 
     @property
@@ -38,9 +38,14 @@ class SampleExtractor:
 
     @property
     def all_bboxes(self) -> np.ndarray:
-        if self._cached_bboxes is None:
-            self._cached_bboxes = self._calc_all_bboxes(self.background)
-        return self._cached_bboxes
+        if self._cached_all_bboxes is None:
+            self._cached_all_bboxes = self._calc_all_bboxes(self.background)
+        return self._cached_all_bboxes
+
+    def _initialize(self, cache_bboxes: bool = False):
+        self.background()
+        if cache_bboxes:
+            self.all_bboxes()
 
     def _calc_background(self) -> np.ndarray:
         length = len(self._frame_reader)
@@ -216,6 +221,8 @@ class SampleExtractor:
         height: int,
         save_folder_format: str,
     ):
+        self._initialize(cache_bboxes=False)
+
         # Randomly select frames
         frame_ids = np.random.choice(len(self._frame_reader), size=count, replace=False)
         frame_ids = sorted(frame_ids)
@@ -223,7 +230,7 @@ class SampleExtractor:
         for i, fid in tqdm(enumerate(frame_ids), desc="creating samples", total=count):
             # Find the properties of the video sample starting from `fid` frame
 
-            if self._cached_bboxes is None:
+            if self._cached_all_bboxes is None:
                 # if no bbox cache then calculate bboxes frame by frame
                 trim_range, crop_dims = self._calc_sample_bounds_dynamic(fid, width, height)
             else:
@@ -242,6 +249,8 @@ class SampleExtractor:
         height: int,
         save_folder_format: str,
     ):
+        self._initialize(cache_bboxes=True)
+
         start_frame = 0
         iter = 0
 
