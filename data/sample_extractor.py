@@ -30,11 +30,17 @@ class SampleExtractor:
         self._cached_bboxes: np.ndarray = None
         self._cached_background: np.ndarray = None
 
-    def initialize(self, cache_bboxes: bool = False):
+    @property
+    def background(self) -> np.ndarray:
         if self._cached_background is None:
             self._cached_background = self._calc_background()
-        if self._cached_bboxes is None and cache_bboxes:
-            self._cached_bboxes = self._calc_all_bboxes(self._cached_background)
+        return self._cached_background
+
+    @property
+    def all_bboxes(self) -> np.ndarray:
+        if self._cached_bboxes is None:
+            self._cached_bboxes = self._calc_all_bboxes(self.background)
+        return self._cached_bboxes
 
     def _calc_background(self) -> np.ndarray:
         length = len(self._frame_reader)
@@ -93,7 +99,7 @@ class SampleExtractor:
 
         return np.stack(bbox_list, axis=0)
 
-    def _calc_sample_properties_cached(
+    def _calc_sample_bounds_cached(
         self,
         bboxes: np.ndarray,
         start_index: int,
@@ -140,7 +146,7 @@ class SampleExtractor:
 
         return slice_indices, slice_bbox
 
-    def _calc_sample_properties_dynamic(
+    def _calc_sample_bounds_dynamic(
         self,
         start_frame: int,
         target_width: int,
@@ -156,14 +162,8 @@ class SampleExtractor:
         end_index = start_frame
 
         for cur_frame in range(start_frame, len(self._frame_reader), step_size):
-            bbox = None
-            if self._cached_bboxes is not None:
-                # if bboxes are already cached simply get the matching bbox
-                bbox = self._cached_bboxes[cur_frame]
-            else:
-                # otherwise, calculate the bbox for this frame
-                frame = self._frame_reader[cur_frame]
-                bbox = self._calc_frame_bbox(frame, self._cached_background)
+            frame = self._frame_reader[cur_frame]
+            bbox = self._calc_frame_bbox(frame, self.background)
 
             x1, y1, x2, y2 = BoxConverter.change_format(bbox, BoxFormat.XYWH, BoxFormat.XYXY)
 
@@ -216,9 +216,6 @@ class SampleExtractor:
         height: int,
         save_folder_format: str,
     ):
-        if self._cached_bboxes is None:
-            self.initialize(cache_bboxes=False)
-
         # Randomly select frames
         frame_ids = np.random.choice(len(self._frame_reader), size=count, replace=False)
         frame_ids = sorted(frame_ids)
@@ -228,10 +225,10 @@ class SampleExtractor:
 
             if self._cached_bboxes is None:
                 # if no bbox cache then calculate bboxes frame by frame
-                trim_range, crop_dims = self._calc_sample_properties_dynamic(fid, width, height)
+                trim_range, crop_dims = self._calc_sample_bounds_dynamic(fid, width, height)
             else:
                 # otherwise, used numpy accelerated method on cached bboxes
-                trim_range, crop_dims = self._calc_sample_properties_cached(self._cached_bboxes, fid, width, height)
+                trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes, fid, width, height)
 
             # format the saving path to match current sample
             sample_folder_path = save_folder_format.format(i)
@@ -245,18 +242,13 @@ class SampleExtractor:
         height: int,
         save_folder_format: str,
     ):
-        if self._cached_bboxes is None:
-            self.initialize(cache_bboxes=True)
-
         start_frame = 0
         iter = 0
 
         progress_bar = tqdm(desc="creating samples", total=len(self._frame_reader), unit="fr")
         while start_frame < len(self._frame_reader):
             # Find the properties of the video sample starting from start_frame
-            trim_range, crop_dims = self._calc_sample_properties_cached(
-                self._cached_bboxes, start_frame, width, height
-            )
+            trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes, start_frame, width, height)
 
             # format the saving path to match current sample
             sample_folder_path = save_folder_format.format(iter)
