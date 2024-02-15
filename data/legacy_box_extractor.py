@@ -181,14 +181,14 @@ class BoxExtractor:
         return slice_bboxes, image_slices
 
 
-def save_samples(image_list: list[np.ndarray], sample_name: str):
+def save_samples(image_list: list[np.ndarray], sample_name_format: str):
     """
     The naming scheme of the file should be: "filename{}.jpg"
     The braces will be replaced by the sample number.
     """
-    folder = Path(sample_name).parent
+    folder = Path(sample_name_format).parent
     Path(folder).mkdir(parents=True, exist_ok=True)
 
     for i, img in enumerate(image_list):
-        img_name = sample_name.format(i)
+        img_name = sample_name_format.format(i)
         cv.imwrite(img=img, filename=img_name)

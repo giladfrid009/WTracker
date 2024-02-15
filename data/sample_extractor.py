@@ -144,6 +144,7 @@ class SampleExtractor:
             # get frame and crop it
             frame = self._frame_reader[i]
             frame = frame[y : y + h, x : x + w]
+            frame = self._transform(frame)
 
             # save frame to sample path
             file_name = Path(self._frame_reader.files[i]).name
@@ -155,7 +156,7 @@ class SampleExtractor:
         count: int,
         width: int,
         height: int,
-        save_folder: str,
+        save_folder_format: str,
     ):
         if self._video_bboxes is None:
             raise Exception(f"please run `{self.calc_video_bboxes.__name__}` first")
@@ -169,7 +170,7 @@ class SampleExtractor:
             trim_range, crop_dims = self._analyze_sample_properties(self._video_bboxes, fid, width, height)
 
             # format the saving path to match current sample
-            sample_folder_path = save_folder.format(i)
+            sample_folder_path = save_folder_format.format(i)
 
             # create and save the sample
             self._create_and_save_sample(sample_folder_path, trim_range, crop_dims)
@@ -178,7 +179,7 @@ class SampleExtractor:
         self,
         width: int,
         height: int,
-        save_folder: str,
+        save_folder_format: str,
     ):
         if self._video_bboxes is None:
             raise Exception(f"please run `{self.calc_video_bboxes.__name__}` first")
@@ -192,7 +193,7 @@ class SampleExtractor:
             trim_range, crop_dims = self._analyze_sample_properties(self._video_bboxes, start_frame, width, height)
 
             # format the saving path to match current sample
-            sample_folder_path = save_folder.format(iter)
+            sample_folder_path = save_folder_format.format(iter)
 
             # create and save the sample
             self._create_and_save_sample(sample_folder_path, trim_range, crop_dims)

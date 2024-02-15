@@ -10,12 +10,14 @@ class FrameReader:
         self,
         root_folder: str,
         frame_files: list[str],
+        read_format: int = cv.IMREAD_GRAYSCALE,
     ):
         assert os.path.exists(root_folder)
         assert len(frame_files) > 0
 
         self._root_folder = root_folder
-        self._files: list[str] = frame_files
+        self._files = frame_files
+        self._read_format = read_format
         self._frame_shape = None
         self._frame_shape = self.__getitem__(0).shape
 
@@ -58,7 +60,7 @@ class FrameReader:
         if idx < 0 or idx >= len(self._files):
             raise IndexError("index out of bounds")
 
-        frame = cv.imread(self._files[idx], cv.IMREAD_GRAYSCALE)
+        frame = cv.imread(self._files[idx], self._read_format)
 
         if self.frame_shape and frame.shape != self.frame_shape:
             raise Exception("shape mismatch")
