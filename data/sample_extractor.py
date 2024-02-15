@@ -93,7 +93,7 @@ class SampleExtractor:
 
         return np.stack(bbox_list, axis=0)
 
-    def _analyze_sample_properties_cached(
+    def _calc_sample_properties_cached(
         self,
         bboxes: np.ndarray,
         start_index: int,
@@ -140,11 +140,12 @@ class SampleExtractor:
 
         return slice_indices, slice_bbox
 
-    def _analyze_sample_properties_dynamic(
+    def _calc_sample_properties_dynamic(
         self,
         start_frame: int,
         target_width: int,
         target_height: int,
+        step_size: int = 1,
     ) -> tuple[tuple, tuple]:
         """
         Finds the index bounds and the coordinates of the longest video slice of the provided dimensions,
@@ -154,7 +155,7 @@ class SampleExtractor:
         max_x, max_y = np.nan, np.nan
         end_index = start_frame
 
-        for cur_frame in range(start_frame, len(self._frame_reader)):
+        for cur_frame in range(start_frame, len(self._frame_reader), step_size):
             bbox = None
             if self._cached_bboxes is not None:
                 # if bboxes are already cached simply get the matching bbox
@@ -227,10 +228,10 @@ class SampleExtractor:
 
             if self._cached_bboxes is None:
                 # if no bbox cache then calculate bboxes frame by frame
-                trim_range, crop_dims = self._analyze_sample_properties_dynamic(fid, width, height)
+                trim_range, crop_dims = self._calc_sample_properties_dynamic(fid, width, height)
             else:
                 # otherwise, used numpy accelerated method on cached bboxes
-                trim_range, crop_dims = self._analyze_sample_properties_cached(self._cached_bboxes, fid, width, height)
+                trim_range, crop_dims = self._calc_sample_properties_cached(self._cached_bboxes, fid, width, height)
 
             # format the saving path to match current sample
             sample_folder_path = save_folder_format.format(i)
@@ -253,7 +254,7 @@ class SampleExtractor:
         progress_bar = tqdm(desc="creating samples", total=len(self._frame_reader), unit="fr")
         while start_frame < len(self._frame_reader):
             # Find the properties of the video sample starting from start_frame
-            trim_range, crop_dims = self._analyze_sample_properties_cached(
+            trim_range, crop_dims = self._calc_sample_properties_cached(
                 self._cached_bboxes, start_frame, width, height
             )
 
