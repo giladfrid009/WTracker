@@ -1,7 +1,7 @@
-import cv2 as cv
 import numpy as np
 from typing import Callable, Tuple
-from pathlib import Path
+
+from dataset.bbox_utils import BoxUtils
 
 
 # TODO: IS THIS FILE EVEN NEEDED ANYMORE?
@@ -13,23 +13,10 @@ from pathlib import Path
 
 class BoxExtractor:
     @staticmethod
-    def is_bbox(array: np.ndarray) -> bool:
-        if array is None:
-            return False
-        return array.ndim == 2 and array.shape[1] == 4 and array.dtype == int
-
-    @staticmethod
     def resize_boxes(bboxes: np.ndarray, new_width: int, new_height: int) -> np.ndarray:
         if bboxes is None:
             return None
-
-        # Validate bboxes arg
-        assert BoxExtractor.is_bbox(bboxes)
-
-        # Create width and heigh arrays
-        num_boxes = bboxes.shape[0]
-        new_width = np.full(shape=[num_boxes], fill_value=new_width)
-        new_height = np.full(shape=[num_boxes], fill_value=new_height)
+        assert BoxUtils.is_bbox(bboxes)
 
         # Unpack columns
         x, y, w, h = bboxes.T
@@ -52,7 +39,7 @@ class BoxExtractor:
             return None
 
         # Validate bboxes arg
-        assert BoxExtractor.is_bbox(bboxes)
+        assert BoxUtils.is_bbox(bboxes)
 
         # Get max possible dimensions
         max_height = image_shape[0] - 1
@@ -78,8 +65,8 @@ class BoxExtractor:
             return None
 
         # Validate args
-        assert BoxExtractor.is_bbox(bboxes)
-        assert bboxes_other is None or (BoxExtractor.is_bbox(bboxes_other) and bboxes.shape == bboxes_other.shape)
+        assert BoxUtils.is_bbox(bboxes)
+        assert bboxes_other is None or (BoxUtils.is_bbox(bboxes_other) and bboxes.shape == bboxes_other.shape)
 
         # Get num elements
         num_boxes = bboxes.shape[0]
@@ -116,7 +103,7 @@ class BoxExtractor:
 
         # Get all combinations; get rid of self identical matches
         check = check_lt | check_lb | check_rt | check_rb
-        check = np.bitwise_xor(check, np.eye(num_boxes, dtype=bool))
+        check = np.fill_diagonal(check, False)
         check = np.argwhere(check)
 
         # Get unique indices of bad bboxes
@@ -136,7 +123,7 @@ class BoxExtractor:
             return None
 
         # Validate args
-        assert BoxExtractor.is_bbox(bboxes)
+        assert BoxUtils.is_bbox(bboxes)
 
         slices = []
         for bbox in bboxes:
@@ -179,16 +166,3 @@ class BoxExtractor:
         image_slices = BoxExtractor.extract_slices(image, slice_bboxes)
 
         return slice_bboxes, image_slices
-
-
-def save_samples(image_list: list[np.ndarray], sample_name_format: str):
-    """
-    The naming scheme of the file should be: "filename{}.jpg"
-    The braces will be replaced by the sample number.
-    """
-    folder = Path(sample_name_format).parent
-    Path(folder).mkdir(parents=True, exist_ok=True)
-
-    for i, img in enumerate(image_list):
-        img_name = sample_name_format.format(i)
-        cv.imwrite(img=img, filename=img_name)

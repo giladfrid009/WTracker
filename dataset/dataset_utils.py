@@ -83,8 +83,8 @@ class DatasetConverter:
             keypoints[:, :, 0] *= width
             keypoints[:, :, 1] *= height
 
-            bboxes = bboxes.astype(int)
-            keypoints = keypoints.astype(int)
+            bboxes = bboxes.astype(int, copy=False)
+            keypoints = keypoints.astype(int, copy=False)
 
             # change bbox format to something normal
             bboxes = BoxConverter.change_format(bboxes, BoxFormat.YOLO, BoxFormat.XYXY)

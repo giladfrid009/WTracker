@@ -65,7 +65,7 @@ class FrameReader:
         if self.frame_shape and frame.shape != self.frame_shape:
             raise Exception("shape mismatch")
 
-        return frame.astype(np.uint8)
+        return frame.astype(np.uint8, copy=False)
 
     def __iter__(self):
         return FrameStream(self)

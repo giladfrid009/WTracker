@@ -7,3 +7,4 @@ dependencies:
   - opencv
   - tqdm
   - numpy
+  - ipywidgets

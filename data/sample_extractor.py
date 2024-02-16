@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from typing import Callable
 from pathlib import Path
 
@@ -53,22 +53,21 @@ class SampleExtractor:
 
         # randomly select frames
         frame_ids = np.random.choice(length, size=min(self._bg_probes, length), replace=False)
-        frame_ids = sorted(frame_ids)
 
         # get frames and apply transform
         extracted_list = []
         for i in tqdm(frame_ids, desc="extracting background", unit="fr"):
             frame = self._frame_reader[i]
-            frame = self._transform(frame).astype(np.uint8)
+            frame = self._transform(frame).astype(np.uint8, copy=False)
             extracted_list.append(frame)
 
         # calculate the median along the time axis
         extracted = np.stack(extracted_list, axis=0)
-        median = np.median(extracted, axis=0).astype(np.uint8)
+        median = np.median(extracted, axis=0).astype(np.uint8, copy=False)
         return median
 
-    def _calc_frame_bbox(self, frame: np.ndarray, background: np.ndarray) -> np.ndarray:
-        frame = self._transform(frame).astype(np.uint8)
+    def _calc_frame_bbox(self, raw_frame: np.ndarray, background: np.ndarray) -> np.ndarray:
+        frame = self._transform(raw_frame).astype(np.uint8, copy=False)
 
         # Calculate difference between background and image
         diff = np.abs(frame.astype(np.int16) - background.astype(np.int16))
@@ -78,12 +77,10 @@ class SampleExtractor:
         _, mask = cv.threshold(diff, self._fg_thresh, 255, cv.THRESH_BINARY)
 
         # do some morphological magic to clean up noise from the mask
-        kernel = np.ones((5, 5), np.uint8)
-        mask = cv.morphologyEx(mask, cv.MORPH_OPEN, kernel)
+        mask = cv.morphologyEx(mask, cv.MORPH_OPEN, np.ones((5, 5), np.uint8))
 
         # dilate to increase all object sizes in the mask
-        kernel = np.ones((3, 3), np.uint8)
-        mask = cv.dilate(mask, kernel, iterations=5)
+        mask = cv.dilate(mask, np.ones((3, 3), np.uint8), iterations=5)
 
         # find contours in the binary mask
         contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
@@ -167,6 +164,7 @@ class SampleExtractor:
         max_x, max_y = np.nan, np.nan
         end_index = start_frame
 
+        progress_bar = tqdm(desc="curating sample", unit="fr")
         for cur_frame in range(start_frame, len(self._frame_reader), step_size):
             frame = self._frame_reader[cur_frame]
             bbox = self._calc_frame_bbox(frame, self.background())
@@ -183,6 +181,9 @@ class SampleExtractor:
             min_x, min_y = new_min_x, new_min_y
             max_x, max_y = new_max_x, new_max_y
             end_index = cur_frame
+            progress_bar.update()
+
+        progress_bar.close()
 
         # return the exclusive last legal index
         slice_indices = (start_frame, end_index + 1)
@@ -208,7 +209,7 @@ class SampleExtractor:
             # get frame and crop it
             frame = self._frame_reader[i]
             frame = frame[y : y + h, x : x + w]
-            frame = self._transform(frame).astype(np.uint8)
+            frame = self._transform(frame).astype(np.uint8, copy=False)
 
             # save frame to sample path
             file_name = Path(self._frame_reader.files[i]).name
@@ -240,8 +241,6 @@ class SampleExtractor:
 
             # format the saving path to match current sample
             sample_folder_path = save_folder_format.format(i)
-
-            # create and save the sample
             self._create_and_save_sample(sample_folder_path, trim_range, crop_dims)
 
     def generate_all_samples(
@@ -260,10 +259,8 @@ class SampleExtractor:
             # Find the properties of the video sample starting from start_frame
             trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes(), start_frame, width, height)
 
-            # format the saving path to match current sample
-            sample_folder_path = save_folder_format.format(iter)
-
             # create and save the sample
+            sample_folder_path = save_folder_format.format(iter)
             self._create_and_save_sample(sample_folder_path, trim_range, crop_dims)
 
             # updating progress bar and the next start_frame
