@@ -8,7 +8,7 @@ from dataset.frame_dataset import *
 
 class DatasetConverter:
     @staticmethod
-    def to_yolo(frame_dataset: FrameDataset, labels_path: str, images_path: str):
+    def to_yolo(frame_dataset: ImageDataset, labels_path: str, images_path: str):
         create_directory(labels_path)
         create_directory(images_path)
 
@@ -51,8 +51,8 @@ class DatasetConverter:
             if dst_img_path.exists() == False:
                 dst_img_path.hardlink_to(src_img_path)
 
-    def from_yolo(experiment_metadata: ExperimentMeta, labels_path: str, images_path: str) -> FrameDataset:
-        dataset = FrameDataset(experiment_metadata, [])
+    def from_yolo(experiment_metadata: ExperimentMeta, labels_path: str, images_path: str) -> ImageDataset:
+        dataset = ImageDataset(experiment_metadata, [])
 
         glob_ann_format = (Path(labels_path) / "*.txt").as_posix()
         ann_paths = glob.glob(glob_ann_format)
@@ -63,7 +63,7 @@ class DatasetConverter:
         img_paths = sorted([Path(p) for p in img_paths], key=lambda p: p.stem)
 
         for ann_file_path, img_file_path in zip(ann_paths, img_paths):
-            frame_meta = FrameMeta.from_file(img_file_path.as_posix(), pixel_size=experiment_metadata.pixel_size)
+            frame_meta = ImageMeta.from_file(img_file_path.as_posix(), pixel_size=experiment_metadata.pixel_size)
 
             with ann_file_path.open("r") as ann_file:
                 all_lines = ann_file.readlines()
@@ -89,7 +89,7 @@ class DatasetConverter:
             # change bbox format to something normal
             bboxes = BoxConverter.change_format(bboxes, BoxFormat.YOLO, BoxFormat.XYXY)
 
-            sample = FrameSample(frame_meta, bboxes, BoxFormat.XYXY, keypoints=keypoints)
+            sample = ImageSample(frame_meta, bboxes, BoxFormat.XYXY, keypoints=keypoints)
 
             dataset.add_sample(sample)
 

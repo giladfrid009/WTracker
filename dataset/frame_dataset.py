@@ -6,7 +6,6 @@ from dataclasses import dataclass
 
 from dataset.bbox_utils import BoxFormat
 
-
 @dataclass(frozen=True)
 class ExperimentMeta:
     fps: float
@@ -14,23 +13,21 @@ class ExperimentMeta:
     pixel_size: float
     comments: str = ""
 
-
 @dataclass(frozen=True)
-class FrameMeta:
+class ImageMeta:
     path: str
     shape: tuple[int, int, int]  # [w, h, c]
-    pixel_size: float
 
     @staticmethod
-    def from_file(full_path: str, pixel_size: float) -> FrameMeta:
+    def from_file(full_path: str) -> ImageMeta:
         with PIL.Image.open(full_path) as image:
             w, h, c = *image.size, len(image.getbands())
-            return FrameMeta(full_path, (w, h, c), pixel_size)
+            return ImageMeta(full_path, (w, h, c))
 
 
 @dataclass(frozen=True)
-class FrameSample:
-    metadata: FrameMeta
+class ImageSample:
+    metadata: ImageMeta
     bboxes: np.ndarray = None
     bbox_format: BoxFormat = None
     keypoints: np.ndarray = None
@@ -66,20 +63,19 @@ class FrameSample:
 
 
 @dataclass(frozen=True)
-class FrameDataset:
-    experiment: ExperimentMeta
-    sample_list: list[FrameSample]
+class ImageDataset:
+    sample_list: list[ImageSample]
 
     def __len__(self):
         return len(self.sample_list)
 
-    def __getitem__(self, idx: int) -> FrameSample:
+    def __getitem__(self, idx: int) -> ImageSample:
         return self.sample_list[idx]
 
-    def __iter__(self) -> Iterator[FrameSample]:
+    def __iter__(self) -> Iterator[ImageSample]:
         return self.sample_list.__iter__()
 
-    def add_sample(self, sample: FrameSample):
+    def add_sample(self, sample: ImageSample):
         if sample.metadata.pixel_size != self.experiment.pixel_size:
             raise ValueError("sample has non-matching pixel size")
 
@@ -88,7 +84,7 @@ class FrameDataset:
     def remove_sample(self, idx: int):
         self.sample_list.pop(idx)
 
-    def extend(self, other: FrameDataset):
+    def extend(self, other: ImageDataset):
         if other.experiment.pixel_size != self.experiment.pixel_size:
             raise ValueError("other dataset has non-matching pixel size")
         if other.experiment.fps != self.experiment.fps:
