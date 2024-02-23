@@ -1,5 +1,9 @@
-from pathlib import Path
+from pathlib import Path, PurePath
 import pickle
+
+
+def join_paths(*path_segments: str):
+    return PurePath(*path_segments).as_posix()
 
 
 def create_parent_directory(file_path: str):

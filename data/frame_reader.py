@@ -3,6 +3,7 @@ import os
 import glob
 import numpy as np
 import cv2 as cv
+from data.file_utils import join_paths
 
 
 class FrameReader:
@@ -24,17 +25,17 @@ class FrameReader:
     @staticmethod
     def create_from_template(root_folder: str, name_format: str) -> FrameReader:
         # get all files matching name format
-        fmt = os.path.join(root_folder, name_format.format("[0-9]*"))
-        frame_paths = glob.glob(fmt)
-        frame_paths = [f for f in frame_paths if os.path.isfile(f)]
+        fmt = name_format.format("[0-9]*")
+        frame_paths = glob.glob(fmt, root_dir=root_folder)
+        frame_paths = [f for f in frame_paths if os.path.isfile(join_paths(root_folder, f))]
         frame_paths = sorted(frame_paths)
         return FrameReader(root_folder, frame_paths)
 
     @staticmethod
     def create_from_directory(root_folder) -> FrameReader:
         # get all files in root
-        frame_paths = glob.glob(root_folder + "/*.*")
-        frame_paths = [f for f in frame_paths if os.path.isfile(f)]
+        frame_paths = glob.glob("*.*", root_dir=root_folder)
+        frame_paths = [f for f in frame_paths if os.path.isfile(join_paths(root_folder, f))]
         frame_paths = sorted(frame_paths)
         return FrameReader(root_folder, frame_paths)
 
@@ -43,9 +44,9 @@ class FrameReader:
         return self._root_folder
 
     @property
-    def frame_shape(self) -> tuple[int, int]:
+    def frame_shape(self) -> tuple[int, ...]:
         """
-        Returns shape in [h, w] order, which matches numpy standard.
+        Returns shape in [h, w, ...] order, which matches numpy standard.
         """
         return self._frame_shape
 
@@ -60,7 +61,8 @@ class FrameReader:
         if idx < 0 or idx >= len(self._files):
             raise IndexError("index out of bounds")
 
-        frame = cv.imread(self._files[idx], self._read_format)
+        path = join_paths(self.root_folder, self.files[idx])
+        frame = cv.imread(path, self._read_format)
 
         if self.frame_shape and frame.shape != self.frame_shape:
             raise Exception("shape mismatch")

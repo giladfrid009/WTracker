@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from dataset.bbox_utils import BoxFormat
 
-# Generic class for images
+
 @dataclass(frozen=True)
 class ImageMeta:
     path: str
@@ -19,7 +19,6 @@ class ImageMeta:
             return ImageMeta(full_path, (w, h, c))
 
 
-# Class for labled data
 @dataclass(frozen=True)
 class ImageSample:
     metadata: ImageMeta
@@ -57,7 +56,6 @@ class ImageSample:
             assert self.keypoints.ndim == 3
 
 
-# Dataset of labled data
 @dataclass(frozen=True)
 class ImageDataset:
     image_list: list[ImageSample]
