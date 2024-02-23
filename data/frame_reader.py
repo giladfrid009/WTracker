@@ -50,10 +50,10 @@ class FrameReader:
         return self._frame_shape
 
     @property
-    def files(self):
+    def files(self) -> list[str]:
         return self._files
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._files)
 
     def __getitem__(self, idx: int) -> np.ndarray:

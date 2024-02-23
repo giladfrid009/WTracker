@@ -3,7 +3,7 @@ from pathlib import Path
 
 from data.file_utils import create_directory
 from dataset.bbox_utils import BoxFormat, BoxConverter
-from dataset.frame_dataset import *
+from dataset.image_dataset import *
 
 
 class DatasetConverter:
@@ -51,8 +51,8 @@ class DatasetConverter:
             if dst_img_path.exists() == False:
                 dst_img_path.hardlink_to(src_img_path)
 
-    def from_yolo(experiment_metadata: ExperimentMeta, labels_path: str, images_path: str) -> ImageDataset:
-        dataset = ImageDataset(experiment_metadata, [])
+    def from_yolo(labels_path: str, images_path: str) -> ImageDataset:
+        dataset = ImageDataset([])
 
         glob_ann_format = (Path(labels_path) / "*.txt").as_posix()
         ann_paths = glob.glob(glob_ann_format)
@@ -63,7 +63,7 @@ class DatasetConverter:
         img_paths = sorted([Path(p) for p in img_paths], key=lambda p: p.stem)
 
         for ann_file_path, img_file_path in zip(ann_paths, img_paths):
-            frame_meta = ImageMeta.from_file(img_file_path.as_posix(), pixel_size=experiment_metadata.pixel_size)
+            frame_meta = ImageMeta.from_file(img_file_path.as_posix())
 
             with ann_file_path.open("r") as ann_file:
                 all_lines = ann_file.readlines()

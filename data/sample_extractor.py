@@ -50,14 +50,14 @@ class SampleExtractor:
 
     def _calc_background(self) -> np.ndarray:
         length = len(self._frame_reader)
-
+        size = min(self._bg_probes, length)
         # randomly select frames
-        frame_ids = np.random.choice(length, size=min(self._bg_probes, length), replace=False)
+        frame_ids = np.random.choice(length, size=size, replace=False)
 
         # get frames and apply transform
         extracted_list = []
-        for i in tqdm(frame_ids, desc="extracting background", unit="fr"):
-            frame = self._frame_reader[i]
+        for frame_id in tqdm(frame_ids, desc="extracting background", unit="fr"):
+            frame = self._frame_reader[frame_id]
             frame = self._transform(frame).astype(np.uint8, copy=False)
             extracted_list.append(frame)
 

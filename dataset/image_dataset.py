@@ -6,13 +6,7 @@ from dataclasses import dataclass
 
 from dataset.bbox_utils import BoxFormat
 
-@dataclass(frozen=True)
-class ExperimentMeta:
-    fps: float
-    orig_resolution: tuple[int, int]
-    pixel_size: float
-    comments: str = ""
-
+# Generic class for images
 @dataclass(frozen=True)
 class ImageMeta:
     path: str
@@ -25,6 +19,7 @@ class ImageMeta:
             return ImageMeta(full_path, (w, h, c))
 
 
+# Class for labled data
 @dataclass(frozen=True)
 class ImageSample:
     metadata: ImageMeta
@@ -62,32 +57,25 @@ class ImageSample:
             assert self.keypoints.ndim == 3
 
 
+# Dataset of labled data
 @dataclass(frozen=True)
 class ImageDataset:
-    sample_list: list[ImageSample]
+    image_list: list[ImageSample]
 
     def __len__(self):
-        return len(self.sample_list)
+        return len(self.image_list)
 
     def __getitem__(self, idx: int) -> ImageSample:
-        return self.sample_list[idx]
+        return self.image_list[idx]
 
     def __iter__(self) -> Iterator[ImageSample]:
-        return self.sample_list.__iter__()
+        return self.image_list.__iter__()
 
     def add_sample(self, sample: ImageSample):
-        if sample.metadata.pixel_size != self.experiment.pixel_size:
-            raise ValueError("sample has non-matching pixel size")
-
-        self.sample_list.append(sample)
+        self.image_list.append(sample)
 
     def remove_sample(self, idx: int):
-        self.sample_list.pop(idx)
+        self.image_list.pop(idx)
 
     def extend(self, other: ImageDataset):
-        if other.experiment.pixel_size != self.experiment.pixel_size:
-            raise ValueError("other dataset has non-matching pixel size")
-        if other.experiment.fps != self.experiment.fps:
-            raise ValueError("other dataset has non-matching fps")
-
-        self.sample_list.extend(other.sample_list)
+        self.image_list.extend(other.image_list)
