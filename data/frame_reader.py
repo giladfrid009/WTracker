@@ -54,6 +54,10 @@ class FrameReader:
     def files(self) -> list[str]:
         return self._files
 
+    @property
+    def read_format(self) -> int:
+        return self._read_format
+
     def __len__(self) -> int:
         return len(self._files)
 

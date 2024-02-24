@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 from tqdm.auto import tqdm
+from tqdm.contrib import concurrent
 from typing import Callable
 from pathlib import Path
 
@@ -9,21 +10,28 @@ from data.frame_reader import FrameReader
 from dataset.bbox_utils import BoxFormat, BoxConverter
 
 
-class SampleExtractor:
+def identity_func(x):
+    return x
+
+
+class VideoExtractor:
     def __init__(
         self,
         frame_reader: FrameReader,
         bg_probes: int = 100,
-        fg_thresh: int = 10,
+        diff_thresh: int = 10,
+        num_workers: int = 2,
+        chunk_size: int = 50,
         frame_transform: Callable[[np.ndarray], np.ndarray] = None,
-    ) -> None:
-        self._frame_reader: FrameReader = frame_reader
-
+    ):
+        self._frame_reader = frame_reader
         self._bg_probes = bg_probes
-        self._fg_thresh = fg_thresh
+        self._diff_thresh = diff_thresh
+        self._num_workers = num_workers
+        self._chunk_size = chunk_size
 
         if frame_transform is None:
-            frame_transform = lambda x: x
+            frame_transform = identity_func
         self._transform = frame_transform
 
         # for caching
@@ -37,7 +45,7 @@ class SampleExtractor:
 
     def all_bboxes(self) -> np.ndarray:
         if self._cached_all_bboxes is None:
-            self._cached_all_bboxes = self._calc_all_bboxes(self.background())
+            self._cached_all_bboxes = self._calc_all_bboxes()
         return self._cached_all_bboxes
 
     def initialize(self, cache_bboxes: bool = False):
@@ -66,15 +74,15 @@ class SampleExtractor:
         median = np.median(extracted, axis=0).astype(np.uint8, copy=False)
         return median
 
-    def _calc_frame_bbox(self, raw_frame: np.ndarray, background: np.ndarray) -> np.ndarray:
-        frame = self._transform(raw_frame).astype(np.uint8, copy=False)
+    def _calc_bbox(self, frame: np.ndarray) -> np.ndarray:
+        self._transform(frame)
 
         # Calculate difference between background and image
-        diff = np.abs(frame.astype(np.int16) - background.astype(np.int16))
+        diff = np.abs(frame.astype(np.int16) - self.background().astype(np.int16))
         diff = diff.astype(np.uint8)
 
         # Turn differences mask to black & white according to a threshold value
-        _, mask = cv.threshold(diff, self._fg_thresh, 255, cv.THRESH_BINARY)
+        _, mask = cv.threshold(diff, self._diff_thresh, 255, cv.THRESH_BINARY)
 
         # do some morphological magic to clean up noise from the mask
         mask = cv.morphologyEx(mask, cv.MORPH_OPEN, np.ones((5, 5), np.uint8))
@@ -93,19 +101,26 @@ class SampleExtractor:
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
         return largest_bbox
 
-    def _calc_all_bboxes(self, background: np.ndarray) -> np.ndarray:
-        # extract bbox from all frames
-        bbox_list = []
-        for frame in tqdm(self._frame_reader, desc="extracting bboxes", total=len(self._frame_reader)):
-            bbox = self._calc_frame_bbox(frame, background)
-            bbox_list.append(bbox)
+    def _calc_all_bboxes(self) -> np.ndarray:
+        if self._num_workers > 0:
+            bboxes = concurrent.process_map(
+                self._calc_bbox,
+                self._frame_reader,
+                chunksize=self._chunk_size,
+                desc="extracting bboxes",
+                unit="fr",
+            )
+            return np.stack(bboxes, axis=0)
 
-        return np.stack(bbox_list, axis=0)
+        bboxes = []
+        for frame in tqdm(self._frame_reader, desc="extracting bboxes", unit="fr"):
+            bbox = self._calc_bbox(frame)
+            bboxes.append(bbox)
+        return np.stack(bboxes, axis=0)
 
-    def _calc_sample_bounds_cached(
+    def _calc_video_bounds_cached(
         self,
-        bboxes: np.ndarray,
-        start_index: int,
+        start_frame: int,
         target_width: int,
         target_height: int,
     ) -> tuple[tuple, tuple]:
@@ -114,7 +129,7 @@ class SampleExtractor:
         for which the bounding boxes of the object are within target size bounds.
         """
         # we care only after the `start_index` frame
-        bboxes = bboxes[start_index:, :]
+        bboxes = self.all_bboxes()[start_frame:, :]
 
         # get bbox coordinates
         left, bottom, width, height = bboxes.T
@@ -142,14 +157,14 @@ class SampleExtractor:
             last_legal_idx = len(is_illegal) - 1
 
         # Return the exclusive last legal index
-        slice_indices = (start_index, start_index + last_legal_idx + 1)
+        slice_indices = (start_frame, start_frame + last_legal_idx + 1)
 
         # Get the bbox which matches the legal slice
         slice_bbox = (min_left[last_legal_idx], min_bottom[last_legal_idx], target_width, target_height)
 
         return slice_indices, slice_bbox
 
-    def _calc_sample_bounds_dynamic(
+    def _calc_video_bounds_dynamic(
         self,
         start_frame: int,
         target_width: int,
@@ -164,10 +179,10 @@ class SampleExtractor:
         max_x, max_y = np.nan, np.nan
         end_index = start_frame
 
-        progress_bar = tqdm(desc="curating sample", unit="fr")
+        progress_bar = tqdm(desc="creating video sample", unit="fr")
         for cur_frame in range(start_frame, len(self._frame_reader), step_size):
             frame = self._frame_reader[cur_frame]
-            bbox = self._calc_frame_bbox(frame, self.background())
+            bbox = VideoExtractor._calc_bbox(frame, self.background(), self._diff_thresh)
 
             x1, y1, x2, y2 = BoxConverter.change_format(bbox, BoxFormat.XYWH, BoxFormat.XYXY)
 
@@ -193,7 +208,7 @@ class SampleExtractor:
 
         return slice_indices, slice_bbox
 
-    def _create_and_save_sample(
+    def _crop_and_save_video(
         self,
         save_folder: str,
         trim_range: tuple[int, int],
@@ -216,12 +231,25 @@ class SampleExtractor:
             full_path = Path(save_folder).joinpath(file_name).as_posix()
             cv.imwrite(full_path, frame)
 
-    def generate_samples(
+    def _create_video(self, start_frame: int, width: int, height: int, folder_path: str) -> int:
+        if self._cached_all_bboxes is None:
+            # if no bbox cache then calculate bboxes frame by frame
+            trim_range, crop_dims = self._calc_video_bounds_dynamic(start_frame, width, height)
+        else:
+            # otherwise, used numpy accelerated method on cached bboxes
+            trim_range, crop_dims = self._calc_video_bounds_cached(self.all_bboxes(), start_frame, width, height)
+
+        self._crop_and_save_video(folder_path, trim_range, crop_dims)
+
+        return trim_range[1]
+
+    def generate_videos(
         self,
         count: int,
         width: int,
         height: int,
         save_folder_format: str,
+        step_size: int = 1,
     ):
         self.initialize(cache_bboxes=False)
 
@@ -229,21 +257,20 @@ class SampleExtractor:
         frame_ids = np.random.choice(len(self._frame_reader), size=count, replace=False)
         frame_ids = sorted(frame_ids)
 
-        for i, fid in tqdm(enumerate(frame_ids), desc="creating samples", total=count):
+        for iter, fid in tqdm(enumerate(frame_ids), desc="creating samples", total=count):
             # Find the properties of the video sample starting from `fid` frame
 
             if self._cached_all_bboxes is None:
                 # if no bbox cache then calculate bboxes frame by frame
-                trim_range, crop_dims = self._calc_sample_bounds_dynamic(fid, width, height)
+                trim_range, crop_dims = self._calc_video_bounds_dynamic(fid, width, height, step_size)
             else:
                 # otherwise, used numpy accelerated method on cached bboxes
-                trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes(), fid, width, height)
+                trim_range, crop_dims = self._calc_video_bounds_cached(fid, width, height)
 
             # format the saving path to match current sample
-            sample_folder_path = save_folder_format.format(i)
-            self._create_and_save_sample(sample_folder_path, trim_range, crop_dims)
+            self._crop_and_save_video(save_folder_format.format(iter), trim_range, crop_dims)
 
-    def generate_all_samples(
+    def generate_all_videos(
         self,
         width: int,
         height: int,
@@ -257,15 +284,15 @@ class SampleExtractor:
         progress_bar = tqdm(desc="creating samples", total=len(self._frame_reader), unit="fr")
         while start_frame < len(self._frame_reader):
             # Find the properties of the video sample starting from start_frame
-            trim_range, crop_dims = self._calc_sample_bounds_cached(self.all_bboxes(), start_frame, width, height)
+            trim_range, crop_dims = self._calc_video_bounds_cached(start_frame, width, height)
 
             # create and save the sample
-            sample_folder_path = save_folder_format.format(iter)
-            self._create_and_save_sample(sample_folder_path, trim_range, crop_dims)
+            self._crop_and_save_video(save_folder_format.format(iter), trim_range, crop_dims)
 
             # updating progress bar and the next start_frame
             iter += 1
             trim_start, trim_end = trim_range
+
             start_frame = trim_end
             progress_bar.update(trim_end - trim_start)
 
