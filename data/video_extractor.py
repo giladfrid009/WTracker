@@ -83,7 +83,7 @@ class VideoExtractor:
 
         # apply morphological ops to the mask
         mask = cv.morphologyEx(mask, cv.MORPH_OPEN, np.ones((5, 5), np.uint8))
-        mask = cv.dilate(mask, np.ones((3, 3), np.uint8), iterations=5)
+        mask = cv.dilate(mask, np.ones((1, 1), np.uint8))
 
         # extract contours and bbox
         contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
@@ -113,8 +113,7 @@ class VideoExtractor:
     def _calc_video_bounds_cached(
         self,
         start_frame: int,
-        target_width: int,
-        target_height: int,
+        target_size: tuple[int, int],
     ) -> tuple[tuple, tuple]:
         """
         Finds the index bounds and the coordinates of the longest video slice of the provided dimensions,
@@ -132,24 +131,22 @@ class VideoExtractor:
         max_top = np.maximum.accumulate(top)
 
         # Find where bboxes are out of legal bounds
-        illegal_width = max_right - min_left > target_width
-        illegal_height = max_top - min_bottom > target_height
+        illegal_width = max_right - min_left > target_size[0]
+        illegal_height = max_top - min_bottom > target_size[1]
         is_illegal = illegal_width | illegal_height
 
         last_legal_idx = np.searchsorted(is_illegal, v=False, side="right")
         if last_legal_idx >= len(is_illegal):
             last_legal_idx = len(is_illegal) - 1
 
-        # slice indices - video frame range; slice_bbox - video crop coords
         slice_indices = (start_frame, start_frame + last_legal_idx + 1)
-        slice_bbox = (min_left[last_legal_idx], min_bottom[last_legal_idx], target_width, target_height)
+        slice_bbox = (min_left[last_legal_idx], min_bottom[last_legal_idx], *target_size)
         return slice_indices, slice_bbox
 
     def _calc_video_bounds_dynamic(
         self,
         start_frame: int,
-        target_width: int,
-        target_height: int,
+        target_size: tuple[int, int],
         step_size: int = 1,
     ) -> tuple[tuple, tuple]:
         """
@@ -171,7 +168,7 @@ class VideoExtractor:
             new_max_x, new_max_y = np.nanmax([max_x, x2]), np.nanmax([max_y, y2])
 
             # if the new max width or height is larger than the target then stop
-            if new_max_x - new_min_x >= target_width or new_max_y - new_min_y >= target_height:
+            if new_max_x - new_min_x >= target_size[0] or new_max_y - new_min_y >= target_size[1]:
                 break
 
             min_x, min_y = new_min_x, new_min_y
@@ -183,7 +180,7 @@ class VideoExtractor:
 
         # slice indices - video frame range; slice_bbox - video crop coords
         slice_indices = (start_frame, end_index + 1)
-        slice_bbox = (int(min_x), int(min_y), target_width, target_height)
+        slice_bbox = (int(min_x), int(min_y), *target_size)
         return slice_indices, slice_bbox
 
     def _crop_and_save_video(
@@ -209,21 +206,10 @@ class VideoExtractor:
             full_path = Path(save_folder).joinpath(file_name).as_posix()
             cv.imwrite(full_path, frame)
 
-    def _create_video(self, start_frame: int, width: int, height: int, folder_path: str) -> int:
-        if self._cached_all_bboxes is None:
-            trim_range, crop_dims = self._calc_video_bounds_dynamic(start_frame, width, height)
-        else:
-            trim_range, crop_dims = self._calc_video_bounds_cached(self.all_bboxes(), start_frame, width, height)
-
-        self._crop_and_save_video(folder_path, trim_range, crop_dims)
-
-        return trim_range[1]
-
     def generate_videos(
         self,
         count: int,
-        width: int,
-        height: int,
+        frame_size: tuple[int, int],
         save_folder_format: str,
         step_size: int = 1,
     ):
@@ -233,32 +219,32 @@ class VideoExtractor:
         frame_ids = np.random.choice(len(self._frame_reader), size=count, replace=False)
         frame_ids = sorted(frame_ids)
 
-        for iter, fid in tqdm(enumerate(frame_ids), desc="creating samples", unit="vid", total=count):
-            if self._cached_all_bboxes is None:
-                trim_range, crop_dims = self._calc_video_bounds_dynamic(fid, width, height, step_size)
-            else:
-                trim_range, crop_dims = self._calc_video_bounds_cached(fid, width, height)
-
-            self._crop_and_save_video(save_folder_format.format(iter), trim_range, crop_dims)
+        if self._cached_all_bboxes is None:
+            for i, fid in tqdm(enumerate(frame_ids), desc="creating samples", unit="vid", total=count):
+                trim_range, crop_dims = self._calc_video_bounds_dynamic(fid, frame_size, step_size)
+                self._crop_and_save_video(save_folder_format.format(i), trim_range, crop_dims)
+        else:
+            for i, fid in tqdm(enumerate(frame_ids), desc="creating samples", unit="vid", total=count):
+                trim_range, crop_dims = self._calc_video_bounds_cached(fid, frame_size)
+                self._crop_and_save_video(save_folder_format.format(i), trim_range, crop_dims)
 
     def generate_all_videos(
         self,
-        width: int,
-        height: int,
+        frame_size: tuple[int, int],
         save_folder_format: str,
     ):
         self.initialize(cache_bboxes=True)
 
         progress_bar = tqdm(desc="creating samples", total=len(self._frame_reader), unit="fr")
         start_frame = 0
-        iter = 0
+        i = 0
 
         while start_frame < len(self._frame_reader):
-            (trim_start, trim_end), crop_dims = self._calc_video_bounds_cached(start_frame, width, height)
-            self._crop_and_save_video(save_folder_format.format(iter), (trim_start, trim_end), crop_dims)
+            (trim_start, trim_end), crop_dims = self._calc_video_bounds_cached(start_frame, frame_size)
+            self._crop_and_save_video(save_folder_format.format(i), (trim_start, trim_end), crop_dims)
 
             # update loop params
-            iter += 1
+            i += 1
             start_frame = trim_end
             progress_bar.update(trim_end - trim_start)
 
