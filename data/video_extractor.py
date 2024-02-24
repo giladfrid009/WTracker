@@ -163,7 +163,7 @@ class VideoExtractor:
         progress_bar = tqdm(desc="creating video sample", unit="fr")
         for cur_frame in range(start_frame, len(self._frame_reader), step_size):
             frame = self._frame_reader[cur_frame]
-            bbox = VideoExtractor._calc_bbox(frame, self.background(), self._diff_thresh)
+            bbox = self._calc_bbox(frame)
 
             x1, y1, x2, y2 = BoxConverter.change_format(bbox, BoxFormat.XYWH, BoxFormat.XYXY)
 
