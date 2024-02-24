@@ -24,6 +24,16 @@ class VideoExtractor:
         chunk_size: int = 50,
         frame_transform: Callable[[np.ndarray], np.ndarray] = None,
     ):
+        """
+        :param frame_reader: the frame reader to extract the video samples from.
+        :param bg_probes: number of random frames to take to calculate the background.
+        :param diff_thresh: a pixel is considered as background if the diff between the background and pixel value is less than `diff_thresh`.
+        :param num_workers: number of processes used for calculating all the bounding boxes for all frames in the `frame_reader`.
+        :param chunk_size: number of frames sent at once for each process of the `num_workers` processes.
+            For best performance set this value to `len(frame_reader) // num_workers`,
+            but for progress tracking of frame extraction set this value to something significantly lower.
+        :frame_transform: transformation function applied to each frame read from the `frame_reader`.
+        """
         self._frame_reader = frame_reader
         self._bg_probes = bg_probes
         self._diff_thresh = diff_thresh
@@ -51,6 +61,7 @@ class VideoExtractor:
     def initialize(self, cache_bboxes: bool = False):
         """
         Initialize cached parameters for later use
+        :param cache_bboxes: whether to calculate object bounding box for each frame. Note that this process might take very long time.
         """
         self.background()
         if cache_bboxes:
@@ -112,15 +123,18 @@ class VideoExtractor:
 
     def _calc_video_bounds_cached(
         self,
-        start_frame: int,
+        start_index: int,
         target_size: tuple[int, int],
+        max_length: int = None,
     ) -> tuple[tuple, tuple]:
         """
         Finds the index bounds and the coordinates of the longest video slice of the provided dimensions,
         for which the bounding boxes of the object are within target size bounds.
         """
+        bboxes = self.all_bboxes()
+        bboxes = bboxes[start_index:, :] if max_length is None else bboxes[start_index : start_index + max_length, :]
+
         # get bbox coordinates
-        bboxes = self.all_bboxes()[start_frame:, :]
         left, bottom, width, height = bboxes.T
         right = left + width
         top = bottom + height
@@ -139,15 +153,16 @@ class VideoExtractor:
         if last_legal_idx >= len(is_illegal):
             last_legal_idx = len(is_illegal) - 1
 
-        slice_indices = (start_frame, start_frame + last_legal_idx + 1)
+        slice_indices = (start_index, start_index + last_legal_idx + 1)
         slice_bbox = (min_left[last_legal_idx], min_bottom[last_legal_idx], *target_size)
         return slice_indices, slice_bbox
 
     def _calc_video_bounds_dynamic(
         self,
-        start_frame: int,
+        start_index: int,
         target_size: tuple[int, int],
-        step_size: int = 1,
+        max_length: int = None,
+        granularity: int = 1,
     ) -> tuple[tuple, tuple]:
         """
         Finds the index bounds and the coordinates of the longest video slice of the provided dimensions,
@@ -155,11 +170,18 @@ class VideoExtractor:
         """
         min_x, min_y = np.nan, np.nan
         max_x, max_y = np.nan, np.nan
-        end_index = start_frame
+        end_index = start_index
 
-        progress_bar = tqdm(desc="creating video sample", unit="fr")
-        for cur_frame in range(start_frame, len(self._frame_reader), step_size):
-            frame = self._frame_reader[cur_frame]
+        max_length = len(self._frame_reader) if max_length is None else max_length
+        last_index = min(len(self._frame_reader), start_index + max_length)
+
+        for idx in tqdm(
+            range(start_index, last_index, granularity),
+            desc="creating video sample",
+            unit="fr",
+            total=None,
+        ):
+            frame = self._frame_reader[idx]
             bbox = self._calc_bbox(frame)
 
             x1, y1, x2, y2 = BoxConverter.change_format(bbox, BoxFormat.XYWH, BoxFormat.XYXY)
@@ -173,13 +195,10 @@ class VideoExtractor:
 
             min_x, min_y = new_min_x, new_min_y
             max_x, max_y = new_max_x, new_max_y
-            end_index = cur_frame
-            progress_bar.update()
-
-        progress_bar.close()
+            end_index = idx
 
         # slice indices - video frame range; slice_bbox - video crop coords
-        slice_indices = (start_frame, end_index + 1)
+        slice_indices = (start_index, end_index + 1)
         slice_bbox = (int(min_x), int(min_y), *target_size)
         return slice_indices, slice_bbox
 
@@ -211,28 +230,49 @@ class VideoExtractor:
         count: int,
         frame_size: tuple[int, int],
         save_folder_format: str,
-        step_size: int = 1,
+        max_length: int = None,
+        granularity: int = 1,
     ):
+        """
+        Generate set amount of video samples. Each video sample starts at a random frame.
+            Note, that resulting videos might overlap.
+        :param count: number of video samples to generate.
+        :param frame_size: resolution of the video sample, in format [w, h].
+        :param save_folder_format: folder name format of a video sample.
+            Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
+        :param max_length: the maximum number of frames in a single video sample.
+        :param granularity: examine every `granularity` frames for object-out-of-frame condition.
+            Speeds up the computation but video sample length might be imprecise (too short).
+        """
         self.initialize(cache_bboxes=False)
 
         # Randomly select frames
-        frame_ids = np.random.choice(len(self._frame_reader), size=count, replace=False)
-        frame_ids = sorted(frame_ids)
+        rnd_fids = np.random.choice(len(self._frame_reader), size=count, replace=False)
 
         if self._cached_all_bboxes is None:
-            for i, fid in tqdm(enumerate(frame_ids), desc="creating samples", unit="vid", total=count):
-                trim_range, crop_dims = self._calc_video_bounds_dynamic(fid, frame_size, step_size)
+            for i, fid in tqdm(enumerate(rnd_fids), desc="creating samples", unit="vid", total=count):
+                trim_range, crop_dims = self._calc_video_bounds_dynamic(fid, frame_size, max_length, granularity)
                 self._crop_and_save_video(save_folder_format.format(i), trim_range, crop_dims)
         else:
-            for i, fid in tqdm(enumerate(frame_ids), desc="creating samples", unit="vid", total=count):
-                trim_range, crop_dims = self._calc_video_bounds_cached(fid, frame_size)
+            for i, fid in tqdm(enumerate(rnd_fids), desc="creating samples", unit="vid", total=count):
+                trim_range, crop_dims = self._calc_video_bounds_cached(fid, frame_size, max_length)
                 self._crop_and_save_video(save_folder_format.format(i), trim_range, crop_dims)
 
     def generate_all_videos(
         self,
         frame_size: tuple[int, int],
         save_folder_format: str,
+        max_length: int = None,
     ):
+        """
+        Generate consecutive series of videos for all the frames stored in the `frame_reader` used for creating this class.
+            Note, that the resulting videos do not overlap, and each video starts after the last frame of the previous video.
+        :param count: number of video samples to generate.
+        :param frame_size: resolution of the video sample, in format [w, h].
+        :param save_folder_format: folder name format of a video sample.
+            Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
+        :param max_length: the maximum number of frames in a single video sample.
+        """
         self.initialize(cache_bboxes=True)
 
         progress_bar = tqdm(desc="creating samples", total=len(self._frame_reader), unit="fr")
@@ -240,7 +280,7 @@ class VideoExtractor:
         i = 0
 
         while start_frame < len(self._frame_reader):
-            (trim_start, trim_end), crop_dims = self._calc_video_bounds_cached(start_frame, frame_size)
+            (trim_start, trim_end), crop_dims = self._calc_video_bounds_cached(start_frame, frame_size, max_length)
             self._crop_and_save_video(save_folder_format.format(i), (trim_start, trim_end), crop_dims)
 
             # update loop params
