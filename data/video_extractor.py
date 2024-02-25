@@ -74,7 +74,7 @@ class VideoExtractor:
         # get frames and apply transform
         frame_ids = np.random.choice(length, size=size, replace=False)
         extracted_list = []
-        for frame_id in tqdm(frame_ids, desc="extracting background", unit="fr"):
+        for frame_id in tqdm(frame_ids, desc="Extracting background", unit="fr"):
             frame = self._frame_reader[frame_id]
             frame = self._transform(frame).astype(np.uint8, copy=False)
             extracted_list.append(frame)
@@ -110,13 +110,13 @@ class VideoExtractor:
                 self._calc_bbox,
                 self._frame_reader,
                 chunksize=self._chunk_size,
-                desc="extracting bboxes",
+                desc="Extracting bboxes",
                 unit="fr",
             )
             return np.stack(bboxes, axis=0)
 
         bboxes = []
-        for frame in tqdm(self._frame_reader, desc="extracting bboxes", unit="fr"):
+        for frame in tqdm(self._frame_reader, desc="Extracting bboxes", unit="fr"):
             bbox = self._calc_bbox(frame)
             bboxes.append(bbox)
         return np.stack(bboxes, axis=0)
@@ -132,7 +132,7 @@ class VideoExtractor:
         for which the bounding boxes of the object are within target size bounds.
         """
         bboxes = self.all_bboxes()
-        bboxes = bboxes[start_index:, :] if max_length is None else bboxes[start_index : start_index + max_length, :]
+        bboxes = bboxes[start_index:] if max_length is None else bboxes[start_index : start_index + max_length]
 
         # get bbox coordinates
         left, bottom, width, height = bboxes.T
@@ -177,9 +177,9 @@ class VideoExtractor:
 
         for idx in tqdm(
             range(start_index, last_index, granularity),
-            desc="creating video sample",
+            desc="Creating video",
             unit="fr",
-            total=None,
+            leave=False,
         ):
             frame = self._frame_reader[idx]
             bbox = self._calc_bbox(frame)
@@ -250,11 +250,11 @@ class VideoExtractor:
         rnd_fids = np.random.choice(len(self._frame_reader), size=count, replace=False)
 
         if self._cached_all_bboxes is None:
-            for i, fid in tqdm(enumerate(rnd_fids), desc="creating samples", unit="vid", total=count):
+            for i, fid in tqdm(enumerate(rnd_fids), desc="Creating video samples", unit="vid", total=count):
                 trim_range, crop_dims = self._calc_video_bounds_dynamic(fid, frame_size, max_length, granularity)
                 self._crop_and_save_video(save_folder_format.format(i), trim_range, crop_dims)
         else:
-            for i, fid in tqdm(enumerate(rnd_fids), desc="creating samples", unit="vid", total=count):
+            for i, fid in tqdm(enumerate(rnd_fids), desc="Creating video samples", unit="vid", total=count):
                 trim_range, crop_dims = self._calc_video_bounds_cached(fid, frame_size, max_length)
                 self._crop_and_save_video(save_folder_format.format(i), trim_range, crop_dims)
 
@@ -275,7 +275,7 @@ class VideoExtractor:
         """
         self.initialize(cache_bboxes=True)
 
-        progress_bar = tqdm(desc="creating samples", total=len(self._frame_reader), unit="fr")
+        progress_bar = tqdm(desc="Creating video samples", total=len(self._frame_reader), unit="fr")
         start_frame = 0
         i = 0
 
