@@ -54,7 +54,7 @@ class FrameReader:
         return FrameReader(root_folder, frame_paths)
 
     @staticmethod
-    def create_from_directory(root_folder) -> FrameReader:
+    def create_from_directory(root_folder: str) -> FrameReader:
         """
         Creates a FrameReader object from a directory.
 

@@ -68,7 +68,7 @@ class ExperimentDataset:
         self.is_sorted = True
 
     @staticmethod
-    def from_frame_reader(
+    def create_from_frame_reader(
         reader: FrameReader,
         meta: ExperimentMeta,
         bbox_list: list[tuple[int, int, int, int]] = None,
