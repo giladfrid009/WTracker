@@ -391,15 +391,15 @@ class VideoExtractor:
             None
         """
         while True:
-            try:
-                task = video_params.get()
-                # exit if signaled
-                if task is None:
-                    break
+            task = video_params.get()
 
-                save_folder, trim_range, crop_dims = task
-                self._crop_and_save_video(save_folder, trim_range, crop_dims)
-                video_params.task_done()
+            # exit if signaled
+            if task is None:
+                break
+
+            save_folder, trim_range, crop_dims = task
+            self._crop_and_save_video(save_folder, trim_range, crop_dims)
+            video_params.task_done()
 
     def _crop_and_save_video(
         self,
