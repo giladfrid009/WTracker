@@ -5,28 +5,64 @@ from data.frame_reader import FrameReader, FrameStream
 
 
 class ViewController(FrameStream):
+    """
+    A class representing a view controller for a frame stream.
+
+    Attributes:
+        frame_reader (FrameReader): The frame reader object.
+        camera_size (tuple[int, int]): The size of the camera view (width, height).
+        micro_size (tuple[int, int]): The size of the micro view (width, height).
+        init_position (tuple[int, int]): The initial position of the view controller (x, y).
+        padding_value (int): The value used for padding the frames.
+
+    Methods:
+        read(): Read a frame from the frame reader and apply padding.
+        position(): Get the current position of the view controller.
+        camera_size(): Get the size of the camera view.
+        micro_size(): Get the size of the micro view.
+        set_position(x: int, y: int): Set the position of the view controller.
+        move_position(dx: int, dy: int): Move the position of the view controller by dx and dy.
+        visualize_world(line_width: int = 4): Visualize the world view with bounding boxes.
+    """
+
     def __init__(
-        self,
-        frame_reader: FrameReader,
-        camera_size: tuple[int, int] = (251, 251),
-        micro_size: tuple[int, int] = (45, 45),
-        init_position: tuple[int, int] = (0, 0),
-        padding_value: int = 255,
-    ):
-        super().__init__(frame_reader)
+            self,
+            frame_reader: FrameReader,
+            camera_size: tuple[int, int] = (251, 251),
+            micro_size: tuple[int, int] = (45, 45),
+            init_position: tuple[int, int] = (0, 0),
+            padding_value: int = 255,
+        ):
+            """
+            Initializes the View Controller object.
 
-        assert camera_size[0] >= micro_size[0]
-        assert camera_size[1] >= micro_size[1]
+            Args:
+                frame_reader (FrameReader): The frame reader object.
+                camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).
+                micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).
+                init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).
+                padding_value (int, optional): The padding value. Defaults to 255.
+            """
+            super().__init__(frame_reader)
 
-        self._padding_size: tuple[int, int] = (camera_size[0] // 2, camera_size[1] // 2)
-        self._padding_value: tuple[int, int, int] = padding_value
+            assert camera_size[0] >= micro_size[0]
+            assert camera_size[1] >= micro_size[1]
 
-        self._camera_size = camera_size
-        self._micro_size = micro_size
-        self._position = init_position
-        self.set_position(*init_position)
+            self._padding_size: tuple[int, int] = (camera_size[0] // 2, camera_size[1] // 2)
+            self._padding_value: tuple[int, int, int] = padding_value
+
+            self._camera_size = camera_size
+            self._micro_size = micro_size
+            self._position = init_position
+            self.set_position(*init_position)
 
     def read(self):
+        """
+        Read a frame from the frame reader and apply padding.
+
+        Returns:
+            np.ndarray: The padded frame.
+        """
         frame = super().read()
         frame = cv.copyMakeBorder(
             src=frame,
@@ -41,44 +77,113 @@ class ViewController(FrameStream):
 
     @property
     def position(self) -> tuple[int, int]:
+        """
+        Get the current position of the view controller.
+
+        Returns:
+            tuple[int, int]: The current position (x, y).
+        """
         return self._position
 
     @property
     def camera_size(self) -> tuple[int, int]:
+        """
+        Get the size of the camera view.
+
+        Returns:
+            tuple[int, int]: The size of the camera view (w, h).
+        """
         return self._camera_size
 
     @property
     def micro_size(self) -> tuple[int, int]:
+        """
+        Get the size of the micro view.
+
+        Returns:
+            tuple[int, int]: The size of the micro view (w, h).
+        """
         return self._micro_size
 
     def set_position(self, x: int, y: int):
+        """
+        Set the position of the view controller.
+
+        Args:
+            x (int): The x-coordinate of the position.
+            y (int): The y-coordinate of the position.
+        """
         assert x >= 0 and x < self._frame_reader.frame_shape[1]
         assert y >= 0 and y < self._frame_reader.frame_shape[0]
         self._position = (x, y)
 
     def move_position(self, dx: int, dy: int):
+        """
+        Move the position of the view controller by dx and dy.
+
+        Args:
+            dx (int): The amount to move in the x-direction.
+            dy (int): The amount to move in the y-direction.
+        """
         self.set_position(self._position[0] + dx, self._position[1] + dy)
 
     def _calc_view_coords(self, w: int, h: int) -> tuple[int, int, int, int]:
-        # calc upper left coord, take padding into account
+        """
+        Calculate the coordinates of the view.
+
+        Args:
+            w (int): The width of the view.
+            h (int): The height of the view.
+
+        Returns:
+            tuple[int, int, int, int]: The coordinates of the view (x, y, w, h).
+        """
         x = self._position[0] + self._padding_size[0] - w // 2
         y = self._position[1] + self._padding_size[1] - h // 2
         return x, y, w, h
 
     def _custom_view(self, w: int, h: int) -> np.ndarray:
+        """
+        Get a custom view of the frame.
+
+        Args:
+            w (int): The width of the view.
+            h (int): The height of the view.
+
+        Returns:
+            np.ndarray: The custom view of the frame.
+        """
         x, y, w, h = self._calc_view_coords(w, h)
         frame = self.read()
         slice = frame[y : y + w, x : x + h]
         return slice
 
-    def camera_view(self) -> tuple[int, int]:
+    def camera_view(self) -> np.ndarray:
+        """
+        Get the camera view.
+
+        Returns:
+            np.ndarray: The camera view.
+        """
         return self._custom_view(*self.camera_size)
 
-    def micro_view(self) -> tuple[int, int]:
+    def micro_view(self) -> np.ndarray:
+        """
+        Get the micro view.
+
+        Returns:
+            np.ndarray: The micro view.
+        """
         return self._custom_view(*self.micro_size)
 
     def visualize_world(self, line_width: int = 4):
-        # Get positions and views of micro and camera
+        """
+        Visualize the world view with bounding boxes.
+        Both the camera and micro views are visualized, along with the center point.
+
+        Args:
+            line_width (int): The width of the bounding box lines.
+        """
         x_mid, y_mid, _, _ = self._calc_view_coords(0, 0)
         x_cam, y_cam, w_cam, h_cam = self._calc_view_coords(*self.camera_size)
         x_mic, y_mic, w_mic, h_mic = self._calc_view_coords(*self.micro_size)
@@ -86,7 +191,6 @@ class ViewController(FrameStream):
         world = self.read()
         world = cv.cvtColor(world, cv.COLOR_GRAY2BGR)
 
-        # Draw bboxes of micro and camera
         cv.rectangle(world, (x_cam, y_cam), (x_cam + w_cam, y_cam + h_cam), (0, 0, 255), line_width)
         cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), line_width)
         cv.circle(world, (x_mid, y_mid), 1, (255, 0, 0), line_width)

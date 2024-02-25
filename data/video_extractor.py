@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
 from typing import Callable
 from pathlib import Path
@@ -7,7 +8,7 @@ import threading
 import functools
 import queue
 
-from data.tqdm_utils import ProgressQueue, tqdm
+from data.tqdm_utils import TqdmQueue
 from data.file_utils import create_directory
 from data.frame_reader import FrameReader
 from dataset.bbox_utils import BoxFormat, BoxConverter
@@ -16,7 +17,11 @@ from dataset.bbox_utils import BoxFormat, BoxConverter
 def identity_func(x):
     return x
 
+
 class VideoExtractor:
+    """
+    The VideoExtractor class provides functionality for extracting videos from a FrameReader object.
+    """
     def __init__(
         self,
         frame_reader: FrameReader,
@@ -27,14 +32,15 @@ class VideoExtractor:
         frame_transform: Callable[[np.ndarray], np.ndarray] = None,
     ):
         """
-        :param frame_reader: the frame reader to extract the video samples from.
-        :param bg_probes: number of random frames to take to calculate the background.
-        :param diff_thresh: a pixel is considered as background if the diff between the background and pixel value is less than `diff_thresh`.
-        :param num_workers: number of processes used for calculating all the bounding boxes for all frames in the `frame_reader`.
-        :param chunk_size: number of frames sent at once for each process of the `num_workers` processes.
-            For best performance set this value to `len(frame_reader) // num_workers`,
-            but for progress tracking of frame extraction set this value to something significantly lower.
-        :frame_transform: transformation function applied to each frame read from the `frame_reader`.
+        Initializes a VideoExtractor object.
+
+        Args:
+            frame_reader (FrameReader): An object that provides access to video frames.
+            bg_probes (int, optional): The number of frames to use for background calculation. Defaults to 100.
+            diff_thresh (int, optional): The threshold value for creating the mask which separates background and foreground. Defaults to 10.
+            num_workers (int, optional): The number of worker processes to use for parallel processing. Defaults to 2.
+            chunk_size (int, optional): The size of chunks for parallel processing. Defaults to 50.
+            frame_transform (Callable[[np.ndarray], np.ndarray], optional): A function to transform each frame. Defaults to None.
         """
         self._frame_reader = frame_reader
         self._bg_probes = bg_probes
@@ -51,25 +57,47 @@ class VideoExtractor:
         self._cached_background: np.ndarray = None
 
     def background(self) -> np.ndarray:
+        """
+        Returns the background image of the video.
+        If the background image has not been calculated yet, it will be calculated and cached for future use.
+
+        Returns:
+            np.ndarray: The background image of the video.
+        """
         if self._cached_background is None:
             self._cached_background = self._calc_background()
         return self._cached_background
 
     def all_bboxes(self) -> np.ndarray:
+        """
+        Returns all bounding boxes.
+        If the bounding boxes have not been calculated yet, it calculates them and caches the result.
+
+        Returns:
+            np.ndarray: An array of bounding boxes.
+        """
         if self._cached_all_bboxes is None:
             self._cached_all_bboxes = self._calc_all_bboxes()
         return self._cached_all_bboxes
 
     def initialize(self, cache_bboxes: bool = False):
         """
-        Initialize cached parameters for later use
-        :param cache_bboxes: whether to calculate object bounding box for each frame. Note that this process might take very long time.
+        Initializes the video extractor.
+
+        Args:
+            cache_bboxes (bool, optional): Whether to cache bounding boxes. Defaults to False.
         """
         self.background()
         if cache_bboxes:
             self.all_bboxes()
 
     def _calc_background(self) -> np.ndarray:
+        """
+        Calculate the background image by extracting a subset of frames and taking the median along the time axis.
+
+        Returns:
+            np.ndarray: The calculated background image as a numpy array.
+        """
         length = len(self._frame_reader)
         size = min(self._bg_probes, length)
 
@@ -88,6 +116,18 @@ class VideoExtractor:
 
     @staticmethod
     def _calc_bbox(frame: np.ndarray, background: np.ndarray, thresh: int) -> np.ndarray:
+        """
+        Calculate the bounding box of the largest contour in the frame.
+
+        Parameters:
+            frame (np.ndarray): The input frame.
+            background (np.ndarray): The background frame.
+            thresh (int): The threshold value for creating the mask which separates background and foreground.
+                If the difference between the pixel value and the background is less than `thresh` then the pixel is considered as background.
+
+        Returns:
+            np.ndarray: The bounding box coordinates (x, y, width, height).
+        """
         # get mask according to the threshold value
         diff = np.abs(frame.astype(np.int16) - background.astype(np.int16))
         diff = diff.astype(np.uint8)
@@ -106,6 +146,12 @@ class VideoExtractor:
         return largest_bbox
 
     def _calc_all_bboxes(self) -> np.ndarray:
+        """
+        Calculate bounding boxes for all frames in the `frame_reader` provided during the creation of this class.
+
+        Returns:
+            np.ndarray: Array of bounding boxes for each frame.
+        """
         if self._num_workers > 0:
             bboxes = concurrent.process_map(
                 functools.partial(VideoExtractor._calc_bbox, background=self.background(), thresh=self._diff_thresh),
@@ -127,10 +173,18 @@ class VideoExtractor:
         start_index: int,
         target_size: tuple[int, int],
         max_length: int = None,
-    ) -> tuple[tuple, tuple]:
+    ) -> tuple[tuple[int, int], tuple[int, int, int, int]]:
         """
-        Finds the index bounds and the coordinates of the longest video slice of the provided dimensions,
-        for which the bounding boxes of the object are within target size bounds.
+        Calculates video bounds utilizing cached bboxes for each frame, based on the given parameters.
+
+        Args:
+            start_index (int): The starting index of the video frames.
+            target_size (tuple[int, int]): The target size of the video crop.
+            max_length (int, optional): The maximum length of the video frames to consider. Defaults to None.
+
+        Returns:
+            tuple[tuple[int, int], tuple[int, int, int, int]]: A tuple where first and last frame index of the video,
+            and another tuple of bounding box coords of video frames.
         """
         bboxes = self.all_bboxes()
         bboxes = bboxes[start_index:] if max_length is None else bboxes[start_index : start_index + max_length]
@@ -163,11 +217,20 @@ class VideoExtractor:
         start_index: int,
         target_size: tuple[int, int],
         max_length: int = None,
-        granularity: int = 1,
-    ) -> tuple[tuple, tuple]:
+        granularity: int = 2,
+    ) -> tuple[tuple[int, int], tuple[int, int, int, int]]:
         """
-        Finds the index bounds and the coordinates of the longest video slice of the provided dimensions,
-        for which the bounding boxes of the object are within target size bounds.
+        Calculates video bounds frame by frame dynamically based on the given parameters.
+
+        Args:
+            start_index (int): The starting index of the video frames.
+            target_size (tuple[int, int]): The target size of the video crop.
+            max_length (int, optional): The maximum length of the video frames to consider. Defaults to None.
+            granularity (int, optional): The step size for iterating through the video frames. Defaults to 2.
+
+        Returns:
+            tuple[tuple[int, int], tuple[int, int, int, int]]: A tuple where first and last frame index of the video,
+            and another tuple of bounding box coords of video frames.
         """
         min_x, min_y = np.nan, np.nan
         max_x, max_y = np.nan, np.nan
@@ -204,7 +267,20 @@ class VideoExtractor:
         target_size: tuple[int, int],
         max_length: int = None,
         granularity: int = 1,
-    ) -> tuple[tuple, tuple]:
+    ) -> tuple[tuple[int, int], tuple[int, int, int, int]]:
+        """
+        Calculate the video bounds based on the given parameters.
+
+        Args:
+            start_index (int): The start index of the video.
+            target_size (tuple[int, int]): The target size of the video.
+            max_length (int, optional): The maximum length of the video. Defaults to None.
+            granularity (int, optional): The granularity of the video bounds calculation. Defaults to 1.
+
+        Returns:
+            tuple[tuple[int, int], tuple[int, int, int, int]]: A tuple where first and last frame index of the video,
+            and another tuple of bounding box coords of video frames.
+        """
         if self._cached_all_bboxes is not None:
             return self._calc_video_bounds_cached(start_index, target_size, max_length)
         else:
@@ -219,20 +295,31 @@ class VideoExtractor:
         granularity: int = 2,
     ):
         """
-        Generate set amount of video samples. Each video sample starts at a random frame.
-            Note, that resulting videos might overlap.
-        :param count: number of video samples to generate.
-        :param frame_size: resolution of the video sample, in format [w, h].
-        :param save_folder_format: folder name format of a video sample.
-            Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
-        :param max_length: the maximum number of frames in a single video sample.
-        :param granularity: examine every `granularity` frames for object-out-of-frame condition.
-            The computation is sped up by factor of `granularity`, but video sample length might be slightly imprecise.
+        Generates videos by randomly selecting starting frames and saving them.
+        Note, that resulting videos might overlap.
+
+        Args:
+            count (int): The number of videos to generate.
+            frame_size (tuple[int, int]): The size of the video frames.
+            save_folder_format (str): The format string for the save folder path.
+            max_length (int, optional): The maximum length of the video frames to consider. Defaults to None.
+            granularity (int, optional): The step size for iterating through the video frames. Defaults to 2.
+
+        Args:
+            count (int): The number of videos to generate.
+            frame_size (tuple[int, int]): The desired size of each frame in the videos.
+            save_folder_format (str): The format string for the save folder path of each video.
+            max_length (int, optional): The maximum length of each video in frames. Defaults to None.
+            granularity (int, optional): The granularity of out of bounds check. Defaults to 2.
+
+        Returns:
+            None
         """
+
         self.initialize(cache_bboxes=False)
 
         # create a different thread which will save the videos
-        progress_queue = ProgressQueue(desc="Saving videos", unit="vid")
+        progress_queue = TqdmQueue(desc="Saving videos", unit="vid")
         worker_thread = threading.Thread(target=self._video_saver_worker, args=(progress_queue,))
         worker_thread.start()
 
@@ -254,18 +341,18 @@ class VideoExtractor:
         max_length: int = None,
     ):
         """
-        Generate consecutive series of videos for all the frames stored in the `frame_reader` used for creating this class.
-            Note, that the resulting videos do not overlap, and each video starts after the last frame of the previous video.
-        :param count: number of video samples to generate.
-        :param frame_size: resolution of the video sample, in format [w, h].
-        :param save_folder_format: folder name format of a video sample.
-            Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
-        :param max_length: the maximum number of frames in a single video sample.
+        Generates all videos by iterating over all the frames, calculating video bounds, and saving the videos.
+        Note, that the resulting videos do not overlap, and each video starts after the last frame of the previous video.
+
+        Args:
+            frame_size (tuple[int, int]): The size of each frame in the generated videos.
+            save_folder_format (str): The format string for the save folder path of each video.
+            max_length (int, optional): The maximum length of each video in frames. Defaults to None.
         """
         self.initialize(cache_bboxes=True)
 
         # create a different thread which will save the videos
-        progress_queue = ProgressQueue(desc="Saving videos", unit="vid")
+        progress_queue = TqdmQueue(desc="Saving videos", unit="vid")
         worker_thread = threading.Thread(target=self._video_saver_worker, args=(progress_queue,))
         worker_thread.start()
 
@@ -287,18 +374,26 @@ class VideoExtractor:
         progress_queue.put(None)  # put stop signal into queue
         worker_thread.join()  # wait for worker thread to finish
 
-    def _video_saver_worker(self, task_queue: queue.Queue):
-        """Worker function to save video frames asynchronously."""
+    def _video_saver_worker(self, video_params: queue.Queue):
+        """
+        Worker method that processes video saving tasks from the video_params queue.
+
+        Args:
+            video_params (queue.Queue): The queue containing video saving tasks.
+
+        Returns:
+            None
+        """
         while True:
             try:
-                task = task_queue.get(timeout=1)
+                task = video_params.get(timeout=1)
                 # exit if signaled
                 if task is None:
                     break
 
                 save_folder, trim_range, crop_dims = task
                 self._crop_and_save_video(save_folder, trim_range, crop_dims)
-                task_queue.task_done()
+                video_params.task_done()
 
             # queue is empty, so wait for new tasks
             except queue.Empty:
@@ -310,6 +405,17 @@ class VideoExtractor:
         trim_range: tuple[int, int],
         crop_dims: tuple[int, int, int, int],
     ):
+        """
+        Crop and save video frames within the specified trim range and crop dimensions.
+
+        Args:
+            save_folder (str): The path to the folder where the cropped frames will be saved.
+            trim_range (tuple[int, int]): The range of frames to be cropped and saved, specified as a tuple of start and end indices.
+            crop_dims (tuple[int, int, int, int]): The dimensions of the crop area, specified as a tuple of x, y, width, and height.
+
+        Returns:
+            None
+        """
         # create dir if doesn't exist
         create_directory(save_folder)
 
