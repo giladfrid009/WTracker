@@ -2,7 +2,6 @@ import cv2 as cv
 import numpy as np
 from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
-from typing import Callable
 from pathlib import Path
 import threading
 import functools
@@ -14,14 +13,28 @@ from data.frame_reader import FrameReader
 from dataset.bbox_utils import BoxFormat, BoxConverter
 
 
-def identity_func(x):
-    return x
-
-
 class VideoExtractor:
     """
     The VideoExtractor class provides functionality for extracting videos from a FrameReader object.
+
+    Methods:
+        background: Returns the background image of the video.
+        all_bboxes: Returns all bounding boxes.
+        initialize: Initializes the video extractor.
+        generate_videos: Generates videos by randomly selecting starting frames and saving them.
+        generate_all_videos: Generates all videos by iterating over all the frames, calculating video bounds, and saving the videos.
+
+    Example:
+        # create a frame reader
+        frame_reader = FrameReader.from_folder("path/to/frames_folder")
+
+        # create a video extractor
+        extractor = VideoExtractor(frame_reader)
+
+        # generate videos
+        extractor.generate_videos(10, (256, 256), "path/to/save_folder_{:03d}")
     """
+
     def __init__(
         self,
         frame_reader: FrameReader,
@@ -29,7 +42,6 @@ class VideoExtractor:
         diff_thresh: int = 10,
         num_workers: int = 2,
         chunk_size: int = 50,
-        frame_transform: Callable[[np.ndarray], np.ndarray] = None,
     ):
         """
         Initializes a VideoExtractor object.
@@ -40,17 +52,12 @@ class VideoExtractor:
             diff_thresh (int, optional): The threshold value for creating the mask which separates background and foreground. Defaults to 10.
             num_workers (int, optional): The number of worker processes to use for parallel processing. Defaults to 2.
             chunk_size (int, optional): The size of chunks for parallel processing. Defaults to 50.
-            frame_transform (Callable[[np.ndarray], np.ndarray], optional): A function to transform each frame. Defaults to None.
         """
         self._frame_reader = frame_reader
         self._bg_probes = bg_probes
         self._diff_thresh = diff_thresh
         self._num_workers = num_workers
         self._chunk_size = chunk_size
-
-        if frame_transform is None:
-            frame_transform = identity_func
-        self._transform = frame_transform
 
         # for caching
         self._cached_all_bboxes: np.ndarray = None
@@ -101,12 +108,11 @@ class VideoExtractor:
         length = len(self._frame_reader)
         size = min(self._bg_probes, length)
 
-        # get frames and apply transform
+        # get frames
         frame_ids = np.random.choice(length, size=size, replace=False)
         extracted_list = []
         for frame_id in tqdm(frame_ids, desc="Extracting background", unit="fr"):
             frame = self._frame_reader[frame_id]
-            frame = self._transform(frame).astype(np.uint8, copy=False)
             extracted_list.append(frame)
 
         # calculate the median along the time axis
@@ -426,7 +432,6 @@ class VideoExtractor:
             # get frame and crop it
             frame = self._frame_reader[i]
             frame = frame[y : y + h, x : x + w]
-            frame = self._transform(frame).astype(np.uint8, copy=False)
 
             # save frame to sample path
             file_name = Path(self._frame_reader.files[i]).name
