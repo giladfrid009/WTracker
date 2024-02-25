@@ -162,6 +162,7 @@ class VideoExtractor:
             bboxes = concurrent.process_map(
                 functools.partial(VideoExtractor._calc_bbox, background=self.background(), thresh=self._diff_thresh),
                 self._frame_reader,
+                max_workers = self._num_workers,
                 chunksize=self._chunk_size,
                 desc="Extracting bboxes",
                 unit="fr",
