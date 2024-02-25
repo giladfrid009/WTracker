@@ -1,10 +1,13 @@
 import cv2 as cv
 import numpy as np
-from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
 from typing import Callable
 from pathlib import Path
+import threading
+import functools
+import queue
 
+from data.tqdm_utils import ProgressQueue, tqdm
 from data.file_utils import create_directory
 from data.frame_reader import FrameReader
 from dataset.bbox_utils import BoxFormat, BoxConverter
@@ -12,7 +15,6 @@ from dataset.bbox_utils import BoxFormat, BoxConverter
 
 def identity_func(x):
     return x
-
 
 class VideoExtractor:
     def __init__(
@@ -84,13 +86,12 @@ class VideoExtractor:
         median = np.median(extracted, axis=0).astype(np.uint8, copy=False)
         return median
 
-    def _calc_bbox(self, frame: np.ndarray) -> np.ndarray:
-        self._transform(frame)
-
+    @staticmethod
+    def _calc_bbox(frame: np.ndarray, background: np.ndarray, thresh: int) -> np.ndarray:
         # get mask according to the threshold value
-        diff = np.abs(frame.astype(np.int16) - self.background().astype(np.int16))
+        diff = np.abs(frame.astype(np.int16) - background.astype(np.int16))
         diff = diff.astype(np.uint8)
-        _, mask = cv.threshold(diff, self._diff_thresh, 255, cv.THRESH_BINARY)
+        _, mask = cv.threshold(diff, thresh, 255, cv.THRESH_BINARY)
 
         # apply morphological ops to the mask
         mask = cv.morphologyEx(mask, cv.MORPH_OPEN, np.ones((5, 5), np.uint8))
@@ -107,7 +108,7 @@ class VideoExtractor:
     def _calc_all_bboxes(self) -> np.ndarray:
         if self._num_workers > 0:
             bboxes = concurrent.process_map(
-                self._calc_bbox,
+                functools.partial(VideoExtractor._calc_bbox, background=self.background(), thresh=self._diff_thresh),
                 self._frame_reader,
                 chunksize=self._chunk_size,
                 desc="Extracting bboxes",
@@ -117,7 +118,7 @@ class VideoExtractor:
 
         bboxes = []
         for frame in tqdm(self._frame_reader, desc="Extracting bboxes", unit="fr"):
-            bbox = self._calc_bbox(frame)
+            bbox = VideoExtractor._calc_bbox(frame, background=self.background(), thresh=self._diff_thresh)
             bboxes.append(bbox)
         return np.stack(bboxes, axis=0)
 
@@ -175,14 +176,9 @@ class VideoExtractor:
         max_length = len(self._frame_reader) if max_length is None else max_length
         last_index = min(len(self._frame_reader), start_index + max_length)
 
-        for idx in tqdm(
-            range(start_index, last_index, granularity),
-            desc="Creating video",
-            unit="fr",
-            leave=False,
-        ):
-            frame = self._frame_reader[idx]
-            bbox = self._calc_bbox(frame)
+        for i in range(start_index, last_index, granularity):
+            frame = self._frame_reader[i]
+            bbox = self._calc_bbox(frame, background=self.background(), thresh=self._diff_thresh)
 
             x1, y1, x2, y2 = BoxConverter.change_format(bbox, BoxFormat.XYWH, BoxFormat.XYXY)
 
@@ -195,12 +191,118 @@ class VideoExtractor:
 
             min_x, min_y = new_min_x, new_min_y
             max_x, max_y = new_max_x, new_max_y
-            end_index = idx
+            end_index = i
 
         # slice indices - video frame range; slice_bbox - video crop coords
         slice_indices = (start_index, end_index + 1)
         slice_bbox = (int(min_x), int(min_y), *target_size)
         return slice_indices, slice_bbox
+
+    def _calc_video_bounds(
+        self,
+        start_index: int,
+        target_size: tuple[int, int],
+        max_length: int = None,
+        granularity: int = 1,
+    ) -> tuple[tuple, tuple]:
+        if self._cached_all_bboxes is not None:
+            return self._calc_video_bounds_cached(start_index, target_size, max_length)
+        else:
+            return self._calc_video_bounds_dynamic(start_index, target_size, max_length, granularity)
+
+    def generate_videos(
+        self,
+        count: int,
+        frame_size: tuple[int, int],
+        save_folder_format: str,
+        max_length: int = None,
+        granularity: int = 2,
+    ):
+        """
+        Generate set amount of video samples. Each video sample starts at a random frame.
+            Note, that resulting videos might overlap.
+        :param count: number of video samples to generate.
+        :param frame_size: resolution of the video sample, in format [w, h].
+        :param save_folder_format: folder name format of a video sample.
+            Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
+        :param max_length: the maximum number of frames in a single video sample.
+        :param granularity: examine every `granularity` frames for object-out-of-frame condition.
+            The computation is sped up by factor of `granularity`, but video sample length might be slightly imprecise.
+        """
+        self.initialize(cache_bboxes=False)
+
+        # create a different thread which will save the videos
+        progress_queue = ProgressQueue(desc="Saving videos", unit="vid")
+        worker_thread = threading.Thread(target=self._video_saver_worker, args=(progress_queue,))
+        worker_thread.start()
+
+        # Randomly select frames
+        rnd_fids = np.random.choice(len(self._frame_reader), size=count, replace=False)
+
+        for i, fid in tqdm(enumerate(rnd_fids), desc="Calculating video samples", unit="vid", total=count):
+            trim_range, crop_dims = self._calc_video_bounds(fid, frame_size, max_length, granularity)
+            progress_queue.put((save_folder_format.format(i), trim_range, crop_dims))
+
+        progress_queue.join()  # wait for queue to empty
+        progress_queue.put(None)  # put stop signal into queue
+        worker_thread.join()  # wait for worker thread to finish
+
+    def generate_all_videos(
+        self,
+        frame_size: tuple[int, int],
+        save_folder_format: str,
+        max_length: int = None,
+    ):
+        """
+        Generate consecutive series of videos for all the frames stored in the `frame_reader` used for creating this class.
+            Note, that the resulting videos do not overlap, and each video starts after the last frame of the previous video.
+        :param count: number of video samples to generate.
+        :param frame_size: resolution of the video sample, in format [w, h].
+        :param save_folder_format: folder name format of a video sample.
+            Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
+        :param max_length: the maximum number of frames in a single video sample.
+        """
+        self.initialize(cache_bboxes=True)
+
+        # create a different thread which will save the videos
+        progress_queue = ProgressQueue(desc="Saving videos", unit="vid")
+        worker_thread = threading.Thread(target=self._video_saver_worker, args=(progress_queue,))
+        worker_thread.start()
+
+        calc_bar = tqdm(desc="Calculating video samples", total=len(self._frame_reader), unit="fr")
+        start_frame = 0
+        i = 0
+
+        while start_frame < len(self._frame_reader):
+            (trim_start, trim_end), crop_dims = self._calc_video_bounds(start_frame, frame_size, max_length)
+            progress_queue.put((save_folder_format.format(i), (trim_start, trim_end), crop_dims))
+
+            # update loop params
+            i += 1
+            start_frame = trim_end
+            calc_bar.update(trim_end - trim_start)
+
+        calc_bar.close()
+        progress_queue.join()  # wait for queue to empty
+        progress_queue.put(None)  # put stop signal into queue
+        worker_thread.join()  # wait for worker thread to finish
+
+    def _video_saver_worker(self, task_queue: queue.Queue):
+        """Worker function to save video frames asynchronously."""
+        while True:
+            try:
+                task = task_queue.get(timeout=1)
+                # exit if signaled
+                if task is None:
+                    break
+
+                save_folder, trim_range, crop_dims = task
+                self._crop_and_save_video(save_folder, trim_range, crop_dims)
+                task_queue.task_done()
+
+            # queue is empty, so wait for new tasks
+            except queue.Empty:
+                pass
 
     def _crop_and_save_video(
         self,
@@ -224,68 +326,3 @@ class VideoExtractor:
             file_name = Path(self._frame_reader.files[i]).name
             full_path = Path(save_folder).joinpath(file_name).as_posix()
             cv.imwrite(full_path, frame)
-
-    def generate_videos(
-        self,
-        count: int,
-        frame_size: tuple[int, int],
-        save_folder_format: str,
-        max_length: int = None,
-        granularity: int = 2,
-    ):
-        """
-        Generate set amount of video samples. Each video sample starts at a random frame.
-            Note, that resulting videos might overlap.
-        :param count: number of video samples to generate.
-        :param frame_size: resolution of the video sample, in format [w, h].
-        :param save_folder_format: folder name format of a video sample.
-            Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
-        :param max_length: the maximum number of frames in a single video sample.
-        :param granularity: examine every `granularity` frames for object-out-of-frame condition.
-            The computation is sped up by factor of `granularity`, but video sample length might be slightly imprecise.
-        """
-        self.initialize(cache_bboxes=False)
-
-        # Randomly select frames
-        rnd_fids = np.random.choice(len(self._frame_reader), size=count, replace=False)
-
-        if self._cached_all_bboxes is None:
-            for i, fid in tqdm(enumerate(rnd_fids), desc="Creating video samples", unit="vid", total=count):
-                trim_range, crop_dims = self._calc_video_bounds_dynamic(fid, frame_size, max_length, granularity)
-                self._crop_and_save_video(save_folder_format.format(i), trim_range, crop_dims)
-        else:
-            for i, fid in tqdm(enumerate(rnd_fids), desc="Creating video samples", unit="vid", total=count):
-                trim_range, crop_dims = self._calc_video_bounds_cached(fid, frame_size, max_length)
-                self._crop_and_save_video(save_folder_format.format(i), trim_range, crop_dims)
-
-    def generate_all_videos(
-        self,
-        frame_size: tuple[int, int],
-        save_folder_format: str,
-        max_length: int = None,
-    ):
-        """
-        Generate consecutive series of videos for all the frames stored in the `frame_reader` used for creating this class.
-            Note, that the resulting videos do not overlap, and each video starts after the last frame of the previous video.
-        :param count: number of video samples to generate.
-        :param frame_size: resolution of the video sample, in format [w, h].
-        :param save_folder_format: folder name format of a video sample.
-            Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
-        :param max_length: the maximum number of frames in a single video sample.
-        """
-        self.initialize(cache_bboxes=True)
-
-        progress_bar = tqdm(desc="Creating video samples", total=len(self._frame_reader), unit="fr")
-        start_frame = 0
-        i = 0
-
-        while start_frame < len(self._frame_reader):
-            (trim_start, trim_end), crop_dims = self._calc_video_bounds_cached(start_frame, frame_size, max_length)
-            self._crop_and_save_video(save_folder_format.format(i), (trim_start, trim_end), crop_dims)
-
-            # update loop params
-            i += 1
-            start_frame = trim_end
-            progress_bar.update(trim_end - trim_start)
-
-        progress_bar.close()
