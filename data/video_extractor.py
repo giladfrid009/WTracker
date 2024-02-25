@@ -231,7 +231,7 @@ class VideoExtractor:
         frame_size: tuple[int, int],
         save_folder_format: str,
         max_length: int = None,
-        granularity: int = 1,
+        granularity: int = 2,
     ):
         """
         Generate set amount of video samples. Each video sample starts at a random frame.
@@ -242,7 +242,7 @@ class VideoExtractor:
             Must contain '{}' sequence in it's name, which will be replaced by the video sample number.
         :param max_length: the maximum number of frames in a single video sample.
         :param granularity: examine every `granularity` frames for object-out-of-frame condition.
-            Speeds up the computation but video sample length might be imprecise (too short).
+            The computation is sped up by factor of `granularity`, but video sample length might be slightly imprecise.
         """
         self.initialize(cache_bboxes=False)
 
