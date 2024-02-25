@@ -9,11 +9,28 @@ from dataset.bbox_utils import BoxFormat
 
 @dataclass(frozen=True)
 class ImageMeta:
+    """
+    Represents metadata of an image.
+
+    Attributes:
+        path (str): The file path of the image.
+        shape (tuple[int, int, int]): The shape of the image in the format [width, height, channels].
+    """
+
     path: str
     shape: tuple[int, int, int]  # [w, h, c]
 
     @staticmethod
     def from_file(full_path: str) -> ImageMeta:
+        """
+        Creates an ImageMeta object from a file.
+
+        Args:
+            full_path (str): The full path of the image file.
+
+        Returns:
+            ImageMeta: The ImageMeta object representing the image metadata.
+        """
         with PIL.Image.open(full_path) as image:
             w, h, c = *image.size, len(image.getbands())
             return ImageMeta(full_path, (w, h, c))
@@ -21,13 +38,20 @@ class ImageMeta:
 
 @dataclass(frozen=True)
 class ImageSample:
+    """
+    Represents an image sample with associated metadata, bounding boxes, and keypoints.
+
+    Attributes:
+        metadata (ImageMeta): The metadata associated with the image sample.
+        bboxes (np.ndarray, optional): The bounding boxes for objects in the image. Shape: (num_samples, 4).
+        bbox_format (BoxFormat, optional): The format of the bounding boxes.
+        keypoints (np.ndarray, optional): The keypoints for objects in the image. Shape: (num_samples, num_keypoints, 2).
+    """
+
     metadata: ImageMeta
     bboxes: np.ndarray = None
     bbox_format: BoxFormat = None
     keypoints: np.ndarray = None
-
-    # bboxes shape: [sample_number, 4]
-    # keypoints shape: [sample_number, num_keypoints, 2]
 
     def __post_init__(self):
         have_bbox = self.bboxes is not None
@@ -58,6 +82,13 @@ class ImageSample:
 
 @dataclass(frozen=True)
 class ImageDataset:
+    """
+    A class representing a dataset of image samples.
+
+    Attributes:
+        image_list (list[ImageSample]): A list of image samples in the dataset.
+    """
+
     image_list: list[ImageSample]
 
     def __len__(self):
@@ -70,10 +101,28 @@ class ImageDataset:
         return self.image_list.__iter__()
 
     def add_sample(self, sample: ImageSample):
+        """
+        Adds a new image sample to the dataset.
+
+        Args:
+            sample (ImageSample): The image sample to be added.
+        """
         self.image_list.append(sample)
 
     def remove_sample(self, idx: int):
+        """
+        Removes an image sample from the dataset at the specified index.
+
+        Args:
+            idx (int): The index of the image sample to be removed.
+        """
         self.image_list.pop(idx)
 
     def extend(self, other: ImageDataset):
+        """
+        Extends the dataset by adding all image samples from another dataset.
+
+        Args:
+            other (ImageDataset): The dataset to be extended with.
+        """
         self.image_list.extend(other.image_list)

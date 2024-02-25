@@ -7,12 +7,27 @@ from dataset.image_dataset import *
 
 
 class DatasetConverter:
+    """
+    A class for converting image datasets between different formats.
+    """
+
     @staticmethod
-    def to_yolo(frame_dataset: ImageDataset, labels_path: str, images_path: str):
+    def to_yolo(image_dataset: ImageDataset, labels_path: str, images_path: str):
+        """
+        Converts an image dataset to YOLO format.
+
+        Args:
+            image_dataset (ImageDataset): The input image dataset.
+            labels_path (str): The path to save the YOLO labels.
+            images_path (str): The path to save the YOLO images.
+
+        Raises:
+            Exception: If both bboxes and keypoints are not present for YOLO format conversion.
+        """
         create_directory(labels_path)
         create_directory(images_path)
 
-        for sample in frame_dataset:
+        for sample in image_dataset:
             src_img_path = sample.metadata.path
             dst_ann_path = Path(labels_path) / f"{Path(src_img_path).stem}.txt"
             dst_img_path = Path(images_path) / Path(src_img_path).name
@@ -52,6 +67,17 @@ class DatasetConverter:
                 dst_img_path.hardlink_to(src_img_path)
 
     def from_yolo(labels_path: str, images_path: str) -> ImageDataset:
+        """
+        Converts YOLO format keypoint annotations and images into an ImageDataset.
+
+        Args:
+            labels_path (str): The path to the directory containing YOLO format annotation files.
+            images_path (str): The path to the directory containing the corresponding images.
+
+        Returns:
+            ImageDataset: The converted ImageDataset object.
+
+        """
         dataset = ImageDataset([])
 
         glob_ann_format = (Path(labels_path) / "*.txt").as_posix()

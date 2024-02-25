@@ -26,24 +26,10 @@ class Timer:
         self.time = None
 
     def __enter__(self):
-            """
-            Enter the timing context and start measuring the execution time.
-            
-            Returns:
-                TimingContext: The timing context object itself.
-            """
             self._start = perf_counter()
             return self
 
     def __exit__(self, type, value, traceback):
-            """
-            Exit the context manager and calculate the elapsed time.
-
-            Args:
-                type: The type of the exception raised, if any.
-                value: The exception instance raised, if any.
-                traceback: The traceback for the exception raised, if any.
-            """
             self.time = perf_counter() - self._start
             if not self._silent:
                 print(f"Time: {self.time:.3f} seconds")
@@ -113,10 +99,4 @@ class TimeBenchmark:
         return self._time_total / self._iters
 
     def __str__(self) -> str:
-        """
-        Returns a string representation of the object.
-
-        Returns:
-            str: A string representation of the object, including the average time in seconds.
-        """
         return f"Average time: {self.average()} seconds"

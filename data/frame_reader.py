@@ -156,30 +156,12 @@ class FrameStream:
         self._idx = 0
 
     def __len__(self):
-        """
-        Returns the length of the frame reader.
-
-        Returns:
-            int: The number of frames in the frame reader.
-        """
         return len(self._frame_reader)
 
     def __iter__(self):
-        """
-        Returns the iterator object itself.
-        """
         return self
 
     def __next__(self) -> np.ndarray:
-        """
-        Returns the next frame in the frame reader.
-
-        Raises:
-            StopIteration: If there are no more frames to read.
-
-        Returns:
-            np.ndarray: The next frame.
-        """
         if self._idx >= len(self._frame_reader):
             raise StopIteration()
 
