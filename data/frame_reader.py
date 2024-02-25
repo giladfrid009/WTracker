@@ -92,6 +92,16 @@ class FrameReader:
         return self._frame_shape
 
     @property
+    def frame_size(self) -> tuple[int, int]:
+        """
+        Returns the size of the frame.
+
+        Returns:
+            tuple[int, int]: The shape of the frame, in format (h, w).
+        """
+        return self._frame_shape[:2]
+
+    @property
     def files(self) -> list[str]:
         """
         Returns the list of files associated with the FrameReader object.

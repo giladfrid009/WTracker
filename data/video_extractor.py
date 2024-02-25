@@ -162,7 +162,7 @@ class VideoExtractor:
             bboxes = concurrent.process_map(
                 functools.partial(VideoExtractor._calc_bbox, background=self.background(), thresh=self._diff_thresh),
                 self._frame_reader,
-                max_workers = self._num_workers,
+                max_workers=self._num_workers,
                 chunksize=self._chunk_size,
                 desc="Extracting bboxes",
                 unit="fr",
@@ -216,7 +216,10 @@ class VideoExtractor:
             last_legal_idx = len(is_illegal) - 1
 
         slice_indices = (start_index, start_index + last_legal_idx + 1)
-        slice_bbox = (min_left[last_legal_idx], min_bottom[last_legal_idx], *target_size)
+        slice_width = max_right[last_legal_idx] - min_left[last_legal_idx]
+        slice_height = max_top[last_legal_idx] - min_bottom[last_legal_idx]
+        slice_bbox = (min_left[last_legal_idx], min_bottom[last_legal_idx], slice_width, slice_height)
+        slice_bbox = self.expand_bbox(slice_bbox, target_size)
         return slice_indices, slice_bbox
 
     def _calc_video_bounds_dynamic(
@@ -231,7 +234,7 @@ class VideoExtractor:
 
         Args:
             start_index (int): The starting index of the video frames.
-            target_size (tuple[int, int]): The target size of the video crop.
+            target_size (tuple[int, int]): The target size of the video crop, in format (w, h).
             max_length (int, optional): The maximum length of the video frames to consider. Defaults to None.
             granularity (int, optional): The step size for iterating through the video frames. Defaults to 2.
 
@@ -265,8 +268,36 @@ class VideoExtractor:
 
         # slice indices - video frame range; slice_bbox - video crop coords
         slice_indices = (start_index, end_index + 1)
-        slice_bbox = (int(min_x), int(min_y), *target_size)
+        slice_bbox = (int(min_x), int(min_y), int(max_x - min_x), int(max_y - min_y))
+        slice_bbox = self.expand_bbox(slice_bbox, target_size)
         return slice_indices, slice_bbox
+
+    def expand_bbox(self, bbox: tuple[int, int, int, int], target_size: tuple[int, int]) -> tuple[int, int, int, int]:
+        """
+        Expands the bounding box coordinates to to be of `target_size` dimensions.
+
+        Args:
+            bbox (tuple[int, int, int, int]): The original bounding box coordinates (x, y, w, h).
+            target_size (tuple[int, int]): The target size of the bounding box (w, h).
+
+        Returns:
+            tuple[int, int, int, int]: The expanded bounding box coordinates (x, y, w, h).
+        """
+
+        frame_height, frame_width = self._frame_reader.frame_size
+
+        assert target_size[0] <= frame_width and target_size[1] <= frame_height
+
+        x, y = bbox[:2]
+        w, h = target_size
+
+        if x + w - frame_width > 0:
+            x = frame_width - w
+
+        if y + h - frame_height > 0:
+            y = frame_height - h
+
+        return x, y, w, h
 
     def _calc_video_bounds(
         self,
