@@ -392,7 +392,7 @@ class VideoExtractor:
         """
         while True:
             try:
-                task = video_params.get(timeout=1)
+                task = video_params.get()
                 # exit if signaled
                 if task is None:
                     break
@@ -400,10 +400,6 @@ class VideoExtractor:
                 save_folder, trim_range, crop_dims = task
                 self._crop_and_save_video(save_folder, trim_range, crop_dims)
                 video_params.task_done()
-
-            # queue is empty, so wait for new tasks
-            except queue.Empty:
-                pass
 
     def _crop_and_save_video(
         self,
