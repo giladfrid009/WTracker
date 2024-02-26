@@ -94,3 +94,30 @@ def pickle_load_object(file_path: str):
         raise FileNotFoundError(f"file does not exist: {file_path}")
     except Exception as e:
         raise ValueError(f"error loading object from pickle file: {e}")
+
+import glob
+from PIL import Image
+import os
+
+
+def folder_convert_images(folder: str, old_extension: str, new_extension, remove_old: bool = False):
+    old_names = glob.glob(f"*.{old_extension}", root_dir=folder)
+    new_names = [Path(p).stem + f".{new_extension}" for p in old_names]
+
+    for old_name, new_name in zip(old_names, new_names):
+        Image.open(join_paths(folder, old_name)).save(join_paths(folder, new_name))
+
+    if remove_old:
+        for old_name in old_names:
+            Path(join_paths(folder, old_name)).unlink()
+
+
+def rename_raw_file_names(folder: str, extension:str):
+    for count, filename in enumerate(glob.glob(f"*.{extension}", root_dir=folder)):
+        new_name = filename.split('-')[-1]
+        # rename all the files
+        os.rename(os.path.join(folder, filename),  os.path.join(folder, new_name))
+        # print(filename)
+
+
+
