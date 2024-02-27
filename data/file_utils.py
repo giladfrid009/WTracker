@@ -1,4 +1,5 @@
 from pathlib import Path, PurePath
+from typing import Callable
 import pickle
 
 
@@ -86,3 +87,23 @@ def pickle_load_object(file_path: str):
         raise FileNotFoundError(f"file does not exist: {file_path}")
     except Exception as e:
         raise ValueError(f"error loading object from pickle file: {e}")
+
+
+def bulk_rename(dir_path: str, rename_fn: Callable[[str], str]):
+    """
+    Rename all files in a directory using the provided renaming function.
+
+    Args:
+        dir_path (str): The path of the directory containing the files to be renamed.
+        rename_fn (Callable[[str], str]): The function to be used for renaming the files.
+
+    Returns:
+        None
+    """
+    dir_path: Path = Path(dir_path)
+    for file_name in dir_path.iterdir():
+        if file_name.is_dir():
+            continue
+
+        new_name = dir_path / rename_fn(file_name.name)
+        file_name.rename(new_name)
