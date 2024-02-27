@@ -330,6 +330,7 @@ class VideoExtractor:
         frame_size: tuple[int, int],
         save_folder_format: str,
         max_length: int = None,
+        file_extension: str = None,
         granularity: int = 2,
     ):
         """
@@ -348,6 +349,7 @@ class VideoExtractor:
             frame_size (tuple[int, int]): The desired size of each frame in the videos.
             save_folder_format (str): The format string for the save folder path of each video.
             max_length (int, optional): The maximum length of each video in frames. Defaults to None.
+            file_extension (str, optional): The file extension for the saved frames of a video. If None then original file extension will be used. Defaults to None.
             granularity (int, optional): The granularity of out of bounds check. Defaults to 2.
 
         Returns:
@@ -366,7 +368,7 @@ class VideoExtractor:
 
         for i, fid in tqdm(enumerate(rnd_fids), desc="Calculating video samples", unit="vid", total=count):
             trim_range, crop_dims = self._calc_video_bounds(fid, frame_size, max_length, granularity)
-            progress_queue.put((save_folder_format.format(i), trim_range, crop_dims))
+            progress_queue.put((save_folder_format.format(i), trim_range, crop_dims, file_extension))
 
         progress_queue.join()  # wait for queue to empty
         progress_queue.put(None)  # put stop signal into queue
@@ -377,6 +379,7 @@ class VideoExtractor:
         frame_size: tuple[int, int],
         save_folder_format: str,
         max_length: int = None,
+        file_extension: str = None,
     ):
         """
         Generates all videos by iterating over all the frames, calculating video bounds, and saving the videos.
@@ -386,6 +389,7 @@ class VideoExtractor:
             frame_size (tuple[int, int]): The size of each frame in the generated videos.
             save_folder_format (str): The format string for the save folder path of each video.
             max_length (int, optional): The maximum length of each video in frames. Defaults to None.
+            file_extension (str, optional): The file extension for the saved frames of a video. If None then original file extension will be used. Defaults to None.
         """
         self.initialize(cache_bboxes=True)
 
@@ -400,7 +404,7 @@ class VideoExtractor:
 
         while start_frame < len(self._frame_reader):
             (trim_start, trim_end), crop_dims = self._calc_video_bounds(start_frame, frame_size, max_length)
-            progress_queue.put((save_folder_format.format(i), (trim_start, trim_end), crop_dims))
+            progress_queue.put((save_folder_format.format(i), (trim_start, trim_end), crop_dims, file_extension))
 
             # update loop params
             i += 1
@@ -429,8 +433,8 @@ class VideoExtractor:
             if task is None:
                 break
 
-            save_folder, trim_range, crop_dims = task
-            self._crop_and_save_video(save_folder, trim_range, crop_dims)
+            save_folder, trim_range, crop_dims, file_extension = task
+            self._crop_and_save_video(save_folder, trim_range, crop_dims, file_extension)
             video_params.task_done()
 
     def _crop_and_save_video(
@@ -438,6 +442,7 @@ class VideoExtractor:
         save_folder: str,
         trim_range: tuple[int, int],
         crop_dims: tuple[int, int, int, int],
+        file_extension: str = None,
     ):
         """
         Crop and save video frames within the specified trim range and crop dimensions.
@@ -446,6 +451,7 @@ class VideoExtractor:
             save_folder (str): The path to the folder where the cropped frames will be saved.
             trim_range (tuple[int, int]): The range of frames to be cropped and saved, specified as a tuple of start and end indices.
             crop_dims (tuple[int, int, int, int]): The dimensions of the crop area, specified as a tuple of x, y, width, and height.
+            file_extension (str, optional): The file extension for the saved frames. If not provided, the original file extension will be used.
 
         Returns:
             None
@@ -456,12 +462,15 @@ class VideoExtractor:
         x, y, w, h = crop_dims
         start, end = trim_range
 
+        if file_extension is None:
+            file_extension = Path(self._frame_reader.files[0]).suffix[1:]
+
         for i in range(start, end):
             # get frame and crop it
             frame = self._frame_reader[i]
             frame = frame[y : y + h, x : x + w]
 
             # save frame to sample path
-            file_name = Path(self._frame_reader.files[i]).name
-            full_path = Path(save_folder).joinpath(file_name).as_posix()
+            new_name = f"frame{i:05d}.{file_extension}"
+            full_path = Path(save_folder).joinpath(new_name).as_posix()
             cv.imwrite(full_path, frame)
