@@ -329,7 +329,7 @@ class VideoExtractor:
         frame_size: tuple[int, int],
         save_folder_format: str,
         max_length: int = None,
-        name_format: str = "frame_{:05d}",
+        name_format: str = "frame_{:06d}.png",
         granularity: int = 2,
     ):
         """
@@ -371,7 +371,7 @@ class VideoExtractor:
         frame_size: tuple[int, int],
         save_folder_format: str,
         max_length: int = None,
-        name_format: str = "frame_{:05d}",
+        name_format: str = "frame_{:06d}.png",
     ):
         """
         Generates all videos by iterating over all the frames, calculating video bounds, and saving the videos.
