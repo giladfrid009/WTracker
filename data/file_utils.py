@@ -114,10 +114,76 @@ def folder_convert_images(folder: str, old_extension: str, new_extension, remove
 
 def rename_raw_file_names(folder: str, extension:str):
     for count, filename in enumerate(glob.glob(f"*.{extension}", root_dir=folder)):
+        print(filename)
         new_name = filename.split('-')[-1]
         # rename all the files
         os.rename(os.path.join(folder, filename),  os.path.join(folder, new_name))
         # print(filename)
+
+
+
+class Files:
+    def __init__(self, directory:str, extention:str='', scan_dirs:bool=False, return_full_path:bool=True) -> None:
+        self.root = directory
+        self.extention = extention
+        self.scan_dirs:bool = scan_dirs
+        self.return_full_path = return_full_path
+        self.results:list[os.DirEntry] = []
+
+        self._pos = 0
+
+        self._scan()
+    
+    def _scan(self):
+        self.results:list = []
+        self._pos = 0
+
+        for result in os.scandir(self.root):
+            if self.scan_dirs and result.is_dir():
+                self.results.append(result)
+            else:
+                if result.name.endswith(self.extention):
+                    self.results.append(result)
+        
+        self.results = sorted(self.results, key=lambda f: f.name)
+    
+    def __iter__(self):
+        self._pos = 0
+        return self
+    
+    def __next__(self):
+        self._pos += 1
+        if self._pos >= self.__len__():
+            raise StopIteration
+        
+        result:os.DirEntry = self.results[self._pos]
+        if self.return_full_path:
+            return result.path  
+        return result.name
+
+    def __len__(self)->int:
+        return len(self.results)
+    
+    def get_filename(self)->str:
+        return self.results[self._pos].name
+    def get_path(self)->str:
+        return self.results[self._pos].path
+    
+    def seek(self, pos:int):
+        if 0 <= pos < self.__len__():
+            self._pos = pos-1
+            return self.__next__()
+    
+
+    
+
+
+
+
+
+
+
+
 
 
 

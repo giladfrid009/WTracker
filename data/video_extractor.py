@@ -2,13 +2,12 @@ import cv2 as cv
 import numpy as np
 from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
-from pathlib import Path
 import threading
 import functools
 import queue
 
 from data.tqdm_utils import TqdmQueue
-from data.file_utils import create_directory
+from data.file_utils import create_directory, join_paths, Files
 from data.frame_reader import FrameReader
 from dataset.bbox_utils import BoxFormat, BoxConverter
 
@@ -150,6 +149,40 @@ class VideoExtractor:
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
 
         return largest_bbox
+    
+    def create_samples(self, count:int, target_size: tuple[int, int], save_folder:str, format: str = "png"):
+        rnd_fids = np.random.choice(len(self._frame_reader), size=count, replace=False)
+        for i in rnd_fids:
+            frame = self._frame_reader[i]
+            sample = self.sample_camera_view(frame, target_size)
+            
+            file_name = self._frame_reader.files[i] if format is None else self._frame_reader.files[i][:-3] + format
+            full_path = join_paths(save_folder, file_name)
+            cv.imwrite(full_path, sample)
+
+    
+    def sample_camera_view(self, frame:np.ndarray, target_size: tuple[int, int], method:str='uniform'):
+        cam_height, cam_width = target_size
+        x, y, width, height = self._calc_bbox(frame, self.background(), self._diff_thresh)
+        x_range = [x+width-cam_width, x]
+        y_range = [y+height-cam_height, y]
+
+        cam_x, cam_y = None, None
+        if method == 'normal':
+            x_mean = (x_range[0] + x_range[1])/2
+            y_mean = (y_range[0] + y_range[1])/2
+            std_x = (x_range[1] - x_range[1])
+            std_y = (y_range[1] - y_range[1])
+
+            cam_x = int(np.random.normal(x_mean, std_x))
+            cam_y = int(np.random.normal(y_mean, std_y))
+        if method == 'uniform':
+            cam_x = int(np.random.uniform(x_range[0], x_range[1]))
+            cam_y = int(np.random.uniform(y_range[0], y_range[1]))
+
+        cam_x, cam_y, _, _ = self.expand_bbox((cam_x, cam_y, cam_width, cam_height), target_size)
+        frame = frame[cam_y:cam_y+cam_height, cam_x:cam_x+cam_width]
+        return frame
 
     def _calc_all_bboxes(self) -> np.ndarray:
         """
@@ -330,6 +363,7 @@ class VideoExtractor:
         frame_size: tuple[int, int],
         save_folder_format: str,
         max_length: int = None,
+        name_format: str = "frame_{:06d}.png",
         granularity: int = 2,
     ):
         """
@@ -338,16 +372,10 @@ class VideoExtractor:
 
         Args:
             count (int): The number of videos to generate.
-            frame_size (tuple[int, int]): The size of the video frames.
-            save_folder_format (str): The format string for the save folder path.
-            max_length (int, optional): The maximum length of the video frames to consider. Defaults to None.
-            granularity (int, optional): The step size for iterating through the video frames. Defaults to 2.
-
-        Args:
-            count (int): The number of videos to generate.
             frame_size (tuple[int, int]): The desired size of each frame in the videos.
             save_folder_format (str): The format string for the save folder path of each video.
             max_length (int, optional): The maximum length of each video in frames. Defaults to None.
+            name_format (str, optional): The format string for the name of each video. If None then original name is preserved.
             granularity (int, optional): The granularity of out of bounds check. Defaults to 2.
 
         Returns:
@@ -366,7 +394,7 @@ class VideoExtractor:
 
         for i, fid in tqdm(enumerate(rnd_fids), desc="Calculating video samples", unit="vid", total=count):
             trim_range, crop_dims = self._calc_video_bounds(fid, frame_size, max_length, granularity)
-            progress_queue.put((save_folder_format.format(i), trim_range, crop_dims))
+            progress_queue.put((save_folder_format.format(i), trim_range, crop_dims, name_format))
 
         progress_queue.join()  # wait for queue to empty
         progress_queue.put(None)  # put stop signal into queue
@@ -377,6 +405,7 @@ class VideoExtractor:
         frame_size: tuple[int, int],
         save_folder_format: str,
         max_length: int = None,
+        name_format: str = "frame_{:06d}.png",
     ):
         """
         Generates all videos by iterating over all the frames, calculating video bounds, and saving the videos.
@@ -386,6 +415,7 @@ class VideoExtractor:
             frame_size (tuple[int, int]): The size of each frame in the generated videos.
             save_folder_format (str): The format string for the save folder path of each video.
             max_length (int, optional): The maximum length of each video in frames. Defaults to None.
+            name_format (str, optional): The format string for the name of each video frame. If None then original name is preserved.
         """
         self.initialize(cache_bboxes=True)
 
@@ -400,7 +430,7 @@ class VideoExtractor:
 
         while start_frame < len(self._frame_reader):
             (trim_start, trim_end), crop_dims = self._calc_video_bounds(start_frame, frame_size, max_length)
-            progress_queue.put((save_folder_format.format(i), (trim_start, trim_end), crop_dims))
+            progress_queue.put((save_folder_format.format(i), (trim_start, trim_end), crop_dims, name_format))
 
             # update loop params
             i += 1
@@ -429,8 +459,8 @@ class VideoExtractor:
             if task is None:
                 break
 
-            save_folder, trim_range, crop_dims = task
-            self._crop_and_save_video(save_folder, trim_range, crop_dims)
+            save_folder, trim_range, crop_dims, name_format = task
+            self._crop_and_save_video(save_folder, trim_range, crop_dims, name_format)
             video_params.task_done()
 
     def _crop_and_save_video(
@@ -438,6 +468,7 @@ class VideoExtractor:
         save_folder: str,
         trim_range: tuple[int, int],
         crop_dims: tuple[int, int, int, int],
+        name_format: str = None,
     ):
         """
         Crop and save video frames within the specified trim range and crop dimensions.
@@ -446,6 +477,7 @@ class VideoExtractor:
             save_folder (str): The path to the folder where the cropped frames will be saved.
             trim_range (tuple[int, int]): The range of frames to be cropped and saved, specified as a tuple of start and end indices.
             crop_dims (tuple[int, int, int, int]): The dimensions of the crop area, specified as a tuple of x, y, width, and height.
+            name_format (str, optional): The format string for the name of each video frame. If None then original name is preserved.
 
         Returns:
             None
@@ -461,7 +493,6 @@ class VideoExtractor:
             frame = self._frame_reader[i]
             frame = frame[y : y + h, x : x + w]
 
-            # save frame to sample path
-            file_name = Path(self._frame_reader.files[i]).name
-            full_path = Path(save_folder).joinpath(file_name).as_posix()
+            file_name = self._frame_reader.files[i] if name_format is None else name_format.format(i)
+            full_path = join_paths(save_folder, file_name)
             cv.imwrite(full_path, frame)
