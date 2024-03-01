@@ -35,13 +35,14 @@ class FrameReader:
         self._frame_shape = self.__getitem__(0).shape
 
     @staticmethod
-    def create_from_template(root_folder: str, name_format: str) -> FrameReader:
+    def create_from_template(root_folder: str, name_format: str, read_format: int = cv.IMREAD_GRAYSCALE) -> FrameReader:
         """
         Creates a FrameReader object from a file name template.
 
         Args:
             root_folder (str): The root folder where the frame files are located.
             name_format (str): The format of the frame file names.
+            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.
 
         Returns:
             FrameReader: The created FrameReader object.
@@ -51,15 +52,16 @@ class FrameReader:
         frame_paths = glob.glob(fmt, root_dir=root_folder)
         frame_paths = [f for f in frame_paths if os.path.isfile(join_paths(root_folder, f))]
         frame_paths = sorted(frame_paths)
-        return FrameReader(root_folder, frame_paths)
+        return FrameReader(root_folder, frame_paths, read_format)
 
     @staticmethod
-    def create_from_directory(root_folder: str) -> FrameReader:
+    def create_from_directory(root_folder: str, read_format: int = cv.IMREAD_GRAYSCALE) -> FrameReader:
         """
         Creates a FrameReader object from a directory.
 
         Args:
             root_folder (str): The root folder containing the frame files.
+            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.
 
         Returns:
             FrameReader: The created FrameReader object.
@@ -69,7 +71,7 @@ class FrameReader:
         frame_paths = glob.glob("*.*", root_dir=root_folder)
         frame_paths = [f for f in frame_paths if os.path.isfile(join_paths(root_folder, f))]
         frame_paths = sorted(frame_paths)
-        return FrameReader(root_folder, frame_paths)
+        return FrameReader(root_folder, frame_paths, read_format)
 
     @property
     def root_folder(self) -> str:

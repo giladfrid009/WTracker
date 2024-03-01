@@ -1,3 +1,5 @@
+
+# first install gpu support: conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
 # install: conda env create -f requirements.yaml
 # update:  conda env update -f requirements.yaml
 name: bio-proj
@@ -9,3 +11,4 @@ dependencies:
   - tqdm
   - numpy
   - ipywidgets
+  - ultralytics
