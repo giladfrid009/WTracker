@@ -2,7 +2,7 @@ import cv2 as cv
 import numpy as np
 
 from data.frame_reader import FrameReader, FrameStream
-
+from image_utils import show_image
 
 class ViewController(FrameStream):
     """
@@ -189,9 +189,10 @@ class ViewController(FrameStream):
         x_mic, y_mic, w_mic, h_mic = self._calc_view_coords(*self.micro_size)
 
         world = self.read()
-        world = cv.cvtColor(world, cv.COLOR_GRAY2BGR)
+        # world = cv.cvtColor(world, cv.COLOR_GRAY2BGR)
 
         cv.rectangle(world, (x_cam, y_cam), (x_cam + w_cam, y_cam + h_cam), (0, 0, 255), line_width)
         cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), line_width)
         cv.circle(world, (x_mid, y_mid), 1, (255, 0, 0), line_width)
-        cv.imshow("world view", world)
+        # cv.imshow("world view", world)
+        show_image(cv.cvtColor(world, cv.COLOR_BGR2RGB), "World View")

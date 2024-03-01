@@ -54,7 +54,7 @@ class FrameReader:
         return FrameReader(root_folder, frame_paths)
 
     @staticmethod
-    def create_from_directory(root_folder: str) -> FrameReader:
+    def create_from_directory(root_folder: str, read_format: int = cv.IMREAD_GRAYSCALE) -> FrameReader:
         """
         Creates a FrameReader object from a directory.
 
@@ -69,7 +69,7 @@ class FrameReader:
         frame_paths = glob.glob("*.*", root_dir=root_folder)
         frame_paths = [f for f in frame_paths if os.path.isfile(join_paths(root_folder, f))]
         frame_paths = sorted(frame_paths)
-        return FrameReader(root_folder, frame_paths)
+        return FrameReader(root_folder, frame_paths, read_format)
 
     @property
     def root_folder(self) -> str:
