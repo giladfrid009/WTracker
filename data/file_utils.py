@@ -130,13 +130,13 @@ class Files:
         self.return_full_path = return_full_path
         self.results:list[os.DirEntry] = []
 
-        self._pos = 0
+        self._pos = -1
 
         self._scan()
     
     def _scan(self):
         self.results:list = []
-        self._pos = 0
+        self._pos = -1
 
         for result in os.scandir(self.root):
             if self.scan_dirs and result.is_dir():
@@ -148,7 +148,7 @@ class Files:
         self.results = sorted(self.results, key=lambda f: f.name)
     
     def __iter__(self):
-        self._pos = 0
+        self._pos = -1
         return self
     
     def __next__(self):

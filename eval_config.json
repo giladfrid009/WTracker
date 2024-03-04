@@ -1,0 +1,23 @@
+{
+    "fps": 60,
+    "micro_view_time_ms": 200,
+    "tracking_time_ms": 50,
+    "moving_time_ms": 25,
+
+    "tracking_color": [0, 0, 255],
+    "moving_color": [255, 255, 255],
+    "micro_view_color": [0, 0, 0],
+
+    "database_path": "/Users/guycohen/Library/CloudStorage/OneDrive-Technion/1 Courses/Bio Project/Data/EXP_01_PARTIAL/",
+    "output_path": "/Users/guycohen/Library/CloudStorage/OneDrive-Technion/1 Courses/Bio Project/Data/Eval_v1_test/",
+    "YOLO_weights": "/Users/guycohen/Library/CloudStorage/OneDrive-Technion/1 Courses/Bio Project/Bio-Proj/yolov8m-trained.pt",
+
+    "px_per_mm": 100,
+    "camera_size_mm": [4, 4],
+    "micro_size_mm": [0.2, 0.2],
+
+    "init_position": [1400, 1200],
+    "reader_padding_value": [255,255,255]
+
+
+}

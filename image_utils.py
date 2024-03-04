@@ -10,7 +10,7 @@ def show_image(image: np.ndarray, title:str='', block=True) -> None:
     fig.suptitle(title, fontsize=16)
     ax = plt.imshow(image, cmap='grey', vmin=0, vmax=255, interpolation='none')
     fig.axes[0].grid(False)
-    plt.show(block=block)
+    # plt.show(block=block)
 
 def show_images(images: list[np.ndarray], titles:list[str], suptitle:str='') -> None:
     fig, axes = plt.subplots(1,len(images))
