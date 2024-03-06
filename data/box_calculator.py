@@ -6,7 +6,6 @@ from tqdm.contrib import concurrent
 import multiprocessing
 
 from data.frame_reader import FrameReader
-from dataset.bbox_utils import BoxFormat, BoxConverter
 
 
 class BoxCalculator:
@@ -15,14 +14,12 @@ class BoxCalculator:
         frame_reader: FrameReader,
         bg_probes: int = 100,
         diff_thresh: int = 10,
-        bbox_format: BoxFormat = BoxFormat.XYWH,
     ):
         assert bg_probes > 0 and diff_thresh > 0
 
         self.frame_reader = frame_reader
         self.bg_probes = bg_probes
         self.diff_thresh = diff_thresh
-        self.bbox_format = bbox_format
 
         self._all_bboxes = np.full((len(frame_reader), 4), -1, dtype=int)
         self._background = None
@@ -86,8 +83,6 @@ class BoxCalculator:
         largest_contour = max(contours, key=cv.contourArea)
         largest_bbox = cv.boundingRect(largest_contour)
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
-
-        largest_bbox = BoxConverter.change_format(largest_bbox, BoxFormat.XYWH, self.bbox_format)
         return largest_bbox
 
     def calc_specified_boxes(

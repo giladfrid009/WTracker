@@ -9,7 +9,6 @@ from data.image_saver import ImageSaver
 
 class SampleExtractor:
     def __init__(self, bbox_calculator: BoxCalculator):
-        assert bbox_calculator.bbox_format == BoxFormat.XYWH
         self._bbox_calculator = bbox_calculator
         self._frame_reader = bbox_calculator.frame_reader
 
