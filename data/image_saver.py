@@ -31,13 +31,23 @@ class ImageSaver:
 
         self._frame_reader = frame_reader
         self._save_folder = save_folder
-
         create_directory(save_folder)
 
         self._queue = TqdmQueue(maxsize, **tqdm_kwargs) if tqdm else queue.Queue(maxsize)
-
         self._worker_thread = threading.Thread(target=self._save_worker, args=(self._queue,))
+
+    def start(self):
+        """
+        Starts the worker thread.
+        """
         self._worker_thread.start()
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
 
     def save_image(self, img_index: int, crop_dims: tuple[int, int, int, int], img_name: str):
         """

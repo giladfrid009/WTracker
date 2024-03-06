@@ -1,8 +1,7 @@
 import numpy as np
 
 from typing import Iterable
-import multiprocessing
-from dataset.bbox_utils import BoxFormat, BoxUtils
+from dataset.bbox_utils import BoxUtils
 from data.box_calculator import BoxCalculator
 from data.image_saver import ImageSaver
 
@@ -56,12 +55,9 @@ class SampleExtractor:
         bboxes = BoxUtils.pack(x, y, w, h)
         bboxes = self.move_bboxes_into_bounds(bboxes, self._frame_reader.frame_size)
 
-        saver = ImageSaver(self._frame_reader, save_folder, desc="Saving samples", unit="fr")
-
-        for i, bbox in enumerate(bboxes):
-            saver.save_image(i, bbox, name_format.format(i))
-
-        saver.close()
+        with ImageSaver(self._frame_reader, save_folder, desc="Saving samples", unit="fr") as saver:
+            for i, bbox in enumerate(bboxes):
+                saver.save_image(i, bbox, name_format.format(i))
 
     def create_samples(
         self,
