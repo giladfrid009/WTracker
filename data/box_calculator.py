@@ -14,10 +14,10 @@ class BoxCalculator:
 
     Methods:
         all_bboxes(): Returns all bounding boxes for all the frames.
-        get_bbox(): Returns the bounding box for a given frame index.
+        get_bbox(frame_idx): Returns the bounding box for a given frame index.
         get_background(): Returns the background image extracted from the frame reader frames.
-        calc_specified_boxes(): Calculate bounding boxes for the specified frame indices.
-        calc_all_boxes(): Calculate bounding boxes for all frames.
+        calc_specified_boxes(frame_indices, num_workers, chunk_size): Calculate bounding boxes for the specified frame indices.
+        calc_all_boxes(num_workers, chunk_size): Calculate bounding boxes for all frames.
     """
 
     def __init__(

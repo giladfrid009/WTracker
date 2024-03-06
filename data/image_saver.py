@@ -2,7 +2,7 @@ import cv2 as cv
 import threading
 import queue
 
-from data.file_utils import join_paths, create_directory
+from data.file_utils import join_paths, create_directory, create_parent_directory
 from data.frame_reader import FrameReader
 from data.tqdm_utils import TqdmQueue
 
@@ -75,7 +75,12 @@ class ImageSaver:
 
             img = self._frame_reader[img_index]
             img = img[y : y + h, x : x + w]
-            cv.imwrite(save_path, img)
+            success = cv.imwrite(save_path, img)
+
+            if not success:
+                create_parent_directory(save_path)
+                if not cv.imwrite(save_path, img):
+                    raise ValueError(f"Failed to save image {save_path}")
 
             param_queue.task_done()
 
