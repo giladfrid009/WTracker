@@ -34,7 +34,7 @@ class BoxUtils:
         Returns:
             bool: True if the array is a valid bounding box, False otherwise.
         """
-        return array is not None and array.shape[-1] == 4 and array.dtype == int
+        return array is not None and array.shape[-1] == 4
 
     @staticmethod
     def unpack(bbox: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -47,7 +47,7 @@ class BoxUtils:
         Returns:
             tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: The unpacked components of the bounding box.
         """
-        return np.split(bbox.astype(int, copy=False), bbox.shape[-1], axis=-1)
+        return np.split(bbox, bbox.shape[-1], axis=-1)
 
     @staticmethod
     def pack(c1: np.ndarray, c2: np.ndarray, c3: np.ndarray, c4: np.ndarray) -> np.ndarray:
@@ -63,7 +63,7 @@ class BoxUtils:
         Returns:
             np.ndarray: The packed bounding box.
         """
-        return np.concatenate((c1, c2, c3, c4), axis=-1).astype(int, copy=False)
+        return np.concatenate((c1, c2, c3, c4), axis=-1)
 
     @staticmethod
     def sanitize(bboxes: np.ndarray) -> np.ndarray:

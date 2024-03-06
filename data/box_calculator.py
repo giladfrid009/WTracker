@@ -5,17 +5,25 @@ from tqdm.contrib import concurrent
 import multiprocessing
 
 from data.frame_reader import FrameReader
+from dataset.bbox_utils import BoxFormat, BoxConverter
 
 
 class BoxCalculator:
-    def __init__(self, frame_reader: FrameReader, bg_probes: int = 100, diff_thresh: int = 10):
+    def __init__(
+        self,
+        frame_reader: FrameReader,
+        bg_probes: int = 100,
+        diff_thresh: int = 10,
+        bbox_format: BoxFormat = BoxFormat.XYWH,
+    ):
         assert bg_probes > 0 and diff_thresh > 0
 
-        self._frame_reader = frame_reader
+        self.frame_reader = frame_reader
         self.bg_probes = bg_probes
         self.diff_thresh = diff_thresh
+        self.bbox_format = bbox_format
 
-        self._all_bboxes = np.full(len(frame_reader), np.nan, dtype=int)
+        self._all_bboxes = np.full((len(frame_reader), 4), -1, dtype=int)
         self._background = None
 
     def __len__(self) -> int:
@@ -29,27 +37,25 @@ class BoxCalculator:
 
     def get_bbox(self, frame_idx: int) -> np.ndarray:
         bbox = self._all_bboxes[frame_idx]
-        if np.isnan(bbox[0]):
-            bbox = self.calc_single_bounding_box(frame_idx)
+        if bbox[0] == -1:
+            bbox = self._calc_bounding_box(frame_idx)
             self._all_bboxes[frame_idx] = bbox
         return bbox
 
     def get_background(self) -> np.ndarray:
-        bg = self._background
-        if bg is None:
-            bg = self.calc_background()
-            self._background = bg
-        return bg
+        if self._background is None:
+            self._background = self._calc_background()
+        return self._background
 
-    def calc_background(self) -> np.ndarray:
-        length = len(self._frame_reader)
+    def _calc_background(self) -> np.ndarray:
+        length = len(self.frame_reader)
         size = min(self.bg_probes, length)
 
         # get frames
         frame_ids = np.random.choice(length, size=size, replace=False)
         extracted_list = []
         for frame_id in tqdm(frame_ids, desc="Extracting background frames", unit="fr"):
-            frame = self._frame_reader[frame_id]
+            frame = self.frame_reader[frame_id]
             extracted_list.append(frame)
 
         # calculate the median along the time axis
@@ -57,10 +63,10 @@ class BoxCalculator:
         median = np.median(extracted, axis=0).astype(np.uint8, copy=False)
         return median
 
-    def calc_single_bounding_box(self, frame_idx: int) -> np.ndarray:
+    def _calc_bounding_box(self, frame_idx: int) -> np.ndarray:
         # get mask according to the threshold value
-        frame = self._frame_reader[frame_idx]
-        background = self.calc_background()
+        frame = self.frame_reader[frame_idx]
+        background = self.get_background()
         diff = np.abs(frame.astype(np.int16, copy=False) - background.astype(np.int16, copy=False))
         _, mask = cv.threshold(diff.astype(np.uint8, copy=False), self.diff_thresh, 255, cv.THRESH_BINARY)
 
@@ -79,6 +85,8 @@ class BoxCalculator:
         largest_contour = max(contours, key=cv.contourArea)
         largest_bbox = cv.boundingRect(largest_contour)
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
+
+        largest_bbox = BoxConverter.change_format(largest_bbox, BoxFormat.XYWH, self.bbox_format)
         return largest_bbox
 
     def calc_bounding_boxes(
@@ -91,7 +99,7 @@ class BoxCalculator:
     ) -> np.ndarray:
 
         if end is None:
-            end = len(self._frame_reader)
+            end = len(self.frame_reader)
 
         frame_indices = range(start, end, step)
         self.get_background()
