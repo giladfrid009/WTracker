@@ -67,8 +67,8 @@ class BoxCalculator:
         # get mask according to the threshold value
         frame = self.frame_reader[frame_idx]
         background = self.get_background()
-        diff = np.abs(frame.astype(np.int16, copy=False) - background.astype(np.int16, copy=False))
-        _, mask = cv.threshold(diff.astype(np.uint8, copy=False), self.diff_thresh, 255, cv.THRESH_BINARY)
+        diff = cv.absdiff(frame, background)
+        _, mask = cv.threshold(diff, self.diff_thresh, 255, cv.THRESH_BINARY)
 
         # apply morphological ops to the mask
         mask = cv.morphologyEx(mask, cv.MORPH_OPEN, np.ones((5, 5), np.uint8))
