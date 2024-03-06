@@ -173,3 +173,4 @@ cython_debug/
 Archive/exp_02.pickle
 .DS_Store
 .DS_Store
+test.csv

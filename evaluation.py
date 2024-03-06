@@ -10,7 +10,7 @@ from ultralytics import YOLO
 from data.frame_reader import FrameReader
 from data.file_utils import pickle_load_object, pickle_save_object
 import json
-
+from logging_utils import CSVLogger, TrackingLog
 
 @dataclass
 class SimConfig:
@@ -89,7 +89,7 @@ class SimConfig:
             print(f"Error: Failed to save JSON data to file: {filepath}")
             print(f"Error details: {e}")
 
-     
+
 class Evaluator:
     def __init__(self, config:SimConfig) -> None:
         # self.worker = ImageSaver()
@@ -103,6 +103,8 @@ class Evaluator:
         self.model = self.load_model()
         self.view_controller = self.create_view_controller()
         self.create_folders()
+        
+        self.box_logger:CSVLogger = CSVLogger(self.output_paths["root"]+"tracking_log.csv", TrackingLog().__dict__.keys())
 
         print(self.__dict__)
         pass
@@ -125,7 +127,7 @@ class Evaluator:
             os.makedirs(folder)
 
     def load_model(self)->YOLO:
-        return YOLO(self.config.YOLO_weights)
+        return YOLO(self.config.YOLO_weights, task='detect')
     
     def create_view_controller(self, file_list:list[str]=None):
         frame_reader:FrameReader = None
@@ -147,31 +149,46 @@ class Evaluator:
         command = f"ffmpeg -framerate 60 -start_number 0 -i {self.output_paths["micro"]}frame_%09d.png -c:v ffv1 {self.output_paths["root"]}output.avi"
         os.system(command)
 
-    def simulate(self, save_cam_view:bool=False):
+    def simulate(self, save_cam_view:bool=False, device='cpu'):
         self.dump_config()
         self.view_controller.reset()
-
+        mic_w, mic_h = self.view_controller.micro_size
+        cam_w, cam_h = self.view_controller.camera_size
+        dx, dy = (0,0)
         for i, _ in enumerate(self.view_controller):
             phase_color = [0,0,0]
             filename =  f"frame_{i:09d}.png"
             file_path = self.output_paths["micro"] + filename
             phase_pos = i%(self.config.moving_frames+self.config.micro_view_frames)
             micro = self.view_controller.micro_view()
+
+            view_pos = self.view_controller.position
+            head_box = (-1, -1, -1, -1) # x,y,w,h
+            mic_box = (view_pos[0] - mic_w//2, view_pos[1]-mic_h//2, mic_w, mic_h)
+            cam_x, cam_y = (view_pos[0] - cam_w//2, view_pos[1]-cam_h//2)
             
-            if phase_pos == 0:
-                dx, dy = (0,0)
-                cam_view = self.view_controller.camera_view()
-                pred = self.model.predict(cam_view, conf=0.1)
-                
-                if len(pred) > 0 and pred[0].boxes.xyxy.shape[0] > 0:
-                    pred_box = pred[0].boxes.xyxy[0]
-                    pred_center = (((pred_box[0]+pred_box[2])/2).to(int).item(), ((pred_box[1]+pred_box[3])/2).to(int).item())
-                    dx, dy = (pred_center[0]-200, pred_center[1]-200)  # Takes 'track_frames' frames, can't do anything meanwhile
-                else:
-                    print(f"ERROR:: No Head detected in frame {i}")
-                    cv.imwrite(self.output_paths["errors"]+f"NoPred_{i}_cam.png", self.view_controller.camera_view())
-                    cv.imwrite(self.output_paths["errors"]+f"NoPred_{i}_micro.png", self.view_controller.micro_view())
+            cam_view = self.view_controller.camera_view()
+            pred = self.model.predict(cam_view, conf=0.1, device=device, imgsz=416)
             
+            if len(pred) > 0 and pred[0].boxes.xyxy.shape[0] > 0:
+                head_box = pred[0].boxes.xywh[0]
+                head_box = (head_box[0].item()+cam_x, head_box[1].item()+cam_y, head_box[2].item(), head_box[3].item())
+                head_box = (math.floor(head_box[0]), math.floor(head_box[1]), math.ceil(head_box[2]), math.ceil(head_box[3]))
+                pred_box = pred[0].boxes.xyxy[0]
+                pred_center = (((pred_box[0]+pred_box[2])/2).to(int).item(), ((pred_box[1]+pred_box[3])/2).to(int).item())
+                if phase_pos == 0:
+                    dx, dy = (pred_center[0]-self.config.camera_size_px[0]//2, pred_center[1]-self.config.camera_size_px[1]//2)  # Takes 'track_frames' frames, can't do anything meanwhile
+            else:
+                if phase_pos == 0:
+                    dx, dy = (0,0)
+                print(f"ERROR:: No Head detected in frame {i}")
+                cv.imwrite(self.output_paths["errors"]+f"NoPred_{i}_cam.png", self.view_controller.camera_view())
+                cv.imwrite(self.output_paths["errors"]+f"NoPred_{i}_micro.png", self.view_controller.micro_view())
+
+            track_log = TrackingLog.from_boxes(i, mic_box, head_box)
+            self.box_logger.write(track_log.__dict__)
+            self.box_logger.flush()
+
             #Change pos - end of movement
             if phase_pos == self.config.tracking_frames + self.config.moving_frames - 1:
                 self.view_controller.move_position(dx, dy)
@@ -188,12 +205,13 @@ class Evaluator:
             if self.config.tracking_frames <= phase_pos < self.config.tracking_frames + self.config.moving_frames:
                 phase_color = self.config.moving_color
                 # micro = self.create_boundry(micro,2,self.config.moving_color)
-
+            
             micro = self.create_boundry(micro,2,phase_color)
             cv.imwrite(file_path, micro)
             if save_cam_view:
                 cam_view = self.create_boundry(self.view_controller.camera_view(),2,phase_color)
                 cv.imwrite(self.output_paths["cam"]+filename, cam_view)
+
         
         self.make_vid()
     
