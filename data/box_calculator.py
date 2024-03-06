@@ -9,6 +9,17 @@ from data.frame_reader import FrameReader
 
 
 class BoxCalculator:
+    """
+    A class for calculating bounding boxes for a sequence of frames.
+
+    Methods:
+        all_bboxes(): Returns all bounding boxes for all the frames.
+        get_bbox(): Returns the bounding box for a given frame index.
+        get_background(): Returns the background image extracted from the frame reader frames.
+        calc_specified_boxes(): Calculate bounding boxes for the specified frame indices.
+        calc_all_boxes(): Calculate bounding boxes for all frames.
+    """
+
     def __init__(
         self,
         frame_reader: FrameReader,

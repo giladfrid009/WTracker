@@ -8,7 +8,22 @@ from data.file_utils import join_paths
 
 class FrameReader:
     """
-    A class for reading frames from a directory of frame files.
+    An class for reading frames from a directory of frame files.
+
+    Properties:
+        root_folder (str): The root folder path where the frame files are located.
+        frame_shape (tuple[int, ...]): The shape of the frame.
+        frame_size (tuple[int, int]): The size of the frame.
+        files (list[str]): The list of file paths.
+        read_format (int): The read format of the frame reader.
+
+    Methods:
+        create_from_template(): Creates a FrameReader object from a file name template.
+        create_from_directory(): Creates a FrameReader object from a directory.
+        make_stream(): Creates and returns a FrameStream object using the current instance of FrameReader.
+        __len__(): Returns the number of frames in the frame reader.
+        __getitem__(): Returns the frame at the specified index.
+        __iter__(): Returns an iterator for the FrameReader object.
     """
 
     def __init__(
