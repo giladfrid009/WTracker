@@ -16,9 +16,6 @@ class SampleExtractor:
         max_w, max_h = frame_size
         x, y, w, h = BoxUtils.unpack(bboxes)
 
-        print((x < 0).shape)
-        print(((x + w) > max_w).shape)
-
         x[x < 0] = 0
 
         mask = (x + w) > max_w
