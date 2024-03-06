@@ -165,7 +165,7 @@ class FrameStream:
             frame_reader (FrameReader): The frame reader object.
         """
         self._frame_reader = frame_reader
-        self._idx = 0
+        self._idx = -1
 
     def __len__(self):
         return len(self._frame_reader)
@@ -174,11 +174,11 @@ class FrameStream:
         return self
 
     def __next__(self) -> np.ndarray:
+        self._idx += 1
         if self._idx >= len(self._frame_reader):
             raise StopIteration()
 
         frame = self.read()
-        self.progress(1)
         return frame
 
     def read(self) -> np.ndarray:
@@ -225,4 +225,4 @@ class FrameStream:
         """
         Resets the frame reader to the beginning of the steam.
         """
-        self.seek(0)
+        self.seek(-1)

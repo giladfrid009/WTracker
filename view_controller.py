@@ -12,14 +12,11 @@ class ViewController(FrameStream):
         frame_reader (FrameReader): The frame reader object.
         camera_size (tuple[int, int]): The size of the camera view (width, height).
         micro_size (tuple[int, int]): The size of the micro view (width, height).
-        init_position (tuple[int, int]): The initial position of the view controller (x, y).
         padding_value (int): The value used for padding the frames.
+        position (tuple[int, int]): The current position of the center of the view (x, y).
 
     Methods:
         read(): Read a frame from the frame reader and apply padding.
-        position(): Get the current position of the view controller.
-        camera_size(): Get the size of the camera view.
-        micro_size(): Get the size of the micro view.
         set_position(x: int, y: int): Set the position of the view controller.
         move_position(dx: int, dy: int): Move the position of the view controller by dx and dy.
         visualize_world(line_width: int = 4): Visualize the world view with bounding boxes.
