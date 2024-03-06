@@ -94,7 +94,7 @@ class BoxCalculator:
         start: int = 0,
         end: int = None,
         step: int = 1,
-        num_workers: int = multiprocessing.cpu_count(),
+        num_workers: int = multiprocessing.cpu_count() // 2,
         chunk_size: int = 50,
     ) -> np.ndarray:
 
