@@ -28,9 +28,9 @@ class BoxCalculator:
     ):
         assert bg_probes > 0 and diff_thresh > 0
 
-        self.frame_reader = frame_reader
-        self.bg_probes = bg_probes
-        self.diff_thresh = diff_thresh
+        self._frame_reader = frame_reader
+        self._bg_probes = bg_probes
+        self._diff_thresh = diff_thresh
 
         self._all_bboxes = np.full((len(frame_reader), 4), -1, dtype=int)
         self._background = None
@@ -76,14 +76,14 @@ class BoxCalculator:
         return self._background
 
     def _calc_background(self) -> np.ndarray:
-        length = len(self.frame_reader)
-        size = min(self.bg_probes, length)
+        length = len(self._frame_reader)
+        size = min(self._bg_probes, length)
 
         # get frames
         frame_ids = np.random.choice(length, size=size, replace=False)
         extracted_list = []
         for frame_id in tqdm(frame_ids, desc="Extracting background frames", unit="fr"):
-            frame = self.frame_reader[frame_id]
+            frame = self._frame_reader[frame_id]
             extracted_list.append(frame)
 
         # calculate the median along the time axis
@@ -93,10 +93,10 @@ class BoxCalculator:
 
     def _calc_bounding_box(self, frame_idx: int) -> np.ndarray:
         # get mask according to the threshold value
-        frame = self.frame_reader[frame_idx]
+        frame = self._frame_reader[frame_idx]
         background = self.get_background()
         diff = cv.absdiff(frame, background)
-        _, mask = cv.threshold(diff, self.diff_thresh, 255, cv.THRESH_BINARY)
+        _, mask = cv.threshold(diff, self._diff_thresh, 255, cv.THRESH_BINARY)
 
         # apply morphological ops to the mask
         mask = cv.morphologyEx(mask, cv.MORPH_OPEN, np.ones((5, 5), np.uint8))
@@ -190,5 +190,5 @@ class BoxCalculator:
             np.ndarray: Array of bounding boxes for all frames.
         """
 
-        indices = range(len(self.frame_reader))
+        indices = range(len(self._frame_reader))
         return self.calc_specified_boxes(indices, num_workers, chunk_size)

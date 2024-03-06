@@ -9,7 +9,7 @@ from data.image_saver import ImageSaver
 class SampleExtractor:
     def __init__(self, bbox_calculator: BoxCalculator):
         self._bbox_calculator = bbox_calculator
-        self._frame_reader = bbox_calculator.frame_reader
+        self._frame_reader = bbox_calculator._frame_reader
 
     def move_bboxes_into_bounds(self, bboxes: np.ndarray, frame_size: tuple[int, int]):
         max_w, max_h = frame_size
