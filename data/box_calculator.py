@@ -75,13 +75,13 @@ class BoxCalculator:
         mask = cv.dilate(mask, np.ones((11, 11), np.uint8))
 
         # extract contours and bbox
-        contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
 
         if not contours:
             zero_bbox = np.array([0, 0, 0, 0])
             self._all_bboxes[frame_idx] = zero_bbox
             return zero_bbox
-
+    
         largest_contour = max(contours, key=cv.contourArea)
         largest_bbox = cv.boundingRect(largest_contour)
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
