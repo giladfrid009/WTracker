@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+from typing import Iterable
 from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
 import multiprocessing
@@ -81,7 +82,7 @@ class BoxCalculator:
             zero_bbox = np.array([0, 0, 0, 0])
             self._all_bboxes[frame_idx] = zero_bbox
             return zero_bbox
-    
+
         largest_contour = max(contours, key=cv.contourArea)
         largest_bbox = cv.boundingRect(largest_contour)
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
@@ -89,19 +90,12 @@ class BoxCalculator:
         largest_bbox = BoxConverter.change_format(largest_bbox, BoxFormat.XYWH, self.bbox_format)
         return largest_bbox
 
-    def calc_bounding_boxes(
+    def calc_specified_boxes(
         self,
-        start: int = 0,
-        end: int = None,
-        step: int = 1,
+        frame_indices: Iterable[int],
         num_workers: int = multiprocessing.cpu_count() // 2,
         chunk_size: int = 50,
     ) -> np.ndarray:
-
-        if end is None:
-            end = len(self.frame_reader)
-
-        frame_indices = range(start, end, step)
         self.get_background()
 
         if num_workers > 0:
@@ -121,4 +115,13 @@ class BoxCalculator:
             for idx in tqdm(frame_indices, desc="Extracting bboxes", unit="fr"):
                 self.get_bbox(idx)
 
-        return self._all_bboxes
+        bboxes = self._all_bboxes[frame_indices, :]
+        return bboxes
+
+    def calc_all_boxes(
+        self,
+        num_workers: int = multiprocessing.cpu_count() // 2,
+        chunk_size: int = 50,
+    ) -> np.ndarray:
+        indices = range(len(self.frame_reader))
+        return self.calc_specified_boxes(indices, num_workers, chunk_size)
