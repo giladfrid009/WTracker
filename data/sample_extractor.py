@@ -37,7 +37,7 @@ class SampleExtractor:
         target_size: tuple[int, int],
         save_folder: str,
         name_format: str = "img_{:09d}.png",
-        num_workers: int = multiprocessing.cpu_count() // 2,
+        num_workers: int = None,
         chunk_size: int = 50,
     ):
         bboxes = self._bbox_calculator.calc_specified_boxes(
@@ -69,7 +69,7 @@ class SampleExtractor:
         target_size: tuple[int, int],
         save_folder: str,
         name_format: str = "img_{:09d}.png",
-        num_workers: int = multiprocessing.cpu_count() // 2,
+        num_workers: int = None,
         chunk_size: int = 50,
     ):
         length = len(self._frame_reader)
@@ -83,7 +83,7 @@ class SampleExtractor:
         target_size: tuple[int, int],
         save_folder: str,
         name_format: str = "img_{:09d}.png",
-        num_workers: int = multiprocessing.cpu_count() // 2,
+        num_workers: int = None,
         chunk_size: int = 50,
     ):
         frame_indices = range(0, len(self._frame_reader))

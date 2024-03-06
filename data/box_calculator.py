@@ -24,16 +24,28 @@ class BoxCalculator:
         self._all_bboxes = np.full((len(frame_reader), 4), -1, dtype=int)
         self._background = None
 
-    def __len__(self) -> int:
-        return len(self._all_bboxes)
-
-    def __getitem__(self, idx: int) -> np.ndarray:
-        return self.get_bbox(idx)
-
     def all_bboxes(self) -> np.ndarray:
+        """
+        Returns all bounding boxes for all the frames.
+        Note that if a bounding box has not been calculated for some frame, then the matching entry will be (-1, -1, -1, -1).
+
+        Returns:
+            np.ndarray: Array of bounding boxes, in shape (N, 4), where N is the number of frames.
+            The bounding boxes are stored in the format (x, y, w, h).
+        """
         return self._all_bboxes
 
     def get_bbox(self, frame_idx: int) -> np.ndarray:
+        """
+        Returns the bounding box for a given frame index.
+
+        Args:
+            frame_idx (int): The index of the frame from which to extract the bounding box.
+
+        Returns:
+            np.ndarray: The bounding box coordinates as a numpy array, in format (x, y, w, h).
+        """
+
         bbox = self._all_bboxes[frame_idx]
         if bbox[0] == -1:
             bbox = self._calc_bounding_box(frame_idx)
@@ -41,6 +53,13 @@ class BoxCalculator:
         return bbox
 
     def get_background(self) -> np.ndarray:
+        """
+        Returns the background image extracted from the frame reader frames.
+
+        Returns:
+            np.ndarray: The background array.
+        """
+
         if self._background is None:
             self._background = self._calc_background()
         return self._background
@@ -85,13 +104,43 @@ class BoxCalculator:
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
         return largest_bbox
 
+    def _adjust_num_workers(self, num_tasks: int, chunk_size: int, num_workers: int) -> int:
+        # if None then choose automatically
+        if num_workers is None:
+            num_workers = min(multiprocessing.cpu_count() / 2, num_tasks / (2 * chunk_size))
+            num_workers = round(num_workers)
+
+        # no point havig workers without tasks
+        num_workers = min(num_workers, num_tasks // chunk_size)
+
+        # if less than 1 then no parallelism since we wait for the worker anyways
+        if num_workers <= 1:
+            num_workers = 0
+
+        return num_workers
+
     def calc_specified_boxes(
         self,
         frame_indices: Iterable[int],
-        num_workers: int = multiprocessing.cpu_count() // 2,
+        num_workers: int = None,
         chunk_size: int = 50,
     ) -> np.ndarray:
+        """
+        Calculate bounding boxes for the specified frame indices.
+
+        Args:
+            frame_indices (Iterable[int]): The indices of the frames for which to calculate the bboxes.
+            num_workers (int, optional): Number of workers for parallel processing.
+            If None is provided then number of workers is determined automatically. Defaults to None.
+            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.
+
+        Returns:
+            np.ndarray: The calculated boxes for the specified frames.
+        """
+
         self.get_background()
+
+        num_workers = self._adjust_num_workers(len(frame_indices), chunk_size, num_workers)
 
         if num_workers > 0:
             bbox_list = concurrent.process_map(
@@ -115,8 +164,20 @@ class BoxCalculator:
 
     def calc_all_boxes(
         self,
-        num_workers: int = multiprocessing.cpu_count() // 2,
+        num_workers: int = None,
         chunk_size: int = 50,
     ) -> np.ndarray:
+        """
+        Calculate bounding boxes for all frames.
+
+        Args:
+            num_workers (int, optional): Number of workers for parallel processing.
+                If None is provided then number of workers is determined automatically. Defaults to None.
+            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.
+
+        Returns:
+            np.ndarray: Array of bounding boxes for all frames.
+        """
+
         indices = range(len(self.frame_reader))
         return self.calc_specified_boxes(indices, num_workers, chunk_size)
