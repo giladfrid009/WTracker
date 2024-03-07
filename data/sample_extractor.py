@@ -55,7 +55,7 @@ class SampleExtractor:
         bboxes = BoxUtils.pack(x, y, w, h)
         bboxes = self.move_bboxes_into_bounds(bboxes, self._frame_reader.frame_size)
 
-        with ImageSaver(self._frame_reader, save_folder, desc="Saving samples", unit="fr") as saver:
+        with ImageSaver(self._frame_reader, root_path=save_folder, desc="Saving samples", unit="fr") as saver:
             for i, bbox in enumerate(bboxes):
                 saver.save_image(i, bbox, name_format.format(i))
 

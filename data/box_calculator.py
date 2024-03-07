@@ -124,6 +124,9 @@ class BoxCalculator:
         # no point havig workers without tasks
         num_workers = min(num_workers, num_tasks // chunk_size)
 
+        # no point having more workers than cpus
+        num_workers = max(num_workers, multiprocessing.cpu_count())
+
         # if less than 1 then no parallelism since we wait for the worker anyways
         if num_workers <= 1:
             num_workers = 0
