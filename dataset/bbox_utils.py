@@ -36,7 +36,7 @@ class BoxUtils:
         Returns:
             bool: True if the array is a valid bounding box, False otherwise.
         """
-        return array is not None and array.shape[-1] == 4
+        return array.shape[-1] == 4
 
     @staticmethod
     def unpack(bbox: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -70,7 +70,6 @@ class BoxUtils:
         Returns:
             np.ndarray: The packed bounding box.
         """
-
         c1 = np.expand_dims(c1, axis=-1)
         c2 = np.expand_dims(c2, axis=-1)
         c3 = np.expand_dims(c3, axis=-1)
@@ -78,18 +77,29 @@ class BoxUtils:
         return np.concatenate((c1, c2, c3, c4), axis=-1)
 
     @staticmethod
-    def sanitize_negative(bboxes: np.ndarray) -> np.ndarray:
+    def sanitize(bboxes: np.ndarray, box_format: BoxFormat, image_shape: tuple[int, int]) -> np.ndarray:
         """
-        Removes all bounding boxes which contain negative values.
+        Sanitizes the bounding boxes by removing invalid boxes that are outside the image boundaries.
 
         Args:
-            bboxes (np.ndarray): The array of bounding boxes.
+            bboxes (np.ndarray): The input bounding boxes.
+            box_format (BoxFormat): The format of the input bounding boxes.
+            image_shape (tuple[int, int]): The shape of the image (w, h).
 
         Returns:
-            np.ndarray: The array of sanitized bounding boxes.
+            np.ndarray: The sanitized bounding boxes.
         """
-        mask = np.all(bboxes >= 0, axis=-1)
-        return bboxes[mask]
+        max_height = image_shape[0] - 1
+        max_width = image_shape[1] - 1
+
+        bboxes = BoxConverter.change_format(bboxes, box_format, BoxFormat.XYWH)
+        x, y, w, h = BoxUtils.unpack(bboxes)
+
+        good_mask = (x >= 0) & (y >= 0) & (w > 0) & (h > 0)
+        good_mask = good_mask & (x + w <= max_width) & (y + h <= max_height)
+        bboxes = bboxes[good_mask]
+
+        return BoxConverter.change_format(bboxes, BoxFormat.XYWH, box_format)
 
 
 class BoxConverter:
