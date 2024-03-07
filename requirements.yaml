@@ -1,7 +1,10 @@
+# first install gpu support: 
+# GPU version: conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+# CPU version: conda install pytorch torchvision torchaudio cpuonly -c pytorch
 
-# first install gpu support: conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-# install: conda env create -f requirements.yaml
-# update:  conda env update -f requirements.yaml
+# new env: conda env create -f requirements.yaml
+# update env: conda env update -f requirements.yaml
+
 name: bio-proj
 channels:
   - conda-forge
