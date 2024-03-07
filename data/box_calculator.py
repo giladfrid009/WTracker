@@ -116,19 +116,14 @@ class BoxCalculator:
         return largest_bbox
 
     def _adjust_num_workers(self, num_tasks: int, chunk_size: int, num_workers: int) -> int:
-        # if None then choose automatically
-        if num_workers is None:
+        if num_workers is None:  # if None then choose automatically
             num_workers = min(multiprocessing.cpu_count() / 2, num_tasks / (2 * chunk_size))
             num_workers = round(num_workers)
 
-        # no point havig workers without tasks
-        num_workers = min(num_workers, num_tasks // chunk_size)
+        num_workers = min(num_workers, num_tasks // chunk_size)  # no point having workers without tasks
+        num_workers = min(num_workers, multiprocessing.cpu_count())  # no point having more workers than cpus
 
-        # no point having more workers than cpus
-        num_workers = max(num_workers, multiprocessing.cpu_count())
-
-        # if less than 1 then no parallelism since we wait for the worker anyways
-        if num_workers <= 1:
+        if num_workers < 0:  # make sure value is valid
             num_workers = 0
 
         return num_workers
