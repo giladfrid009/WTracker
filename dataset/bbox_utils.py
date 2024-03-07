@@ -4,6 +4,7 @@ from enum import Enum
 
 from enum import Enum
 
+
 class BoxFormat(Enum):
     """
     Enumeration representing different box formats.
@@ -13,6 +14,7 @@ class BoxFormat(Enum):
         XYXY (int): Represents the box format as (x1, y1, x2, y2).
         YOLO (int): Represents the box format as (center_x, center_y, width, height).
     """
+
     XYWH = 0
     XYXY = 1
     YOLO = 2
@@ -48,7 +50,11 @@ class BoxUtils:
             tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: The unpacked components of the bounding box.
         """
         c1, c2, c3, c4 = np.split(bbox, bbox.shape[-1], axis=-1)
-        return c1.squeeze(-1), c2.squeeze(-1), c3.squeeze(-1), c4.squeeze(-1)
+        c1 = np.squeeze(c1, axis=-1)
+        c2 = np.squeeze(c2, axis=-1)
+        c3 = np.squeeze(c3, axis=-1)
+        c4 = np.squeeze(c4, axis=-1)
+        return c1, c2, c3, c4
 
     @staticmethod
     def pack(c1: np.ndarray, c2: np.ndarray, c3: np.ndarray, c4: np.ndarray) -> np.ndarray:
@@ -64,13 +70,17 @@ class BoxUtils:
         Returns:
             np.ndarray: The packed bounding box.
         """
-        c1, c2, c3, c4 = np.expand_dims(c1, axis=-1), np.expand_dims(c2, axis=-1), np.expand_dims(c3, axis=-1), np.expand_dims(c4, axis=-1)
+
+        c1 = np.expand_dims(c1, axis=-1)
+        c2 = np.expand_dims(c2, axis=-1)
+        c3 = np.expand_dims(c3, axis=-1)
+        c4 = np.expand_dims(c4, axis=-1)
         return np.concatenate((c1, c2, c3, c4), axis=-1)
 
     @staticmethod
-    def sanitize(bboxes: np.ndarray) -> np.ndarray:
+    def sanitize_negative(bboxes: np.ndarray) -> np.ndarray:
         """
-        Remove invalid bounding boxes from the given array.
+        Removes all bounding boxes which contain negative values.
 
         Args:
             bboxes (np.ndarray): The array of bounding boxes.
