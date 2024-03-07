@@ -4,8 +4,8 @@ import numpy as np
 import PIL.Image
 from dataclasses import dataclass
 
-from data.frame_reader import FrameReader
-from data.file_utils import join_paths
+from frame_reader import FrameReader
+from utils.file_utils import join_paths
 
 
 # class for Raw data

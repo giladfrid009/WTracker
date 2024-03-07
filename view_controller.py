@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-from data.frame_reader import FrameReader, FrameStream
+from frame_reader import FrameReader, FrameStream
 
 
 class ViewController(FrameStream):
@@ -23,35 +23,35 @@ class ViewController(FrameStream):
     """
 
     def __init__(
-            self,
-            frame_reader: FrameReader,
-            camera_size: tuple[int, int] = (251, 251),
-            micro_size: tuple[int, int] = (45, 45),
-            init_position: tuple[int, int] = (0, 0),
-            padding_value: int = 255,
-        ):
-            """
-            Initializes the View Controller object.
+        self,
+        frame_reader: FrameReader,
+        camera_size: tuple[int, int] = (251, 251),
+        micro_size: tuple[int, int] = (45, 45),
+        init_position: tuple[int, int] = (0, 0),
+        padding_value: int = 255,
+    ):
+        """
+        Initializes the View Controller object.
 
-            Args:
-                frame_reader (FrameReader): The frame reader object.
-                camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).
-                micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).
-                init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).
-                padding_value (int, optional): The padding value. Defaults to 255.
-            """
-            super().__init__(frame_reader)
+        Args:
+            frame_reader (FrameReader): The frame reader object.
+            camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).
+            micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).
+            init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).
+            padding_value (int, optional): The padding value. Defaults to 255.
+        """
+        super().__init__(frame_reader)
 
-            assert camera_size[0] >= micro_size[0]
-            assert camera_size[1] >= micro_size[1]
+        assert camera_size[0] >= micro_size[0]
+        assert camera_size[1] >= micro_size[1]
 
-            self._padding_size: tuple[int, int] = (camera_size[0] // 2, camera_size[1] // 2)
-            self._padding_value: tuple[int, int, int] = padding_value
+        self._padding_size: tuple[int, int] = (camera_size[0] // 2, camera_size[1] // 2)
+        self._padding_value: tuple[int, int, int] = padding_value
 
-            self._camera_size = camera_size
-            self._micro_size = micro_size
-            self._position = init_position
-            self.set_position(*init_position)
+        self._camera_size = camera_size
+        self._micro_size = micro_size
+        self._position = init_position
+        self.set_position(*init_position)
 
     def read(self):
         """

@@ -2,8 +2,8 @@ import numpy as np
 
 from typing import Iterable
 from dataset.bbox_utils import BoxUtils
-from data.box_calculator import BoxCalculator
-from data.image_saver import ImageSaver
+from dataset.create.box_calculator import BoxCalculator
+from utils.image_saver import ImageSaver
 
 
 class SampleExtractor:

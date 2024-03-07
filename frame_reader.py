@@ -3,7 +3,8 @@ import os
 import glob
 import numpy as np
 import cv2 as cv
-from data.file_utils import join_paths
+
+from utils.file_utils import join_paths
 
 
 class FrameReader:

@@ -23,16 +23,16 @@ class TqdmQueue(queue.Queue):
     """
 
     def __init__(self, maxsize: int = 0, **kwargs):
-            """
-            Initialize the TqdmQueue object.
+        """
+        Initialize the TqdmQueue object.
 
-            Args:
-                maxsize (int): The maximum size of the queue (default: 0).
-                **kwargs: Additional keyword arguments to be passed to the tqdm progress bar.
-            """
-            super().__init__(maxsize=maxsize)
-            self.pbar = tqdm(total=1, **kwargs)
-            self.total = 0  # Keep our own total tracker so we can update the Progressbar
+        Args:
+            maxsize (int): The maximum size of the queue (default: 0).
+            **kwargs: Additional keyword arguments to be passed to the tqdm progress bar.
+        """
+        super().__init__(maxsize=maxsize)
+        self.pbar = tqdm(total=1, **kwargs)
+        self.total = 0  # Keep our own total tracker so we can update the Progressbar
 
     def task_done(self):
         """

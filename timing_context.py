@@ -26,13 +26,13 @@ class Timer:
         self.time = None
 
     def __enter__(self):
-            self._start = perf_counter()
-            return self
+        self._start = perf_counter()
+        return self
 
     def __exit__(self, type, value, traceback):
-            self.time = perf_counter() - self._start
-            if not self._silent:
-                print(f"Time: {self.time:.3f} seconds")
+        self.time = perf_counter() - self._start
+        if not self._silent:
+            print(f"Time: {self.time:.3f} seconds")
 
 
 class TimeBenchmark:

@@ -5,7 +5,7 @@ from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
 import multiprocessing
 
-from data.frame_reader import FrameReader
+from frame_reader import FrameReader
 
 
 class BoxCalculator:

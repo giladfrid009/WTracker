@@ -2,9 +2,9 @@ import cv2 as cv
 import threading
 import queue
 
-from data.file_utils import join_paths, create_directory, create_parent_directory
-from data.frame_reader import FrameReader
-from data.tqdm_utils import TqdmQueue
+from utils.file_utils import join_paths, create_directory, create_parent_directory
+from frame_reader import FrameReader
+from utils.tqdm_utils import TqdmQueue
 
 
 class ImageSaver:
@@ -17,7 +17,14 @@ class ImageSaver:
         close: Waits for all images to be saved and closes the image saver.
     """
 
-    def __init__(self, frame_reader: FrameReader, root_path: str = "", maxsize: int = 0, tqdm: bool = True, **tqdm_kwargs):
+    def __init__(
+        self,
+        frame_reader: FrameReader,
+        root_path: str = "",
+        maxsize: int = 0,
+        tqdm: bool = True,
+        **tqdm_kwargs,
+    ):
         """
         Initializes an ImageSaver object.
 

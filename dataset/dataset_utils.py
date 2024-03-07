@@ -1,7 +1,7 @@
 import glob
 from pathlib import Path
 
-from data.file_utils import create_directory
+from utils.file_utils import create_directory
 from dataset.bbox_utils import BoxFormat, BoxConverter
 from dataset.image_dataset import *
 
