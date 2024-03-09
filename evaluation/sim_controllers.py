@@ -75,11 +75,13 @@ class LoggingController(YoloController):
 
     def on_frame(self, sim: Simulator, cam_view: np.ndarray):
         self.camera_frames.append(cam_view)
+        self.frame_number += 1
 
     def on_imaging_frame(self, sim: Simulator, micro_view: np.ndarray):
         self.micro_frames.append(micro_view)
 
     def on_sim_start(self, sim: Simulator):
+        self.frame_number = 0
         self.camera_frames.clear()
         self.micro_frames.clear()
 
@@ -89,6 +91,7 @@ class LoggingController(YoloController):
 
         self.bbox_logger.writerow(
             [
+                "frame",
                 "cam_x",
                 "cam_y",
                 "cam_w",
@@ -117,20 +120,19 @@ class LoggingController(YoloController):
 
         for i, bbox in enumerate(bboxes):
             if bbox is not None:
-                bboxes[i] = [bbox[0] + cam_pos[0], bbox[1] + cam_pos[1], bbox[2], bbox[3]]
+                bbox = [bbox[0] + cam_pos[0], bbox[1] + cam_pos[1], bbox[2], bbox[3]]
+                self.log_bbox(self.frame_number - len(self.camera_frames) + i, cam_pos, mic_pos, bbox)
 
-        self.log_bboxes(cam_pos, mic_pos, bboxes)
+        for i, (cam_view, mic_view) in enumerate(zip(self.camera_frames, self.micro_frames)):
+            self.log_view(self.frame_number - len(self.camera_frames) + i, cam_view, mic_view)
 
-        for cam_view, mic_view in zip(self.camera_frames, self.micro_frames):
-            self.log_views(cam_view, mic_view)
+    def log_bbox(self, fid: int, cam_pos: list[int], mic_pos: list[int], worm_bbox: list[int]):
+        self.bbox_logger.writerows([fid] + cam_pos + mic_pos + worm_bbox)
 
-    def log_bboxes(self, cam_pos, mic_pos, worm_bbox):
-        self.bbox_logger.writerows([cam_pos + mic_pos + worm_bbox])
-
-    def log_views(self, cam_view, mic_view):
+    def log_view(self, fid: int, cam_view: np.ndarray, mic_view: np.ndarray):
         if self.log_config.save_camera_view:
-            file_path = join_paths(self.log_config.camera_view_folder, f"cam_{self.frame_number:09d}.png")
+            file_path = join_paths(self.log_config.camera_view_folder, f"cam_{fid:09d}.png")
             cv.imwrite(file_path, cam_view)
         if self.log_config.save_micro_view:
-            file_path = join_paths(self.log_config.micro_view_folder, f"mic_{self.frame_number:09d}.png")
+            file_path = join_paths(self.log_config.micro_view_folder, f"mic_{fid:09d}.png")
             cv.imwrite(file_path, mic_view)
