@@ -9,6 +9,7 @@ from utils.file_utils import join_paths, create_directory
 from evaluation.simulator import *
 from evaluation.simulator import Simulator
 
+
 class YoloController(SimController):
     def __init__(self, config: TimingConfig, model: YOLO, device: str = "cpu"):
         super().__init__(config)
@@ -23,8 +24,7 @@ class YoloController(SimController):
         self.camera_frames.append(cam_view)
 
     def predict(self, *frames: Iterable[np.ndarray]):
-        # TODO: This is a temporary solution
-        frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
+        frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames] # TODO: This is a temporary solution, need a better idea
         results = self.model.predict(frames, conf=0.1, device=self.device, imgsz=416)
         results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
         return results
@@ -49,21 +49,22 @@ class LogConfig:
     log_folder: str
     micro_view_folder: str = field(init=False)
     camera_view_folder: str = field(init=False)
-    bboxes_file_path: str = field(init=False)
+    errors_folder: str = field(init=False)
+    bboxes_folder_path: str = field(init=False)
     save_micro_view: bool = False
     save_camera_view: bool = False
 
     def __post_init__(self):
         self.micro_view_folder = join_paths(self.log_folder, "micro")
         self.camera_view_folder = join_paths(self.log_folder, "camera")
-        self.bboxes_file_path = join_paths(self.log_folder, "bboxes.csv")
+        self.errors_folder = join_paths(self.log_folder, "errors")
+        self.bboxes_folder_path = join_paths(self.log_folder, "bboxes.csv")
 
     def create_dirs(self):
         create_directory(self.log_folder)
-        if self.save_micro_view:
-            create_directory(self.micro_view_folder)
-        if self.save_camera_view:
-            create_directory(self.camera_view_folder)
+        create_directory(self.errors_folder)
+        create_directory(self.micro_view_folder)
+        create_directory(self.camera_view_folder)
 
 
 class LoggingController(YoloController):
@@ -88,7 +89,7 @@ class LoggingController(YoloController):
         self.micro_frames.clear()
 
         self.log_config.create_dirs()
-        self.bbox_file = open(self.log_config.bboxes_file_path, "w")
+        self.bbox_file = open(self.log_config.bboxes_folder_path, "w")
         self.bbox_logger = csv.writer(self.bbox_file)
 
         self.bbox_logger.writerow(
@@ -123,9 +124,13 @@ class LoggingController(YoloController):
         for i, bbox in enumerate(bboxes):
             if bbox is not None:
                 bbox = (bbox[0] + cam_pos[0], bbox[1] + cam_pos[1], bbox[2], bbox[3])
+                self.log_bbox(self.frame_number - len(self.camera_frames) + i, cam_pos, mic_pos, bbox)
             else:
-                bbox = (-1, -1, -1, -1)
-            self.log_bbox(self.frame_number - len(self.camera_frames) + i, cam_pos, mic_pos, bbox)
+                self.log_error(
+                    fid=self.frame_number - len(self.camera_frames) + i,
+                    cam_view=self.camera_frames[i],
+                    mic_view=self.micro_frames[i],
+                )
 
         for i, (cam_view, mic_view) in enumerate(zip(self.camera_frames, self.micro_frames)):
             self.log_view(self.frame_number - len(self.camera_frames) + i, cam_view, mic_view)
@@ -139,10 +144,22 @@ class LoggingController(YoloController):
     ):
         self.bbox_logger.writerow((fid,) + cam_pos + mic_pos + worm_bbox)
 
-    def log_view(self, fid: int, cam_view: np.ndarray, mic_view: np.ndarray):
+    def log_view(
+        self,
+        fid: int,
+        cam_view: np.ndarray,
+        mic_view: np.ndarray,
+    ):
         if self.log_config.save_camera_view:
-            file_path = join_paths(self.log_config.camera_view_folder, f"cam_{fid:09d}.png")
-            cv.imwrite(file_path, cam_view)
+            cv.imwrite(join_paths(self.log_config.camera_view_folder, f"cam_{fid:09d}.png"), cam_view)
         if self.log_config.save_micro_view:
-            file_path = join_paths(self.log_config.micro_view_folder, f"mic_{fid:09d}.png")
-            cv.imwrite(file_path, mic_view)
+            cv.imwrite(join_paths(self.log_config.micro_view_folder, f"mic_{fid:09d}.png"), mic_view)
+
+    def log_error(
+        self,
+        fid: int,
+        cam_view: np.ndarray,
+        mic_view: np.ndarray,
+    ):
+        cv.imwrite(join_paths(self.log_config.errors_folder, f"cam_{fid:09d}.png"), cam_view)
+        cv.imwrite(join_paths(self.log_config.errors_folder, f"mic_{fid:09d}.png"), mic_view)
