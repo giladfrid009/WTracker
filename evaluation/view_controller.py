@@ -124,16 +124,16 @@ class ViewController(FrameStream):
         """
         self.set_position(self._position[0] + dx, self._position[1] + dy)
 
-    def _calc_view_coords(self, w: int, h: int) -> tuple[int, int, int, int]:
+    def _calc_view_bbox(self, w: int, h: int) -> tuple[int, int, int, int]:
         """
-        Calculate the coordinates of the view.
+        Calculate the bbox of the view.
 
         Args:
             w (int): The width of the view.
             h (int): The height of the view.
 
         Returns:
-            tuple[int, int, int, int]: The coordinates of the view (x, y, w, h).
+            tuple[int, int, int, int]: The bounding box of the view (x, y, w, h).
         """
         x = self._position[0] + self._padding_size[0] - w // 2
         y = self._position[1] + self._padding_size[1] - h // 2
@@ -150,7 +150,7 @@ class ViewController(FrameStream):
         Returns:
             np.ndarray: The custom view of the frame.
         """
-        x, y, w, h = self._calc_view_coords(w, h)
+        x, y, w, h = self._calc_view_bbox(w, h)
         frame = self.read()
         slice = frame[y : y + w, x : x + h]
         return slice
@@ -181,12 +181,13 @@ class ViewController(FrameStream):
         Args:
             line_width (int): The width of the bounding box lines.
         """
-        x_mid, y_mid, _, _ = self._calc_view_coords(0, 0)
-        x_cam, y_cam, w_cam, h_cam = self._calc_view_coords(*self.camera_size)
-        x_mic, y_mic, w_mic, h_mic = self._calc_view_coords(*self.micro_size)
+        x_mid, y_mid, _, _ = self._calc_view_bbox(0, 0)
+        x_cam, y_cam, w_cam, h_cam = self._calc_view_bbox(*self.camera_size)
+        x_mic, y_mic, w_mic, h_mic = self._calc_view_bbox(*self.micro_size)
 
         world = self.read()
-        world = cv.cvtColor(world, cv.COLOR_GRAY2BGR)
+        if len(self._frame_reader.frame_shape) == 2 or self._frame_reader.frame_shape[2] == 1:
+            world = cv.cvtColor(world, cv.COLOR_GRAY2BGR)
 
         cv.rectangle(world, (x_cam, y_cam), (x_cam + w_cam, y_cam + h_cam), (0, 0, 255), line_width)
         cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), line_width)

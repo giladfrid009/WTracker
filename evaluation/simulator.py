@@ -6,7 +6,7 @@ from collections import deque
 import abc
 
 from frame_reader import FrameReader
-from view_controller import ViewController
+from evaluation.view_controller import ViewController
 
 
 @dataclass
@@ -75,12 +75,6 @@ class Simulator:
     def position(self) -> tuple[int, int]:
         return self._camera.position
 
-    def set_position(self, x: int, y: int):
-        self._camera.set_position(x, y)
-
-    def move_position(self, dx: int, dy: int):
-        self._camera.move_position(dx, dy)
-
     def _reset(self):
         self._camera.reset()
 
@@ -99,18 +93,21 @@ class Simulator:
             self._controller.on_frame(self, self._camera.camera_view())
 
             if cycle_step == 0:
-                self._controller.on_movement_end(self)
                 self._controller.on_imaging_start(self)
 
             if cycle_step < config.imaging_frame_num:
                 self._controller.on_imaging_frame(self, self._camera.micro_view())
 
-            if cycle_step == config.imaging_frame_num:
+            if cycle_step == config.imaging_frame_num - 1:
                 self._controller.on_imaging_end(self)
 
-                dx, dy = self._controller.get_moving_coords(self)
+            if cycle_step == config.imaging_frame_num:
+                dx, dy = self._controller.provide_moving_vector(self)
                 self._camera.move_position(dx, dy)
                 self._controller.on_movement_start(self)
+
+            if cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
+                self._controller.on_movement_end(self)
 
             cycle_step += 1
 
@@ -118,47 +115,33 @@ class Simulator:
 
 
 class SimController(abc.ABC):
-    def __init__(self, config: TimingConfig, frame_mem: int = 2):
+    def __init__(self, config: TimingConfig):
         self.config = config
-        self.last_frames: deque[np.ndarray] = deque(maxlen=frame_mem)
-
-        self._is_moving = False
-        self._is_imaging = False
-
-    @property
-    def is_moving(self) -> bool:
-        return self._is_moving
-
-    @property
-    def is_imaging(self) -> bool:
-        return self._is_imaging
-
+    
     def on_sim_start(self, sim: Simulator):
-        self.last_frames.clear()
-        self._is_imaging = False
-        self._is_moving = False
-
+        pass
+    
     def on_sim_end(self, sim: Simulator):
         pass
 
     def on_frame(self, sim: Simulator, cam_view: np.ndarray):
-        self.last_frames.append(cam_view)
+        pass
 
     def on_imaging_start(self, sim: Simulator):
-        self._is_imaging = True
+        pass
 
     def on_imaging_frame(self, sim: Simulator, micro_view: np.ndarray):
         pass
 
     def on_imaging_end(self, sim: Simulator):
-        self._is_imaging = False
+        pass
 
     def on_movement_start(self, sim: Simulator):
-        self._is_moving = True
+        pass
 
     def on_movement_end(self, sim: Simulator):
-        self._is_moving = False
+        pass
 
     @abc.abstractmethod
-    def get_moving_coords(self, sim: Simulator) -> tuple[int, int]:
+    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         pass
