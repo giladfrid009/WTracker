@@ -9,7 +9,6 @@ from utils.file_utils import join_paths, create_directory
 from evaluation.simulator import *
 from evaluation.simulator import Simulator
 
-
 class YoloController(SimController):
     def __init__(self, config: TimingConfig, model: YOLO, device: str = "cpu"):
         super().__init__(config)
@@ -24,8 +23,11 @@ class YoloController(SimController):
         self.camera_frames.append(cam_view)
 
     def predict(self, *frames: Iterable[np.ndarray]):
+        # TODO: This is a temporary solution
+        frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
         results = self.model.predict(frames, conf=0.1, device=self.device, imgsz=416)
         results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
+        return results
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         bboxes = self.predict(self.camera_frames[0])
@@ -120,14 +122,22 @@ class LoggingController(YoloController):
 
         for i, bbox in enumerate(bboxes):
             if bbox is not None:
-                bbox = [bbox[0] + cam_pos[0], bbox[1] + cam_pos[1], bbox[2], bbox[3]]
-                self.log_bbox(self.frame_number - len(self.camera_frames) + i, cam_pos, mic_pos, bbox)
+                bbox = (bbox[0] + cam_pos[0], bbox[1] + cam_pos[1], bbox[2], bbox[3])
+            else:
+                bbox = (-1, -1, -1, -1)
+            self.log_bbox(self.frame_number - len(self.camera_frames) + i, cam_pos, mic_pos, bbox)
 
         for i, (cam_view, mic_view) in enumerate(zip(self.camera_frames, self.micro_frames)):
             self.log_view(self.frame_number - len(self.camera_frames) + i, cam_view, mic_view)
 
-    def log_bbox(self, fid: int, cam_pos: list[int], mic_pos: list[int], worm_bbox: list[int]):
-        self.bbox_logger.writerows([fid] + cam_pos + mic_pos + worm_bbox)
+    def log_bbox(
+        self,
+        fid: int,
+        cam_pos: tuple[int, int, int, int],
+        mic_pos: tuple[int, int, int, int],
+        worm_bbox: tuple[int, int, int, int],
+    ):
+        self.bbox_logger.writerow((fid,) + cam_pos + mic_pos + worm_bbox)
 
     def log_view(self, fid: int, cam_view: np.ndarray, mic_view: np.ndarray):
         if self.log_config.save_camera_view:

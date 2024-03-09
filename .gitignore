@@ -9,6 +9,7 @@ rois
 samples
 samples_all
 tiger-pose
+logs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
