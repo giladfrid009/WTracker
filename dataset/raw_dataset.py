@@ -5,7 +5,7 @@ import PIL.Image
 from dataclasses import dataclass
 
 from frame_reader import FrameReader
-from utils.file_utils import join_paths
+from utils.path_utils import join_paths
 
 
 # class for Raw data

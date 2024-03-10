@@ -5,7 +5,8 @@ from typing import Iterable
 import csv
 from dataclasses import dataclass, field
 
-from utils.file_utils import join_paths, create_directory
+from utils.path_utils import join_paths, create_directory
+from utils.io_utils import ImageSaver
 from evaluation.simulator import *
 from evaluation.simulator import Simulator
 
@@ -13,24 +14,26 @@ from evaluation.simulator import Simulator
 class YoloController(SimController):
     def __init__(self, config: TimingConfig, model: YOLO, device: str = "cpu"):
         super().__init__(config)
-        self.camera_frames = deque(maxlen=1)
-        self.model = model.to(device)
+        self._camera_frames = deque(maxlen=1)
+        self._model = model.to(device)
         self.device = device
 
     def on_sim_start(self, sim: Simulator):
-        self.camera_frames.clear()
+        self._camera_frames.clear()
 
-    def on_frame(self, sim: Simulator, cam_view: np.ndarray):
-        self.camera_frames.append(cam_view)
+    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
+        self._camera_frames.append(cam_view)
 
     def predict(self, *frames: Iterable[np.ndarray]):
-        frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames] # TODO: This is a temporary solution, need a better idea
-        results = self.model.predict(frames, conf=0.1, device=self.device, imgsz=416)
+        frames = [
+            cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames
+        ]  # TODO: This is a temporary solution, need a better idea
+        results = self._model.predict(frames, conf=0.1, device=self.device, imgsz=416)
         results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
         return results
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        bboxes = self.predict(self.camera_frames[0])
+        bboxes = self.predict(self._camera_frames[0])
         bbox = bboxes[0]
         if bbox is None:
             return 0, 0
@@ -72,27 +75,20 @@ class LoggingController(YoloController):
         super().__init__(timing_config, model, device)
 
         self.log_config = log_config
-        self.camera_frames = deque(maxlen=self.config.imaging_frame_num)
-        self.micro_frames = deque(maxlen=self.config.imaging_frame_num)
-        self.frame_number = 0
-
-    def on_frame(self, sim: Simulator, cam_view: np.ndarray):
-        self.camera_frames.append(cam_view)
-        self.frame_number += 1
-
-    def on_imaging_frame(self, sim: Simulator, micro_view: np.ndarray):
-        self.micro_frames.append(micro_view)
+        self._camera_frames = deque(maxlen=self.config.imaging_frame_num)
+        self._frame_number = -1
 
     def on_sim_start(self, sim: Simulator):
-        self.frame_number = 0
-        self.camera_frames.clear()
-        self.micro_frames.clear()
-
+        self._frame_number = -1
+        self._camera_frames.clear()
         self.log_config.create_dirs()
-        self.bbox_file = open(self.log_config.bboxes_folder_path, "w")
-        self.bbox_logger = csv.writer(self.bbox_file)
 
-        self.bbox_logger.writerow(
+        self._image_saver = ImageSaver(self.log_config.log_folder)
+        self._image_saver.start()
+
+        self._bbox_file = open(self.log_config.bboxes_folder_path, "w")
+        self._bbox_logger = csv.writer(self._bbox_file)
+        self._bbox_logger.writerow(
             [
                 "frame",
                 "cam_x",
@@ -111,55 +107,36 @@ class LoggingController(YoloController):
         )
 
     def on_sim_end(self, sim: Simulator):
-        self.bbox_file.flush()
-        self.bbox_file.close()
+        self._image_saver.close()
+        self._bbox_file.flush()
+        self._bbox_file.close()
+
+    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
+        self._frame_number += 1
+        self._camera_frames.append(cam_view)
+
+        if self.log_config.save_camera_view:
+            self._image_saver.schedule(cam_view, f"camera/cam_{self._frame_number:09d}.png")
+
+    def on_micro_frame(self, sim: Simulator, micro_view: np.ndarray):
+        if self.log_config.save_micro_view:
+            self._image_saver.schedule(micro_view, f"micro/mic_{self._frame_number:09d}.png")
 
     def on_imaging_end(self, sim: Simulator):
         # Note that these coords include the padding size
         cam_pos = sim.camera._calc_view_bbox(*sim.camera.camera_size)
         mic_pos = sim.camera._calc_view_bbox(*sim.camera.micro_size)
 
-        bboxes = self.predict(*self.camera_frames)
+        bboxes = self.predict(*self._camera_frames)
 
         for i, bbox in enumerate(bboxes):
+            fid = self._frame_number - len(self._camera_frames) + i + 1
             if bbox is not None:
                 bbox = (bbox[0] + cam_pos[0], bbox[1] + cam_pos[1], bbox[2], bbox[3])
-                self.log_bbox(self.frame_number - len(self.camera_frames) + i, cam_pos, mic_pos, bbox)
             else:
-                self.log_error(
-                    fid=self.frame_number - len(self.camera_frames) + i,
-                    cam_view=self.camera_frames[i],
-                    mic_view=self.micro_frames[i],
-                )
+                self._image_saver.schedule(self._camera_frames[i], f"errors/cam_{fid:09d}.png")
+                bbox = (-1, -1, -1, -1)
 
-        for i, (cam_view, mic_view) in enumerate(zip(self.camera_frames, self.micro_frames)):
-            self.log_view(self.frame_number - len(self.camera_frames) + i, cam_view, mic_view)
+            self._bbox_logger.writerow((fid,) + cam_pos + mic_pos + bbox)
 
-    def log_bbox(
-        self,
-        fid: int,
-        cam_pos: tuple[int, int, int, int],
-        mic_pos: tuple[int, int, int, int],
-        worm_bbox: tuple[int, int, int, int],
-    ):
-        self.bbox_logger.writerow((fid,) + cam_pos + mic_pos + worm_bbox)
-
-    def log_view(
-        self,
-        fid: int,
-        cam_view: np.ndarray,
-        mic_view: np.ndarray,
-    ):
-        if self.log_config.save_camera_view:
-            cv.imwrite(join_paths(self.log_config.camera_view_folder, f"cam_{fid:09d}.png"), cam_view)
-        if self.log_config.save_micro_view:
-            cv.imwrite(join_paths(self.log_config.micro_view_folder, f"mic_{fid:09d}.png"), mic_view)
-
-    def log_error(
-        self,
-        fid: int,
-        cam_view: np.ndarray,
-        mic_view: np.ndarray,
-    ):
-        cv.imwrite(join_paths(self.log_config.errors_folder, f"cam_{fid:09d}.png"), cam_view)
-        cv.imwrite(join_paths(self.log_config.errors_folder, f"mic_{fid:09d}.png"), mic_view)
+        self._bbox_file.flush()

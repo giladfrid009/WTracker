@@ -3,7 +3,7 @@ import numpy as np
 from typing import Iterable
 from dataset.bbox_utils import BoxUtils
 from dataset.create.box_calculator import BoxCalculator
-from utils.image_saver import ImageSaver
+from utils.io_utils import FrameSaver
 
 
 class SampleExtractor:
@@ -55,9 +55,9 @@ class SampleExtractor:
         bboxes = BoxUtils.pack(x, y, w, h)
         bboxes = self.move_bboxes_into_bounds(bboxes, self._frame_reader.frame_size)
 
-        with ImageSaver(self._frame_reader, root_path=save_folder, desc="Saving samples", unit="fr") as saver:
+        with FrameSaver(self._frame_reader, root_path=save_folder, desc="Saving samples", unit="fr") as saver:
             for i, bbox in enumerate(bboxes):
-                saver.save_image(i, bbox, name_format.format(i))
+                saver.schedule(i, bbox, name_format.format(i))
 
     def create_samples(
         self,

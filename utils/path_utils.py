@@ -1,6 +1,5 @@
 from pathlib import Path, PurePath
 from typing import Callable
-import pickle
 
 
 def join_paths(*path_segments: str):
@@ -45,48 +44,6 @@ def create_directory(dir_path: str):
         None
     """
     Path(dir_path).mkdir(parents=True, exist_ok=True)
-
-
-def pickle_save_object(obj, file_path: str):
-    """
-    Save an object to a pickle file.
-
-    Args:
-        obj: The object to be saved.
-        file_path (str): The path to the pickle file.
-
-    Raises:
-        ValueError: If there is an error saving the object to the pickle file.
-    """
-    try:
-        create_parent_directory(file_path)
-        with open(file_path, "wb") as f:
-            pickle.dump(obj, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except Exception as e:
-        raise ValueError(f"error saving object to pickle file: {e}")
-
-
-def pickle_load_object(file_path: str):
-    """
-    Load an object from a pickle file.
-
-    Args:
-        file_path (str): The path to the pickle file.
-
-    Returns:
-        The loaded object.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If there is an error loading the object from the pickle file.
-    """
-    try:
-        with open(file_path, "rb") as f:
-            return pickle.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"file does not exist: {file_path}")
-    except Exception as e:
-        raise ValueError(f"error loading object from pickle file: {e}")
 
 
 def bulk_rename(dir_path: str, rename_fn: Callable[[str], str]):

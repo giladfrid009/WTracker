@@ -4,7 +4,7 @@ import glob
 import numpy as np
 import cv2 as cv
 
-from utils.file_utils import join_paths
+from utils.path_utils import join_paths
 
 
 class FrameReader:
