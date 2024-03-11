@@ -25,7 +25,7 @@ class YoloController(SimController):
 
     def predict(self, *frames: np.ndarray) -> list[tuple[int, int, int, int]]:
         if len(frames) == 0:
-            return [None]
+            return []
 
         if frames[0].ndim == 2 or frames[0].shape[-1] == 1:
             frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
@@ -40,13 +40,11 @@ class YoloController(SimController):
         if bbox is None:
             return 0, 0
 
-        pred_center = int(bbox[0] + bbox[2] / 2), int(bbox[1] + bbox[3] / 2)
+        bbox_center = int(bbox[0] + bbox[2] / 2), int(bbox[1] + bbox[3] / 2)
 
-        middle = sim.camera.camera_size[0] // 2, sim.camera.camera_size[1] // 2
+        view_center = sim.camera.camera_size[0] // 2, sim.camera.camera_size[1] // 2
 
-        dx, dy = pred_center[0] - middle[0], pred_center[1] - middle[1]
-
-        return dx, dy
+        return bbox_center[0] - view_center[0], bbox_center[1] - view_center[1]
 
 
 @dataclass
