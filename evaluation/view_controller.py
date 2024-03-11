@@ -193,3 +193,4 @@ class ViewController(FrameStream):
         cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), line_width)
         cv.circle(world, (x_mid, y_mid), 1, (255, 0, 0), line_width)
         cv.imshow("world view", world)
+        cv.waitKey(1)

@@ -78,7 +78,7 @@ class Simulator:
     def _reset(self):
         self._camera.reset()
 
-    def run_simulation(self):
+    def run_simulation(self, visualize: bool = False):
         self._reset()
         config = self._config
 
@@ -110,6 +110,9 @@ class Simulator:
                 self._controller.on_movement_end(self)
 
             cycle_step += 1
+
+            if visualize:
+                self._camera.visualize_world()
 
         self._controller.on_sim_end(self)
 
