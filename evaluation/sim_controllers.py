@@ -3,6 +3,7 @@ from ultralytics import YOLO
 import cv2 as cv
 import csv
 from dataclasses import dataclass, field
+from collections import deque
 
 from utils.path_utils import join_paths, create_directory
 from utils.io_utils import ImageSaver
@@ -30,7 +31,7 @@ class YoloController(SimController):
         if frames[0].ndim == 2 or frames[0].shape[-1] == 1:
             frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
 
-        results = self._model.predict(frames, conf=0.1, device=self.device, imgsz=416, max_det=1)
+        results = self._model.predict(frames, conf=0.1, device=self.device, imgsz=416, max_det=1, verbose=False)
         results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
         return results
 
@@ -81,13 +82,15 @@ class LoggingController(YoloController):
         self.log_config = log_config
         self._camera_frames = deque(maxlen=self.config.imaging_frame_num)
         self._frame_number = -1
+        self._cycle_number = -1
 
     def on_sim_start(self, sim: Simulator):
         self._frame_number = -1
+        self._cycle_number = -1
         self._camera_frames.clear()
         self.log_config.create_dirs()
 
-        self._image_saver = ImageSaver(self.log_config.root_folder)
+        self._image_saver = ImageSaver(self.log_config.root_folder, tqdm=False)
         self._image_saver.start()
 
         self._bbox_file = open(self.log_config.bbox_file_path, "w")
@@ -95,6 +98,7 @@ class LoggingController(YoloController):
         self._bbox_logger.writerow(
             [
                 "frame",
+                "cycle",
                 "cam_x",
                 "cam_y",
                 "cam_w",
@@ -109,6 +113,9 @@ class LoggingController(YoloController):
                 "worm_h",
             ]
         )
+
+    def on_cycle_start(self, sim: Simulator):
+        self._cycle_number += 1
 
     def on_sim_end(self, sim: Simulator):
         self._image_saver.close()
@@ -144,6 +151,6 @@ class LoggingController(YoloController):
                 self._image_saver.schedule(self._camera_frames[i], path)
                 bbox = (-1, -1, -1, -1)
 
-            self._bbox_logger.writerow((frame_number,) + cam_pos + mic_pos + bbox)
+            self._bbox_logger.writerow((frame_number, self._cycle_number) + cam_pos + mic_pos + bbox)
 
         self._bbox_file.flush()

@@ -2,8 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import math
 import numpy as np
-from collections import deque
 import abc
+from tqdm.auto import tqdm
 
 from frame_reader import FrameReader
 from evaluation.view_controller import ViewController
@@ -85,10 +85,16 @@ class Simulator:
         cycle_step = 0
         cycle_length = config.imaging_frame_num + config.moving_frame_num
 
+        total_cycles = len(self._camera) // cycle_length
+        pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
+
         self._controller.on_sim_start(self)
 
         while self._camera.progress():
             cycle_step = cycle_step % cycle_length
+
+            if cycle_step == 0:
+                self._controller.on_cycle_start(self)
 
             self._controller.on_camera_frame(self, self._camera.camera_view())
 
@@ -109,6 +115,10 @@ class Simulator:
             if cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
                 self._controller.on_movement_end(self)
 
+            if cycle_step == cycle_length - 1:
+                self._controller.on_cycle_end(self)
+                pbar.update(1)
+
             cycle_step += 1
 
             if visualize:
@@ -116,15 +126,23 @@ class Simulator:
 
         self._controller.on_sim_end(self)
 
+        pbar.close()
+
 
 class SimController(abc.ABC):
     def __init__(self, config: TimingConfig):
         self.config = config
-    
+
     def on_sim_start(self, sim: Simulator):
         pass
-    
+
     def on_sim_end(self, sim: Simulator):
+        pass
+
+    def on_cycle_start(self, sim: Simulator):
+        pass
+
+    def on_cycle_end(self, sim: Simulator):
         pass
 
     def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
