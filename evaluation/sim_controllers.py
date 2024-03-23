@@ -12,11 +12,12 @@ from evaluation.simulator import Simulator
 
 
 class YoloController(SimController):
-    def __init__(self, config: TimingConfig, model: YOLO, device: str = "cpu"):
+    def __init__(self, config: TimingConfig, model: YOLO, device: str = "cpu", imgsz: int = 416):
         super().__init__(config)
         self._camera_frames = deque(maxlen=1)
         self._model = model.to(device)
         self.device = device
+        self.imgsz = imgsz
 
     def on_sim_start(self, sim: Simulator):
         self._camera_frames.clear()
@@ -31,7 +32,7 @@ class YoloController(SimController):
         if frames[0].ndim == 2 or frames[0].shape[-1] == 1:
             frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
 
-        results = self._model.predict(frames, conf=0.1, device=self.device, imgsz=416, max_det=1, verbose=False)
+        results = self._model.predict(frames, conf=0.1, device=self.device, imgsz=self.imgsz, max_det=1, verbose=False)
         results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
         return results
 
@@ -76,8 +77,8 @@ class LogConfig:
 
 
 class LoggingController(YoloController):
-    def __init__(self, log_config: LogConfig, timing_config: TimingConfig, model: YOLO, device: str = "cpu"):
-        super().__init__(timing_config, model, device)
+    def __init__(self, log_config: LogConfig, timing_config: TimingConfig, model: YOLO, device: str = "cpu", imgsz: int = 416):
+        super().__init__(timing_config, model, device, imgsz)
 
         self.log_config = log_config
         self._camera_frames = deque(maxlen=self.config.imaging_frame_num)
