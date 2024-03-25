@@ -38,7 +38,7 @@ class FrameSaver(TaskScheduler):
         self._root_path = root_path
         create_directory(root_path)
 
-    def schedule(self, img_index: int, crop_dims: tuple[int, int, int, int], img_name: str):
+    def schedule_save(self, img_index: int, crop_dims: tuple[int, int, int, int], img_name: str):
         """
         Adds an image to the queue for saving.
 
@@ -47,7 +47,7 @@ class FrameSaver(TaskScheduler):
             crop_dims (tuple[int, int, int, int]): The crop dimensions (x, y, w, h) for the image.
             img_name (str): The name (path) of the image file relative to the root path.
         """
-        super().schedule(img_index, crop_dims, img_name)
+        super().schedule_save(img_index, crop_dims, img_name)
 
     def _save_frame(self, params: tuple[int, tuple[int, int, int, int], str]):
         img_index, crop_dims, img_name = params
@@ -83,7 +83,7 @@ class ImageSaver(TaskScheduler):
         self._root_path = root_path
         create_directory(root_path)
 
-    def schedule(self, img: np.ndarray, img_path: str):
+    def schedule_save(self, img: np.ndarray, img_path: str):
         """
         Adds an image to the queue for saving.
 
@@ -91,7 +91,7 @@ class ImageSaver(TaskScheduler):
             img (np.ndarray): The image to save.
             img_name (str): The name (path) of the image file relative to the root path.
         """
-        super().schedule(img, img_path)
+        super().schedule_save(img, img_path)
 
     def _save_image(self, params: tuple[np.ndarray, str]):
         img, img_name = params

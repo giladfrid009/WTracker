@@ -57,7 +57,7 @@ class SampleExtractor:
 
         with FrameSaver(self._frame_reader, root_path=save_folder, desc="Saving samples", unit="fr") as saver:
             for i, bbox in enumerate(bboxes):
-                saver.schedule(i, bbox, name_format.format(i))
+                saver.schedule_save(i, bbox, name_format.format(i))
 
     def create_samples(
         self,

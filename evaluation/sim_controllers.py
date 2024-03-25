@@ -14,7 +14,7 @@ from evaluation.simulator import Simulator
 class YoloController(SimController):
     def __init__(self, config: TimingConfig, model: YOLO, device: str = "cpu", **pred_kwargs: dict):
         super().__init__(config)
-        self._camera_frames = deque(maxlen=1)
+        self._camera_frames = deque(maxlen=config.imaging_frame_num)
         self._model = model.to(device)
         self.device = device
 
@@ -38,7 +38,7 @@ class YoloController(SimController):
     def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
         self._camera_frames.append(cam_view)
 
-    def predict(self, *frames: np.ndarray) -> list[tuple[int, int, int, int]]:
+    def predict(self, *frames: np.ndarray) -> tuple[int, int, int, int] | list[tuple[int, int, int, int]]:
 
         if len(frames) == 0:
             return []
@@ -48,19 +48,45 @@ class YoloController(SimController):
 
         results = self._model.predict(frames, device=self.device, max_det=1, **self.pred_kwargs)
         results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
+
+        if len(results) == 1:
+            return results[0]
+
         return results
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        bboxes = self.predict(self._camera_frames[0])
-        bbox = bboxes[0]
+        bbox = self.predict(self._camera_frames[-self.config.pred_frame_num])
         if bbox is None:
             return 0, 0
 
-        bbox_center = int(bbox[0] + bbox[2] / 2), int(bbox[1] + bbox[3] / 2)
+        bbox_mid = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
+        camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
-        view_center = sim.camera.camera_size[0] // 2, sim.camera.camera_size[1] // 2
+        return round(bbox_mid[0] - camera_mid[0]), round(bbox_mid[1] - camera_mid[1])
 
-        return bbox_center[0] - view_center[0], bbox_center[1] - view_center[1]
+    # TODO: TEST IMPL.
+    def provide_moving_vector_advanced(self, sim: Simulator) -> tuple[int, int]:
+        frames = self._camera_frames[-2 * self.config.pred_frame_num], self._camera_frames[-self.config.pred_frame_num]
+        bboxes = self.predict(*frames)
+
+        if bboxes[1] is None:
+            return 0, 0
+    
+        if bboxes[0] is None:
+            bboxes[0] = bboxes[1]
+
+        bbox_old_mid = bboxes[0][0] + bboxes[0][2] / 2, bboxes[0][1] + bboxes[0][3] / 2
+        bbox_new_mid = bboxes[1][0] + bboxes[1][2] / 2, bboxes[1][1] + bboxes[1][3] / 2
+
+        movement = bbox_new_mid[0] - bbox_old_mid[0], bbox_new_mid[1] - bbox_old_mid[1]
+        speed_per_frame = movement[0] / self.config.pred_frame_num, movement[1] / self.config.pred_frame_num
+
+        camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
+
+        dx = round(bbox_new_mid[0] - camera_mid[0] + speed_per_frame[0] * self.config.moving_frame_num)
+        dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * self.config.moving_frame_num)
+
+        return dx, dy
 
 
 @dataclass
@@ -105,7 +131,6 @@ class LoggingController(YoloController):
         super().__init__(timing_config, model, device, **pred_kwargs)
 
         self.log_config = log_config
-        self._camera_frames = deque(maxlen=self.config.imaging_frame_num)
         self._frame_number = -1
         self._cycle_number = -1
 
@@ -153,12 +178,12 @@ class LoggingController(YoloController):
 
         if self.log_config.save_cam_view:
             path = self.log_config.cam_file_path.format(self._frame_number)
-            self._image_saver.schedule(cam_view, path)
+            self._image_saver.schedule_save(cam_view, path)
 
     def on_micro_frame(self, sim: Simulator, micro_view: np.ndarray):
         if self.log_config.save_mic_view:
             path = self.log_config.mic_file_path.format(self._frame_number)
-            self._image_saver.schedule(micro_view, path)
+            self._image_saver.schedule_save(micro_view, path)
 
     def on_imaging_end(self, sim: Simulator):
         # Note that these coords include the padding size
@@ -173,7 +198,7 @@ class LoggingController(YoloController):
                 bbox = (bbox[0] + cam_pos[0], bbox[1] + cam_pos[1], bbox[2], bbox[3])
             else:
                 path = self.log_config.err_file_path.format(frame_number)
-                self._image_saver.schedule(self._camera_frames[i], path)
+                self._image_saver.schedule_save(self._camera_frames[i], path)
                 bbox = (-1, -1, -1, -1)
 
             self._bbox_logger.writerow((frame_number, self._cycle_number) + cam_pos + mic_pos + bbox)

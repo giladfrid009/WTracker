@@ -96,7 +96,7 @@ class TaskScheduler:
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def schedule(self, *params):
+    def schedule_save(self, *params):
         """
         Schedules a task by putting task parameters into the queue.
 
