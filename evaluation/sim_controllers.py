@@ -54,7 +54,7 @@ class YoloController(SimController):
 
         return results
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+    def provide_moving_vector_simple(self, sim: Simulator) -> tuple[int, int]:
         bbox = self.predict(self._camera_frames[-self.config.pred_frame_num])
         if bbox is None:
             return 0, 0
@@ -65,18 +65,21 @@ class YoloController(SimController):
         return round(bbox_mid[0] - camera_mid[0]), round(bbox_mid[1] - camera_mid[1])
 
     # TODO: TEST IMPL.
-    def provide_moving_vector_advanced(self, sim: Simulator) -> tuple[int, int]:
+    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         frames = self._camera_frames[-2 * self.config.pred_frame_num], self._camera_frames[-self.config.pred_frame_num]
-        bboxes = self.predict(*frames)
+        bbox_old, bbox_new = self.predict(*frames)
 
-        if bboxes[1] is None:
+        if bbox_old is None and bbox_new is None:
             return 0, 0
-    
-        if bboxes[0] is None:
-            bboxes[0] = bboxes[1]
+        
+        if bbox_new is None:
+            bbox_new = bbox_old
 
-        bbox_old_mid = bboxes[0][0] + bboxes[0][2] / 2, bboxes[0][1] + bboxes[0][3] / 2
-        bbox_new_mid = bboxes[1][0] + bboxes[1][2] / 2, bboxes[1][1] + bboxes[1][3] / 2
+        if bbox_old is None:
+            bbox_old = bbox_new
+
+        bbox_old_mid = bbox_old[0] + bbox_old[2] / 2, bbox_old[1] + bbox_old[3] / 2
+        bbox_new_mid = bbox_new[0] + bbox_new[2] / 2, bbox_new[1] + bbox_new[3] / 2
 
         movement = bbox_new_mid[0] - bbox_old_mid[0], bbox_new_mid[1] - bbox_old_mid[1]
         speed_per_frame = movement[0] / self.config.pred_frame_num, movement[1] / self.config.pred_frame_num
