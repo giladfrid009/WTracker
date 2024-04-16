@@ -7,10 +7,10 @@ from tqdm.auto import tqdm
 
 from frame_reader import FrameReader
 from evaluation.view_controller import ViewController
-
+from utils.config_base import ConfigBase
 
 @dataclass
-class TimingConfig:
+class TimingConfig(ConfigBase):
     frames_per_sec: int
     secs_per_frame: float = field(init=False)
 
@@ -96,7 +96,7 @@ class Simulator:
             if cycle_step == 0:
                 self._controller.on_cycle_start(self)
 
-            self._controller.on_camera_frame(self, self._camera.camera_view())
+            self._controller.on_camera_frame(self, cycle_step, self._camera.camera_view())
 
             if cycle_step == 0:
                 self._controller.on_imaging_start(self)
@@ -145,7 +145,7 @@ class SimController(abc.ABC):
     def on_cycle_end(self, sim: Simulator):
         pass
 
-    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
+    def on_camera_frame(self, cycle_step: int, sim: Simulator, cam_view: np.ndarray):
         pass
 
     def on_imaging_start(self, sim: Simulator):

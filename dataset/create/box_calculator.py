@@ -59,6 +59,7 @@ class BoxCalculator:
 
         bbox = self._all_bboxes[frame_idx]
         if bbox[0] == -1:
+            # calculate bbox since it wasn't calculated before
             bbox = self._calc_bounding_box(frame_idx)
             self._all_bboxes[frame_idx] = bbox
         return bbox
