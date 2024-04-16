@@ -50,10 +50,10 @@ class CSVLogger:
             self.file.flush()
             self.file.close()
 
-    def _to_dict(self, items: Iterable[Any]) -> dict:
+    def _to_dict(self, items: Iterable) -> dict:
         return {k: v for k, v in zip(self.col_names, items)}
 
-    def write(self, row: dict | Iterable[Any]):
+    def write(self, row: dict | Iterable):
         assert self.file.writable()
 
         if not isinstance(row, dict):
@@ -61,7 +61,7 @@ class CSVLogger:
 
         self.writer.writerow(row)
 
-    def writerows(self, rows: list[dict]):
+    def writerows(self, rows: list[dict] | list[Iterable]):
         assert self.file.writable()
         assert len(rows) > 0
 
