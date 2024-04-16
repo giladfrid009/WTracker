@@ -1,62 +1,74 @@
-import typing
-from dataclasses import dataclass, field
+from typing import Iterable, Any
 import csv
 
 
-@dataclass
 class TextLogger:
-    path: str
-    mode: str = field(default="w")
-    file: typing.TextIO = field(init=False)
+    def __init__(self, path: str, mode: str = "w"):
+        self.path = path
+        self.file = open(self.path, mode)
 
-    def __post_init__(self):
-        self.file = open(self.path, self.mode)
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
 
     def close(self):
-        if not self.file.closed():
+        if not self.file.closed:
             self.file.flush()
             self.file.close()
-        pass
 
     def write(self, string: str):
-        if self.file.writable():
-            self.file.write(string)
+        assert self.file.writable()
+        self.file.write(string)
 
     def writelines(self, strings: list[str]):
-        if self.file.writable():
-            self.file.writelines(strings)
+        assert self.file.writable()
+        self.file.writelines(strings)
 
     def flush(self):
         self.file.flush()
 
 
-@dataclass
 class CSVLogger:
-    path: str
-    col_names: list[str]
-    mode: str = field(default="w+")
-    file: typing.TextIO = field(init=False)
-    writer: csv.DictWriter = field(init=False)
-
-    def __post_init__(self):
-        self.file = open(self.path, self.mode, newline="")
+    def __init__(self, path: str, col_names: list[str], mode: str = "w+"):
+        self.path = path
+        self.col_names = col_names
+        self.file = open(self.path, mode, newline="")
         self.writer = csv.DictWriter(self.file, self.col_names, escapechar=",")
         self.writer.writeheader()
         self.flush()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     def close(self):
-        if not self.file.closed():
+        if not self.file.closed:
             self.file.flush()
             self.file.close()
-        pass
 
-    def write(self, row: dict):
-        if self.file.writable():
-            self.writer.writerow(row)
+    def _to_dict(self, items: Iterable[Any]) -> dict:
+        return {k: v for k, v in zip(self.col_names, items)}
+
+    def write(self, row: dict | Iterable[Any]):
+        assert self.file.writable()
+
+        if not isinstance(row, dict):
+            row = self._to_dict(row)
+
+        self.writer.writerow(row)
 
     def writerows(self, rows: list[dict]):
-        if self.file.writable():
-            self.writer.writerows(rows)
+        assert self.file.writable()
+        assert len(rows) > 0
+
+        if not isinstance(rows[0], dict):
+            rows = [self._to_dict(row) for row in rows]
+
+        self.writer.writerows(rows)
 
     def flush(self):
         self.file.flush()

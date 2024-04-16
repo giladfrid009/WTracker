@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 import json
 
@@ -5,7 +6,7 @@ import json
 @dataclass
 class ConfigBase:
     @classmethod
-    def load_json(cls, path: str):
+    def load_json(cls, path: str) -> ConfigBase:
         """
         Load the class from a JSON file.
 
@@ -13,7 +14,8 @@ class ConfigBase:
             path (str): The path to the JSON file.
 
         Returns:
-            dict: The dictionary containing the data from the JSON file.
+            ConfigBase: The class loaded from the JSON file.
+            
         """
         try:
             with open(path, "r") as f:

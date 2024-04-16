@@ -8,6 +8,7 @@ from collections import deque
 from utils.path_utils import *
 from utils.io_utils import ImageSaver
 from utils.config_base import ConfigBase
+from utils.log_utils import CSVLogger
 from evaluation.simulator import *
 from evaluation.simulator import Simulator
 
@@ -75,7 +76,7 @@ class YoloController(SimController):
 
         if bbox_old is None and bbox_new is None:
             return 0, 0
-        
+
         if bbox_new is None:
             bbox_new = bbox_old
 
@@ -125,7 +126,8 @@ class LogConfig(ConfigBase):
         create_parent_directory(self.err_file_path)
         create_parent_directory(self.bbox_file_path)
 
-# TODO: save all configs 
+
+# TODO: save all configs
 class LoggingController(YoloController):
     def __init__(
         self,
@@ -150,10 +152,9 @@ class LoggingController(YoloController):
         self._image_saver = ImageSaver(tqdm=False)
         self._image_saver.start()
 
-        self._bbox_file = open(self.log_config.bbox_file_path, "w")
-        self._bbox_logger = csv.writer(self._bbox_file)
-        self._bbox_logger.writerow(
-            [
+        self._bbox_logger = CSVLogger(
+            self.log_config.bbox_file_path,
+            col_names=[
                 "frame",
                 "cycle",
                 "cam_x",
@@ -168,7 +169,7 @@ class LoggingController(YoloController):
                 "worm_y",
                 "worm_w",
                 "worm_h",
-            ]
+            ],
         )
 
     def on_cycle_start(self, sim: Simulator):
@@ -176,8 +177,7 @@ class LoggingController(YoloController):
 
     def on_sim_end(self, sim: Simulator):
         self._image_saver.close()
-        self._bbox_file.flush()
-        self._bbox_file.close()
+        self._bbox_logger.close()
 
     def on_camera_frame(self, cycle_step: int, sim: Simulator, cam_view: np.ndarray):
         self._frame_number += 1
@@ -203,7 +203,7 @@ class LoggingController(YoloController):
 
         for i, bbox in enumerate(bboxes):
             frame_number = self._frame_number - len(self._camera_frames) + i + 1
-            
+
             if bbox is not None:
                 # format bbox to be have position
                 bbox = (bbox[0] + cam_pos[0], bbox[1] + cam_pos[1], bbox[2], bbox[3])
@@ -213,6 +213,10 @@ class LoggingController(YoloController):
                 self._image_saver.schedule_save(self._camera_frames[i], path)
                 bbox = (-1, -1, -1, -1)
 
-            self._bbox_logger.writerow((frame_number, self._cycle_number) + cam_pos + mic_pos + bbox)
+            self._bbox_logger.write((frame_number, self._cycle_number) + cam_pos + mic_pos + bbox)
 
-        self._bbox_file.flush()
+        self._bbox_logger.flush()
+
+    def on_cycle_end(self, sim: Simulator):
+        # TODO: do all the yolo predictions here
+        pass
