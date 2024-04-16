@@ -4,43 +4,39 @@ import json
 
 @dataclass
 class ConfigBase:
-    # TODO: detect automatically the class of derived class and create it automatically, instead of passing 
-    # the class as parameter
-    @staticmethod
-    def load_from_json(filepath, obj_type):
+    @classmethod
+    def load_json(cls, path: str):
         """
-        Loads a JSON file and returns the data as a dictionary.
+        Load the class from a JSON file.
 
         Args:
-            filepath (str): The path to the JSON file.
-            obj_type (type): The type of object to create from the JSON data.
+            path (str): The path to the JSON file.
 
         Returns:
             dict: The dictionary containing the data from the JSON file.
         """
         try:
-            with open(filepath, "r") as f:
+            with open(path, "r") as f:
                 data = json.load(f)
-            return obj_type(**data)
+            return cls(**data)
         except FileNotFoundError:
-            print(f"Error: File not found: {filepath}")
+            print(f"Error: File not found: {path}")
             return None
         except json.JSONDecodeError as e:
-            print(f"Error: Invalid JSON format in file: {filepath}")
+            print(f"Error: Invalid JSON format in file: {path}")
             print(f"Error details: {e}")
             return None
 
-    def save_json(self, filepath):
+    def save_json(self, path: str):
         """
-        Saves a dictionary as JSON data to a file.
+        Saves the class as JSON file.
 
         Args:
-            data (dict): The dictionary to save as JSON.
-            filepath (str): The path to the output JSON file.
+            path (str): The path to the output JSON file.
         """
         try:
-            with open(filepath, "w") as f:
+            with open(path, "w") as f:
                 json.dump(self.__dict__, f, indent=4)
         except IOError as e:
-            print(f"Error: Failed to save JSON data to file: {filepath}")
+            print(f"Error: Failed to save JSON data to file: {path}")
             print(f"Error details: {e}")
