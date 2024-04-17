@@ -9,7 +9,6 @@ from tqdm.auto import tqdm
 from frame_reader import FrameReader
 from evaluation.view_controller import ViewController
 from utils.config_base import ConfigBase
-from utils.display_utils import ImageDisplay, HotKey
 
 
 @dataclass
