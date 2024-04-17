@@ -20,7 +20,7 @@ class YoloConfig(ConfigBase):
     task: str = "detect"
     verbose: bool = False
     pred_kwargs: dict = field(
-        default_factory= lambda: {
+        default_factory=lambda: {
             "imgsz": 416,
             "conf": 0.1,
         }
@@ -30,7 +30,7 @@ class YoloConfig(ConfigBase):
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        del state["model"] # we dont want to serialize the model
+        del state["model"]  # we dont want to serialize the model
         return state
 
     def load_model(self) -> YOLO:
@@ -248,11 +248,9 @@ class LoggingController(YoloController):
 class CsvController(SimController):
     def __init__(self, timing_config: TimingConfig, csv_path: str):
         super().__init__(timing_config)
-
         self.csv_path = csv_path
         self._log_df = pd.read_csv(self.csv_path, index_col="frame")
         self._frame_number = -1
-        self._cycle_number = -1
 
     def on_sim_start(self, sim: Simulator):
         self._frame_number = -1
@@ -287,12 +285,14 @@ class CsvController(SimController):
         if len(results) == 1:
             return results[0]
 
-        return results 
+        return results
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+        frame_number = sim.camera.index
+        
         frames = (
-            self._frame_number - 2 * self.timing_config.pred_frame_num,
-            self._frame_number - self.timing_config.pred_frame_num,
+            frame_number - 2 * self.timing_config.pred_frame_num,
+            frame_number - self.timing_config.pred_frame_num,
         )
         bbox_old, bbox_new = self.predict(*frames)
 
@@ -320,4 +320,3 @@ class CsvController(SimController):
         dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * self.timing_config.moving_frame_num)
 
         return dx, dy
-

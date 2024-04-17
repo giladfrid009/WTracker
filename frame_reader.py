@@ -183,6 +183,10 @@ class FrameStream:
         self._frame_reader = frame_reader
         self._idx = -1
 
+    @property
+    def index(self) -> int:
+        return self._idx
+
     def __len__(self):
         return len(self._frame_reader)
 
@@ -223,8 +227,11 @@ class FrameStream:
             bool: True if the index is within the valid range, False otherwise.
         """
         self._idx = idx
-        return 0 <= self._idx < len(self._frame_reader)
+        return self.can_read()
 
+    def can_read(self) -> bool:
+        return self._idx >= 0 and self._idx < len(self._frame_reader)
+    
     def progress(self, n: int = 1) -> bool:
         """
         Moves the current index forward by the specified number of steps.
