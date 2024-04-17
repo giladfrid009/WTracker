@@ -3,13 +3,14 @@ from ultralytics import YOLO
 import cv2 as cv
 from dataclasses import dataclass, field
 from collections import deque
+import pandas as pd
 
 from utils.path_utils import *
 from utils.io_utils import ImageSaver
 from utils.config_base import ConfigBase
 from utils.log_utils import CSVLogger
 from evaluation.simulator import *
-from evaluation.simulator import Simulator
+from evaluation.simulator import Simulator, TimingConfig
 
 
 @dataclass
@@ -242,3 +243,81 @@ class LoggingController(YoloController):
     def on_cycle_end(self, sim: Simulator):
         # TODO: do all the yolo predictions here
         pass
+
+
+class CsvController(SimController):
+    def __init__(self, timing_config: TimingConfig, csv_path: str):
+        super().__init__(timing_config)
+
+        self.csv_path = csv_path
+        self._log_df = pd.read_csv(self.csv_path, index_col="frame")
+        self._frame_number = -1
+        self._cycle_number = -1
+
+    def on_sim_start(self, sim: Simulator):
+        self._frame_number = -1
+
+    def on_camera_frame(self, cycle_step: int, sim: Simulator, cam_view: np.ndarray):
+        self._frame_number += 1
+
+    def predict(self, *frame_nums: int) -> tuple[int, int, int, int] | list[tuple[int, int, int, int]]:
+        if len(frame_nums) == 0:
+            return []
+
+        results = []
+
+        for frame_num in frame_nums:
+            if frame_num not in self._log_df.index:
+                results.append(None)
+
+            # get the absolute positions of predicted bbox and of camera
+            row = self._log_df.loc[frame_num]
+            bbox = row[["worm_x", "worm_y", "worm_w", "worm_h"]].to_list()
+            cam_pos = row[["cam_x", "cam_y", "cam_w", "cam_h"]].to_list()
+
+            # make bbox relative to camera view
+            bbox[0] = bbox[0] - cam_pos[0]
+            bbox[1] = bbox[1] - cam_pos[1]
+
+            if any(c == -1 for c in bbox):
+                results.append(None)
+            else:
+                results.append(bbox)
+
+        if len(results) == 1:
+            return results[0]
+
+        return results 
+
+    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+        frames = (
+            self._frame_number - 2 * self.timing_config.pred_frame_num,
+            self._frame_number - self.timing_config.pred_frame_num,
+        )
+        bbox_old, bbox_new = self.predict(*frames)
+
+        if bbox_old is None and bbox_new is None:
+            return 0, 0
+
+        if bbox_new is None:
+            bbox_new = bbox_old
+
+        if bbox_old is None:
+            bbox_old = bbox_new
+
+        # calculate the speed of the worm based on both predictions
+        bbox_old_mid = bbox_old[0] + bbox_old[2] / 2, bbox_old[1] + bbox_old[3] / 2
+        bbox_new_mid = bbox_new[0] + bbox_new[2] / 2, bbox_new[1] + bbox_new[3] / 2
+        movement = bbox_new_mid[0] - bbox_old_mid[0], bbox_new_mid[1] - bbox_old_mid[1]
+        speed_per_frame = (
+            movement[0] / self.timing_config.pred_frame_num,
+            movement[1] / self.timing_config.pred_frame_num,
+        )
+
+        # calculate camera correction based on the speed of the worm and current worm position
+        camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
+        dx = round(bbox_new_mid[0] - camera_mid[0] + speed_per_frame[0] * self.timing_config.moving_frame_num)
+        dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * self.timing_config.moving_frame_num)
+
+        return dx, dy
+
