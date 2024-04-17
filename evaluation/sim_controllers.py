@@ -186,6 +186,7 @@ class LoggingController(YoloController):
             col_names=[
                 "frame",
                 "cycle",
+                "phase",
                 "plt_x",
                 "plt_y",
                 "cam_x",
@@ -230,6 +231,8 @@ class LoggingController(YoloController):
             self._image_saver.schedule_save(mic_view, path)
 
     def on_cycle_end(self, sim: Simulator):
+        cycle_length = self.timing_config.imaging_frame_num + self.timing_config.moving_frame_num
+
         worm_bboxes = self.predict(*self._camera_frames)
         for i, worm_bbox in enumerate(worm_bboxes):
             cam_pos = self._camera_bboxes[i]
@@ -237,6 +240,7 @@ class LoggingController(YoloController):
             platform_pos = self._platform_positions[i]
 
             frame_number = self._frame_number - len(self._camera_frames) + i + 1
+            phase = "imaging" if i % cycle_length <= self.timing_config.imaging_frame_num else "moving"
 
             if worm_bbox is not None:
                 # format bbox to be have absolute position
@@ -247,6 +251,6 @@ class LoggingController(YoloController):
                 self._image_saver.schedule_save(self._camera_frames[i], path)
                 worm_bbox = (-1, -1, -1, -1)
 
-            self._bbox_logger.write((frame_number, self._cycle_number) + platform_pos + cam_pos + mic_pos + worm_bbox)
+            self._bbox_logger.write((frame_number, self._cycle_number, phase) + platform_pos + cam_pos + mic_pos + worm_bbox)
 
         self._bbox_logger.flush()
