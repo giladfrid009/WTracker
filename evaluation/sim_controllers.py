@@ -1,7 +1,6 @@
 import numpy as np
 from ultralytics import YOLO
 import cv2 as cv
-import csv
 from dataclasses import dataclass, field
 from collections import deque
 
@@ -13,26 +12,38 @@ from evaluation.simulator import *
 from evaluation.simulator import Simulator
 
 
-class YoloController(SimController):
-    def __init__(self, config: TimingConfig, model: YOLO, device: str = "cpu", **pred_kwargs: dict):
-        super().__init__(config)
-        self._camera_frames = deque(maxlen=config.imaging_frame_num)
-        self._model = model.to(device)
-        self.device = device
-
-        self.pred_kwargs = self._format_kwargs(**pred_kwargs)
-
-    def _format_kwargs(self, **pred_kwargs) -> dict:
-        default_args = {
+@dataclass
+class YoloConfig(ConfigBase):
+    model_path: str
+    device: str = "cpu"
+    task: str = "detect"
+    verbose: bool = False
+    pred_kwargs: dict = field(
+        default_factory= lambda: {
             "imgsz": 416,
             "conf": 0.1,
-            "verbose": False,
         }
+    )
 
-        for key, val in default_args.items():
-            pred_kwargs.setdefault(key, val)
+    model: YOLO = field(default=None, init=False, repr=False)
 
-        return pred_kwargs
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state["model"] # we dont want to serialize the model
+        return state
+
+    def load_model(self) -> YOLO:
+        if self.model is None:
+            self.model = YOLO(self.model_path, task=self.task, verbose=self.verbose)
+        return self.model
+
+
+class YoloController(SimController):
+    def __init__(self, timing_config: TimingConfig, yolo_config: YoloConfig):
+        super().__init__(timing_config)
+        self.yolo_config = yolo_config
+        self._camera_frames = deque(maxlen=timing_config.imaging_frame_num)
+        self._model = yolo_config.load_model()
 
     def on_sim_start(self, sim: Simulator):
         self._camera_frames.clear()
@@ -49,7 +60,14 @@ class YoloController(SimController):
             frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
 
         # predict bounding boxes and format results
-        results = self._model.predict(frames, device=self.device, max_det=1, **self.pred_kwargs)
+        results = self._model.predict(
+            source=frames,
+            device=self.yolo_config.device,
+            max_det=1,
+            verbose=self.yolo_config.verbose,
+            **self.yolo_config.pred_kwargs,
+        )
+
         results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
 
         if len(results) == 1:
@@ -58,7 +76,7 @@ class YoloController(SimController):
         return results
 
     def provide_moving_vector_simple(self, sim: Simulator) -> tuple[int, int]:
-        bbox = self.predict(self._camera_frames[-self.config.pred_frame_num])
+        bbox = self.predict(self._camera_frames[-self.timing_config.pred_frame_num])
         if bbox is None:
             return 0, 0
 
@@ -68,10 +86,13 @@ class YoloController(SimController):
         return round(bbox_mid[0] - camera_mid[0]), round(bbox_mid[1] - camera_mid[1])
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        assert len(self._camera_frames) >= 2 * self.config.pred_frame_num
+        assert len(self._camera_frames) >= 2 * self.timing_config.pred_frame_num
 
         # predict the bounding boxes twice during microscope imaging
-        frames = self._camera_frames[-2 * self.config.pred_frame_num], self._camera_frames[-self.config.pred_frame_num]
+        frames = (
+            self._camera_frames[-2 * self.timing_config.pred_frame_num],
+            self._camera_frames[-self.timing_config.pred_frame_num],
+        )
         bbox_old, bbox_new = self.predict(*frames)
 
         if bbox_old is None and bbox_new is None:
@@ -87,12 +108,15 @@ class YoloController(SimController):
         bbox_old_mid = bbox_old[0] + bbox_old[2] / 2, bbox_old[1] + bbox_old[3] / 2
         bbox_new_mid = bbox_new[0] + bbox_new[2] / 2, bbox_new[1] + bbox_new[3] / 2
         movement = bbox_new_mid[0] - bbox_old_mid[0], bbox_new_mid[1] - bbox_old_mid[1]
-        speed_per_frame = movement[0] / self.config.pred_frame_num, movement[1] / self.config.pred_frame_num
+        speed_per_frame = (
+            movement[0] / self.timing_config.pred_frame_num,
+            movement[1] / self.timing_config.pred_frame_num,
+        )
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
-        dx = round(bbox_new_mid[0] - camera_mid[0] + speed_per_frame[0] * self.config.moving_frame_num)
-        dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * self.config.moving_frame_num)
+        dx = round(bbox_new_mid[0] - camera_mid[0] + speed_per_frame[0] * self.timing_config.moving_frame_num)
+        dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * self.timing_config.moving_frame_num)
 
         return dx, dy
 
@@ -131,13 +155,11 @@ class LogConfig(ConfigBase):
 class LoggingController(YoloController):
     def __init__(
         self,
-        log_config: LogConfig,
         timing_config: TimingConfig,
-        model: YOLO,
-        device: str = "cpu",
-        **pred_kwargs: dict,
+        yolo_config: YoloConfig,
+        log_config: LogConfig,
     ):
-        super().__init__(timing_config, model, device, **pred_kwargs)
+        super().__init__(timing_config, yolo_config)
 
         self.log_config = log_config
         self._frame_number = -1

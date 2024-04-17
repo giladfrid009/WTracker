@@ -20,7 +20,9 @@ class ConfigBase:
         try:
             with open(path, "r") as f:
                 data = json.load(f)
-            return cls(**data)
+            obj = cls.__new__(cls)
+            obj.__dict__.update(data)
+            return obj
         except FileNotFoundError:
             print(f"Error: File not found: {path}")
             return None

@@ -130,8 +130,8 @@ class Simulator:
 
 
 class SimController(abc.ABC):
-    def __init__(self, config: TimingConfig):
-        self.config = config
+    def __init__(self, timing_config: TimingConfig):
+        self.timing_config = timing_config
 
     def on_sim_start(self, sim: Simulator):
         pass
