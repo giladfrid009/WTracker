@@ -1,7 +1,6 @@
 import cv2 as cv
 import numpy as np
 
-from utils.display_utils import ImageDisplay, HotKey
 from frame_reader import FrameReader, FrameStream
 
 
@@ -54,12 +53,6 @@ class ViewController(FrameStream):
         self._position = init_position
         self.set_position(*init_position)
 
-        self._image_display = ImageDisplay()
-        self._image_display.register_hotkey(HotKey("q", lambda k: self.seek(len(self))))
-        self._image_display.register_hotkey(HotKey("r", lambda k: self.reset()))
-        # self._image_display.register_hotkey(HotKey("d", lambda k: self.progress(1)))
-        # self._image_display.register_hotkey(HotKey("a", lambda k: self.progress(-1)))
-
     def read(self) -> np.ndarray:
         """
         Read a frame from the frame reader and apply padding.
@@ -78,10 +71,6 @@ class ViewController(FrameStream):
             value=self._padding_value,
         )
         return frame
-
-    @property
-    def image_display(self) -> ImageDisplay:
-        return self._image_display
 
     @property
     def position(self) -> tuple[int, int]:
@@ -204,4 +193,5 @@ class ViewController(FrameStream):
         cv.rectangle(world, (x_mic, y_mic), (x_mic + w_mic, y_mic + h_mic), (0, 255, 0), line_width)
         cv.circle(world, (x_mid, y_mid), 1, (255, 0, 0), line_width)
 
-        self._image_display.update(world, timeout)
+        cv.imshow("World View", world)
+        cv.waitKey(timeout)

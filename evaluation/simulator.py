@@ -78,91 +78,54 @@ class Simulator:
     def position(self) -> tuple[int, int]:
         return self._camera.position
 
-    def reset(self):
+    def _reset(self):
         self._camera.reset()
 
-    def run_current(self):
+    def run(self, visualize: bool = False, wait_key: bool = False):
         config = self._config
         cycle_length = config.imaging_frame_num + config.moving_frame_num
-        cycle_step = self.camera.index % cycle_length
-
-        if cycle_step == 0:
-            self._controller.on_cycle_start(self)
-
-        self._controller.on_camera_frame(self, cycle_step, self._camera.camera_view())
-
-        if cycle_step == 0:
-            self._controller.on_imaging_start(self)
-
-        if cycle_step < config.imaging_frame_num:
-            self._controller.on_micro_frame(self, self._camera.micro_view())
-
-        if cycle_step == config.imaging_frame_num - 1:
-            self._controller.on_imaging_end(self)
-
-        if cycle_step == config.imaging_frame_num:
-            dx, dy = self._controller.provide_moving_vector(self)
-            self._camera.move_position(dx, dy)
-            self._controller.on_movement_start(self)
-
-        if cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
-            self._controller.on_movement_end(self)
-            self._controller.on_cycle_end(self)
-
-    def run_all(self, visualize: bool = False):
-        self.reset()
-        config = self._config
-
-        cycle_length = config.imaging_frame_num + config.moving_frame_num
-
+        
         total_cycles = len(self._camera) // cycle_length
         pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
+        
+        self._reset()
         self._controller.on_sim_start(self)
 
         while self._camera.progress():
-            self.run_current()
+            cycle_step = self.camera.index % cycle_length
 
-            if visualize:
-                self.camera.visualize_world(timeout=1)
+            if cycle_step == 0:
+                self._controller.on_cycle_start(self)
+
+            self._controller.on_camera_frame(self, self._camera.camera_view())
+
+            if cycle_step == 0:
+                self._controller.on_imaging_start(self)
+
+            if cycle_step < config.imaging_frame_num:
+                self._controller.on_micro_frame(self, self._camera.micro_view())
+
+            if cycle_step == config.imaging_frame_num - 1:
+                self._controller.on_imaging_end(self)
+
+            if cycle_step == config.imaging_frame_num:
+                dx, dy = self._controller.provide_moving_vector(self)
+                self._camera.move_position(dx, dy)
+                self._controller.on_movement_start(self)
+
+            if cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
+                self._controller.on_movement_end(self)
 
             if self.camera.index % cycle_length == cycle_length - 1:
+                self._controller.on_cycle_end(self)
                 pbar.update(1)
 
+            if visualize:
+                self.camera.visualize_world(timeout=0 if wait_key else 1)
+
         self._controller.on_sim_end(self)
+
         pbar.close()
-
-    def run_manual(self, start_frame: int = 0):
-        self.reset()
-
-        self.camera.seek(start_frame)
-        self._controller.on_sim_start(self)
-
-        break_loop = False
-
-        def next(key: str):
-            self.camera.progress()
-            self.run_current()
-            self.camera.visualize_world(timeout=1)
-            self.camera.image_display.set_title(f"Frame: {self.camera.index}")
-
-        def prev(key: str):
-            self.camera.progress(-1)
-            self.run_current()
-            self.camera.visualize_world(timeout=1)
-            self.camera.image_display.set_title(f"Frame: {self.camera.index}")
-
-        def quit(key: str):
-            nonlocal break_loop
-            break_loop = True
-
-        self.camera.image_display.register_hotkey(HotKey("d", next))
-        self.camera.image_display.register_hotkey(HotKey("a", prev))
-        self.camera.image_display.register_hotkey(HotKey("q", quit))
-
-        while not break_loop and self.camera.can_read():
-            self.camera.image_display.wait_key()
-
-        self._controller.on_sim_end(self)
 
 
 class SimController(abc.ABC):
@@ -181,7 +144,7 @@ class SimController(abc.ABC):
     def on_cycle_end(self, sim: Simulator):
         pass
 
-    def on_camera_frame(self, cycle_step: int, sim: Simulator, cam_view: np.ndarray):
+    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
         pass
 
     def on_imaging_start(self, sim: Simulator):

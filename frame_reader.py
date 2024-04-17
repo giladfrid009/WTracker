@@ -185,6 +185,9 @@ class FrameStream:
 
     @property
     def index(self) -> int:
+        """
+        The index of the current frame.
+        """
         return self._idx
 
     def __len__(self):
