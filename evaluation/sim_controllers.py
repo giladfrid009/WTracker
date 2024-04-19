@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from collections import deque
 import pandas as pd
 
+from dataset.bbox_utils import BoxConverter, BoxFormat
 from utils.path_utils import *
 from utils.io_utils import ImageSaver
 from utils.config_base import ConfigBase
@@ -52,7 +53,7 @@ class YoloController(SimController):
     def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
         self._camera_frames.append(cam_view)
 
-    def predict(self, *frames: np.ndarray) -> tuple[int, int, int, int] | list[tuple[int, int, int, int]]:
+    def predict(self, *frames: np.ndarray) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
         if len(frames) == 0:
             return []
 
@@ -61,7 +62,7 @@ class YoloController(SimController):
             frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
 
         # predict bounding boxes and format results
-        results = self._model.predict(
+        pred_results = self._model.predict(
             source=frames,
             device=self.yolo_config.device,
             max_det=1,
@@ -69,18 +70,26 @@ class YoloController(SimController):
             **self.yolo_config.pred_kwargs,
         )
 
-        results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
+        results = []
+
+        for pred_res in pred_results:
+            if len(pred_res.boxes) == 0:
+                results.append(None)
+            else:
+                xyxy = pred_res[0].boxes.xyxy[0]
+                xywh = BoxConverter.to_xywh(xyxy, BoxFormat.XYXY)
+                results.append(xywh)
 
         if len(results) == 1:
             return results[0]
-
         return results
+        
 
-    def provide_moving_vector_simple(self, sim: Simulator) -> tuple[int, int]:
+    def provide_moving_vector_simple(self, sim: Simulator) -> tuple[int, int]:        
         bbox = self.predict(self._camera_frames[-self.timing_config.pred_frame_num])
         if bbox is None:
             return 0, 0
-
+        
         bbox_mid = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
@@ -116,8 +125,8 @@ class YoloController(SimController):
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
-        dx = round(bbox_new_mid[0] - camera_mid[0] + speed_per_frame[0] * self.timing_config.moving_frame_num)
-        dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * self.timing_config.moving_frame_num)
+        dx = round(bbox_new_mid[0] - camera_mid[0] + speed_per_frame[0] * (self.timing_config.moving_frame_num + self.timing_config.pred_frame_num))
+        dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * (self.timing_config.moving_frame_num + self.timing_config.pred_frame_num))
 
         return dx, dy
 
@@ -270,7 +279,7 @@ class CsvController(SimController):
         self._log_df = pd.read_csv(self.csv_path, index_col="frame")
         self._cycle_number = -1
 
-    def predict(self, *frame_nums: int) -> tuple[int, int, int, int] | list[tuple[int, int, int, int]]:
+    def predict(self, *frame_nums: int) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
         if len(frame_nums) == 0:
             return []
 

@@ -14,7 +14,7 @@ from utils.config_base import ConfigBase
 @dataclass
 class TimingConfig(ConfigBase):
     frames_per_sec: int
-    secs_per_frame: float = field(init=False)
+    ms_per_frame: float = field(init=False)
 
     imaging_time_ms: float
     imaging_frame_num: int = field(init=False)
@@ -39,10 +39,10 @@ class TimingConfig(ConfigBase):
     frame_padding_value: tuple[int, int, int] = field(default_factory=lambda: (255, 255, 255))
 
     def __post_init__(self):
-        self.secs_per_frame = 1000 / self.frames_per_sec
-        self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.secs_per_frame)
-        self.pred_frame_num = math.ceil(self.pred_time_ms / self.secs_per_frame)
-        self.moving_frame_num = math.ceil(self.moving_time_ms / self.secs_per_frame)
+        self.ms_per_frame = 1000 / self.frames_per_sec
+        self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.ms_per_frame)
+        self.pred_frame_num = math.ceil(self.pred_time_ms / self.ms_per_frame)
+        self.moving_frame_num = math.ceil(self.moving_time_ms / self.ms_per_frame)
         self.mm_per_px = 1 / self.px_per_mm
 
         self.camera_size_px = (
@@ -120,7 +120,7 @@ class Simulator:
                 pbar.update(1)
 
             if visualize:
-                self.camera.visualize_world(timeout=0 if wait_key else 1)
+                self._camera.visualize_world(timeout=0 if wait_key else 100)
 
         self._controller.on_sim_end(self)
 

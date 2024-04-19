@@ -60,7 +60,7 @@ class Plotter:
         inter_area = inter_width * inter_height
         worm_area = worm_boxes[:, 2] * worm_boxes[:, 3]
 
-        return np.abs(worm_area - inter_area)
+        return np.abs(worm_area - inter_area)/worm_area
 
     @staticmethod
     def remove_phase(data: pd.DataFrame, phase: str) -> pd.DataFrame:
@@ -131,8 +131,9 @@ class Plotter:
         if y_label is None:
             y_label = y_col
 
-        plt.figure(figsize=(8, 6))
+        fig, ax = plt.subplots(figsize=(8, 6))
         plt.scatter(data[x_col], data[y_col], s=20, alpha=0.5)
+        ax.set_xlim(0, 10)
         plt.xlabel(x_label, fontsize=14)
         plt.ylabel(y_label, fontsize=14)
         plt.title(title, fontsize=16)
@@ -160,3 +161,5 @@ class Plotter:
 
         cycle_data2 = Plotter.get_cycle_stats(data, "bbox_area_diff", "max", "wrm_speed", "mean")
         Plotter.scatter_data(cycle_data2, "wrm_speed", "bbox_area_diff", "Max Area Diff vs. Mean Speed")
+
+        self._data = data
