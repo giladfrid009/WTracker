@@ -127,7 +127,7 @@ class Simulator:
                 pbar.update(1)
 
             if visualize:
-                self.camera.visualize_world(timeout=0 if wait_key else 1)
+                self._camera.visualize_world(timeout=0 if wait_key else 100)
 
         self._controller.on_sim_end(self)
 

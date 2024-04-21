@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from collections import deque
 import pandas as pd
 
+from dataset.bbox_utils import BoxConverter, BoxFormat
 from utils.path_utils import *
 from utils.io_utils import ImageSaver
 from utils.config_base import ConfigBase
@@ -64,7 +65,7 @@ class YoloController(SimController):
             frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
 
         # predict bounding boxes and format results
-        results = self._model.predict(
+        pred_results = self._model.predict(
             source=frames,
             device=self.yolo_config.device,
             max_det=1,
@@ -95,7 +96,7 @@ class YoloController(SimController):
         bbox = self.predict(self._camera_frames[-self.timing_config.pred_frame_num])
         if bbox is None:
             return 0, 0
-
+        
         bbox_mid = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
