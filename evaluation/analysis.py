@@ -60,7 +60,7 @@ class Plotter:
         inter_area = inter_width * inter_height
         worm_area = worm_boxes[:, 2] * worm_boxes[:, 3]
 
-        return np.abs(worm_area - inter_area)/worm_area
+        return np.abs(worm_area - inter_area) / worm_area
 
     @staticmethod
     def remove_phase(data: pd.DataFrame, phase: str) -> pd.DataFrame:

@@ -58,7 +58,7 @@ class TimingConfig(ConfigBase):
     @property
     def cycle_length(self) -> int:
         return self.imaging_frame_num + self.moving_frame_num
-    
+
     @property
     def cycle_time_ms(self) -> float:
         return self.cycle_length * self.ms_per_frame
@@ -86,14 +86,15 @@ class Simulator:
         return self._camera.position
 
     def _reset(self):
-        self._camera.reset()
+        self.camera.reset()
+        self.camera.set_position(*self._config.init_position)
 
     def run(self, visualize: bool = False, wait_key: bool = False):
         config = self._config
-        
+
         total_cycles = len(self._camera) // config.cycle_length
         pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
-        
+
         self._reset()
         self._controller.on_sim_start(self)
 
@@ -127,7 +128,7 @@ class Simulator:
                 pbar.update(1)
 
             if visualize:
-                self._camera.visualize_world(timeout=0 if wait_key else 100)
+                self._camera.visualize_world(timeout=0 if wait_key else 1)
 
         self._controller.on_sim_end(self)
 

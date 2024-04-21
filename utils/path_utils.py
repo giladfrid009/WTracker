@@ -75,14 +75,14 @@ class Files:
         extension: str = "",
         scan_dirs: bool = False,
         return_full_path: bool = True,
-        sorting_func: Callable[[str], Union[int, str]] = lambda f: f.name,
+        sorting_key: Callable[[str], Union[int, str]] = lambda f: f.name,
     ) -> None:
         self.root = directory
         self.extension = extension
         self.scan_dirs: bool = scan_dirs
         self.return_full_path = return_full_path
         self.results: list[os.DirEntry] = []
-        self.sorting_func = sorting_func
+        self.sorting_func = sorting_key
 
         self._pos = -1
 
