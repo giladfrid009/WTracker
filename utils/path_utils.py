@@ -75,7 +75,7 @@ class Files:
         extension: str = "",
         scan_dirs: bool = False,
         return_full_path: bool = True,
-        sorting_func:Callable[[str], Union[int, str]] = lambda f: f.name,
+        sorting_func: Callable[[str], Union[int, str]] = lambda f: f.name,
     ) -> None:
         self.root = directory
         self.extension = extension
@@ -120,8 +120,8 @@ class Files:
 
     def __len__(self) -> int:
         return len(self.results)
-    
-    def __contains__(self, key:str) -> bool:
+
+    def __contains__(self, key: str) -> bool:
         for res in self.results:
             if key == res.name:
                 return True
@@ -137,7 +137,6 @@ class Files:
         if 0 <= pos < self.__len__():
             self._pos = pos - 1
             return self.__next__()
-    
-    def copy(self, dst_root:str) -> None:
+
+    def copy(self, dst_root: str) -> None:
         shutil.copy2(self.get_path(), dst=dst_root)
-    

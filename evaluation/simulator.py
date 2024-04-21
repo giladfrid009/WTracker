@@ -14,7 +14,7 @@ from utils.config_base import ConfigBase
 @dataclass
 class TimingConfig(ConfigBase):
     frames_per_sec: int
-    secs_per_frame: float = field(init=False)
+    ms_per_frame: float = field(init=False)
 
     imaging_time_ms: float
     imaging_frame_num: int = field(init=False)
@@ -39,10 +39,10 @@ class TimingConfig(ConfigBase):
     frame_padding_value: tuple[int, int, int] = field(default_factory=lambda: (255, 255, 255))
 
     def __post_init__(self):
-        self.secs_per_frame = 1000 / self.frames_per_sec
-        self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.secs_per_frame)
-        self.pred_frame_num = math.ceil(self.pred_time_ms / self.secs_per_frame)
-        self.moving_frame_num = math.ceil(self.moving_time_ms / self.secs_per_frame)
+        self.ms_per_frame = 1000 / self.frames_per_sec
+        self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.ms_per_frame)
+        self.pred_frame_num = math.ceil(self.pred_time_ms / self.ms_per_frame)
+        self.moving_frame_num = math.ceil(self.moving_time_ms / self.ms_per_frame)
         self.mm_per_px = 1 / self.px_per_mm
 
         self.camera_size_px = (
@@ -54,6 +54,14 @@ class TimingConfig(ConfigBase):
             round(self.px_per_mm * self.micro_size_mm[0]),
             round(self.px_per_mm * self.micro_size_mm[1]),
         )
+
+    @property
+    def cycle_length(self) -> int:
+        return self.imaging_frame_num + self.moving_frame_num
+    
+    @property
+    def cycle_time_ms(self) -> float:
+        return self.cycle_length * self.ms_per_frame
 
 
 class Simulator:
@@ -82,16 +90,15 @@ class Simulator:
 
     def run(self, visualize: bool = False, wait_key: bool = False):
         config = self._config
-        cycle_length = config.imaging_frame_num + config.moving_frame_num
         
-        total_cycles = len(self._camera) // cycle_length
+        total_cycles = len(self._camera) // config.cycle_length
         pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
         
         self._reset()
         self._controller.on_sim_start(self)
 
         while self._camera.progress():
-            cycle_step = self.camera.index % cycle_length
+            cycle_step = self.camera.index % config.cycle_length
 
             if cycle_step == 0:
                 self._controller.on_cycle_start(self)
@@ -115,7 +122,7 @@ class Simulator:
             if cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
                 self._controller.on_movement_end(self)
 
-            if self.camera.index % cycle_length == cycle_length - 1:
+            if self.camera.index % config.cycle_length == config.cycle_length - 1:
                 self._controller.on_cycle_end(self)
                 pbar.update(1)
 
@@ -163,4 +170,9 @@ class SimController(abc.ABC):
 
     @abc.abstractmethod
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+        pass
+
+    @abc.abstractmethod
+    def _cycle_predict_worms(self) -> list[tuple[float, float, float, float]]:
+        # internal method used for logging
         pass

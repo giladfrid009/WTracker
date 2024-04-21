@@ -11,6 +11,7 @@ from utils.config_base import ConfigBase
 from utils.log_utils import CSVLogger
 from evaluation.simulator import *
 from evaluation.simulator import Simulator, TimingConfig
+from dataset.bbox_utils import *
 
 
 @dataclass
@@ -52,7 +53,9 @@ class YoloController(SimController):
     def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
         self._camera_frames.append(cam_view)
 
-    def predict(self, *frames: np.ndarray) -> tuple[int, int, int, int] | list[tuple[int, int, int, int]]:
+    def predict(
+        self, *frames: np.ndarray
+    ) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
         if len(frames) == 0:
             return []
 
@@ -69,14 +72,26 @@ class YoloController(SimController):
             **self.yolo_config.pred_kwargs,
         )
 
-        results = [res.boxes.xywh[0].to(int).tolist() if len(res.boxes) > 0 else None for res in results]
+        results = [res.numpy() for res in results]
+
+        bboxes = []
+
+        for res in results:
+            if len(res.boxes.xyxy) == 0:
+                bboxes.append(None)
+            else:
+                bbox = BoxConverter.to_xywh(res.boxes.xyxy[0], BoxFormat.XYXY)
+                bboxes.append(bbox.tolist())
 
         if len(results) == 1:
-            return results[0]
+            return bboxes[0]
 
-        return results
+        return bboxes
 
-    def provide_moving_vector_simple(self, sim: Simulator) -> tuple[int, int]:
+    def _cycle_predict_worms(self) -> list[tuple[float, float, float, float]]:
+        return self.predict(*self._camera_frames)
+
+    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         bbox = self.predict(self._camera_frames[-self.timing_config.pred_frame_num])
         if bbox is None:
             return 0, 0
@@ -86,13 +101,59 @@ class YoloController(SimController):
 
         return round(bbox_mid[0] - camera_mid[0]), round(bbox_mid[1] - camera_mid[1])
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        assert len(self._camera_frames) >= 2 * self.timing_config.pred_frame_num
 
-        # predict the bounding boxes twice during microscope imaging
+class CsvController(SimController):
+    def __init__(self, timing_config: TimingConfig, csv_path: str):
+        super().__init__(timing_config)
+
+        self.csv_path = csv_path
+        self._log_df = pd.read_csv(self.csv_path, index_col="frame")
+        self._cycle_number = -1
+
+    def on_sim_start(self, sim: Simulator):
+        self._cycle_number = -1
+
+    def on_cycle_start(self, sim: Simulator):
+        self._cycle_number += 1
+
+    def predict(self, *frame_nums: int) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
+        if len(frame_nums) == 0:
+            return []
+
+        bboxes = []
+
+        for frame_num in frame_nums:
+            if frame_num not in self._log_df.index:
+                bboxes.append(None)
+
+            # get the absolute positions of predicted bbox and of camera
+            row = self._log_df.loc[frame_num]
+            worm_bbox = row[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_list()
+            cam_bbox = row[["cam_x", "cam_y", "cam_w", "cam_h"]].to_list()
+
+            # make bbox relative to camera view
+            worm_bbox[0] = worm_bbox[0] - cam_bbox[0]
+            worm_bbox[1] = worm_bbox[1] - cam_bbox[1]
+
+            if any(c == -1 for c in worm_bbox):
+                bboxes.append(None)
+            else:
+                bboxes.append(worm_bbox)
+
+        if len(bboxes) == 1:
+            return bboxes[0]
+
+        return bboxes
+
+    def _cycle_predict_worms(self) -> list[tuple[float, float, float, float]]:
+        start = self._cycle_number * self.timing_config.cycle_length
+        end = start + self.timing_config.cycle_length
+        return self.predict(*range(start, end))
+
+    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         frames = (
-            self._camera_frames[-2 * self.timing_config.pred_frame_num],
-            self._camera_frames[-self.timing_config.pred_frame_num],
+            sim.camera.index - 2 * self.timing_config.pred_frame_num,
+            sim.camera.index - self.timing_config.pred_frame_num,
         )
         bbox_old, bbox_new = self.predict(*frames)
 
@@ -116,8 +177,16 @@ class YoloController(SimController):
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
-        dx = round(bbox_new_mid[0] - camera_mid[0] + speed_per_frame[0] * self.timing_config.moving_frame_num)
-        dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * self.timing_config.moving_frame_num)
+        dx = round(
+            bbox_new_mid[0]
+            - camera_mid[0]
+            + speed_per_frame[0] * (self.timing_config.moving_frame_num + self.timing_config.pred_frame_num)
+        )
+        dy = round(
+            bbox_new_mid[1]
+            - camera_mid[1]
+            + speed_per_frame[1] * (self.timing_config.moving_frame_num + self.timing_config.pred_frame_num)
+        )
 
         return dx, dy
 
@@ -152,23 +221,27 @@ class LogConfig(ConfigBase):
         create_parent_directory(self.bbox_file_path)
 
 
-class LoggingController(YoloController):
+class LoggingController(SimController):
     def __init__(
         self,
-        timing_config: TimingConfig,
-        yolo_config: YoloConfig,
+        sim_controller: SimController,
         log_config: LogConfig,
     ):
-        super().__init__(timing_config, yolo_config)
+        super().__init__(sim_controller.timing_config)
 
-        self._platform_positions = deque(maxlen=timing_config.imaging_frame_num + timing_config.moving_frame_num)
-        self._camera_bboxes = deque(maxlen=timing_config.imaging_frame_num + timing_config.moving_frame_num)
-        self._micro_bboxes = deque(maxlen=timing_config.imaging_frame_num + timing_config.moving_frame_num)
-
+        self.sim_controller = sim_controller
         self.log_config = log_config
+
+        self._camera_frames = deque(maxlen=self.timing_config.cycle_length)
+        self._platform_positions = deque(maxlen=self.timing_config.cycle_length)
+        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length)
+        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length)
+
         self._cycle_number = -1
 
     def on_sim_start(self, sim: Simulator):
+        self.sim_controller.on_sim_start(sim)
+
         self._cycle_number = -1
         self._camera_frames.clear()
         self._platform_positions.clear()
@@ -202,36 +275,22 @@ class LoggingController(YoloController):
             ],
         )
 
-    def on_cycle_start(self, sim: Simulator):
-        self._cycle_number += 1
-
     def on_sim_end(self, sim: Simulator):
+        self.sim_controller.on_sim_end(sim)
+
         self._image_saver.close()
         self._bbox_logger.close()
 
-    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
-        # log everything
-        self._camera_frames.append(cam_view)
-        self._platform_positions.append(sim.camera.position)
-        self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
-        self._micro_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.micro_size))
+    def on_cycle_start(self, sim: Simulator):
+        self.sim_controller.on_cycle_start(sim)
 
-        if self.log_config.save_cam_view:
-            # save camera view
-            path = self.log_config.cam_file_path.format(sim.camera.index)
-            self._image_saver.schedule_save(cam_view, path)
-
-        if self.log_config.save_mic_view:
-            # save micro view
-            mic_view = sim.camera.micro_view()
-            path = self.log_config.mic_file_path.format(sim.camera.index)
-            self._image_saver.schedule_save(mic_view, path)
+        self._cycle_number += 1
 
     def on_cycle_end(self, sim: Simulator):
-        cycle_length = self.timing_config.imaging_frame_num + self.timing_config.moving_frame_num
+        self.sim_controller.on_cycle_end(sim)
 
-        worm_bboxes = self.predict(*self._camera_frames)
-        
+        worm_bboxes = self._cycle_predict_worms()
+
         for i, worm_bbox in enumerate(worm_bboxes):
             csv_row = {}
             csv_row["plt_x"], csv_row["plt_y"] = self._platform_positions[i]
@@ -239,7 +298,9 @@ class LoggingController(YoloController):
             csv_row["mic_x"], csv_row["mic_y"], csv_row["mic_w"], csv_row["mic_h"] = self._micro_bboxes[i]
 
             frame_number = sim.camera.index - len(self._camera_frames) + i + 1
-            phase = "imaging" if i % cycle_length <= self.timing_config.imaging_frame_num else "moving"
+            phase = (
+                "imaging" if i % self.timing_config.cycle_length <= self.timing_config.imaging_frame_num else "moving"
+            )
 
             csv_row["frame"] = frame_number
             csv_row["cycle"] = self._cycle_number
@@ -261,72 +322,43 @@ class LoggingController(YoloController):
 
         self._bbox_logger.flush()
 
+    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
+        self.sim_controller.on_camera_frame(sim, cam_view)
 
-class CsvController(SimController):
-    def __init__(self, timing_config: TimingConfig, csv_path: str):
-        super().__init__(timing_config)
+        # log everything
+        self._camera_frames.append(cam_view)
+        self._platform_positions.append(sim.camera.position)
+        self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
+        self._micro_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.micro_size))
 
-        self.csv_path = csv_path
-        self._log_df = pd.read_csv(self.csv_path, index_col="frame")
-        self._cycle_number = -1
+        if self.log_config.save_cam_view:
+            # save camera view
+            path = self.log_config.cam_file_path.format(sim.camera.index)
+            self._image_saver.schedule_save(cam_view, path)
 
-    def predict(self, *frame_nums: int) -> tuple[int, int, int, int] | list[tuple[int, int, int, int]]:
-        if len(frame_nums) == 0:
-            return []
+        if self.log_config.save_mic_view:
+            # save micro view
+            mic_view = sim.camera.micro_view()
+            path = self.log_config.mic_file_path.format(sim.camera.index)
+            self._image_saver.schedule_save(mic_view, path)
 
-        results = []
+    def on_imaging_start(self, sim: Simulator):
+        self.sim_controller.on_imaging_start(sim)
 
-        for frame_num in frame_nums:
-            if frame_num not in self._log_df.index:
-                results.append(None)
+    def on_micro_frame(self, sim: Simulator, micro_view: np.ndarray):
+        self.sim_controller.on_micro_frame(sim, micro_view)
 
-            # get the absolute positions of predicted bbox and of camera
-            row = self._log_df.loc[frame_num]
-            worm_bbox = row[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_list()
-            cam_bbox = row[["cam_x", "cam_y", "cam_w", "cam_h"]].to_list()
+    def on_imaging_end(self, sim: Simulator):
+        self.sim_controller.on_imaging_end(sim)
 
-            # make bbox relative to camera view
-            worm_bbox[0] = worm_bbox[0] - cam_bbox[0]
-            worm_bbox[1] = worm_bbox[1] - cam_bbox[1]
+    def on_movement_start(self, sim: Simulator):
+        self.sim_controller.on_movement_start(sim)
 
-            if any(c == -1 for c in worm_bbox):
-                results.append(None)
-            else:
-                results.append(worm_bbox)
-
-        if len(results) == 1:
-            return results[0]
-
-        return results
+    def on_movement_end(self, sim: Simulator):
+        self.sim_controller.on_movement_end(sim)
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        frames = (
-            sim.camera.index - 2 * self.timing_config.pred_frame_num,
-            sim.camera.index - self.timing_config.pred_frame_num,
-        )
-        bbox_old, bbox_new = self.predict(*frames)
+        return self.sim_controller.provide_moving_vector(sim)
 
-        if bbox_old is None and bbox_new is None:
-            return 0, 0
-
-        if bbox_new is None:
-            bbox_new = bbox_old
-
-        if bbox_old is None:
-            bbox_old = bbox_new
-
-        # calculate the speed of the worm based on both predictions
-        bbox_old_mid = bbox_old[0] + bbox_old[2] / 2, bbox_old[1] + bbox_old[3] / 2
-        bbox_new_mid = bbox_new[0] + bbox_new[2] / 2, bbox_new[1] + bbox_new[3] / 2
-        movement = bbox_new_mid[0] - bbox_old_mid[0], bbox_new_mid[1] - bbox_old_mid[1]
-        speed_per_frame = (
-            movement[0] / self.timing_config.pred_frame_num,
-            movement[1] / self.timing_config.pred_frame_num,
-        )
-
-        # calculate camera correction based on the speed of the worm and current worm position
-        camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
-        dx = round(bbox_new_mid[0] - camera_mid[0] + speed_per_frame[0] * self.timing_config.moving_frame_num)
-        dy = round(bbox_new_mid[1] - camera_mid[1] + speed_per_frame[1] * self.timing_config.moving_frame_num)
-
-        return dx, dy
+    def _cycle_predict_worms(self) -> list[tuple[float, float, float, float]]:
+        return self.sim_controller._cycle_predict_worms()
