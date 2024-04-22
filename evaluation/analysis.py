@@ -8,6 +8,47 @@ class Plotter:
         self._data = pd.read_csv(log_path)
         self._header = self._data.columns
 
+    def data_prep(self, n:int=1) -> pd.DataFrame:
+        data = self._data.copy()
+        data = Plotter.calc_centers(data, 'wrm')
+        data = Plotter.calc_centers(data, 'mic')
+        
+        data = Plotter.remove_no_preds(data)
+
+        data['wrm_area'] = Plotter.bbox_area(data, 'wrm_w', 'wrm_h')
+        data = Plotter.calc_speed(data, n=n)
+
+        worm_bboxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].values
+        mic_bboxes = data[["mic_x", "mic_y", "mic_w", "mic_h"]].values
+
+        data["bbox_area_diff"] = Plotter.calc_area_diff(worm_bboxes, mic_bboxes)
+        data["bbox_edge_diff"] = Plotter.calc_max_edge_diff(worm_bboxes, mic_bboxes)
+
+        data = Plotter.remove_cycle(data, 0)
+        return data
+
+    def cycle_data_prep(self, n:int=15) -> pd.DataFrame:
+        data = self._data.copy()
+        Plotter.data_prep(data, n=1)
+
+        data = Plotter.calc_speed(data, n=n)
+
+        worm_bboxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].values
+        mic_bboxes = data[["mic_x", "mic_y", "mic_w", "mic_h"]].values
+
+        data["bbox_area_diff"] = Plotter.calc_area_diff(worm_bboxes, mic_bboxes)
+        data["bbox_edge_diff"] = Plotter.calc_max_edge_diff(worm_bboxes, mic_bboxes)
+
+
+
+        data = Plotter.remove_cycle(data, 0)
+        return data
+
+    @staticmethod
+    def remove_no_preds(data:pd.DataFrame) -> pd.DataFrame:
+        mask = data['wrm_x'] >= 0
+        return data.loc[mask]
+
     @staticmethod
     def calc_max_edge_diff(worm_boxes: np.ndarray, mic_boxes: np.ndarray) -> np.ndarray:
         """
@@ -97,24 +138,25 @@ class Plotter:
         return data
 
     @staticmethod
-    def calc_speed(data: pd.DataFrame) -> pd.DataFrame:
-        """
-        Calculate the worm speed and add it to the data.
-        """
-        if "wrm_center_x" not in data.columns:
-            data = Plotter.calc_centers(data, "wrm")
-
-        if "mic_center_x" not in data.columns:
-            data = Plotter.calc_centers(data, "mic")
-
-        data["wrm_vec_x"] = data["wrm_center_x"].diff()
-        data["wrm_vec_y"] = data["wrm_center_y"].diff()
-        data["wrm_speed"] = np.sqrt(data["wrm_center_x"].diff() ** 2 + data["wrm_center_y"].diff() ** 2)
+    def axis_movement(data:pd.DataFrame, n:int=1) -> pd.DataFrame:
+        frame_diff = data["frame"].diff(n).to_numpy()
+        data["wrm_vec_x"] = data["wrm_center_x"].diff(n) / frame_diff
+        data["wrm_vec_y"] = data["wrm_center_y"].diff(n) / frame_diff
         return data
 
     @staticmethod
-    def get_cycle_stats(data: pd.DataFrame, x_col: str, x_func: str, y_col: str, y_func: str) -> pd.DataFrame:
-        return data.groupby("cycle")[[x_col, y_col]].agg({x_col: x_func, y_col: y_func}).reset_index()
+    def calc_speed(data: pd.DataFrame, n:int=1) -> pd.DataFrame:
+        """
+        Calculate the worm speed and add it to the data.
+        """
+
+        frame_diff = data["frame"].diff(n).to_numpy()
+        wrm_speed = np.sqrt(data["wrm_center_x"].diff(n) ** 2 + data["wrm_center_y"].diff(n) ** 2) / frame_diff
+        return wrm_speed
+
+    @staticmethod
+    def get_cycle_stats(data: pd.DataFrame, transforms:dict) -> pd.DataFrame:
+        return data.groupby("cycle")[list(transforms.keys())].agg(transforms).reset_index()
 
     @staticmethod
     def scatter_data(
@@ -141,7 +183,9 @@ class Plotter:
         plt.show()
 
     def plot_v1(self):
-        data = self._data
+        data = self._data.copy()
+        data = Plotter.calc_centers(data, 'wrm')
+        data = Plotter.calc_centers(data, 'mic')
         data = Plotter.calc_speed(data)
         data = Plotter.remove_invalid(data)
 
@@ -156,13 +200,11 @@ class Plotter:
 
         data.fillna(0, inplace=True)
 
-        cycle_data1 = Plotter.get_cycle_stats(data, "bbox_edge_diff", "max", "wrm_speed", "mean")
+        cycle_data1 = Plotter.get_cycle_stats(data, {"bbox_edge_diff": "max", "wrm_speed": "mean"})
         Plotter.scatter_data(cycle_data1, "wrm_speed", "bbox_edge_diff", "Max Edge Diff vs. Mean Speed")
 
-        cycle_data2 = Plotter.get_cycle_stats(data, "bbox_area_diff", "max", "wrm_speed", "mean")
+        cycle_data2 = Plotter.get_cycle_stats(data, {"bbox_area_diff": "max", "wrm_speed": "mean"})
         Plotter.scatter_data(cycle_data2, "wrm_speed", "bbox_area_diff", "Max Area Diff vs. Mean Speed")
-
-        self._data = data
 
     @staticmethod
     def bbox_area(data: pd.DataFrame, width_col: str, height_col: str) -> np.ndarray:
