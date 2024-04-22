@@ -81,7 +81,8 @@ class YoloController(SimController):
                 bboxes.append(None)
             else:
                 bbox = BoxConverter.to_xywh(res.boxes.xyxy[0], BoxFormat.XYXY)
-                bboxes.append(bbox.tolist())
+                bbox = bbox.tolist()
+                bboxes.append(bbox)
 
         if len(bboxes) == 1:
             return bboxes[0]
