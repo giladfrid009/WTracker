@@ -204,6 +204,13 @@ class FrameStream:
         frame = self.read()
         return frame
 
+    def __getitem__(self, idx: int) -> np.ndarray:
+        cur_idx = self._idx
+        self.seek(idx)
+        frame = self.read()
+        self.seek(cur_idx)
+        return frame
+
     def read(self) -> np.ndarray:
         """
         Read and return the frame at the current index.
@@ -234,7 +241,7 @@ class FrameStream:
 
     def can_read(self) -> bool:
         return self._idx >= 0 and self._idx < len(self._frame_reader)
-    
+
     def progress(self, n: int = 1) -> bool:
         """
         Moves the current index forward by the specified number of steps.

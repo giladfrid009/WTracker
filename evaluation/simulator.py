@@ -84,22 +84,22 @@ class Simulator:
     @property
     def position(self) -> tuple[int, int]:
         return self._camera.position
-    
+
     @property
     def cycle_number(self) -> int:
         return self._camera.index // self._config.cycle_length
-    
+
     @property
     def frame_number(self) -> int:
         return self._camera.index
-    
+
     @property
     def cycle_step(self) -> int:
         return self._camera.index % self._config.cycle_length
-    
+
     def camera_view(self) -> np.ndarray:
         return self._camera.camera_view()
-    
+
     def micro_view(self) -> np.ndarray:
         return self._camera.micro_view()
 

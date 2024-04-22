@@ -184,6 +184,7 @@ class LogConfig(ConfigBase):
     root_folder: str
     save_mic_view: bool = False
     save_cam_view: bool = False
+    save_err_view: bool = True
     mic_folder_name: str = "micro"
     cam_folder_name: str = "camera"
     err_folder_name: str = "errors"
@@ -269,6 +270,30 @@ class LoggingController(SimController):
     def on_cycle_start(self, sim: Simulator):
         self.sim_controller.on_cycle_start(sim)
 
+    def on_camera_frame(self, sim: Simulator):
+        self.sim_controller.on_camera_frame(sim)
+
+        # log everything
+        self._platform_positions.append(sim.position)
+        self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
+        self._micro_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.micro_size))
+
+        cam_view = sim.camera_view() if self.log_config.save_err_view or self.log_config.save_cam_view else None
+
+        if self.log_config.save_err_view:
+            self._camera_frames.append(cam_view)
+
+        if self.log_config.save_cam_view:
+            # save camera view
+            path = self.log_config.cam_file_path.format(sim.frame_number)
+            self._image_saver.schedule_save(cam_view, path)
+
+        if self.log_config.save_mic_view:
+            # save micro view
+            mic_view = sim.camera.micro_view()
+            path = self.log_config.mic_file_path.format(sim.frame_number)
+            self._image_saver.schedule_save(mic_view, path)
+
     def on_cycle_end(self, sim: Simulator):
         self.sim_controller.on_cycle_end(sim)
 
@@ -280,7 +305,7 @@ class LoggingController(SimController):
             csv_row["cam_x"], csv_row["cam_y"], csv_row["cam_w"], csv_row["cam_h"] = self._camera_bboxes[i]
             csv_row["mic_x"], csv_row["mic_y"], csv_row["mic_w"], csv_row["mic_h"] = self._micro_bboxes[i]
 
-            frame_number = sim.frame_number - len(self._camera_frames) + i + 1
+            frame_number = sim.frame_number - self.timing_config.cycle_length + i + 1
             phase = (
                 "imaging" if i % self.timing_config.cycle_length <= self.timing_config.imaging_frame_num else "moving"
             )
@@ -294,9 +319,12 @@ class LoggingController(SimController):
                 cam_bbox = self._camera_bboxes[i]
                 worm_bbox = (worm_bbox[0] + cam_bbox[0], worm_bbox[1] + cam_bbox[1], worm_bbox[2], worm_bbox[3])
             else:
-                # log prediction error
-                path = self.log_config.err_file_path.format(frame_number)
-                self._image_saver.schedule_save(self._camera_frames[i], path)
+                if self.log_config.save_err_view:
+                    # save prediction error
+                    err_view = self._camera_frames[i]
+                    path = self.log_config.err_file_path.format(frame_number)
+                    self._image_saver.schedule_save(err_view, path)
+
                 worm_bbox = (-1, -1, -1, -1)
 
             csv_row["wrm_x"], csv_row["wrm_y"], csv_row["wrm_w"], csv_row["wrm_h"] = worm_bbox
@@ -304,27 +332,6 @@ class LoggingController(SimController):
             self._bbox_logger.write(csv_row)
 
         self._bbox_logger.flush()
-
-    def on_camera_frame(self, sim: Simulator):
-        self.sim_controller.on_camera_frame(sim)
-
-        # log everything
-        cam_view = sim.camera_view()
-        self._camera_frames.append(cam_view)
-        self._platform_positions.append(sim.position)
-        self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
-        self._micro_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.micro_size))
-
-        if self.log_config.save_cam_view:
-            # save camera view
-            path = self.log_config.cam_file_path.format(sim.frame_number)
-            self._image_saver.schedule_save(cam_view, path)
-
-        if self.log_config.save_mic_view:
-            # save micro view
-            mic_view = sim.camera.micro_view()
-            path = self.log_config.mic_file_path.format(sim.frame_number)
-            self._image_saver.schedule_save(mic_view, path)
 
     def on_imaging_start(self, sim: Simulator):
         self.sim_controller.on_imaging_start(sim)
