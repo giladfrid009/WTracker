@@ -182,6 +182,7 @@ class FrameStream:
         """
         self._frame_reader = frame_reader
         self._idx = -1
+        self.frame = None
 
     @property
     def index(self) -> int:
@@ -197,34 +198,15 @@ class FrameStream:
         return self
 
     def __next__(self) -> np.ndarray:
-        self._idx += 1
-        if self._idx >= len(self._frame_reader):
+        self.progress()
+        if not self.can_read():
             raise StopIteration()
 
         frame = self.read()
         return frame
 
-    def __getitem__(self, idx: int) -> np.ndarray:
-        cur_idx = self._idx
-        self.seek(idx)
-        frame = self.read()
-        self.seek(cur_idx)
-        return frame
-
-    def read(self) -> np.ndarray:
-        """
-        Read and return the frame at the current index.
-
-        Raises:
-            IndexError: If the index is out of bounds.
-
-        Returns:
-            np.ndarray: The frame at the current index.
-        """
-        if self._idx < 0 or self._idx >= len(self):
-            raise IndexError("index out of bounds")
-
-        return self._frame_reader[self._idx]
+    def can_read(self) -> bool:
+        return self._idx >= 0 and self._idx < len(self._frame_reader)
 
     def seek(self, idx: int) -> bool:
         """
@@ -237,10 +219,25 @@ class FrameStream:
             bool: True if the index is within the valid range, False otherwise.
         """
         self._idx = idx
+        self.frame = None
         return self.can_read()
 
-    def can_read(self) -> bool:
-        return self._idx >= 0 and self._idx < len(self._frame_reader)
+    def read(self) -> np.ndarray:
+        """
+        Read and return the frame at the current index.
+
+        Raises:
+            IndexError: If the index is out of bounds.
+
+        Returns:
+            np.ndarray: The frame at the current index.
+        """
+        if not self.can_read():
+            raise IndexError("index out of bounds")
+
+        if self.frame is None:
+            self.frame = self._frame_reader[self._idx]
+        return self.frame
 
     def progress(self, n: int = 1) -> bool:
         """
