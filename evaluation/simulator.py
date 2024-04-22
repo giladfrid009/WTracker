@@ -96,6 +96,12 @@ class Simulator:
     @property
     def cycle_step(self) -> int:
         return self._camera.index % self._config.cycle_length
+    
+    def camera_view(self) -> np.ndarray:
+        return self._camera.camera_view()
+    
+    def micro_view(self) -> np.ndarray:
+        return self._camera.micro_view()
 
     def _reset(self):
         self.camera.reset()
@@ -114,13 +120,13 @@ class Simulator:
             if self.cycle_step == 0:
                 self._controller.on_cycle_start(self)
 
-            self._controller.on_camera_frame(self, self._camera.camera_view())
+            self._controller.on_camera_frame(self)
 
             if self.cycle_step == 0:
                 self._controller.on_imaging_start(self)
 
             if self.cycle_step < config.imaging_frame_num:
-                self._controller.on_micro_frame(self, self._camera.micro_view())
+                self._controller.on_micro_frame(self)
 
             if self.cycle_step == config.imaging_frame_num - 1:
                 self._controller.on_imaging_end(self)
@@ -161,13 +167,13 @@ class SimController(abc.ABC):
     def on_cycle_end(self, sim: Simulator):
         pass
 
-    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
+    def on_camera_frame(self, sim: Simulator):
         pass
 
     def on_imaging_start(self, sim: Simulator):
         pass
 
-    def on_micro_frame(self, sim: Simulator, micro_view: np.ndarray):
+    def on_micro_frame(self, sim: Simulator):
         pass
 
     def on_imaging_end(self, sim: Simulator):

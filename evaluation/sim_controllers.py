@@ -51,8 +51,8 @@ class YoloController(SimController):
     def on_sim_start(self, sim: Simulator):
         self._camera_frames.clear()
 
-    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
-        self._camera_frames.append(cam_view)
+    def on_camera_frame(self, sim: Simulator):
+        self._camera_frames.append(sim.camera_view())
 
     def predict(
         self, *frames: np.ndarray
@@ -305,12 +305,13 @@ class LoggingController(SimController):
 
         self._bbox_logger.flush()
 
-    def on_camera_frame(self, sim: Simulator, cam_view: np.ndarray):
-        self.sim_controller.on_camera_frame(sim, cam_view)
+    def on_camera_frame(self, sim: Simulator):
+        self.sim_controller.on_camera_frame(sim)
 
         # log everything
+        cam_view = sim.camera_view()
         self._camera_frames.append(cam_view)
-        self._platform_positions.append(sim.camera.position)
+        self._platform_positions.append(sim.position)
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
         self._micro_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.micro_size))
 
@@ -328,8 +329,8 @@ class LoggingController(SimController):
     def on_imaging_start(self, sim: Simulator):
         self.sim_controller.on_imaging_start(sim)
 
-    def on_micro_frame(self, sim: Simulator, micro_view: np.ndarray):
-        self.sim_controller.on_micro_frame(sim, micro_view)
+    def on_micro_frame(self, sim: Simulator):
+        self.sim_controller.on_micro_frame(sim)
 
     def on_imaging_end(self, sim: Simulator):
         self.sim_controller.on_imaging_end(sim)
