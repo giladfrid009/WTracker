@@ -84,6 +84,18 @@ class Simulator:
     @property
     def position(self) -> tuple[int, int]:
         return self._camera.position
+    
+    @property
+    def cycle_number(self) -> int:
+        return self._camera.index // self._config.cycle_length
+    
+    @property
+    def frame_number(self) -> int:
+        return self._camera.index
+    
+    @property
+    def cycle_step(self) -> int:
+        return self._camera.index % self._config.cycle_length
 
     def _reset(self):
         self.camera.reset()
@@ -99,31 +111,29 @@ class Simulator:
         self._controller.on_sim_start(self)
 
         while self._camera.progress():
-            cycle_step = self.camera.index % config.cycle_length
-
-            if cycle_step == 0:
+            if self.cycle_step == 0:
                 self._controller.on_cycle_start(self)
 
             self._controller.on_camera_frame(self, self._camera.camera_view())
 
-            if cycle_step == 0:
+            if self.cycle_step == 0:
                 self._controller.on_imaging_start(self)
 
-            if cycle_step < config.imaging_frame_num:
+            if self.cycle_step < config.imaging_frame_num:
                 self._controller.on_micro_frame(self, self._camera.micro_view())
 
-            if cycle_step == config.imaging_frame_num - 1:
+            if self.cycle_step == config.imaging_frame_num - 1:
                 self._controller.on_imaging_end(self)
 
-            if cycle_step == config.imaging_frame_num:
+            if self.cycle_step == config.imaging_frame_num:
                 dx, dy = self._controller.provide_moving_vector(self)
                 self._camera.move_position(dx, dy)
                 self._controller.on_movement_start(self)
 
-            if cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
+            if self.cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
                 self._controller.on_movement_end(self)
 
-            if self.camera.index % config.cycle_length == config.cycle_length - 1:
+            if self.cycle_step == config.cycle_length - 1:
                 self._controller.on_cycle_end(self)
                 pbar.update(1)
 
@@ -174,6 +184,10 @@ class SimController(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def _cycle_predict_worms(self) -> list[tuple[float, float, float, float]]:
+    def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
+        """
+        Returns a list of bbox predictions of the worm, for each frame of the current cycle.
+        If a prediction is not available, return None for that frame.
+        """
         # internal method used for logging
         pass
