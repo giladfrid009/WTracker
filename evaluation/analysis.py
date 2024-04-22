@@ -163,3 +163,23 @@ class Plotter:
         Plotter.scatter_data(cycle_data2, "wrm_speed", "bbox_area_diff", "Max Area Diff vs. Mean Speed")
 
         self._data = data
+
+    @staticmethod
+    def bbox_area(data: pd.DataFrame, width_col: str, height_col: str) -> np.ndarray:
+        mask = data[width_col] < 0
+        data.loc[mask, width_col] = 0
+
+        mask = data[height_col] < 0
+        data.loc[mask, height_col] = 0
+
+        return data[width_col] * data[height_col]
+
+    @staticmethod
+    def remove_cycle(data: pd.DataFrame, cycle: int) -> pd.DataFrame:
+        indexes = data.loc[data["cycle"] == cycle].index
+        return data.drop(index=indexes)
+
+    @staticmethod
+    def rolling_average(data: pd.DataFrame, window_size: int, column: str) -> pd.DataFrame:
+        rolling_avg = data[column].rolling(window=window_size, center=False).mean()
+        return rolling_avg
