@@ -122,7 +122,7 @@ class Plotter:
         worm_area = worm_boxes[:, 2] * worm_boxes[:, 3]
 
         area_diff = (worm_area - inter_area) / worm_area
-
+    
         return pd.DataFrame({"bbox_area_diff": area_diff}, index=data.index)
 
     @staticmethod
@@ -130,13 +130,10 @@ class Plotter:
         """
         Calculate the centers of the bounding boxes and add them to the data.
         """
-        data[f"{field_name}_center_x"] = data[f"{field_name}_x"] + data[f"{field_name}_w"] / 2
-        data[f"{field_name}_center_y"] = data[f"{field_name}_y"] + data[f"{field_name}_h"] / 2
-
         center_x = data[f"{field_name}_x"] + data[f"{field_name}_w"] / 2
         center_y = data[f"{field_name}_y"] + data[f"{field_name}_h"] / 2
 
-        centers = pd.DataFrame({"center_x": center_x, "center_y": center_y}, index=data.index)
+        centers = pd.DataFrame({f"{field_name}_center_x": center_x, f"{field_name}_center_y": center_y}, index=data.index)
         return centers
 
     @staticmethod

@@ -109,6 +109,13 @@ class CsvController(SimController):
 
         self.csv_path = csv_path
         self._log_df = pd.read_csv(self.csv_path, index_col="frame")
+        self._camera_bboxes = deque(maxlen=timing_config.cycle_length)
+
+    def on_sim_start(self, sim: Simulator):
+        self._camera_bboxes.clear()
+
+    def on_camera_frame(self, sim: Simulator):
+        self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
 
     def predict(self, sim: Simulator, *frame_nums: int) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
         if len(frame_nums) == 0:
@@ -119,7 +126,9 @@ class CsvController(SimController):
             # get the absolute positions of predicted bbox and of camera
             row = self._log_df.loc[frame_num]
             worm_bbox = row[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_list()
-            cam_bbox = sim.camera._calc_view_bbox(*sim.camera.camera_size)
+
+            # get matching camera bbox for the frame
+            cam_bbox = self._camera_bboxes[frame_num % self.timing_config.cycle_length]
 
             # make bbox relative to camera view
             worm_bbox[0] = worm_bbox[0] - cam_bbox[0]
@@ -138,8 +147,7 @@ class CsvController(SimController):
     def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
         start = sim.cycle_number * self.timing_config.cycle_length
         end = start + self.timing_config.cycle_length
-        # TODO: fix predict here.
-        return self.predict(*range(start, end))
+        return self.predict(sim, *range(start, end))
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         bbox_old, bbox_new = self.predict(
