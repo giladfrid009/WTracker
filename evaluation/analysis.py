@@ -41,8 +41,7 @@ class Plotter:
 
     @staticmethod
     def remove_no_pred_rows(data: pd.DataFrame) -> pd.DataFrame:
-        mask = (data["wrm_x"] == -1) & (data["wrm_y"] == -1)
-        return data.loc[~mask]
+        return data.dropna(inplace=False)
 
     @staticmethod
     def remove_cycle(data: pd.DataFrame, cycle: int) -> pd.DataFrame:
@@ -122,7 +121,7 @@ class Plotter:
         worm_area = worm_boxes[:, 2] * worm_boxes[:, 3]
 
         area_diff = (worm_area - inter_area) / worm_area
-    
+
         return pd.DataFrame({"bbox_area_diff": area_diff}, index=data.index)
 
     @staticmethod
@@ -196,6 +195,9 @@ class Plotter:
         print("Correlation Coefficient: {:.2f}".format(corr))
         print("Correlation Slope: {:.2f}".format(slope))
 
+        data = data[[x_col, y_col]]
+        display(data.round(5).describe(percentiles=np.linspace(0.1, 0.9, 9, endpoint=True)))
+
         plt.subplots(figsize=(8, 6))
         plt.scatter(x_data, y_data, s=20, alpha=0.5)
         plt.xlabel(x_label, fontsize=14)
@@ -204,7 +206,7 @@ class Plotter:
         plt.tight_layout()
         plt.show()
 
-    def plot_area_vs_speed(self):
+    def plot_area_vs_speed(self, min_speed: float = None, min_diff: float = None):
         data = self.data_prep_frames()
 
         avg_speed = data.groupby("cycle")["wrm_speed"].mean()
@@ -215,7 +217,11 @@ class Plotter:
 
         data = pd.DataFrame({"wrm_speed": avg_speed, "bbox_area_diff": max_area_diff})
 
-        display(data.describe())
+        if min_speed is not None:
+            data = data[data["wrm_speed"] >= min_speed]
+
+        if min_diff is not None:
+            data = data[data["bbox_area_diff"] >= min_diff]
 
         Plotter.scatter_data(
             data,
@@ -224,7 +230,7 @@ class Plotter:
             "Area Diff vs. Avg Speed",
         )
 
-    def plot_area_vs_dist(self):
+    def plot_area_vs_dist(self, min_dist: float = None, min_diff: float = None):
         data = self.data_prep_frames()
 
         dx = data.groupby("cycle")["wrm_center_x"].apply(lambda x: x.iloc[-1] - x.iloc[0])
@@ -236,6 +242,12 @@ class Plotter:
         max_area_diff = data.groupby("cycle")["bbox_area_diff"].max()
 
         data = pd.DataFrame({"dist": dist, "max_area_diff": max_area_diff})
+
+        if min_dist is not None:
+            data = data[data["dist"] >= min_dist]
+
+        if min_diff is not None:
+            data = data[data["max_area_diff"] >= min_diff]
 
         Plotter.scatter_data(
             data,

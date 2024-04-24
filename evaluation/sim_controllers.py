@@ -108,7 +108,7 @@ class CsvController(SimController):
         super().__init__(timing_config)
 
         self.csv_path = csv_path
-        self._log_df = pd.read_csv(self.csv_path, index_col="frame")
+        self._data = pd.read_csv(self.csv_path, index_col="frame")
         self._camera_bboxes = deque(maxlen=timing_config.cycle_length)
 
     def on_sim_start(self, sim: Simulator):
@@ -117,14 +117,20 @@ class CsvController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
 
-    def predict(self, sim: Simulator, *frame_nums: int) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
+    def predict(
+        self, sim: Simulator, *frame_nums: int
+    ) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
         if len(frame_nums) == 0:
             return []
 
         bboxes = []
         for frame_num in frame_nums:
-            # get the absolute positions of predicted bbox and of camera
-            row = self._log_df.loc[frame_num]
+            row = self._data.loc[frame_num]
+
+            if row.isna().any():
+                bboxes.append(None)
+                continue
+
             worm_bbox = row[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_list()
 
             # get matching camera bbox for the frame
@@ -134,10 +140,7 @@ class CsvController(SimController):
             worm_bbox[0] = worm_bbox[0] - cam_bbox[0]
             worm_bbox[1] = worm_bbox[1] - cam_bbox[1]
 
-            if any(c == -1 for c in worm_bbox):
-                bboxes.append(None)
-            else:
-                bboxes.append(worm_bbox)
+            bboxes.append(worm_bbox)
 
         if len(bboxes) == 1:
             return bboxes[0]
@@ -150,9 +153,13 @@ class CsvController(SimController):
         return self.predict(sim, *range(start, end))
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+        # how many frames to go back from the last prediction to estimate the speed
+        past_frames_num = self.timing_config.pred_frame_num
+        assert self.timing_config.imaging_frame_num - self.timing_config.pred_frame_num - past_frames_num >= 0
+
         bbox_old, bbox_new = self.predict(
             sim,
-            sim.frame_number - 2 * self.timing_config.pred_frame_num,
+            sim.frame_number - self.timing_config.pred_frame_num - past_frames_num,
             sim.frame_number - self.timing_config.pred_frame_num,
         )
 
@@ -169,25 +176,68 @@ class CsvController(SimController):
         bbox_old_mid = bbox_old[0] + bbox_old[2] / 2, bbox_old[1] + bbox_old[3] / 2
         bbox_new_mid = bbox_new[0] + bbox_new[2] / 2, bbox_new[1] + bbox_new[3] / 2
         movement = bbox_new_mid[0] - bbox_old_mid[0], bbox_new_mid[1] - bbox_old_mid[1]
-        speed_per_frame = (
-            movement[0] / self.timing_config.pred_frame_num,
-            movement[1] / self.timing_config.pred_frame_num,
-        )
+        speed_per_frame = movement[0] / past_frames_num, movement[1] / past_frames_num
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
+
+        # TODO: TUNE HEURISTIC OF DX AND DY CALCULATION
+
         dx = round(
             bbox_new_mid[0]
             - camera_mid[0]
-            + speed_per_frame[0] * (self.timing_config.moving_frame_num + self.timing_config.pred_frame_num)
+            + speed_per_frame[0]
+            * (
+                self.timing_config.moving_frame_num
+                + self.timing_config.pred_frame_num
+                + self.timing_config.imaging_frame_num / 4
+            )
         )
         dy = round(
             bbox_new_mid[1]
             - camera_mid[1]
-            + speed_per_frame[1] * (self.timing_config.moving_frame_num + self.timing_config.pred_frame_num)
+            + speed_per_frame[1]
+            * (
+                self.timing_config.moving_frame_num
+                + self.timing_config.pred_frame_num
+                + self.timing_config.imaging_frame_num / 4
+            )
         )
 
         return dx, dy
+
+
+class OptimalController(CsvController):
+    def __init__(self, timing_config: TimingConfig, csv_path: str):
+        super().__init__(timing_config, csv_path)
+
+        self._data["ctr_wrm_x"] = self._data["wrm_x"] + self._data["wrm_w"] / 2
+        self._data["ctr_wrm_y"] = self._data["wrm_y"] + self._data["wrm_h"] / 2
+
+    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+        next_imaging_start = (sim.cycle_number + 1) * self.timing_config.cycle_length
+        next_imaging_end = next_imaging_start + self.timing_config.imaging_frame_num
+
+        # extract next imaging phase data
+        next_mask = (self._data.index >= next_imaging_start) & (self._data.index < next_imaging_end)
+        next_df = self._data[next_mask]
+        next_df = next_df.dropna(inplace=False)
+
+        if len(next_df) == 0:
+            0, 0
+
+        x_mid = next_df["ctr_wrm_x"].median()
+        y_mid = next_df["ctr_wrm_y"].median()
+
+        # normalize worm position to camera view
+        cam_bbox = sim.camera._calc_view_bbox(*sim.camera.camera_size)
+        x_mid = x_mid - cam_bbox[0]
+        y_mid = y_mid - cam_bbox[1]
+
+        bbox_mid = x_mid, y_mid
+        cam_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
+
+        return round(bbox_mid[0] - cam_mid[0]), round(bbox_mid[1] - cam_mid[1])
 
 
 @dataclass
@@ -336,7 +386,7 @@ class LoggingController(SimController):
                     path = self.log_config.err_file_path.format(frame_number)
                     self._image_saver.schedule_save(err_view, path)
 
-                worm_bbox = (-1, -1, -1, -1)
+                worm_bbox = (None, None, None, None)
 
             csv_row["wrm_x"], csv_row["wrm_y"], csv_row["wrm_w"], csv_row["wrm_h"] = worm_bbox
 
