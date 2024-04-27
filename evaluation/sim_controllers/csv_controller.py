@@ -52,6 +52,7 @@ class CsvController(SimController):
     def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
         start = sim.cycle_number * self.timing_config.cycle_length
         end = start + self.timing_config.cycle_length
+        end = min(end, len(self._data))
         return self.predict(sim, *range(start, end))
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:

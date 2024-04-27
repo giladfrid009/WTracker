@@ -19,7 +19,7 @@ class OptimalController(CsvController):
         next_df = next_df.dropna(inplace=False)
 
         if len(next_df) == 0:
-            0, 0
+            return 0, 0
 
         x_mid = next_df["ctr_wrm_x"].median()
         y_mid = next_df["ctr_wrm_y"].median()

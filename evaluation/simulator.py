@@ -187,13 +187,14 @@ class SimController(abc.ABC):
 
     @abc.abstractmethod
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        pass
+        raise NotImplementedError()
 
     @abc.abstractmethod
     def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
         """
         Returns a list of bbox predictions of the worm, for each frame of the current cycle.
-        If a prediction is not available, return None for that frame.
+        If a prediction is not available, return None for that frame. 
+        Must work even if the current cycle is not finished yet.
+        Used internally for logging.
         """
-        # internal method used for logging
-        pass
+        raise NotImplementedError()

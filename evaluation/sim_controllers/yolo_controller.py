@@ -99,3 +99,6 @@ class YoloController(SimController):
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
         return round(bbox_mid[0] - camera_mid[0]), round(bbox_mid[1] - camera_mid[1])
+    
+    def on_cycle_end(self, sim: Simulator):
+        self._camera_frames.clear()

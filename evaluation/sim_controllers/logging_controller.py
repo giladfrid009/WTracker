@@ -54,10 +54,12 @@ class LoggingController(SimController):
         self._platform_positions = deque(maxlen=self.timing_config.cycle_length)
         self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length)
         self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length)
+        self._has_logged_cycle = False
 
     def on_sim_start(self, sim: Simulator):
         self.sim_controller.on_sim_start(sim)
 
+        self._has_logged_cycle = False
         self._camera_frames.clear()
         self._platform_positions.clear()
         self._camera_bboxes.clear()
@@ -90,14 +92,9 @@ class LoggingController(SimController):
             ],
         )
 
-    def on_sim_end(self, sim: Simulator):
-        self.sim_controller.on_sim_end(sim)
-
-        self._image_saver.close()
-        self._bbox_logger.close()
-
     def on_cycle_start(self, sim: Simulator):
         self.sim_controller.on_cycle_start(sim)
+        self._has_logged_cycle = False
 
     def on_camera_frame(self, sim: Simulator):
         self.sim_controller.on_camera_frame(sim)
@@ -123,10 +120,13 @@ class LoggingController(SimController):
             path = self.log_config.mic_file_path.format(sim.frame_number)
             self._image_saver.schedule_save(mic_view, path)
 
-    def on_cycle_end(self, sim: Simulator):
-        self.sim_controller.on_cycle_end(sim)
+    def _log_cycle(self, sim: Simulator):
+        if self._has_logged_cycle:
+            return
 
-        worm_bboxes = self._cycle_predict_all(sim)
+        worm_bboxes = self.sim_controller._cycle_predict_all(sim)
+
+        cycle_first_frame = sim.cycle_number * self.timing_config.cycle_length
 
         for i, worm_bbox in enumerate(worm_bboxes):
             csv_row = {}
@@ -134,7 +134,7 @@ class LoggingController(SimController):
             csv_row["cam_x"], csv_row["cam_y"], csv_row["cam_w"], csv_row["cam_h"] = self._camera_bboxes[i]
             csv_row["mic_x"], csv_row["mic_y"], csv_row["mic_w"], csv_row["mic_h"] = self._micro_bboxes[i]
 
-            frame_number = sim.frame_number - self.timing_config.cycle_length + i + 1
+            frame_number = cycle_first_frame + i
             phase = (
                 "imaging" if i % self.timing_config.cycle_length <= self.timing_config.imaging_frame_num else "moving"
             )
@@ -161,6 +161,25 @@ class LoggingController(SimController):
             self._bbox_logger.write(csv_row)
 
         self._bbox_logger.flush()
+
+        self._has_logged_cycle = True
+
+    def on_cycle_end(self, sim: Simulator):
+        self._log_cycle(sim)
+        self.sim_controller.on_cycle_end(sim)
+
+        self._camera_frames.clear()
+        self._platform_positions.clear()
+        self._camera_bboxes.clear()
+        self._micro_bboxes.clear()
+
+    def on_sim_end(self, sim: Simulator):
+        if self._has_logged_cycle is False:
+            self._log_cycle(sim)
+
+        self.sim_controller.on_sim_end(sim)
+        self._image_saver.close()
+        self._bbox_logger.close()
 
     def on_imaging_start(self, sim: Simulator):
         self.sim_controller.on_imaging_start(sim)
