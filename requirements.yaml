@@ -13,5 +13,8 @@ dependencies:
   - opencv
   - tqdm
   - numpy
+  - pandas
+  - seaborn
+  - matplotlib
   - ipywidgets
   - ultralytics

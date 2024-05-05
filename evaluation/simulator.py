@@ -65,9 +65,16 @@ class TimingConfig(ConfigBase):
 
 
 class Simulator:
-    def __init__(self, config: TimingConfig, reader: FrameReader, controller: SimController) -> None:
+    def __init__(
+        self,
+        config: TimingConfig,
+        reader: FrameReader,
+        controller: SimController,
+        motor_controller: MovementController,
+    ) -> None:
         self._config = config
         self._controller = controller
+        self._motor_controller = motor_controller
 
         self._camera = ViewController(
             frame_reader=reader,
@@ -133,8 +140,12 @@ class Simulator:
 
             if self.cycle_step == config.imaging_frame_num:
                 dx, dy = self._controller.provide_moving_vector(self)
-                self._camera.move_position(dx, dy)
+                self._motor_controller.register_move(dx, dy)
                 self._controller.on_movement_start(self)
+
+            if config.imaging_frame_num <= self.cycle_step < config.imaging_frame_num + config.moving_frame_num:
+                dx, dy = self._motor_controller.step()
+                self._camera.move_position(dx, dy)
 
             if self.cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
                 self._controller.on_movement_end(self)
@@ -193,8 +204,22 @@ class SimController(abc.ABC):
     def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
         """
         Returns a list of bbox predictions of the worm, for each frame of the current cycle.
-        If a prediction is not available, return None for that frame. 
+        If a prediction is not available, return None for that frame.
         Must work even if the current cycle is not finished yet.
         Used internally for logging.
         """
         raise NotImplementedError()
+
+
+class MovementController(abc.ABC):
+    def __init__(self, timing_config: TimingConfig):
+        self.timing_config = timing_config
+        self.movement_steps = self.timing_config.moving_frame_num
+
+    @abc.abstractmethod
+    def register_move(dx: int, dy: int):
+        pass
+
+    @abc.abstractmethod
+    def step(self) -> tuple[int, int]:
+        pass
