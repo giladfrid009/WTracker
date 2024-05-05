@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 import math
 import numpy as np
 import abc
-import cv2 as cv
 from tqdm.auto import tqdm
 
+from dataset.raw_dataset import ExperimentConfig
 from frame_reader import FrameReader
 from evaluation.view_controller import ViewController
 from utils.config_base import ConfigBase
@@ -33,8 +33,6 @@ class TimingConfig(ConfigBase):
 
     micro_size_mm: tuple[float, float]
     micro_size_px: tuple[int, int] = field(init=False)
-
-    init_position: tuple[int, int]
 
     frame_padding_value: tuple[int, int, int] = field(default_factory=lambda: (255, 255, 255))
 
@@ -67,21 +65,23 @@ class TimingConfig(ConfigBase):
 class Simulator:
     def __init__(
         self,
-        config: TimingConfig,
+        timing_config: TimingConfig,
+        experiment_config: ExperimentConfig,
         reader: FrameReader,
         controller: SimController,
         motor_controller: MovementController,
     ) -> None:
-        self._config = config
+        self._timing_config = timing_config
+        self._experiment_config = experiment_config
         self._controller = controller
         self._motor_controller = motor_controller
 
         self._camera = ViewController(
             frame_reader=reader,
-            camera_size=config.camera_size_px,
-            micro_size=config.micro_size_px,
-            init_position=config.init_position,
-            padding_value=config.frame_padding_value,
+            camera_size=timing_config.camera_size_px,
+            micro_size=timing_config.micro_size_px,
+            init_position=experiment_config.init_position,
+            padding_value=timing_config.frame_padding_value,
         )
 
     @property
@@ -94,7 +94,7 @@ class Simulator:
 
     @property
     def cycle_number(self) -> int:
-        return self._camera.index // self._config.cycle_length
+        return self._camera.index // self._timing_config.cycle_length
 
     @property
     def frame_number(self) -> int:
@@ -102,7 +102,7 @@ class Simulator:
 
     @property
     def cycle_step(self) -> int:
-        return self._camera.index % self._config.cycle_length
+        return self._camera.index % self._timing_config.cycle_length
 
     def camera_view(self) -> np.ndarray:
         return self._camera.camera_view()
@@ -112,10 +112,10 @@ class Simulator:
 
     def _reset(self):
         self.camera.reset()
-        self.camera.set_position(*self._config.init_position)
+        self.camera.set_position(*self._experiment_config.init_position)
 
     def run(self, visualize: bool = False, wait_key: bool = False):
-        config = self._config
+        config = self._timing_config
 
         total_cycles = len(self._camera) // config.cycle_length
         pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
