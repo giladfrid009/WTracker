@@ -1,4 +1,3 @@
-from collections import queue
 from math import ceil
 
 from evaluation.simulator import MovementController, TimingConfig
