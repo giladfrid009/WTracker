@@ -9,7 +9,7 @@ from frame_reader import FrameReader
 from utils.path_utils import join_paths
 
 
-@dataclass(frozen=True)
+@dataclass
 class ExperimentConfig(ConfigBase):
     name: str
     num_frames: int
@@ -39,7 +39,7 @@ class ExperimentConfig(ConfigBase):
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=False)
 class ImageMeta(ConfigBase):
     path: str
     shape: tuple[int, int, int]  # [w, h, c]
