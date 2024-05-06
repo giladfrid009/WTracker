@@ -33,7 +33,7 @@ class Plotter:
 
     def print_statistics(self) -> pd.DataFrame:
         print("##################### No Preds #####################")
-        no_pred_mask = self._data["wrm_x"].isna()
+        no_pred_mask = np.ma.mask_or(self._data["wrm_x"].isna(), self._data["wrm_x"] < 0)
         no_pred_frames = (self._data[no_pred_mask])["frame"]
         print(f"Num of No Preds: {len(no_pred_frames)}")
         print(f"No prediction in frames: {no_pred_frames.to_list()}")
@@ -41,6 +41,7 @@ class Plotter:
         print("##################### Cycles #####################")
         print(f"Num of cycles: {self._data['cycle'].nunique()}")
         print("##################### Area Diff #####################")
+        
         data = self.data_prep_frames()
         non_perfect_pred_ratio = (data["bbox_area_diff"] > 1e-7).sum() / len(data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect_pred_ratio, 3)}%")
