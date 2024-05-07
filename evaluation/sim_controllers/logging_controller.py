@@ -50,10 +50,10 @@ class LoggingController(SimController):
         self.sim_controller = sim_controller
         self.log_config = log_config
 
-        self._camera_frames = deque(maxlen=self.timing_config.cycle_length)
-        self._platform_positions = deque(maxlen=self.timing_config.cycle_length)
-        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length)
-        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length)
+        self._camera_frames = deque(maxlen=self.timing_config.cycle_length*2)
+        self._platform_positions = deque(maxlen=self.timing_config.cycle_length*2)
+        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length*2)
+        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length*2)
         self._has_logged_cycle = False
 
     def on_sim_start(self, sim: Simulator):
@@ -136,7 +136,7 @@ class LoggingController(SimController):
 
             frame_number = cycle_first_frame + i
             phase = (
-                "imaging" if i % self.timing_config.cycle_length <= self.timing_config.imaging_frame_num else "moving"
+                "imaging" if i % self.timing_config.cycle_length < self.timing_config.imaging_frame_num else "moving"
             )
 
             csv_row["frame"] = frame_number

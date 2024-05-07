@@ -56,7 +56,7 @@ class CsvController(SimController):
         return self.predict(sim, *range(start, end))
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        bbox_new = self.predict(sim, sim.frame_number - self.timing_config.pred_frame_num+1)
+        bbox_new = self.predict(sim, sim.frame_number - self.timing_config.pred_frame_num)
 
         if bbox_new is None:
             return 0, 0

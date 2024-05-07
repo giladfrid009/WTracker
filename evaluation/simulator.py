@@ -125,6 +125,9 @@ class Simulator:
 
         while self._camera.progress():
             if self.cycle_step == 0:
+                if self.cycle_number > 0:
+                    self._controller.on_movement_end(self)
+                    self._controller.on_cycle_end(self)
                 self._controller.on_cycle_start(self)
 
             self._controller.on_camera_frame(self)
@@ -135,23 +138,17 @@ class Simulator:
             if self.cycle_step < config.imaging_frame_num:
                 self._controller.on_micro_frame(self)
 
-            if self.cycle_step == config.imaging_frame_num - 1:
-                self._controller.on_imaging_end(self)
-
             if self.cycle_step == config.imaging_frame_num:
+                self._controller.on_imaging_end(self)
+                self._controller.on_movement_start(self)
                 dx, dy = self._controller.provide_moving_vector(self)
                 self._motor_controller.register_move(dx, dy)
-                self._controller.on_movement_start(self)
 
             if config.imaging_frame_num <= self.cycle_step < config.imaging_frame_num + config.moving_frame_num:
                 dx, dy = self._motor_controller.step()
                 self._camera.move_position(dx, dy)
 
-            if self.cycle_step == config.imaging_frame_num + config.moving_frame_num - 1:
-                self._controller.on_movement_end(self)
-
             if self.cycle_step == config.cycle_length - 1:
-                self._controller.on_cycle_end(self)
                 pbar.update(1)
 
             if visualize:
