@@ -8,7 +8,7 @@ class SimpleMovementController(MovementController):
         super().__init__(timing_config)
         self.queue: list = []
         assert 0 <= move_after_ratio <= 1
-        self.move_at_step = ceil(self.movement_steps * move_after_ratio)
+        self.move_at_step = round(self.movement_steps * move_after_ratio)
 
     def register_move(self, dx: int, dy: int):
         for _ in range(self.movement_steps - 1):
