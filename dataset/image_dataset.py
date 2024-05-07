@@ -7,7 +7,6 @@ from dataclasses import dataclass
 from dataset.bbox_utils import BoxFormat
 
 
-@dataclass(frozen=True)
 class ImageMeta:
     """
     Represents metadata of an image.
@@ -36,7 +35,6 @@ class ImageMeta:
             return ImageMeta(full_path, (w, h, c))
 
 
-@dataclass(frozen=True)
 class ImageSample:
     """
     Represents an image sample with associated metadata, bounding boxes, and keypoints.
@@ -80,7 +78,6 @@ class ImageSample:
             assert self.keypoints.ndim == 3
 
 
-@dataclass(frozen=True)
 class ImageDataset:
     """
     A class representing a dataset of image samples.

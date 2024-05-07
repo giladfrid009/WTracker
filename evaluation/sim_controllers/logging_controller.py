@@ -50,16 +50,14 @@ class LoggingController(SimController):
         self.sim_controller = sim_controller
         self.log_config = log_config
 
-        self._camera_frames = deque(maxlen=self.timing_config.cycle_length*2)
-        self._platform_positions = deque(maxlen=self.timing_config.cycle_length*2)
-        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length*2)
-        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length*2)
-        self._has_logged_cycle = False
+        self._camera_frames = deque(maxlen=self.timing_config.cycle_length)
+        self._platform_positions = deque(maxlen=self.timing_config.cycle_length)
+        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length)
+        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length)
 
     def on_sim_start(self, sim: Simulator):
         self.sim_controller.on_sim_start(sim)
 
-        self._has_logged_cycle = False
         self._camera_frames.clear()
         self._platform_positions.clear()
         self._camera_bboxes.clear()
@@ -94,7 +92,6 @@ class LoggingController(SimController):
 
     def on_cycle_start(self, sim: Simulator):
         self.sim_controller.on_cycle_start(sim)
-        self._has_logged_cycle = False
 
     def on_camera_frame(self, sim: Simulator):
         self.sim_controller.on_camera_frame(sim)
@@ -121,12 +118,10 @@ class LoggingController(SimController):
             self._image_saver.schedule_save(mic_view, path)
 
     def _log_cycle(self, sim: Simulator):
-        if self._has_logged_cycle:
-            return
+        cycle_number = sim.cycle_number - 1
+        frame_offset = cycle_number * self.timing_config.cycle_length
 
         worm_bboxes = self.sim_controller._cycle_predict_all(sim)
-
-        cycle_first_frame = sim.cycle_number * self.timing_config.cycle_length
 
         for i, worm_bbox in enumerate(worm_bboxes):
             csv_row = {}
@@ -134,13 +129,11 @@ class LoggingController(SimController):
             csv_row["cam_x"], csv_row["cam_y"], csv_row["cam_w"], csv_row["cam_h"] = self._camera_bboxes[i]
             csv_row["mic_x"], csv_row["mic_y"], csv_row["mic_w"], csv_row["mic_h"] = self._micro_bboxes[i]
 
-            frame_number = cycle_first_frame + i
-            phase = (
-                "imaging" if i % self.timing_config.cycle_length < self.timing_config.imaging_frame_num else "moving"
-            )
+            frame_number = frame_offset + i
+            phase = "imaging" if i < self.timing_config.imaging_frame_num else "moving"
 
+            csv_row["cycle"] = cycle_number
             csv_row["frame"] = frame_number
-            csv_row["cycle"] = sim.cycle_number
             csv_row["phase"] = phase
 
             if worm_bbox is not None:
@@ -162,8 +155,6 @@ class LoggingController(SimController):
 
         self._bbox_logger.flush()
 
-        self._has_logged_cycle = True
-
     def on_cycle_end(self, sim: Simulator):
         self._log_cycle(sim)
         self.sim_controller.on_cycle_end(sim)
@@ -174,9 +165,6 @@ class LoggingController(SimController):
         self._micro_bboxes.clear()
 
     def on_sim_end(self, sim: Simulator):
-        if self._has_logged_cycle is False:
-            self._log_cycle(sim)
-
         self.sim_controller.on_sim_end(sim)
         self._image_saver.close()
         self._bbox_logger.close()

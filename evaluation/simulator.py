@@ -128,6 +128,7 @@ class Simulator:
                 if self.cycle_number > 0:
                     self._controller.on_movement_end(self)
                     self._controller.on_cycle_end(self)
+                
                 self._controller.on_cycle_start(self)
 
             self._controller.on_camera_frame(self)

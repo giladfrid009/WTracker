@@ -39,7 +39,7 @@ class ExperimentConfig(ConfigBase):
         )
 
 
-@dataclass(frozen=False)
+@dataclass
 class ImageMeta(ConfigBase):
     path: str
     shape: tuple[int, int, int]  # [w, h, c]

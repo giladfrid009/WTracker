@@ -1,13 +1,11 @@
-from math import ceil
-
 from evaluation.simulator import MovementController, TimingConfig
 
 
 class SimpleMovementController(MovementController):
     def __init__(self, timing_config: TimingConfig, move_after_ratio: float = 0.5):
+        assert 0 <= move_after_ratio <= 1
         super().__init__(timing_config)
         self.queue: list = []
-        assert 0 <= move_after_ratio <= 1
         self.move_at_step = round(self.movement_steps * move_after_ratio)
 
     def register_move(self, dx: int, dy: int):
