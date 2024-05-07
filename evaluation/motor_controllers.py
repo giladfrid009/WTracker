@@ -1,7 +1,23 @@
-from evaluation.simulator import MovementController, TimingConfig
+import abc
+
+from evaluation.config import TimingConfig
 
 
-class SimpleMovementController(MovementController):
+class MotorController(abc.ABC):
+    def __init__(self, timing_config: TimingConfig):
+        self.timing_config = timing_config
+        self.movement_steps = self.timing_config.moving_frame_num
+
+    @abc.abstractmethod
+    def register_move(dx: int, dy: int):
+        pass
+
+    @abc.abstractmethod
+    def step(self) -> tuple[int, int]:
+        pass
+
+
+class SimpleMotorController(MotorController):
     def __init__(self, timing_config: TimingConfig, move_after_ratio: float = 0.5):
         assert 0 <= move_after_ratio <= 1
         super().__init__(timing_config)

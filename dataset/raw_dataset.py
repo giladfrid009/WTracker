@@ -1,43 +1,12 @@
 from __future__ import annotations
 from collections.abc import Iterator
-import numpy as np
 import PIL.Image
 from dataclasses import dataclass, field
 from utils.config_base import ConfigBase
 
 from frame_reader import FrameReader
 from utils.path_utils import join_paths
-
-
-@dataclass
-class ExperimentConfig(ConfigBase):
-    name: str
-    num_frames: int
-    frames_per_sec: float
-    orig_resolution: tuple[int, int]
-    px_per_mm: float
-    init_position: tuple[int, int]
-    comments: str = ""
-    mm_per_px: float = field(init=False)
-    ms_per_frame: float = field(init=False)
-
-    def __post_init__(self):
-        self.ms_per_frame = 1000 / self.frames_per_sec
-        self.mm_per_px = 1 / self.px_per_mm
-
-    @classmethod
-    def from_frame_reader(
-        cls, reader: FrameReader, name: str, frames_per_sec: int, px_per_mm: float, init_position: tuple[int, int]
-    ) -> ExperimentDataset:
-        return ExperimentConfig(
-            name=name,
-            num_frames=len(reader),
-            frames_per_sec=frames_per_sec,
-            orig_resolution=reader.frame_shape[:2],
-            px_per_mm=px_per_mm,
-            init_position=init_position,
-        )
-
+from evaluation.config import ExperimentConfig
 
 @dataclass
 class ImageMeta(ConfigBase):

@@ -1,5 +1,6 @@
+from evaluation.sim_controllers import *
 from evaluation.sim_controllers.yolo_controller import *
 from evaluation.sim_controllers.csv_controller import *
 from evaluation.sim_controllers.logging_controller import *
 from evaluation.sim_controllers.optimal_controller import *
-from evaluation.motor_controller import *
+from evaluation.config import *

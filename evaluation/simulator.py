@@ -1,79 +1,32 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
-import math
 import numpy as np
 import abc
 from tqdm.auto import tqdm
 
-from dataset.raw_dataset import ExperimentConfig
 from frame_reader import FrameReader
+from dummy_reader import DummyReader
 from evaluation.view_controller import ViewController
-from utils.config_base import ConfigBase
-
-
-@dataclass
-class TimingConfig(ConfigBase):
-    frames_per_sec: int
-    ms_per_frame: float = field(init=False)
-
-    imaging_time_ms: float
-    imaging_frame_num: int = field(init=False)
-
-    pred_time_ms: float
-    pred_frame_num: int = field(init=False)
-
-    moving_time_ms: float
-    moving_frame_num: int = field(init=False)
-
-    px_per_mm: int
-    mm_per_px: float = field(init=False)
-
-    camera_size_mm: tuple[float, float]
-    camera_size_px: tuple[int, int] = field(init=False)
-
-    micro_size_mm: tuple[float, float]
-    micro_size_px: tuple[int, int] = field(init=False)
-
-    frame_padding_value: tuple[int, int, int] = field(default_factory=lambda: (255, 255, 255))
-
-    def __post_init__(self):
-        self.ms_per_frame = 1000 / self.frames_per_sec
-        self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.ms_per_frame)
-        self.pred_frame_num = math.ceil(self.pred_time_ms / self.ms_per_frame)
-        self.moving_frame_num = math.ceil(self.moving_time_ms / self.ms_per_frame)
-        self.mm_per_px = 1 / self.px_per_mm
-
-        self.camera_size_px = (
-            round(self.px_per_mm * self.camera_size_mm[0]),
-            round(self.px_per_mm * self.camera_size_mm[1]),
-        )
-
-        self.micro_size_px = (
-            round(self.px_per_mm * self.micro_size_mm[0]),
-            round(self.px_per_mm * self.micro_size_mm[1]),
-        )
-
-    @property
-    def cycle_length(self) -> int:
-        return self.imaging_frame_num + self.moving_frame_num
-
-    @property
-    def cycle_time_ms(self) -> float:
-        return self.cycle_length * self.ms_per_frame
-
+from evaluation.config import *
+from evaluation.motor_controllers import MotorController, SimpleMotorController
 
 class Simulator:
     def __init__(
         self,
         timing_config: TimingConfig,
         experiment_config: ExperimentConfig,
-        reader: FrameReader,
-        controller: SimController,
-        motor_controller: MovementController,
+        sim_controller: SimController,
+        reader: FrameReader = None,
+        motor_controller: MotorController = None,
     ) -> None:
         self._timing_config = timing_config
         self._experiment_config = experiment_config
-        self._controller = controller
+        self._sim_controller = sim_controller
+
+        if reader is None:
+            reader = DummyReader(experiment_config)
+
+        if motor_controller is None:
+            motor_controller = SimpleMotorController(timing_config, move_after_ratio=0.5)
         self._motor_controller = motor_controller
 
         self._camera = ViewController(
@@ -121,28 +74,28 @@ class Simulator:
         pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
 
         self._reset()
-        self._controller.on_sim_start(self)
+        self._sim_controller.on_sim_start(self)
 
         while self._camera.progress():
             if self.cycle_step == 0:
                 if self.cycle_number > 0:
-                    self._controller.on_movement_end(self)
-                    self._controller.on_cycle_end(self)
+                    self._sim_controller.on_movement_end(self)
+                    self._sim_controller.on_cycle_end(self)
                 
-                self._controller.on_cycle_start(self)
+                self._sim_controller.on_cycle_start(self)
 
-            self._controller.on_camera_frame(self)
+            self._sim_controller.on_camera_frame(self)
 
             if self.cycle_step == 0:
-                self._controller.on_imaging_start(self)
+                self._sim_controller.on_imaging_start(self)
 
             if self.cycle_step < config.imaging_frame_num:
-                self._controller.on_micro_frame(self)
+                self._sim_controller.on_micro_frame(self)
 
             if self.cycle_step == config.imaging_frame_num:
-                self._controller.on_imaging_end(self)
-                self._controller.on_movement_start(self)
-                dx, dy = self._controller.provide_moving_vector(self)
+                self._sim_controller.on_imaging_end(self)
+                self._sim_controller.on_movement_start(self)
+                dx, dy = self._sim_controller.provide_moving_vector(self)
                 self._motor_controller.register_move(dx, dy)
 
             if config.imaging_frame_num <= self.cycle_step < config.imaging_frame_num + config.moving_frame_num:
@@ -155,7 +108,7 @@ class Simulator:
             if visualize:
                 self._camera.visualize_world(timeout=0 if wait_key else 1)
 
-        self._controller.on_sim_end(self)
+        self._sim_controller.on_sim_end(self)
 
         pbar.close()
 
@@ -208,16 +161,3 @@ class SimController(abc.ABC):
         """
         raise NotImplementedError()
 
-
-class MovementController(abc.ABC):
-    def __init__(self, timing_config: TimingConfig):
-        self.timing_config = timing_config
-        self.movement_steps = self.timing_config.moving_frame_num
-
-    @abc.abstractmethod
-    def register_move(dx: int, dy: int):
-        pass
-
-    @abc.abstractmethod
-    def step(self) -> tuple[int, int]:
-        pass

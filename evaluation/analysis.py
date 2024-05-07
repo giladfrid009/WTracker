@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from evaluation.simulator import TimingConfig
+from evaluation.config import TimingConfig
 
 
 class Plotter:

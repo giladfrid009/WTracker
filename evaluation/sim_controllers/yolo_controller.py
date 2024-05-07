@@ -1,41 +1,12 @@
 import numpy as np
-from ultralytics import YOLO
 import cv2 as cv
-from dataclasses import dataclass, field
 from collections import deque
 
 from dataset.bbox_utils import BoxConverter, BoxFormat
 from utils.path_utils import *
-from utils.config_base import ConfigBase
 from evaluation.simulator import *
-from evaluation.simulator import Simulator, TimingConfig
 from dataset.bbox_utils import *
-
-
-@dataclass
-class YoloConfig(ConfigBase):
-    model_path: str
-    device: str = "cpu"
-    task: str = "detect"
-    verbose: bool = False
-    pred_kwargs: dict = field(
-        default_factory=lambda: {
-            "imgsz": 416,
-            "conf": 0.1,
-        }
-    )
-
-    model: YOLO = field(default=None, init=False, repr=False)
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state["model"]  # we dont want to serialize the model
-        return state
-
-    def load_model(self) -> YOLO:
-        if self.model is None:
-            self.model = YOLO(self.model_path, task=self.task, verbose=self.verbose)
-        return self.model
+from evaluation.config import *
 
 
 class YoloController(SimController):
@@ -99,6 +70,6 @@ class YoloController(SimController):
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
         return round(bbox_mid[0] - camera_mid[0]), round(bbox_mid[1] - camera_mid[1])
-    
+
     def on_cycle_end(self, sim: Simulator):
         self._camera_frames.clear()
