@@ -9,7 +9,7 @@ class MotorController(abc.ABC):
         self.movement_steps = self.timing_config.moving_frame_num
 
     @abc.abstractmethod
-    def register_move(dx: int, dy: int):
+    def register_move(self, dx: int, dy: int):
         pass
 
     @abc.abstractmethod

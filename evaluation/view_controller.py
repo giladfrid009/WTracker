@@ -12,7 +12,6 @@ class ViewController(FrameStream):
         frame_reader (FrameReader): The frame reader object.
         camera_size (tuple[int, int]): The size of the camera view (width, height).
         micro_size (tuple[int, int]): The size of the micro view (width, height).
-        padding_value (int): The value used for padding the frames.
         position (tuple[int, int]): The current position of the center of the view (x, y).
 
     Methods:
@@ -28,7 +27,6 @@ class ViewController(FrameStream):
         camera_size: tuple[int, int] = (251, 251),
         micro_size: tuple[int, int] = (45, 45),
         init_position: tuple[int, int] = (0, 0),
-        padding_value: int = 255,
     ):
         """
         Initializes the View Controller object.
@@ -38,7 +36,6 @@ class ViewController(FrameStream):
             camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).
             micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).
             init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).
-            padding_value (int, optional): The padding value. Defaults to 255.
         """
         super().__init__(frame_reader)
 
@@ -46,7 +43,6 @@ class ViewController(FrameStream):
         assert camera_size[1] >= micro_size[1]
 
         self._padding_size: tuple[int, int] = (camera_size[0] // 2, camera_size[1] // 2)
-        self._padding_value: tuple[int, int, int] = padding_value
 
         self._camera_size = camera_size
         self._micro_size = micro_size
@@ -67,8 +63,7 @@ class ViewController(FrameStream):
             right=self._padding_size[0],
             top=self._padding_size[1],
             bottom=self._padding_size[1],
-            borderType=cv.BORDER_CONSTANT,
-            value=self._padding_value,
+            borderType=cv.BORDER_REPLICATE,
         )
         return frame
 

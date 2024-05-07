@@ -1,6 +1,7 @@
 import numpy as np
 import cv2 as cv
 from collections import deque
+from typing import overload
 
 from dataset.bbox_utils import BoxConverter, BoxFormat
 from utils.path_utils import *
@@ -21,6 +22,12 @@ class YoloController(SimController):
 
     def on_camera_frame(self, sim: Simulator):
         self._camera_frames.append(sim.camera_view())
+
+    @overload
+    def predict(self, frames: np.ndarray) -> tuple[float, float, float, float]: ...
+
+    @overload
+    def predict(self, *frames: np.ndarray) -> list[tuple[float, float, float, float]]: ...
 
     def predict(
         self, *frames: np.ndarray

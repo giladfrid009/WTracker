@@ -59,12 +59,12 @@ def bulk_rename(dir_path: str, rename_fn: Callable[[str], str]):
     Returns:
         None
     """
-    dir_path: Path = Path(dir_path)
-    for file_name in dir_path.iterdir():
+    path: Path = Path(dir_path)
+    for file_name in path.iterdir():
         if file_name.is_dir():
             continue
 
-        new_name = dir_path / rename_fn(file_name.name)
+        new_name = path / rename_fn(file_name.name)
         file_name.rename(new_name)
 
 

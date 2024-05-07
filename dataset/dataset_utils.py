@@ -66,6 +66,7 @@ class DatasetConverter:
             if dst_img_path.exists() == False:
                 dst_img_path.hardlink_to(src_img_path)
 
+    @staticmethod
     def from_yolo(labels_path: str, images_path: str) -> ImageDataset:
         """
         Converts YOLO format keypoint annotations and images into an ImageDataset.
@@ -103,7 +104,7 @@ class DatasetConverter:
             keypoints = data[:, 5:].reshape((data.shape[0], -1, 2))
 
             # resize bboxes and kps from [0-1 x 0-1] to [width x height]
-            width, height = frame_meta.shape
+            width, height, _ = frame_meta.shape
             bboxes[:, ::2] *= width
             bboxes[:, 1::2] *= height
             keypoints[:, :, 0] *= width

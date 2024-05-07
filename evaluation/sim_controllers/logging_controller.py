@@ -70,13 +70,13 @@ class LoggingController(SimController):
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
         self._micro_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.micro_size))
 
-        cam_view = sim.camera_view() if self.log_config.save_err_view or self.log_config.save_cam_view else None
-
         if self.log_config.save_err_view:
+            cam_view = sim.camera_view()
             self._camera_frames.append(cam_view)
 
         if self.log_config.save_cam_view:
             # save camera view
+            cam_view = sim.camera_view()
             path = self.log_config.cam_file_path.format(sim.frame_number)
             self._image_saver.schedule_save(cam_view, path)
 

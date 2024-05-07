@@ -47,8 +47,12 @@ class FrameReader:
         self._root_folder = root_folder
         self._files = frame_files
         self._read_format = read_format
-        self._frame_shape = None
-        self._frame_shape = self.__getitem__(0).shape
+        self._frame_shape = self._extract_shape()
+
+    def _extract_shape(self) -> tuple[int, ...]:
+        path = join_paths(self.root_folder, self.files[0])
+        frame = cv.imread(path, self._read_format)
+        return frame.shape
 
     @staticmethod
     def create_from_template(root_folder: str, name_format: str, read_format: int = cv.IMREAD_GRAYSCALE) -> FrameReader:

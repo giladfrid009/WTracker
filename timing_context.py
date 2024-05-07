@@ -22,8 +22,8 @@ class Timer:
             silent (bool, optional): If True, suppresses the output. Defaults to False.
         """
         self._silent = silent
-        self._start = None
-        self.time = None
+        self._start = -1
+        self.time = -1
 
     def __enter__(self):
         self._start = perf_counter()

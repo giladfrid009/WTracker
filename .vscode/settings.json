@@ -4,7 +4,9 @@
         "IMREAD",
         "imshow",
         "imwrite",
+        "pbar",
         "ultralytics",
         "waitkey"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "basic"
 }

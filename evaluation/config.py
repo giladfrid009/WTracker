@@ -31,8 +31,6 @@ class TimingConfig(ConfigBase):
     micro_size_mm: tuple[float, float]
     micro_size_px: tuple[int, int] = field(init=False)
 
-    frame_padding_value: tuple[int, int, int] = field(default_factory=lambda: (255, 255, 255))
-
     def __post_init__(self):
         self.ms_per_frame = 1000 / self.frames_per_sec
         self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.ms_per_frame)

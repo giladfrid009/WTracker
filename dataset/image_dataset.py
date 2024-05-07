@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from dataset.bbox_utils import BoxFormat
 
 
+@dataclass
 class ImageMeta:
     """
     Represents metadata of an image.
@@ -35,6 +36,7 @@ class ImageMeta:
             return ImageMeta(full_path, (w, h, c))
 
 
+@dataclass
 class ImageSample:
     """
     Represents an image sample with associated metadata, bounding boxes, and keypoints.
@@ -86,7 +88,8 @@ class ImageDataset:
         image_list (list[ImageSample]): A list of image samples in the dataset.
     """
 
-    image_list: list[ImageSample]
+    def __init__(self, image_list: list[ImageSample] | None = None):
+        self.image_list = image_list or []
 
     def __len__(self):
         return len(self.image_list)

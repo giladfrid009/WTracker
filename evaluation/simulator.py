@@ -34,7 +34,6 @@ class Simulator:
             camera_size=timing_config.camera_size_px,
             micro_size=timing_config.micro_size_px,
             init_position=experiment_config.init_position,
-            padding_value=timing_config.frame_padding_value,
         )
 
     @property

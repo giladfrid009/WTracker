@@ -1,3 +1,4 @@
+from typing import overload
 from collections import deque
 import pandas as pd
 
@@ -18,6 +19,12 @@ class CsvController(SimController):
 
     def on_camera_frame(self, sim: Simulator):
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
+
+    @overload
+    def predict(self, sim: Simulator, frame_nums: int) -> tuple[float, float, float, float]: ...
+
+    @overload
+    def predict(self, sim: Simulator, *frame_nums: int) -> list[tuple[float, float, float, float]]: ...
 
     def predict(
         self, sim: Simulator, *frame_nums: int

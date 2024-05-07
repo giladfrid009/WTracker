@@ -14,7 +14,6 @@ class Plotter:
 
     def data_prep_frames(self, n: int = 1) -> pd.DataFrame:
         data = self._data.copy()
-
         data = Plotter.concat(data, Plotter.calc_centers(data, "wrm"))
         data = Plotter.concat(data, Plotter.calc_centers(data, "mic"))
         data = Plotter.remove_no_pred_rows(data)
@@ -24,8 +23,7 @@ class Plotter:
         return data
 
     def data_prep_cycles(self, n: int = 15) -> pd.DataFrame:
-        data = self._data.copy()
-        data = Plotter.data_prep_frames(data, n=1)
+        data = self.data_prep_frames(n=1)
         data = Plotter.concat(data, Plotter.calc_speed(data, n=n))
         data = Plotter.concat(data, Plotter.calc_area_diff(data), Plotter.calc_max_edge_diff(data))
         data = Plotter.remove_cycle(data, 0)
@@ -84,12 +82,12 @@ class Plotter:
         return data[data["phase"] != phase]
 
     @staticmethod
-    def calc_max_edge_diff(data: pd.DataFrame) -> np.ndarray:
+    def calc_max_edge_diff(data: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate the length difference between the edges of the worm's bounding boxes and the microscope's bounding boxes.
 
         Returns:
-            numpy.ndarray: Array of length differences between the edges of the bounding boxes
+            pd.DataFrame: DataFrame containing the length differences between the edges of the bounding boxes
         """
 
         worm_boxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].values
@@ -107,13 +105,13 @@ class Plotter:
         return pd.DataFrame({"bbox_edge_diff": np.maximum(x_diff, y_diff)}, index=data.index)
 
     @staticmethod
-    def calc_area_diff(data: pd.DataFrame) -> np.ndarray:
+    def calc_area_diff(data: pd.DataFrame) -> pd.DataFrame:
         """
         Calculate the area difference between the worms bounding boxes and the microscope's bounding boxes.
         The area difference is the area by which the worm's bounding box exceeds the microscope's bounding box.
 
         Returns:
-            numpy.ndarray: Array of length differences between the edges of the bounding boxes
+            pd.DataFrame: DataFrame of area differences between the bounding boxes
         """
 
         worm_boxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].values
