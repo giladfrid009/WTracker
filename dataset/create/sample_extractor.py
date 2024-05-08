@@ -1,6 +1,6 @@
 import numpy as np
 
-from typing import Iterable
+from typing import Collection, Iterable
 from dataset.bbox_utils import BoxUtils
 from dataset.create.box_calculator import BoxCalculator
 from utils.io_utils import FrameSaver
@@ -32,7 +32,7 @@ class SampleExtractor:
 
     def create_specified_samples(
         self,
-        frame_indices: Iterable[int],
+        frame_indices: Collection[int],
         target_size: tuple[int, int],
         save_folder: str,
         name_format: str = "img_{:09d}.png",

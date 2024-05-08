@@ -173,7 +173,7 @@ class Plotter:
         return data.groupby("cycle")[list(transforms.keys())].agg(transforms).reset_index()
 
     @staticmethod
-    def bbox_area(data: pd.DataFrame, width_col: str, height_col: str) -> np.ndarray:
+    def bbox_area(data: pd.DataFrame, width_col: str, height_col: str) -> pd.Series:
         mask = data[width_col] < 0
         data.loc[mask, width_col] = 0
 
@@ -183,7 +183,7 @@ class Plotter:
         return data[width_col] * data[height_col]
 
     @staticmethod
-    def rolling_average(data: pd.DataFrame, window_size: int, column: str) -> pd.DataFrame:
+    def rolling_average(data: pd.DataFrame, window_size: int, column: str) -> pd.Series:
         rolling_avg = data[column].rolling(window=window_size, center=False).mean()
         return rolling_avg
 

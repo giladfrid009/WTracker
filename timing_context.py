@@ -1,5 +1,6 @@
 from time import perf_counter
 from contextlib import contextmanager
+from typing import Any, Generator
 
 
 class Timer:
@@ -59,7 +60,7 @@ class TimeBenchmark:
         self._silent = silent
 
     @contextmanager
-    def measure(self, silent: bool = None):
+    def measure(self, silent: bool | None = None) -> Generator[Timer, Any, None]:
         """
         Measures the execution time of a code block using a Timer context manager.
         The Timer object is yielded to the caller, and the TimeBenchmark instance is updated with the measured time.

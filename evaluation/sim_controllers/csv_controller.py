@@ -21,14 +21,12 @@ class CsvController(SimController):
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
 
     @overload
-    def predict(self, sim: Simulator, frame_nums: int) -> tuple[float, float, float, float]: ...
+    def predict(self, frame_nums: int) -> tuple[float, float, float, float]: ...
 
     @overload
-    def predict(self, sim: Simulator, *frame_nums: int) -> list[tuple[float, float, float, float]]: ...
+    def predict(self, *frame_nums: int) -> list[tuple[float, float, float, float]]: ...
 
-    def predict(
-        self, sim: Simulator, *frame_nums: int
-    ) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
+    def predict(self, *frame_nums: int) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
         if len(frame_nums) == 0:
             return []
 
@@ -60,10 +58,10 @@ class CsvController(SimController):
         start = sim.cycle_number * self.timing_config.cycle_length
         end = start + self.timing_config.cycle_length
         end = min(end, len(self._data))
-        return self.predict(sim, *range(start, end))
+        return self.predict(*range(start, end))
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        bbox_new = self.predict(sim, sim.frame_number - self.timing_config.pred_frame_num)
+        bbox_new = self.predict(sim.frame_number - self.timing_config.pred_frame_num)
 
         if bbox_new is None:
             return 0, 0

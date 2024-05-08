@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 import math
+from typing import Any
 from ultralytics import YOLO
 
 from utils.config_base import ConfigBase
@@ -103,7 +104,7 @@ class YoloConfig(ConfigBase):
 
     model: YOLO = field(default=None, init=False, repr=False)
 
-    def __getstate__(self):
+    def __getstate__(self) -> dict[str, Any]:
         state = self.__dict__.copy()
         del state["model"]  # we dont want to serialize the model
         return state
@@ -138,7 +139,7 @@ class ExperimentConfig(ConfigBase):
             name=name,
             num_frames=len(reader),
             frames_per_sec=frames_per_sec,
-            orig_resolution=reader.frame_shape[:2],
+            orig_resolution=reader.frame_size,
             px_per_mm=px_per_mm,
             init_position=init_position,
         )

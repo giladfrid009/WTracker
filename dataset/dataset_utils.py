@@ -12,7 +12,7 @@ class DatasetConverter:
     """
 
     @staticmethod
-    def to_yolo(image_dataset: ImageDataset, labels_path: str, images_path: str):
+    def to_yolo(image_dataset: ImageDataset, labels_path: str, images_path: str) -> None:
         """
         Converts an image dataset to YOLO format.
 

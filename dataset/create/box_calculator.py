@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from typing import Iterable
+from typing import Collection, Iterable
 from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
 import multiprocessing
@@ -25,7 +25,7 @@ class BoxCalculator:
         frame_reader: FrameReader,
         bg_probes: int = 100,
         diff_thresh: int = 10,
-    ):
+    ) -> None:
         assert bg_probes > 0 and diff_thresh > 0
 
         self._frame_reader = frame_reader
@@ -131,7 +131,7 @@ class BoxCalculator:
 
     def calc_specified_boxes(
         self,
-        frame_indices: Iterable[int],
+        frame_indices: Collection[int],
         num_workers: int = None,
         chunk_size: int = 50,
     ) -> np.ndarray:

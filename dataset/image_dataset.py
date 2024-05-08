@@ -49,15 +49,12 @@ class ImageSample:
     """
 
     metadata: ImageMeta
-    bboxes: np.ndarray = None
-    bbox_format: BoxFormat = None
-    keypoints: np.ndarray = None
+    bboxes: np.ndarray | None = None
+    bbox_format: BoxFormat | None = None
+    keypoints: np.ndarray | None = None
 
     def __post_init__(self):
-        have_bbox = self.bboxes is not None
-        have_keypoints = self.keypoints is not None
-
-        if have_bbox:
+        if self.bboxes is not None:
             if self.bboxes.ndim == 1:
                 self.bboxes = self.bboxes[np.newaxis, :]
 
@@ -67,7 +64,7 @@ class ImageSample:
             assert self.bboxes.ndim == 2
             assert self.bbox_format is not None
 
-        if have_keypoints:
+        if self.keypoints is not None:
             if self.keypoints.ndim == 1:
                 self.keypoints = self.keypoints[np.newaxis, np.newaxis, :]
             if self.keypoints.ndim == 2:
@@ -91,7 +88,7 @@ class ImageDataset:
     def __init__(self, image_list: list[ImageSample] | None = None):
         self.image_list = image_list or []
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.image_list)
 
     def __getitem__(self, idx: int) -> ImageSample:
@@ -100,7 +97,7 @@ class ImageDataset:
     def __iter__(self) -> Iterator[ImageSample]:
         return self.image_list.__iter__()
 
-    def add_sample(self, sample: ImageSample):
+    def add_sample(self, sample: ImageSample) -> None:
         """
         Adds a new image sample to the dataset.
 
@@ -109,7 +106,7 @@ class ImageDataset:
         """
         self.image_list.append(sample)
 
-    def remove_sample(self, idx: int):
+    def remove_sample(self, idx: int) -> None:
         """
         Removes an image sample from the dataset at the specified index.
 
@@ -118,7 +115,7 @@ class ImageDataset:
         """
         self.image_list.pop(idx)
 
-    def extend(self, other: ImageDataset):
+    def extend(self, other: ImageDataset) -> None:
         """
         Extends the dataset by adding all image samples from another dataset.
 

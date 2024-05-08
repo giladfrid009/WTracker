@@ -89,7 +89,7 @@ class Files:
         self._scan()
 
     def _scan(self):
-        self.results: list = []
+        self.results = []
         self._pos = -1
 
         for result in os.scandir(self.root):
@@ -134,9 +134,9 @@ class Files:
         return self.results[self._pos].path
 
     def seek(self, pos: int):
-        if 0 <= pos < self.__len__():
-            self._pos = pos - 1
-            return self.__next__()
+        assert 0 <= pos < self.__len__(), "Invalid position"
+        self._pos = pos - 1
+        return self.__next__()
 
     def copy(self, dst_root: str) -> None:
         shutil.copy2(self.get_path(), dst=dst_root)
