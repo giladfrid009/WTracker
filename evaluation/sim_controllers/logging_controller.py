@@ -126,7 +126,7 @@ class LoggingController(SimController):
 
         worm_bboxes = self.sim_controller._cycle_predict_all(sim)
 
-        cycle_first_frame = sim.cycle_number * self.timing_config.cycle_length
+        cycle_first_frame = (sim.cycle_number - 1) * self.timing_config.cycle_length
 
         for i, worm_bbox in enumerate(worm_bboxes):
             csv_row = {}
@@ -140,7 +140,7 @@ class LoggingController(SimController):
             )
 
             csv_row["frame"] = frame_number
-            csv_row["cycle"] = sim.cycle_number
+            csv_row["cycle"] = sim.cycle_number - 1
             csv_row["phase"] = phase
 
             if worm_bbox is not None:
