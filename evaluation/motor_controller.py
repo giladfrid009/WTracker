@@ -41,7 +41,7 @@ class SineMovementController(MovementController):
         if self.queue:
             self.queue[0] = (self.queue[0][0] + resid_x, self.queue[0][1] + resid_y)
 
-        return (round(dx), round(dy)) #TODO: remove round for more accurate movement
+        return (rdx, rdy) #TODO: remove round for more accurate movement
 
 
 
