@@ -1,7 +1,6 @@
 import numpy as np
 import cv2 as cv
 from collections import deque
-from typing import overload
 
 from dataset.bbox_utils import BoxConverter, BoxFormat
 from utils.path_utils import *
@@ -23,17 +22,8 @@ class YoloController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_frames.append(sim.camera_view())
 
-    @overload
-    def predict(self, frames: np.ndarray) -> tuple[float, float, float, float]: ...
-
-    @overload
-    def predict(self, *frames: np.ndarray) -> list[tuple[float, float, float, float]]: ...
-
-    def predict(
-        self, *frames: np.ndarray
-    ) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
-        if len(frames) == 0:
-            return []
+    def predict(self, *frames: np.ndarray) -> np.ndarray:
+        assert len(frames) > 0
 
         # convert grayscale images to BGR because YOLO expects 3-channel images
         if frames[0].ndim == 2 or frames[0].shape[-1] == 1:
@@ -53,24 +43,21 @@ class YoloController(SimController):
         bboxes = []
         for res in results:
             if len(res.boxes.xyxy) == 0:
-                bboxes.append(None)
+                bboxes.append(np.full([4], np.nan))
             else:
                 bbox = BoxConverter.to_xywh(res.boxes.xyxy[0], BoxFormat.XYXY)
-                bbox = bbox.tolist()
                 bboxes.append(bbox)
 
-        if len(bboxes) == 1:
-            return bboxes[0]
+        return np.stack(bboxes, axis=0)
 
-        return bboxes
-
-    def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
+    def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
         return self.predict(*self._camera_frames)
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         frame = self._camera_frames[-self.timing_config.pred_frame_num]
         bbox = self.predict(frame)
-        if bbox is None:
+        
+        if np.isnan(bbox).any():
             return 0, 0
 
         bbox_mid = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2

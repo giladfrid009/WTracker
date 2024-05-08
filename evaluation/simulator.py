@@ -26,7 +26,7 @@ class Simulator:
             reader = DummyReader(experiment_config)
 
         if motor_controller is None:
-            motor_controller = SimpleMotorController(timing_config, move_after_ratio=0.5)
+            motor_controller = SimpleMotorController(timing_config, move_after_ratio=0)
         self._motor_controller = motor_controller
 
         self._camera = ViewController(
@@ -151,7 +151,7 @@ class SimController(abc.ABC):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
+    def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
         """
         Returns a list of bbox predictions of the worm, for each frame of the current cycle.
         If a prediction is not available, return None for that frame.

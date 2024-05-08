@@ -5,10 +5,11 @@
         "imshow",
         "imwrite",
         "pbar",
+        "polyfit",
         "ultralytics",
         "waitkey"
     ],
-    "python.analysis.typeCheckingMode": "standard",
+    "python.analysis.typeCheckingMode": "off",
     "python.analysis.autoImportCompletions": true,
     "python.analysis.inlayHints.functionReturnTypes": true
 }

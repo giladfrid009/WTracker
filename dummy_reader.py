@@ -10,7 +10,9 @@ class DummyReader(FrameReader):
         frames = [str(i) for i in range(experiment_config.num_frames)]
 
         super().__init__(".", frame_files=frames)
-        self._frame_shape = experiment_config.orig_resolution
+
+    def _extract_frame_shape(self) -> tuple[int, ...]:
+        return self.experiment_config.orig_resolution
 
     def __getitem__(self, idx: int) -> np.ndarray:
         frame = np.zeros(self.experiment_config.orig_resolution, dtype=np.uint8)

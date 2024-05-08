@@ -12,18 +12,24 @@ class TestController1(CsvController):
         past_frames_num = self.timing_config.pred_frame_num
         assert self.timing_config.imaging_frame_num - self.timing_config.pred_frame_num - past_frames_num >= 0
 
-        bbox_old, bbox_new = self.predict(
+        bboxes = self.predict(
             sim.frame_number - self.timing_config.pred_frame_num - past_frames_num,
             sim.frame_number - self.timing_config.pred_frame_num,
         )
 
-        if bbox_old is None and bbox_new is None:
+        bbox_old = bboxes[0, :]
+        bbox_new = bboxes[1, :]
+
+        old_empty = np.isnan(bbox_old).any()
+        new_empty = np.isnan(bbox_new).any()
+
+        if old_empty and new_empty:
             return 0, 0
 
-        if bbox_new is None:
+        if new_empty:
             bbox_new = bbox_old
 
-        if bbox_old is None:
+        if old_empty:
             bbox_old = bbox_new
 
         # calculate the speed of the worm based on both predictions
@@ -35,27 +41,21 @@ class TestController1(CsvController):
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
-        # TODO: TUNE HEURISTIC OF DX AND DY CALCULATION
+        # TODO: TUNE HEURISTIC OF future_x AND future_y CALCULATION
 
-        dx = round(
-            bbox_new_mid[0]
-            - camera_mid[0]
-            + speed_per_frame[0]
-            * (
-                self.timing_config.moving_frame_num
-                + self.timing_config.pred_frame_num
-                + self.timing_config.imaging_frame_num / 4
-            )
+        future_x = bbox_new_mid[0] + speed_per_frame[0] * (
+            self.timing_config.moving_frame_num
+            + self.timing_config.pred_frame_num
+            + self.timing_config.imaging_frame_num / 4
         )
-        dy = round(
-            bbox_new_mid[1]
-            - camera_mid[1]
-            + speed_per_frame[1]
-            * (
-                self.timing_config.moving_frame_num
-                + self.timing_config.pred_frame_num
-                + self.timing_config.imaging_frame_num / 4
-            )
+
+        future_y = bbox_new_mid[1] + speed_per_frame[1] * (
+            self.timing_config.moving_frame_num
+            + self.timing_config.pred_frame_num
+            + self.timing_config.imaging_frame_num / 4
         )
+
+        dx = round(future_x - camera_mid[0])
+        dy = round(future_y - camera_mid[1])
 
         return dx, dy

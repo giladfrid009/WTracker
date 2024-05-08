@@ -1,4 +1,3 @@
-from dataclasses import dataclass, field
 from collections import deque
 
 from utils.path_utils import *
@@ -105,7 +104,7 @@ class LoggingController(SimController):
             csv_row["frame"] = frame_number
             csv_row["phase"] = phase
 
-            if worm_bbox is not None:
+            if not np.isnan(worm_bbox).any():
                 # format bbox to be have absolute position
                 cam_bbox = self._camera_bboxes[i]
                 worm_bbox = (worm_bbox[0] + cam_bbox[0], worm_bbox[1] + cam_bbox[1], worm_bbox[2], worm_bbox[3])
@@ -115,8 +114,6 @@ class LoggingController(SimController):
                     err_view = self._camera_frames[i]
                     path = self.log_config.err_file_path.format(frame_number)
                     self._image_saver.schedule_save(err_view, path)
-
-                worm_bbox = (None, None, None, None)
 
             csv_row["wrm_x"], csv_row["wrm_y"], csv_row["wrm_w"], csv_row["wrm_h"] = worm_bbox
 
@@ -156,5 +153,5 @@ class LoggingController(SimController):
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         return self.sim_controller.provide_moving_vector(sim)
 
-    def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
+    def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
         return self.sim_controller._cycle_predict_all(sim)

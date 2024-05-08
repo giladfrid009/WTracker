@@ -1,4 +1,3 @@
-from typing import overload
 from collections import deque
 import pandas as pd
 
@@ -20,59 +19,41 @@ class CsvController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
 
-    @overload
-    def predict(self, frame_nums: int) -> tuple[float, float, float, float]: ...
+    def predict(self, *frame_nums: int) -> np.ndarray:
+        assert len(frame_nums) > 0
 
-    @overload
-    def predict(self, *frame_nums: int) -> list[tuple[float, float, float, float]]: ...
+        worm_bboxes = self._data.iloc[list(frame_nums)]
+        worm_bboxes = worm_bboxes[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].values.astype(float)
 
-    def predict(self, *frame_nums: int) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
-        if len(frame_nums) == 0:
-            return []
+        cam_bboxes = [self._camera_bboxes[n % self.timing_config.cycle_length] for n in frame_nums]
+        cam_bboxes = np.asanyarray(cam_bboxes, dtype=float)
 
-        bboxes = []
-        for frame_num in frame_nums:
-            row = self._data.loc[frame_num]
+        # make bbox relative to camera view
+        worm_bboxes[:, 0] -= cam_bboxes[:, 0]
+        worm_bboxes[:, 1] -= cam_bboxes[:, 1]
 
-            if row.isna().any():
-                bboxes.append(None)
-                continue
+        return worm_bboxes
 
-            worm_bbox = row[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_list()
-
-            # get matching camera bbox for the frame
-            cam_bbox = self._camera_bboxes[frame_num % self.timing_config.cycle_length]
-
-            # make bbox relative to camera view
-            worm_bbox[0] = worm_bbox[0] - cam_bbox[0]
-            worm_bbox[1] = worm_bbox[1] - cam_bbox[1]
-
-            bboxes.append(worm_bbox)
-
-        if len(bboxes) == 1:
-            return bboxes[0]
-
-        return bboxes
-
-    def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
-        start = sim.cycle_number * self.timing_config.cycle_length
+    def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
+        start = (sim.cycle_number - 1) * self.timing_config.cycle_length
         end = start + self.timing_config.cycle_length
         end = min(end, len(self._data))
         return self.predict(*range(start, end))
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        bbox_new = self.predict(sim.frame_number - self.timing_config.pred_frame_num)
+        bbox = self.predict(sim.frame_number - self.timing_config.pred_frame_num)
+        bbox = bbox[0, :]
 
-        if bbox_new is None:
+        if np.isnan(bbox).any():
             return 0, 0
 
         # calculate the speed of the worm based on both predictions
-        bbox_new_mid = bbox_new[0] + bbox_new[2] / 2, bbox_new[1] + bbox_new[3] / 2
+        bbox_mid = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
-        dx = round(bbox_new_mid[0] - camera_mid[0])
-        dy = round(bbox_new_mid[1] - camera_mid[1])
+        dx = round(bbox_mid[0] - camera_mid[0])
+        dy = round(bbox_mid[1] - camera_mid[1])
 
         return dx, dy
