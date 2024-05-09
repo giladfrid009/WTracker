@@ -3,11 +3,13 @@ from evaluation.sim_controllers import CsvController
 from dataset.bbox_utils import *
 
 
+from collections import deque
 
 
 class Controller1(CsvController):
     def __init__(self, timing_config: TimingConfig, csv_path: str):
         super().__init__(timing_config, csv_path)
+        self.pred_data = deque(maxlen=3)
 
     def on_camera_frame(self, sim: Simulator):
         super().on_camera_frame(sim)
