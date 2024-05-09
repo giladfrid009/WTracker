@@ -206,6 +206,9 @@ class SimController(abc.ABC):
         Used internally for logging.
         """
         raise NotImplementedError()
+    
+    def predict(self, sim: Simulator, *frame_nums: int | list[int]) -> tuple[float, float, float, float] | list[tuple[float, float, float, float]]:
+        pass
 
 
 class MovementController(abc.ABC):
@@ -214,7 +217,7 @@ class MovementController(abc.ABC):
         self.movement_steps = self.timing_config.moving_frame_num
 
     @abc.abstractmethod
-    def register_move(dx: int, dy: int):
+    def register_move(self, dx: int, dy: int):
         pass
 
     @abc.abstractmethod
