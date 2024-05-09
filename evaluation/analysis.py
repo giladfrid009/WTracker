@@ -273,12 +273,13 @@ class Plotter:
             "Max Area Diff vs. Distance",
         )
 
-    def plot_deviation(self, condition=None) -> plt.Figure:
-        data = self.data_prep_frames()
+    def plot_deviation(self, n:int=1, condition=None) -> plt.Figure:
+        data = self.data_prep_frames(n=n)
         data["worm_center_dist"] = np.sqrt(
             (data["wrm_center_x"] - data["mic_center_x"]) ** 2 + (data["wrm_center_y"] - data["mic_center_y"]) ** 2
         )
         data["cycle_step"] = data["frame"] % self.timing_config.cycle_length
+        data['angle'] = np.arctan2(data['wrm_w'], data['wrm_h'])
         if condition is not None:
             data = data[condition(data)]
 
@@ -288,8 +289,8 @@ class Plotter:
         plt.show()
         return g.figure
 
-    def plot_2d_deviation(self, hue="cycle_step", condition=None) -> plt.Figure:
-        data = self.data_prep_frames()
+    def plot_2d_deviation(self, n:int=1, hue="cycle_step", condition=None) -> plt.Figure:
+        data = self.data_prep_frames(n=n)
         data["worm_center_dist_x"] = data["wrm_center_x"] - data["mic_center_x"]
         data["worm_center_dist_y"] = data["wrm_center_y"] - data["mic_center_y"]
 
@@ -314,6 +315,19 @@ class Plotter:
         )
         g.figure.suptitle(f"n = {n}, rolling window = {window_size}")
         return g.figure
+    
+    def plot_area_vs_time(self, n: int = 1, window_size: int = 15, hue=None, condition=None) -> plt.Figure:
+        data = self.data_prep_frames(n=n)
+        data["wrm_speed_avg"] = Plotter.rolling_average(data, window_size=window_size, column="wrm_speed")
+        # fig, ax = plt.subplots()
+        mask = data["bbox_area_diff"] > 1e-3
+        if condition is not None:
+            mask = condition(data) & mask
+        g = sns.jointplot(
+            data=data[mask], x="wrm_speed_avg", y="bbox_area_diff", hue=hue, kind="scatter", xlim=(0, 3), dropna=True
+        )
+        g.figure.suptitle(f"n = {n}, rolling window = {window_size}")
+        return g.figure
 
     def plot_cycle_step_vs_speed(self, n: int = 1, hue=None, condition=None) -> plt.Figure:
         data = self.data_prep_frames(n=n)
@@ -324,3 +338,16 @@ class Plotter:
         g = sns.catplot(data=data, x="cycle_step", y="wrm_speed", kind="violin")
         g.set_axis_labels("cycle step", "worm speed")
         return g.figure
+
+    def plot_trajectory(self, hue:str='frame', condition=None):
+        data = self.data_prep_frames(n=1)
+        if condition is not None:
+            data = data[condition(data)]
+
+        fig, ax = plt.subplots()
+        sns.scatterplot(data=data, x='wrm_center_x', y='wrm_center_y', hue=hue, ax=ax, alpha=0.3, linewidth=0.2)
+        ax.set_xlim(0)
+        ax.set_ylim(0)
+        ax.invert_yaxis()
+        fig.tight_layout()
+        plt.show()
