@@ -50,10 +50,10 @@ class LoggingController(SimController):
         self.sim_controller = sim_controller
         self.log_config = log_config
 
-        self._camera_frames = deque(maxlen=self.timing_config.cycle_length*2)
-        self._platform_positions = deque(maxlen=self.timing_config.cycle_length*2)
-        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length*2)
-        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length*2)
+        self._camera_frames = deque(maxlen=self.timing_config.cycle_length)
+        self._platform_positions = deque(maxlen=self.timing_config.cycle_length)
+        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length)
+        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length)
         self._has_logged_cycle = False
 
     def on_sim_start(self, sim: Simulator):
@@ -123,10 +123,11 @@ class LoggingController(SimController):
     def _log_cycle(self, sim: Simulator):
         if self._has_logged_cycle:
             return
+        cycle_number = sim.cycle_number - 1
 
         worm_bboxes = self.sim_controller._cycle_predict_all(sim)
 
-        cycle_first_frame = (sim.cycle_number - 1) * self.timing_config.cycle_length
+        cycle_first_frame = cycle_number * self.timing_config.cycle_length
 
         for i, worm_bbox in enumerate(worm_bboxes):
             csv_row = {}
@@ -140,7 +141,7 @@ class LoggingController(SimController):
             )
 
             csv_row["frame"] = frame_number
-            csv_row["cycle"] = sim.cycle_number - 1
+            csv_row["cycle"] = cycle_number
             csv_row["phase"] = phase
 
             if worm_bbox is not None:
