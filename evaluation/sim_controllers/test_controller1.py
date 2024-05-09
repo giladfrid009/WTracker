@@ -13,8 +13,10 @@ class TestController1(CsvController):
         assert self.timing_config.imaging_frame_num - self.timing_config.pred_frame_num - past_frames_num >= 0
 
         bboxes = self.predict(
-            sim.frame_number - self.timing_config.pred_frame_num - past_frames_num,
-            sim.frame_number - self.timing_config.pred_frame_num,
+            [
+                sim.frame_number - self.timing_config.pred_frame_num - past_frames_num,
+                sim.frame_number - self.timing_config.pred_frame_num,
+            ]
         )
 
         bbox_old = bboxes[0, :]

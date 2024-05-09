@@ -156,8 +156,8 @@ class BoxConverter:
             return BoxUtils.pack(x1, y1, x2, y2)
         elif src_format == BoxFormat.YOLO:
             xm, ym, w, h = BoxUtils.unpack(bbox)
-            x1 = xm - w // 2
-            y1 = ym - h // 2
+            x1 = xm - w / 2
+            y1 = ym - h / 2
             x2 = x1 + w
             y2 = y1 + h
             return BoxUtils.pack(x1, y1, x2, y2)
@@ -188,8 +188,8 @@ class BoxConverter:
             return BoxUtils.pack(x1, y1, w, h)
         elif src_format == BoxFormat.YOLO:
             xm, ym, w, h = BoxUtils.unpack(bbox)
-            x1 = xm - w // 2
-            y1 = ym - h // 2
+            x1 = xm - w / 2
+            y1 = ym - h / 2
             return BoxUtils.pack(x1, y1, w, h)
         else:
             raise Exception("unsupported bbox format conversion.")
@@ -215,13 +215,13 @@ class BoxConverter:
             x1, y1, x2, y2 = BoxUtils.unpack(bbox)
             w = x2 - x1
             h = y2 - y1
-            xm = x1 + w // 2
-            ym = y1 + h // 2
+            xm = x1 + w / 2
+            ym = y1 + h / 2
             return BoxUtils.pack(xm, ym, w, h)
         elif src_format == BoxFormat.XYWH:
             x1, y1, w, h = BoxUtils.unpack(bbox)
-            xm = x1 + w // 2
-            ym = y1 + h // 2
+            xm = x1 + w / 2
+            ym = y1 + h / 2
             return BoxUtils.pack(xm, ym, w, h)
         else:
             raise Exception("unsupported bbox format conversion.")

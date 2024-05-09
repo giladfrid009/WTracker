@@ -1,4 +1,5 @@
 from collections import deque
+from typing import Collection
 import pandas as pd
 
 from evaluation.simulator import *
@@ -10,7 +11,7 @@ class CsvController(SimController):
         super().__init__(timing_config)
 
         self.csv_path = csv_path
-        self._data = pd.read_csv(self.csv_path, index_col="frame")
+        self._csv_data = pd.read_csv(self.csv_path, usecols=["wrm_x", "wrm_y", "wrm_w", "wrm_h"]).to_numpy(dtype=float)
         self._camera_bboxes = deque(maxlen=timing_config.cycle_length)
 
     def on_sim_start(self, sim: Simulator):
@@ -19,11 +20,11 @@ class CsvController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
 
-    def predict(self, *frame_nums: int) -> np.ndarray:
+    def predict(self, frame_nums: Collection) -> np.ndarray:
         assert len(frame_nums) > 0
 
-        worm_bboxes = self._data.iloc[list(frame_nums)]
-        worm_bboxes = worm_bboxes[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].values.astype(float)
+        frame_nums = np.asanyarray(frame_nums, dtype=int)
+        worm_bboxes = self._csv_data[frame_nums, :]
 
         cam_bboxes = [self._camera_bboxes[n % self.timing_config.cycle_length] for n in frame_nums]
         cam_bboxes = np.asanyarray(cam_bboxes, dtype=float)
@@ -37,11 +38,11 @@ class CsvController(SimController):
     def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
         start = (sim.cycle_number - 1) * self.timing_config.cycle_length
         end = start + self.timing_config.cycle_length
-        end = min(end, len(self._data))
-        return self.predict(*range(start, end))
+        end = min(end, len(self._csv_data))
+        return self.predict(np.arange(start, end))
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        bbox = self.predict(sim.frame_number - self.timing_config.pred_frame_num)
+        bbox = self.predict([sim.frame_number - self.timing_config.pred_frame_num])
         bbox = bbox[0, :]
 
         if np.isnan(bbox).any():

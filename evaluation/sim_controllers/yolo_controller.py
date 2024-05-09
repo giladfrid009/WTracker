@@ -1,3 +1,4 @@
+from typing import Collection
 import numpy as np
 import cv2 as cv
 from collections import deque
@@ -22,7 +23,7 @@ class YoloController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_frames.append(sim.camera_view())
 
-    def predict(self, *frames: np.ndarray) -> np.ndarray:
+    def predict(self, frames: Collection[np.ndarray]) -> np.ndarray:
         assert len(frames) > 0
 
         # convert grayscale images to BGR because YOLO expects 3-channel images
@@ -51,12 +52,12 @@ class YoloController(SimController):
         return np.stack(bboxes, axis=0)
 
     def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
-        return self.predict(*self._camera_frames)
+        return self.predict(self._camera_frames)
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         frame = self._camera_frames[-self.timing_config.pred_frame_num]
-        bbox = self.predict(frame)
-        
+        bbox = self.predict([frame])
+
         if np.isnan(bbox).any():
             return 0, 0
 

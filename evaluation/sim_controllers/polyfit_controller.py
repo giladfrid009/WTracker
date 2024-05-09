@@ -14,26 +14,26 @@ class PolyfitController(CsvController):
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config
 
-        pred_times = np.flip(np.arange(sim.frame_number - timing.pred_frame_num, -1, -timing.pred_frame_num))
+        frame_nums = np.flip(np.arange(sim.frame_number - timing.pred_frame_num, -1, -timing.pred_frame_num))
 
-        bboxes = self.predict(*pred_times)
+        bboxes = self.predict(frame_nums)
 
-        # bboxes[:, 0] and bboxes[:, 1] are the mid coords
+        # calculate mid coords
         bboxes[:, 0] = bboxes[:, 0] + bboxes[:, 2] / 2
         bboxes[:, 1] = bboxes[:, 1] + bboxes[:, 3] / 2
 
         valid_mask = ~np.isnan(bboxes).any(axis=1)
 
-        time = pred_times[valid_mask] - sim.cycle_number * timing.cycle_length
-        pos = bboxes[:, 0:2][valid_mask]
+        time = frame_nums[valid_mask] - sim.cycle_number * timing.cycle_length
+        position = bboxes[:, 0:2][valid_mask]
 
         if len(time) == 0:
             return 0, 0
 
-        # weights = np.ones_like(time)
+        #weights = np.ones_like(time)
         weights = np.exp(-np.abs(time - time[-1]) / timing.cycle_length)
         weights[-1] = 1000  # forces the polynomial to go through the last point
-        poly = np.polyfit(time, pos, deg=self.degree, w=weights)
+        poly = np.polyfit(time, position, deg=self.degree, w=weights)
 
         future_x, future_y = np.polyval(poly, timing.cycle_length + timing.imaging_frame_num / 4)
 
