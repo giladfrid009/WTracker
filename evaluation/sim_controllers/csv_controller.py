@@ -50,7 +50,7 @@ class CsvController(SimController):
         return bboxes
 
     def _cycle_predict_all(self, sim: Simulator) -> list[tuple[float, float, float, float]]:
-        start = sim.cycle_number * self.timing_config.cycle_length
+        start = (sim.cycle_number-1) * self.timing_config.cycle_length
         end = start + self.timing_config.cycle_length
         end = min(end, len(self._data))
         return self.predict(sim, *range(start, end))
