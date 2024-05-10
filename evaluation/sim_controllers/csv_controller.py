@@ -20,7 +20,7 @@ class CsvController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
 
-    def predict(self, frame_nums: Collection) -> np.ndarray:
+    def predict(self, frame_nums: Collection[int]) -> np.ndarray:
         assert len(frame_nums) > 0
 
         frame_nums = np.asanyarray(frame_nums, dtype=int)

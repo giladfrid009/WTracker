@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.polynomial import polynomial
 
 from dataset.bbox_utils import *
 from evaluation.simulator import *
@@ -7,14 +8,36 @@ from dataset.bbox_utils import *
 
 
 class PolyfitController(CsvController):
-    def __init__(self, timing_config: TimingConfig, csv_path: str, degree: int = 1):
+    def __init__(
+        self,
+        timing_config: TimingConfig,
+        csv_path: str,
+        degree: int = 2,
+        weights: np.ndarray | None = None,
+        sample_times: np.ndarray | None = None,
+    ):
         super().__init__(timing_config, csv_path)
         self.degree = degree
+
+        timing = self.timing_config
+
+        if sample_times is None:
+            sample_times = np.arange(timing.imaging_frame_num - timing.pred_frame_num, -1, -timing.pred_frame_num)
+            sample_times = np.flip(sample_times)
+
+        sample_times = np.sort(sample_times)
+        self.sample_times = sample_times
+
+        if weights is None:
+            weights = np.exp(-(sample_times[-1] - sample_times) / timing.imaging_frame_num)
+            weights[-1] = 1000
+
+        self.weights = weights
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config
 
-        frame_nums = np.flip(np.arange(sim.frame_number - timing.pred_frame_num, -1, -timing.pred_frame_num))
+        frame_nums = sim.cycle_number * timing.cycle_length + self.sample_times
 
         bboxes = self.predict(frame_nums)
 
@@ -30,12 +53,9 @@ class PolyfitController(CsvController):
         if len(time) == 0:
             return 0, 0
 
-        #weights = np.ones_like(time)
-        weights = np.exp(-np.abs(time - time[-1]) / timing.cycle_length)
-        weights[-1] = 1000  # forces the polynomial to go through the last point
-        poly = np.polyfit(time, position, deg=self.degree, w=weights)
+        coeffs = polynomial.polyfit(time, position, deg=self.degree, w=self.weights)
 
-        future_x, future_y = np.polyval(poly, timing.cycle_length + timing.imaging_frame_num / 4)
+        future_x, future_y = polynomial.polyval(timing.cycle_length + timing.imaging_frame_num / 4, c=coeffs)
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2

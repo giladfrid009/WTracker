@@ -39,7 +39,7 @@ class Plotter:
         print("##################### Cycles #####################")
         print(f"Num of cycles: {self._data['cycle'].nunique()}")
         print("##################### Area Diff #####################")
-        
+
         data = self.data_prep_frames()
         non_perfect_pred_ratio = (data["bbox_area_diff"] > 1e-7).sum() / len(data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect_pred_ratio, 3)}%")
@@ -244,6 +244,16 @@ class Plotter:
             "bbox_area_diff",
             "Area Diff vs. Avg Speed",
         )
+
+    def plot_speed_hist(self, min_speed: float = None, num_bins: int = 40):
+        data = self.data_prep_frames()
+
+        speed = data.groupby("cycle")["wrm_speed"].mean()
+
+        if min_speed is not None:
+            speed = speed[speed >= min_speed]
+
+        plt.hist(speed, bins=num_bins)
 
     def plot_area_vs_dist(self, min_dist: float = None, min_diff: float = None):
         data = self.data_prep_frames()
