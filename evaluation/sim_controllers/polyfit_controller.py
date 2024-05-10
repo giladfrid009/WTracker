@@ -15,7 +15,7 @@ class PolyfitController(CsvController):
         degree: int = 2,
         weights: np.ndarray | None = None,
         sample_times: np.ndarray | None = None,
-    ):
+    ) -> None:
         super().__init__(timing_config, csv_path)
         self.degree = degree
 
@@ -33,6 +33,8 @@ class PolyfitController(CsvController):
             weights[-1] = 1000
 
         self.weights = weights
+
+        assert weights.shape[0] == sample_times.shape[0]
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config

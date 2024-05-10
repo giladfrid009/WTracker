@@ -10,6 +10,6 @@
         "waitkey"
     ],
     "python.analysis.typeCheckingMode": "off",
-    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoImportCompletions": false,
     "python.analysis.inlayHints.functionReturnTypes": true
 }
