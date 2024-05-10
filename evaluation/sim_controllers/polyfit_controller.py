@@ -37,9 +37,7 @@ class PolyfitController(CsvController):
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config
 
-        frame_nums = sim.cycle_number * timing.cycle_length + self.sample_times
-
-        bboxes = self.predict(frame_nums)
+        bboxes = self.predict(sim.cycle_number * timing.cycle_length + self.sample_times)
 
         # calculate mid coords
         bboxes[:, 0] = bboxes[:, 0] + bboxes[:, 2] / 2
@@ -47,7 +45,7 @@ class PolyfitController(CsvController):
 
         valid_mask = ~np.isnan(bboxes).any(axis=1)
 
-        time = frame_nums[valid_mask] - sim.cycle_number * timing.cycle_length
+        time = self.sample_times[valid_mask]
         position = bboxes[:, 0:2][valid_mask]
 
         if len(time) == 0:
