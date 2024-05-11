@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from typing import Collection
 
 from evaluation.config import TimingConfig
 
@@ -220,6 +221,25 @@ class Plotter:
         plt.title(title, fontsize=16)
         plt.tight_layout()
         plt.show()
+
+    def calc_mse(self, eval_frames: Collection[int] = None) -> float:
+        data = self.data_prep_frames()
+
+        if eval_frames is None:
+            eval_frames = list(
+                range(
+                    self.timing_config.cycle_length + self.timing_config.imaging_frame_num // 4,
+                    len(data),
+                    self.timing_config.cycle_length,
+                )
+            )
+
+        eval_data = data.loc[eval_frames]
+
+        mse = np.sum(eval_data["mic_center_x"] - eval_data["wrm_center_x"])**2 + np.sum(eval_data["mic_center_y"] - eval_data["wrm_center_y"])
+        mse = mse / (2 * len(eval_data))
+
+        return mse
 
     def plot_area_vs_speed(self, min_speed: float = None, min_diff: float = None):
         data = self.data_prep_frames()
