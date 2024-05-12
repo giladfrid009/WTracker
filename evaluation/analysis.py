@@ -15,11 +15,14 @@ class Plotter:
     def data_prep_frames(self, n: int = 1) -> pd.DataFrame:
         data = self._data.copy()
 
+        data["cycle_step"] = data["frame"] % self.timing_config.cycle_length # NEW
         data = Plotter.concat(data, Plotter.calc_centers(data, "wrm"))
         data = Plotter.concat(data, Plotter.calc_centers(data, "mic"))
         data = Plotter.remove_no_pred_rows(data)
         data = Plotter.concat(data, Plotter.calc_speed(data, n=n))
         data = Plotter.concat(data, Plotter.calc_area_diff(data), Plotter.calc_max_edge_diff(data))
+        data['worm_angle'] = Plotter.worm_angle(data, n=n) # NEW
+        data = Plotter.worm_deviation(data) # NEW
         data = Plotter.remove_cycle(data, 0)
         return data
 
@@ -31,7 +34,7 @@ class Plotter:
         data = Plotter.remove_cycle(data, 0)
         return data
 
-    def print_statistics(self) -> pd.DataFrame:
+    def print_statistics(self, n:int=1) -> pd.DataFrame:
         print("##################### No Preds #####################")
         no_pred_mask = np.ma.mask_or(self._data["wrm_x"].isna(), self._data["wrm_x"] < 0)
         no_pred_frames = (self._data[no_pred_mask])["frame"]
@@ -42,7 +45,7 @@ class Plotter:
         print(f"Num of cycles: {self._data['cycle'].nunique()}")
         print("##################### Area Diff #####################")
         
-        data = self.data_prep_frames()
+        data = self.data_prep_frames(n=n)
         non_perfect_pred_ratio = (data["bbox_area_diff"] > 1e-7).sum() / len(data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect_pred_ratio, 3)}%")
         print("##################### General #####################")
@@ -166,9 +169,11 @@ class Plotter:
         Calculate the worm speed and add it to the data.
         """
         frame_diff = data["frame"].diff(n).to_numpy()
+        wrm_speed_x = data["wrm_center_x"].diff(n) / frame_diff
+        wrm_speed_y = data["wrm_center_y"].diff(n) / frame_diff
         wrm_speed = np.sqrt(data["wrm_center_x"].diff(n) ** 2 + data["wrm_center_y"].diff(n) ** 2) / frame_diff
 
-        return pd.DataFrame({"wrm_speed": wrm_speed}, index=data.index)
+        return pd.DataFrame({"wrm_speed": wrm_speed, "wrm_speed_x":wrm_speed_x, "wrm_speed_y":wrm_speed_y}, index=data.index)
 
     @staticmethod
     def get_cycle_stats(data: pd.DataFrame, transforms: dict) -> pd.DataFrame:
@@ -185,10 +190,25 @@ class Plotter:
         return data[width_col] * data[height_col]
 
     @staticmethod
-    def rolling_average(data: pd.DataFrame, window_size: int, column: str) -> pd.DataFrame:
-        rolling_avg = data[column].rolling(window=window_size, center=False).mean()
+    def rolling_average(data: pd.DataFrame, window_size: int, column: str, centered=False) -> pd.DataFrame:
+        rolling_avg = data[column].rolling(window=window_size, center=centered).mean()
         return rolling_avg
 
+    @staticmethod
+    def worm_angle(data:pd.DataFrame, n:int=10) -> np.ndarray:
+        min_h, min_w = np.min(data["wrm_h"]), np.min(data["wrm_w"])
+        x_sign = np.sign(data["wrm_center_x"].diff(n))
+        y_sign = np.sign(data["wrm_center_y"].diff(n))
+        angle = np.arctan2((data['wrm_h']-min_h)*y_sign, (data['wrm_w']-min_w)*x_sign)
+        return angle
+    
+    @staticmethod
+    def worm_deviation(data:pd.DataFrame) -> pd.DataFrame:
+        data["worm_deviation_x"] = data["wrm_center_x"] - data["mic_center_x"]
+        data["worm_deviation_y"] = data["wrm_center_y"] - data["mic_center_y"]
+        data["worm_deviation"] = np.sqrt(data["worm_deviation_x"]**2 + data["worm_deviation_y"]**2)
+        return data
+    
     @staticmethod
     def scatter_data(
         data: pd.DataFrame,
@@ -339,8 +359,8 @@ class Plotter:
         g.set_axis_labels("cycle step", "worm speed")
         return g.figure
 
-    def plot_trajectory(self, hue:str='frame', condition=None):
-        data = self.data_prep_frames(n=1)
+    def plot_trajectory(self, n=1, hue:str='frame', condition=None):
+        data = self.data_prep_frames(n=n)
         if condition is not None:
             data = data[condition(data)]
 
