@@ -24,7 +24,12 @@ class CsvController(SimController):
         assert len(frame_nums) > 0
 
         frame_nums = np.asanyarray(frame_nums, dtype=int)
-        worm_bboxes = self._csv_data[frame_nums, :]
+
+        valid_mask = (frame_nums >= 0) & (frame_nums < self._csv_data.shape[0])
+
+        worm_bboxes = np.full((frame_nums.shape[0], 4), np.nan)
+
+        worm_bboxes[valid_mask] = self._csv_data[frame_nums[valid_mask], :]
 
         if not relative:
             return worm_bboxes

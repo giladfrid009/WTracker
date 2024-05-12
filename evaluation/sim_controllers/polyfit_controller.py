@@ -45,7 +45,6 @@ class PolyfitController(CsvController):
 
         assert weights.shape[0] == sample_times.shape[0]
 
-    # TODO: FIX
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config
 
