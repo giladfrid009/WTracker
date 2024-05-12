@@ -51,12 +51,12 @@ class PolyfitController(CsvController):
 
         bboxes = self.predict(sim.cycle_number * timing.cycle_length + self.sample_times, relative=False)
 
-        # make bboxes relative to current camera view
-        bboxes[:, 0] -= sim.camera.camera_size[0] / 2
-        bboxes[:, 1] -= sim.camera.camera_size[1] / 2
+        # make all bboxes relative to current camera view
+        camera_bbox = sim.camera._calc_view_bbox(*sim.camera.camera_size)
+        bboxes[:, 0] -= camera_bbox[0]
+        bboxes[:, 1] -= camera_bbox[1]
 
         positions = BoxUtils.center(bboxes)
-
         mask = ~np.isnan(positions).any(axis=1)
         time = self.sample_times[mask]
         position = positions[mask]
@@ -64,10 +64,10 @@ class PolyfitController(CsvController):
         if len(time) == 0:
             return 0, 0
 
-        coeffs = polynomial.polyfit(time, position, deg=self.degree, w=self.weights)
+        coeffs = np.polyfit(time, position, deg=self.degree, w=self.weights)
 
-        # predict future x and future y based on the polynomial
-        x_pred, y_pred = polynomial.polyval(timing.cycle_length + timing.imaging_frame_num // 2, c=coeffs)
+        # predict future x and future y based on the fitted polynomial
+        x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num // 2)
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
