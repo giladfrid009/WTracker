@@ -51,13 +51,10 @@ class CsvController(SimController):
         if np.isnan(bbox).any():
             return 0, 0
 
-        # calculate the speed of the worm based on both predictions
-        bbox_mid = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
+        center = BoxUtils.center(bbox)
+        cam_center = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
-        # calculate camera correction based on the speed of the worm and current worm position
-        camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
-
-        dx = round(bbox_mid[0] - camera_mid[0])
-        dy = round(bbox_mid[1] - camera_mid[1])
+        dx = round(center[0] - cam_center[0])
+        dy = round(center[1] - cam_center[1])
 
         return dx, dy

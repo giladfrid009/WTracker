@@ -45,12 +45,18 @@ class PolyfitController(CsvController):
 
         assert weights.shape[0] == sample_times.shape[0]
 
+    # TODO: FIX
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config
 
         bboxes = self.predict(sim.cycle_number * timing.cycle_length + self.sample_times, relative=False)
 
+        # make bboxes relative to current camera view
+        bboxes[:, 0] -= sim.camera.camera_size[0] / 2
+        bboxes[:, 1] -= sim.camera.camera_size[1] / 2
+
         positions = BoxUtils.center(bboxes)
+
         mask = ~np.isnan(positions).any(axis=1)
         time = self.sample_times[mask]
         position = positions[mask]

@@ -9,6 +9,7 @@ from evaluation.view_controller import ViewController
 from evaluation.config import *
 from evaluation.motor_controllers import MotorController, SimpleMotorController
 
+
 class Simulator:
     def __init__(
         self,
@@ -23,7 +24,10 @@ class Simulator:
         self._sim_controller = sim_controller
 
         if reader is None:
-            reader = DummyReader(experiment_config)
+            num_frames = experiment_config.num_frames
+            padding_size = (timing_config.camera_size_px[0] // 2 * 2, timing_config.camera_size_px[1] // 2 * 2)
+            resolution = tuple([sum(x) for x in zip(experiment_config.orig_resolution, padding_size)])
+            reader = DummyReader(num_frames, resolution)
 
         if motor_controller is None:
             motor_controller = SimpleMotorController(timing_config, move_after_ratio=0)
@@ -80,7 +84,7 @@ class Simulator:
                 if self.cycle_number > 0:
                     self._sim_controller.on_movement_end(self)
                     self._sim_controller.on_cycle_end(self)
-                
+
                 self._sim_controller.on_cycle_start(self)
 
             self._sim_controller.on_camera_frame(self)
@@ -159,4 +163,3 @@ class SimController(abc.ABC):
         Used internally for logging.
         """
         raise NotImplementedError()
-

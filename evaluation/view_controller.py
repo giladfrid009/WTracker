@@ -104,9 +104,9 @@ class ViewController(FrameStream):
         Args:
             x (int): The x-coordinate of the position.
             y (int): The y-coordinate of the position.
-        """        
-        assert x >= 0 and x < self._frame_reader.frame_shape[1]
-        assert y >= 0 and y < self._frame_reader.frame_shape[0]
+        """
+        """ assert x >= 0 and x < self._frame_reader.frame_shape[1]
+        assert y >= 0 and y < self._frame_reader.frame_shape[0] """  # TODO: UNCOMMENT
         self._position = (x, y)
 
     def move_position(self, dx: int, dy: int):

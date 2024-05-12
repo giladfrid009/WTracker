@@ -1,19 +1,17 @@
 import numpy as np
 
 from frame_reader import FrameReader
-from dataset.raw_dataset import ExperimentConfig
 
 
 class DummyReader(FrameReader):
-    def __init__(self, experiment_config: ExperimentConfig):
-        self.experiment_config = experiment_config
-        frames = [str(i) for i in range(experiment_config.num_frames)]
-
+    def __init__(self, num_frames: int, resolution: tuple[int, int]):
+        self._resolution = resolution
+        frames = [str(i) for i in range(num_frames)]
         super().__init__(".", frame_files=frames)
 
     def _extract_frame_shape(self) -> tuple[int, ...]:
-        return self.experiment_config.orig_resolution
+        return self._resolution
 
     def __getitem__(self, idx: int) -> np.ndarray:
-        frame = np.zeros(self.experiment_config.orig_resolution, dtype=np.uint8)
+        frame = np.zeros(self._resolution, dtype=np.uint8)
         return frame

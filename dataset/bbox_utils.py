@@ -100,37 +100,23 @@ class BoxUtils:
         bboxes = bboxes[good_mask]
 
         return BoxConverter.change_format(bboxes, BoxFormat.XYWH, box_format)
-    
-    @staticmethod
-    def center(bboxes: np.ndarray, box_format: BoxFormat=BoxFormat.XYWH) -> np.ndarray:
-        """
-        Calculate the center of the bounding boxes.
-
-        Args:
-            bboxes (np.ndarray): The input bounding boxes.
-            box_format (BoxFormat): The format of the input bounding boxes.
-
-        Returns:
-            np.ndarray: The center of the bounding boxes, in the format (center_x, center_y).
-        """
-        bboxes = BoxConverter.change_format(bboxes, box_format, BoxFormat.XYWH)
-        center_x = bboxes[:,0] + bboxes[:,2] / 2
-        center_y = bboxes[:,1] + bboxes[:,3] / 2
-        return np.array([center_x, center_y]).T
 
     @staticmethod
     def center(bboxes: np.ndarray, box_format: BoxFormat = BoxFormat.XYWH) -> np.ndarray:
         """
         Calculate the center of the bounding boxes.
+
         Args:
             bboxes (np.ndarray): The input bounding boxes.
             box_format (BoxFormat): The format of the input bounding boxes.
+
         Returns:
             np.ndarray: The center of the bounding boxes, in the format (center_x, center_y).
         """
         bboxes = BoxConverter.change_format(bboxes, box_format, BoxFormat.XYWH)
-        center_x = bboxes[:, 0] + bboxes[:, 2] / 2
-        center_y = bboxes[:, 1] + bboxes[:, 3] / 2
+        x, y, w, h = BoxUtils.unpack(bboxes)
+        center_x = x + w / 2
+        center_y = y + h / 2
         return np.array([center_x, center_y]).T
 
 
