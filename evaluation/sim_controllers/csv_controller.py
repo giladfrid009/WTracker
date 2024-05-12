@@ -20,11 +20,14 @@ class CsvController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
 
-    def predict(self, frame_nums: Collection[int]) -> np.ndarray:
+    def predict(self, frame_nums: Collection[int], relative: bool = True) -> np.ndarray:
         assert len(frame_nums) > 0
 
         frame_nums = np.asanyarray(frame_nums, dtype=int)
         worm_bboxes = self._csv_data[frame_nums, :]
+
+        if not relative:
+            return worm_bboxes
 
         cam_bboxes = [self._camera_bboxes[n % self.timing_config.cycle_length] for n in frame_nums]
         cam_bboxes = np.asanyarray(cam_bboxes, dtype=float)
@@ -45,7 +48,7 @@ class CsvController(SimController):
         bbox = self.predict([sim.frame_number - self.timing_config.pred_frame_num])
         bbox = bbox[0, :]
 
-        if np.isnan(bbox).any():  
+        if np.isnan(bbox).any():
             return 0, 0
 
         # calculate the speed of the worm based on both predictions

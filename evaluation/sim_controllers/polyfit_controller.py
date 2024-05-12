@@ -16,6 +16,16 @@ class PolyfitController(CsvController):
         weights: np.ndarray | None = None,
         sample_times: np.ndarray | None = None,
     ) -> None:
+        """
+        Args:
+            timing_config (TimingConfig): The timing configuration of the simulation.
+            csv_path (str): The path to the csv file with the worm data.
+            degree (int, optional): The degree of the polynomial to fit. Defaults to 2.
+            weights (np.ndarray, optional): The weights for the polynomial fitting. If None then all weights are 1.
+            sample_times (np.ndarray, optional): The sample times to use for the polynomial fitting.
+                If None then all samples are gathered from the current cycle, in intervals of pred_frame_num.
+                Value 0 marks the begging of the current cycle, negative values are allowed.
+        """
         super().__init__(timing_config, csv_path)
         self.degree = degree
 
@@ -29,8 +39,7 @@ class PolyfitController(CsvController):
         self.sample_times = sample_times
 
         if weights is None:
-            weights = np.exp(-(sample_times[-1] - sample_times) / timing.imaging_frame_num)
-            weights[-1] = 1000
+            weights = np.ones(sample_times.shape[0])
 
         self.weights = weights
 
@@ -39,28 +48,25 @@ class PolyfitController(CsvController):
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config
 
-        bboxes = self.predict(sim.cycle_number * timing.cycle_length + self.sample_times)
+        bboxes = self.predict(sim.cycle_number * timing.cycle_length + self.sample_times, relative=False)
 
-        # calculate mid coords
-        bboxes[:, 0] = bboxes[:, 0] + bboxes[:, 2] / 2
-        bboxes[:, 1] = bboxes[:, 1] + bboxes[:, 3] / 2
-
-        valid_mask = ~np.isnan(bboxes).any(axis=1)
-
-        time = self.sample_times[valid_mask]
-        position = bboxes[:, 0:2][valid_mask]
+        positions = BoxUtils.center(bboxes)
+        mask = ~np.isnan(positions).any(axis=1)
+        time = self.sample_times[mask]
+        position = positions[mask]
 
         if len(time) == 0:
             return 0, 0
 
         coeffs = polynomial.polyfit(time, position, deg=self.degree, w=self.weights)
 
-        future_x, future_y = polynomial.polyval(timing.cycle_length + timing.imaging_frame_num / 4, c=coeffs)
+        # predict future x and future y based on the polynomial
+        x_pred, y_pred = polynomial.polyval(timing.cycle_length + timing.imaging_frame_num // 2, c=coeffs)
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
-        dx = round(future_x - camera_mid[0])
-        dy = round(future_y - camera_mid[1])
+        dx = round(x_pred - camera_mid[0])
+        dy = round(y_pred - camera_mid[1])
 
         return dx, dy
