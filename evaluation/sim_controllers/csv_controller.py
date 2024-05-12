@@ -45,7 +45,7 @@ class CsvController(SimController):
         bbox = self.predict([sim.frame_number - self.timing_config.pred_frame_num])
         bbox = bbox[0, :]
 
-        if np.isnan(bbox).any():
+        if np.isnan(bbox).any():  
             return 0, 0
 
         # calculate the speed of the worm based on both predictions

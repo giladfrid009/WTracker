@@ -1,4 +1,5 @@
 import abc
+import numpy as np
 
 from evaluation.config import TimingConfig
 
@@ -31,3 +32,29 @@ class SimpleMotorController(MotorController):
 
     def step(self) -> tuple[int, int]:
         return self.queue.pop(0)
+
+
+class SineMotorController(MotorController):
+    def __init__(self, timing_config: TimingConfig):
+        super().__init__(timing_config)
+        self.queue: list = []
+
+    def _reset(self):
+        self.queue.clear()
+
+    def register_move(self, dx: int, dy: int) -> None:
+        for i in range(self.movement_steps):
+            step_size = (
+                np.cos((i * np.pi) / self.movement_steps) - np.cos(((i + 1) * np.pi) / self.movement_steps)
+            ) / 2
+            step = (step_size * dx, step_size * dy)
+            self.queue.append(step)
+
+    def step(self) -> tuple[int, int]:
+        dx, dy = self.queue.pop(0)
+        rdx, rdy = (round(dx), round(dy))
+        resid_x, resid_y = dx - rdx, dy - rdy
+        if self.queue:
+            self.queue[0] = (self.queue[0][0] + resid_x, self.queue[0][1] + resid_y)
+
+        return (rdx, rdy)  # TODO: remove round for more accurate movement
