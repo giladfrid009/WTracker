@@ -191,7 +191,6 @@ class VLC:
         h = self.get_attribute(prefix + "_h")
         return (x, y, w, h)
 
-    # TODO: FIX
     def add_pred(self, photo: np.ndarray) -> np.ndarray:
         x, y, w, h = self.get_bbox(self.cam_type)
         pred_x, pred_y, pred_w, pred_h = self.get_bbox("wrm")

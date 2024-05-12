@@ -43,8 +43,6 @@ class TestController1(CsvController):
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
 
-        # TODO: TUNE HEURISTIC OF future_x AND future_y CALCULATION
-
         future_x = bbox_new_mid[0] + speed_per_frame[0] * (
             self.timing_config.moving_frame_num
             + self.timing_config.pred_frame_num
