@@ -14,4 +14,5 @@ class DummyReader(FrameReader):
 
     def __getitem__(self, idx: int) -> np.ndarray:
         frame = np.zeros(self._resolution, dtype=np.uint8)
+        frame[:,:] = 255
         return frame
