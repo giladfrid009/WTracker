@@ -59,11 +59,12 @@ class PolyfitController(CsvController):
         mask = ~np.isnan(positions).any(axis=1)
         time = self.sample_times[mask]
         position = positions[mask]
+        weights = self.weights[mask]
 
         if len(time) == 0:
             return 0, 0
 
-        coeffs = np.polyfit(time, position, deg=self.degree, w=self.weights)
+        coeffs = np.polyfit(time, position, deg=self.degree, w=weights)
 
         # predict future x and future y based on the fitted polynomial
         x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num // 2)

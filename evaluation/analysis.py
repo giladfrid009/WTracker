@@ -294,6 +294,7 @@ class Plotter:
         if min_speed is not None:
             speed = speed[speed >= min_speed]
 
+        plt.title("Speed Histogram", fontsize=16)
         plt.hist(speed, bins=num_bins)
 
     def plot_area_vs_dist(self, min_dist: float = None, min_diff: float = None):
