@@ -11,7 +11,10 @@ class SampleExtractor:
         self._bbox_calculator = bbox_calculator
         self._frame_reader = bbox_calculator._frame_reader
 
-    def move_bboxes_into_bounds(self, bboxes: np.ndarray, frame_size: tuple[int, int]):
+    def move_bboxes_into_bounds(self, bboxes: np.ndarray, frame_size: tuple[int, int]) -> np.ndarray:
+        """
+        frame_size in format (w, h)
+        """
         max_w, max_h = frame_size
         x, y, w, h = BoxUtils.unpack(bboxes)
 
@@ -26,6 +29,9 @@ class SampleExtractor:
         y[mask] = max_h - h[mask]
 
         if np.any(x < 0) or np.any(y < 0):
+            raise ValueError()
+        
+        if np.any(x + w > frame_size[0]) or np.any(y + h > frame_size[1]):
             raise ValueError()
 
         return BoxUtils.pack(x, y, w, h)
@@ -53,7 +59,9 @@ class SampleExtractor:
         h = np.full_like(x, target_size[1])
 
         bboxes = BoxUtils.pack(x, y, w, h)
-        bboxes = self.move_bboxes_into_bounds(bboxes, self._frame_reader.frame_size)
+
+        frame_size = tuple(reversed(self._frame_reader.frame_size)) # (h, w) -> (w, h)
+        bboxes = self.move_bboxes_into_bounds(bboxes, frame_size)
 
         with FrameSaver(self._frame_reader, root_path=save_folder, desc="Saving samples", unit="fr") as saver:
             for i, bbox in enumerate(bboxes):

@@ -97,7 +97,7 @@ class YoloConfig(ConfigBase):
     verbose: bool = False
     pred_kwargs: dict = field(
         default_factory=lambda: {
-            "imgsz": 416,
+            "imgsz": 384,
             "conf": 0.1,
         }
     )

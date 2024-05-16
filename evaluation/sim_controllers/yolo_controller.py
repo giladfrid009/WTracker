@@ -57,7 +57,8 @@ class YoloController(SimController):
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         frame = self._camera_frames[-self.timing_config.pred_frame_num]
         bbox = self.predict([frame])
-
+        bbox = bbox[0]
+        
         if np.isnan(bbox).any():
             return 0, 0
 
