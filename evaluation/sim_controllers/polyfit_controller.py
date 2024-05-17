@@ -60,13 +60,53 @@ class PolyfitController(CsvController):
         time = self.sample_times[mask]
         position = positions[mask]
 
+        weights = self.weights[mask]
         if len(time) == 0:
             return 0, 0
 
-        coeffs = np.polyfit(time, position, deg=self.degree, w=self.weights)
+        coeffs = np.polyfit(time, position, deg=self.degree, w=weights)
 
         # predict future x and future y based on the fitted polynomial
-        x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num // 2)
+        x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num / 2)
+
+        # calculate camera correction based on the speed of the worm and current worm position
+        camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
+
+        dx = round(x_pred - camera_mid[0])
+        dy = round(y_pred - camera_mid[1])
+
+        return dx, dy
+    
+    def provide_moving_vector2(self, sim: Simulator) -> tuple[int, int]:
+        timing = self.timing_config
+
+        bboxes = self.predict(sim.cycle_number * timing.cycle_length + self.sample_times, relative=False)
+
+        # make all bboxes relative to current camera view
+        camera_bbox = sim.camera._calc_view_bbox(*sim.camera.camera_size)
+        bboxes[:, 0] -= camera_bbox[0]
+        bboxes[:, 1] -= camera_bbox[1]
+
+        positions = BoxUtils.center(bboxes)
+        mask = ~np.isnan(positions).any(axis=1)
+        time = self.sample_times[mask]
+        position = positions[mask]
+
+        weights = self.weights[mask]
+        if len(time) == 0:
+            return 0, 0
+        
+        weights1 = weights # np.asanyarray([0.0527 ,0.0031 ,0.0001 ,0.0061, 0.   ,  0.064,  0.8342, 0.0008 ,0.5452])
+        coeffs = np.polyfit(time, position, deg=1, w=weights)
+        x_pred, y_pred = np.polyval(coeffs, timing.cycle_length)
+
+        time = np.append(time, timing.cycle_length)
+        position = np.append(position, [[x_pred, y_pred]], axis=0)
+        weights = np.append(weights, np.mean(weights))
+        coeffs = np.polyfit(time, position, deg=self.degree, w=weights)
+
+        # predict future x and future y based on the fitted polynomial
+        x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num / 2)
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2

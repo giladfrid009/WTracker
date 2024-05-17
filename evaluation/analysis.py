@@ -233,7 +233,8 @@ class Plotter:
         print("Correlation Slope: {:.2f}".format(slope))
 
         data = data[[x_col, y_col]]
-        display(data.round(5).describe(percentiles=np.linspace(0.1, 0.9, 9, endpoint=True)))
+        sample = [0.6 , 0.7 , 0.8 , 0.85, 0.9 , 0.95]
+        display(data.round(5).describe(percentiles=np.round(np.linspace(0.05, 0.95, 19, endpoint=True), 2)))
 
         plt.subplots(figsize=(8, 6))
         plt.scatter(x_data, y_data, s=20, alpha=0.5)
