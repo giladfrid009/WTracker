@@ -75,6 +75,7 @@ class StreamViewer:
     def open(self):
         self.close()
         self.window = cv.namedWindow(self.window_name, flags=cv.WINDOW_GUI_EXPANDED)
+        # cv.displayStatusBar(self.window_name, "Press 'q' to close")
         # cv.setWindowProperty(self.window_name, cv.WINDOW_GUI_EXPANDED, 1)
 
     def close(self, key: str = "q"):
@@ -293,7 +294,7 @@ class VLC:
 
     def add_micro_box(self, photo: np.ndarray) -> None:
         mic_bbox = self.get_bbox("mic")
-        self.draw_box(photo, mic_bbox, (0, 0, 255), 2)
+        self.draw_box(photo, mic_bbox, (0, 0, 255), 1)
 
     def add_cam_box(self, photo: np.ndarray) -> None:
         cam_bbox = self.get_bbox("cam")
