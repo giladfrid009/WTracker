@@ -9,9 +9,13 @@ from evaluation.config import TimingConfig
 
 
 class Plotter:
-    def __init__(self, log_path: str=None, timing_config: TimingConfig):
-        if path is None:
-            path = filedialog.askopenfilename(title="open log path (bboxes.csv)", filetypes=[("csv",".csv"), ("Any type",".*")])
+    def __init__(self, log_path: str=None, timing_config: TimingConfig = None):
+        if log_path is None:
+            log_path = filedialog.askopenfilename(title="open log path (bboxes.csv)", filetypes=[("csv",".csv"), ("Any type",".*")])
+
+        if timing_config is None:
+            timing_config = TimingConfig.load_json()
+
         self._data = pd.read_csv(log_path)
         self._header = self._data.columns
         self.timing_config = timing_config
