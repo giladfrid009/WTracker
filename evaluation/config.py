@@ -1,5 +1,5 @@
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, InitVar
 import math
 from typing import Any
 from ultralytics import YOLO
@@ -11,6 +11,11 @@ from frame_reader import FrameReader
 
 @dataclass
 class TimingConfig(ConfigBase):
+    experiment_config: ExperimentConfig = field(repr=False)
+
+    px_per_mm: int = field(init=False)
+    mm_per_px: float = field(init=False)
+
     frames_per_sec: int
     ms_per_frame: float = field(init=False)
 
@@ -23,9 +28,6 @@ class TimingConfig(ConfigBase):
     moving_time_ms: float
     moving_frame_num: int = field(init=False)
 
-    px_per_mm: int
-    mm_per_px: float = field(init=False)
-
     camera_size_mm: tuple[float, float]
     camera_size_px: tuple[int, int] = field(init=False)
 
@@ -37,7 +39,9 @@ class TimingConfig(ConfigBase):
         self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.ms_per_frame)
         self.pred_frame_num = math.ceil(self.pred_time_ms / self.ms_per_frame)
         self.moving_frame_num = math.ceil(self.moving_time_ms / self.ms_per_frame)
-        self.mm_per_px = 1 / self.px_per_mm
+        
+        self.mm_per_px = self.experiment_config.mm_per_px
+        self.px_per_mm = self.experiment_config.px_per_mm
 
         self.camera_size_px = (
             round(self.px_per_mm * self.camera_size_mm[0]),
@@ -48,6 +52,8 @@ class TimingConfig(ConfigBase):
             round(self.px_per_mm * self.micro_size_mm[0]),
             round(self.px_per_mm * self.micro_size_mm[1]),
         )
+
+        del self.experiment_config # experiment_config was temporaty, only for the constructor
 
     @property
     def cycle_length(self) -> int:
