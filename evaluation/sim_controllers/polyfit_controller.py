@@ -58,16 +58,19 @@ class PolyfitController(CsvController):
         positions = BoxUtils.center(bboxes)
         mask = ~np.isnan(positions).any(axis=1)
         time = self.sample_times[mask]
-        position = positions[mask]
+        positions = positions[mask]
         weights = self.weights[mask]
 
         if len(time) == 0:
             return 0, 0
 
-        coeffs = np.polyfit(time, position, deg=self.degree, w=weights)
+        try:    
+            coeffs = np.polyfit(time, positions, deg=self.degree, w=weights)
 
-        # predict future x and future y based on the fitted polynomial
-        x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num // 2)
+            # predict future x and future y based on the fitted polynomial
+            x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num // 2)
+        except:
+            x_pred, y_pred = positions[-1, :]
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2

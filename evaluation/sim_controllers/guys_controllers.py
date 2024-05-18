@@ -83,8 +83,11 @@ class MLPController(CsvController):
         worm_bboxes[:, x_mask] -= x
         worm_bboxes[:, y_mask] -= y
         pred = self.model.forward(Tensor(worm_bboxes)).flatten().detach().numpy()
-        print(f"pred = {pred}")
-        return (round(pred[0].item() + rel_x), round(pred[1].item() + rel_y))
+        
+        dx = round(pred[0].item() + rel_x)
+        dy = round(pred[1].item() + rel_y)
+        print(f"pred = {(dx, dy)}")
+        return (dx, dy)
 
 
 

@@ -56,6 +56,9 @@ class MLP(nn.Module):
             in_dim = out_dim
             layers.append(nn.BatchNorm1d(out_dim))
             layers.append(self._make_activation(nonlins[i]))
+        
+        layers[-2] = nn.Identity()
+        layers[-1] = nn.Identity()
 
         self.sequence = nn.Sequential(*layers)
 

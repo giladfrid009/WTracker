@@ -14,6 +14,8 @@ class CsvController(SimController):
         self._csv_data = pd.read_csv(self.csv_path, usecols=["wrm_x", "wrm_y", "wrm_w", "wrm_h"]).to_numpy(dtype=float)
         self._camera_bboxes = deque(maxlen=timing_config.cycle_length)
 
+        print(self._csv_data.shape)
+
     def on_sim_start(self, sim: Simulator):
         self._camera_bboxes.clear()
 
