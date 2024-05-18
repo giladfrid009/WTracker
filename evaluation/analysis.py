@@ -3,12 +3,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Collection
+from tkinter import filedialog
 
 from evaluation.config import TimingConfig
 
 
 class Plotter:
-    def __init__(self, log_path: str, timing_config: TimingConfig):
+    def __init__(self, log_path: str=None, timing_config: TimingConfig):
+        if path is None:
+            path = filedialog.askopenfilename(title="open log path (bboxes.csv)", filetypes=[("csv",".csv"), ("Any type",".*")])
         self._data = pd.read_csv(log_path)
         self._header = self._data.columns
         self.timing_config = timing_config
@@ -227,7 +230,11 @@ class Plotter:
         x_data = data[x_col]
         y_data = data[y_col]
         corr = np.corrcoef(x_data, y_data)[0, 1]
-        slope = np.polyfit(x_data, y_data, 1)[0]
+        slope = 0.0
+        try:
+            slope = np.polyfit(x_data, y_data, 1)[0]
+        except:
+            pass
 
         print("Correlation Coefficient: {:.2f}".format(corr))
         print("Correlation Slope: {:.2f}".format(slope))
@@ -286,13 +293,16 @@ class Plotter:
             "Area Diff vs. Avg Speed",
         )
 
-    def plot_speed_hist(self, min_speed: float = None, num_bins: int = 40):
+    def plot_speed_hist(self, min_speed: float = None, max_speed: float = None, num_bins: int = 40):
         data = self.data_prep_frames()
 
         speed = data.groupby("cycle")["wrm_speed"].mean()
 
         if min_speed is not None:
             speed = speed[speed >= min_speed]
+
+        if max_speed is not None:
+            speed = speed[speed <= max_speed]
 
         plt.title("Speed Histogram", fontsize=16)
         plt.hist(speed, bins=num_bins)

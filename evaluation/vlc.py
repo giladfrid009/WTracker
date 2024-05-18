@@ -34,7 +34,6 @@ class StreamViewer:
         self.hotkeys: list[HotKey] = []
 
         self.register_hotkey(HotKey("q", self.close, "close the window"))
-        self.set_title(self.window_name)
 
     def register_hotkey(self, hotkey: HotKey):
         self.hotkeys.append(hotkey)
@@ -75,7 +74,9 @@ class StreamViewer:
     def open(self):
         self.close()
         self.window = cv.namedWindow(self.window_name, flags=cv.WINDOW_GUI_EXPANDED)
+        # cv.displayStatusBar(self.window_name, "Press 'q' to close")
         # cv.setWindowProperty(self.window_name, cv.WINDOW_GUI_EXPANDED, 1)
+        self.set_title(self.window_name)
 
     def close(self, key: str = "q"):
         if self.window is not None:
@@ -120,7 +121,14 @@ class VLC:
             log['plt_h'] = max(log['cam_y']) + max(log['cam_h'])
             log['plt_w'] = max(log['cam_x']) + max(log['cam_w'])
         # assert len(log.index) == len(self.reader)
+        pad_x = (log["cam_w"].to_numpy()//2).reshape(-1,1)
+        pad_y = (log["cam_h"].to_numpy()//2).reshape(-1,1)
+        log.loc[:,["cam_x", "mic_x", "wrm_x"]] = log[["cam_x", "mic_x", "wrm_x"]].values - pad_x
+        log.loc[:,["cam_y", "mic_y", "wrm_y"]] = log[["cam_y", "mic_y", "wrm_y"]].values - pad_y
+
+
         self._curr_row = log.iloc[self.index]
+
         return log
 
     def _init_hotkeys(self) -> None:
@@ -138,6 +146,7 @@ class VLC:
             print(f" - {hotkey.key} : {hotkey.description}")
 
     def _create_window(self):
+        self.streamer.open()
         self.streamer.create_trakbar("delay", 0, 250, self.set_delay)
         self.streamer.create_trakbar("#frame", 0, len(self.reader), self.seek)
 
@@ -252,12 +261,6 @@ class VLC:
         pred_w = ceil(pred_w)
         pred_h = ceil(pred_h)
 
-        if photo.shape[0] <= pred_x or photo.shape[1] <= pred_y:
-            print(
-                f"Warning::draw_box = ({pred_x}, {pred_y}, {pred_w}, {pred_h}) # cam = ({x}, {y}, {w}, {h})"
-            )
-            return
-
         # pred_x = max(pred_x, 0)
         # pred_y = max(pred_y, 0)
         # pred_w = min(pred_w, w)
@@ -293,7 +296,7 @@ class VLC:
 
     def add_micro_box(self, photo: np.ndarray) -> None:
         mic_bbox = self.get_bbox("mic")
-        self.draw_box(photo, mic_bbox, (0, 0, 255), 2)
+        self.draw_box(photo, mic_bbox, (0, 0, 255), 1)
 
     def add_cam_box(self, photo: np.ndarray) -> None:
         cam_bbox = self.get_bbox("cam")
