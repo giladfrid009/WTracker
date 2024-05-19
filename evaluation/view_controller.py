@@ -105,8 +105,9 @@ class ViewController(FrameStream):
             x (int): The x-coordinate of the position.
             y (int): The y-coordinate of the position.
         """
-        """ assert x >= 0 and x < self._frame_reader.frame_shape[1]
-        assert y >= 0 and y < self._frame_reader.frame_shape[0] """  # TODO: UNCOMMENT
+
+        x = np.clip(x, 0, self._frame_reader.frame_shape[1] - 1)
+        y = np.clip(y, 0, self._frame_reader.frame_shape[0] - 1)
         self._position = (x, y)
 
     def move_position(self, dx: int, dy: int):

@@ -3,7 +3,6 @@ from evaluation.sim_controllers import CsvController
 from dataset.bbox_utils import *
 
 
-# TODO: FIX
 class SpeedController(CsvController):
     def __init__(self, timing_config: TimingConfig, csv_path: str, prev_sample_offset: int = None):
         if prev_sample_offset is None:
