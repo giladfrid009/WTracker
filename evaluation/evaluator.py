@@ -1,11 +1,17 @@
 import numpy as np
 import cv2 as cv
 
+
 class Evaluator:
     def __init__(self, background: np.ndarray, diff_thresh: float):
         self._background = background
         self._diff_thresh = diff_thresh
 
+    # TODO: visualize the mask on real worm images to figure out if it's robust or not, and whether the morphological 
+    # ops we perform here are good or not. I think we probably dilate too much.
+    # another idea is to not find contours at all, but simply calculate the worm mask by thresholding the difference
+    # between the background and the given worm_view. that implementation will be way faster and can be vectorized over multiple 
+    # worm views at once.
     def find_contour(self, worm_view: np.ndarray, worm_bbox: tuple[int, int, int, int]) -> np.ndarray:
         worm_view = worm_view.astype(np.uint8, copy=False)
 
@@ -33,14 +39,18 @@ class Evaluator:
 
         return contour_mask
 
-    # calculates the error given a micro view and it's bbox, and also given a bbox of the worm.
-    # the error is calculated as the proportion of the body of the worm that is within the microscope view
+    # TODO: make implementation more efficient.
+    # perhaps accept a list of worm_bboxes and micro_bbox and of worm_views and calculate all errors at once
+    # note, that the function find_contour can't be vectorized to, and should process each worm_view separately
     def calc_error(
         self,
         worm_view: np.ndarray,
         worm_bbox: tuple[float, float, float, float],
         micro_bbox: tuple[int, int, int, int],
     ) -> float:
+        # calculates the error given a micro view and it's bbox, and also given a bbox of the worm.
+        # the error is calculated as the proportion of the body of the worm that is within the microscope view
+
         wrm_mask = self.find_contour(worm_view, worm_bbox)
 
         x_wrm, y_wrm, w_wrm, h_wrm = worm_bbox
