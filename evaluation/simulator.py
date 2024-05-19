@@ -3,8 +3,7 @@ import numpy as np
 import abc
 from tqdm.auto import tqdm
 
-from frame_reader import FrameReader
-from dummy_reader import DummyReader
+from frame_reader import FrameReader, DummyReader
 from evaluation.view_controller import ViewController
 from evaluation.config import *
 from evaluation.motor_controllers import MotorController, SimpleMotorController

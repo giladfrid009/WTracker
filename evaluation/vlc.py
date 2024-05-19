@@ -1,5 +1,5 @@
 from utils.path_utils import Files
-from dummy_reader import DummyReader
+from frame_reader import DummyReader
 
 import cv2 as cv
 from typing import Callable
