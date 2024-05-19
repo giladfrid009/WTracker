@@ -15,21 +15,16 @@ class OptimalController(CsvController):
         # extract portion matching next imaging phase
         next_imaging_start = (sim.cycle_number + 1) * self.timing_config.cycle_length
         next_imaging_end = next_imaging_start + self.timing_config.imaging_frame_num
-        
+
         next_imaging = self._csv_centers[next_imaging_start:next_imaging_end, :]
-        next_imaging = next_imaging[~np.isnan(next_imaging).any(axis=1)]
+        next_imaging = next_imaging[np.isfinite(next_imaging).all(axis=1)]
 
         if len(next_imaging) == 0:
             return 0, 0
 
-        x_mid, y_mid = np.median(next_imaging, axis=0)
+        x_next, y_next = np.median(next_imaging, axis=0)
 
-        # normalize worm position to camera view
-        cam_bbox = sim.camera._calc_view_bbox(*sim.camera.camera_size)
-        x_mid = x_mid - cam_bbox[0]
-        y_mid = y_mid - cam_bbox[1]
+        cam_x, cam_y, cam_w, cam_h = sim.view.camera_position
+        cam_mid = cam_x + cam_w / 2, cam_y + cam_h / 2
 
-        bbox_mid = x_mid, y_mid
-        cam_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
-
-        return round(bbox_mid[0] - cam_mid[0]), round(bbox_mid[1] - cam_mid[1])
+        return round(x_next - cam_mid[0]), round(y_next - cam_mid[1])

@@ -20,8 +20,10 @@ class CsvController(SimController):
         self._camera_bboxes.clear()
 
     def on_camera_frame(self, sim: Simulator):
-        self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
+        self._camera_bboxes.append(sim.view.camera_position)
 
+    # TODO: if relative = false, this function works only if frame number if within the last cycle.
+    # maybe fix that.
     def predict(self, frame_nums: Collection[int], relative: bool = True) -> np.ndarray:
         assert len(frame_nums) > 0
 
@@ -55,11 +57,11 @@ class CsvController(SimController):
         bbox = self.predict([sim.frame_number - self.timing_config.pred_frame_num])
         bbox = bbox[0, :]
 
-        if np.isnan(bbox).any():
+        if not np.isfinite(bbox).all():
             return 0, 0
 
         center = BoxUtils.center(bbox)
-        cam_center = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
+        cam_center = sim.view.camera_size[0] / 2, sim.view.camera_size[1] / 2
 
         dx = round(center[0] - cam_center[0])
         dy = round(center[1] - cam_center[1])

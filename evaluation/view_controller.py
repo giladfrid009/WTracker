@@ -97,9 +97,36 @@ class ViewController(FrameStream):
         """
         return self._micro_size
 
+    @property
+    def camera_position(self) -> tuple[int, int, int, int]:
+        """
+        Get the position of the camera view.
+
+        Returns:
+            tuple[int, int, int, int]: The position of the camera view (x, y, w, h).
+        """
+        w, h = self.camera_size
+        x = self._position[0] - w // 2
+        y = self._position[1] - h // 2
+        return x, y, w, h
+
+    @property
+    def micro_position(self) -> tuple[int, int, int, int]:
+        """
+        Get the position of the micro view.
+
+        Returns:
+            tuple[int, int, int, int]: The position of the micro view (x, y, w, h).
+        """
+        w, h = self.micro_size
+        x = self._position[0] - w // 2
+        y = self._position[1] - h // 2
+        return x, y, w, h
+
     def set_position(self, x: int, y: int):
         """
         Set the position of the view controller.
+        Note, that the position is clamped to the frame size.
 
         Args:
             x (int): The x-coordinate of the position.
@@ -122,7 +149,7 @@ class ViewController(FrameStream):
 
     def _calc_view_bbox(self, w: int, h: int) -> tuple[int, int, int, int]:
         """
-        Calculate the bbox of the view.
+        Calculate the bbox of the view, while taking padding into account.
 
         Args:
             w (int): The width of the view.

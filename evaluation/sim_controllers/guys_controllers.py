@@ -67,11 +67,11 @@ class MLPController(CsvController):
         frames_for_pred = np.asanyarray([0, -3, -15, -18, -30], dtype=int)  # .reshape(1, -1)
         frames_for_pred += sim.frame_number - self.timing_config.pred_frame_num
 
-        cam_center = BoxUtils.center(np.asanyarray(sim.camera._calc_view_bbox(*sim.camera.camera_size)))
+        cam_center = BoxUtils.center(np.asanyarray(sim.view.camera_position))
 
         worm_bboxes = self._csv_data[frames_for_pred, :].reshape(1, -1)
         rel_x, rel_y = worm_bboxes[0, 0] - cam_center[0], worm_bboxes[0, 1] - cam_center[1]
-        if np.isnan(worm_bboxes).any():
+        if not np.isfinite(worm_bboxes).all():
             return 0, 0
         x = worm_bboxes[0, 0]
         x_mask = np.arange(0, worm_bboxes.shape[1]) % 4 == 0
@@ -114,7 +114,7 @@ class Controller2(CsvController):
                 print("Warning::Controller1::No Pred")
                 return 0, 0
 
-        cam_x, cam_y, cam_w, cam_h = sim.camera._calc_view_bbox(*sim.camera.camera_size)
+        cam_x, cam_y, cam_w, cam_h = sim.view.camera_position
         bbox_list[0] = (bbox_list[0][0] + cam_x, bbox_list[0][1] + cam_y, bbox_list[0][2], bbox_list[0][3])
         bbox_list[1] = (bbox_list[1][0] + cam_x, bbox_list[1][1] + cam_y, bbox_list[1][2], bbox_list[1][3])
         self.pred_data.append(bbox_list[0])
@@ -187,7 +187,7 @@ class Controller1(CsvController):
             print("Warning::Controller1::No Pred")
             return 0, 0
 
-        cam_x, cam_y, cam_w, cam_h = sim.camera._calc_view_bbox(*sim.camera.camera_size)
+        cam_x, cam_y, cam_w, cam_h = sim.view.camera_position
         bbox_new = (bbox_new[0] + cam_x, bbox_new[1] + cam_y, bbox_new[2], bbox_new[3])
         self.pred_data.append(bbox_new)
 
@@ -204,7 +204,7 @@ class Controller1(CsvController):
         speed_per_frame = movement[0] / delta_t, movement[1] / delta_t
 
         # calculate camera correction based on the speed of the worm and current worm position
-        camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
+        camera_mid = sim.view.camera_size[0] / 2, sim.view.camera_size[1] / 2
 
         # TODO: TUNE HEURISTIC OF DX AND DY CALCULATION
 

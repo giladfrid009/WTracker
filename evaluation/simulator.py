@@ -33,7 +33,7 @@ class Simulator:
             motor_controller = SimpleMotorController(timing_config, move_after_ratio=0)
         self._motor_controller = motor_controller
 
-        self._camera = ViewController(
+        self._view = ViewController(
             frame_reader=reader,
             camera_size=timing_config.camera_size_px,
             micro_size=timing_config.micro_size_px,
@@ -41,45 +41,45 @@ class Simulator:
         )
 
     @property
-    def camera(self) -> ViewController:
-        return self._camera
+    def view(self) -> ViewController:
+        return self._view
 
     @property
     def position(self) -> tuple[int, int]:
-        return self._camera.position
+        return self._view.position
 
     @property
     def cycle_number(self) -> int:
-        return self._camera.index // self._timing_config.cycle_length
+        return self._view.index // self._timing_config.cycle_length
 
     @property
     def frame_number(self) -> int:
-        return self._camera.index
+        return self._view.index
 
     @property
     def cycle_step(self) -> int:
-        return self._camera.index % self._timing_config.cycle_length
+        return self._view.index % self._timing_config.cycle_length
 
     def camera_view(self) -> np.ndarray:
-        return self._camera.camera_view()
+        return self._view.camera_view()
 
     def micro_view(self) -> np.ndarray:
-        return self._camera.micro_view()
+        return self._view.micro_view()
 
     def _reset(self):
-        self.camera.reset()
-        self.camera.set_position(*self._experiment_config.init_position)
+        self.view.reset()
+        self.view.set_position(*self._experiment_config.init_position)
 
     def run(self, visualize: bool = False, wait_key: bool = False):
         config = self._timing_config
 
-        total_cycles = len(self._camera) // config.cycle_length
+        total_cycles = len(self._view) // config.cycle_length
         pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
 
         self._reset()
         self._sim_controller.on_sim_start(self)
 
-        while self._camera.progress():
+        while self._view.progress():
             if self.cycle_step == 0:
                 if self.cycle_number > 0:
                     self._sim_controller.on_movement_end(self)
@@ -103,13 +103,13 @@ class Simulator:
 
             if config.imaging_frame_num <= self.cycle_step < config.imaging_frame_num + config.moving_frame_num:
                 dx, dy = self._motor_controller.step()
-                self._camera.move_position(dx, dy)
+                self._view.move_position(dx, dy)
 
             if self.cycle_step == config.cycle_length - 1:
                 pbar.update(1)
 
             if visualize:
-                self._camera.visualize_world(timeout=0 if wait_key else 1)
+                self._view.visualize_world(timeout=0 if wait_key else 1)
 
         self._sim_controller.on_sim_end(self)
 

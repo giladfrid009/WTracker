@@ -66,8 +66,8 @@ class LoggingController(SimController):
 
         # log everything
         self._platform_positions.append(sim.position)
-        self._camera_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.camera_size))
-        self._micro_bboxes.append(sim.camera._calc_view_bbox(*sim.camera.micro_size))
+        self._camera_bboxes.append(sim.view.camera_position)
+        self._micro_bboxes.append(sim.view.micro_position)
 
         if self.log_config.save_err_view:
             cam_view = sim.camera_view()
@@ -81,7 +81,7 @@ class LoggingController(SimController):
 
         if self.log_config.save_mic_view:
             # save micro view
-            mic_view = sim.camera.micro_view()
+            mic_view = sim.view.micro_view()
             path = self.log_config.mic_file_path.format(sim.frame_number)
             self._image_saver.schedule_save(mic_view, path)
 
@@ -104,7 +104,7 @@ class LoggingController(SimController):
             csv_row["frame"] = frame_number
             csv_row["phase"] = phase
 
-            if not np.isnan(worm_bbox).any():
+            if np.isfinite(worm_bbox).all():
                 # format bbox to be have absolute position
                 cam_bbox = self._camera_bboxes[i]
                 worm_bbox = (worm_bbox[0] + cam_bbox[0], worm_bbox[1] + cam_bbox[1], worm_bbox[2], worm_bbox[3])

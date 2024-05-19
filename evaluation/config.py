@@ -1,5 +1,5 @@
 from __future__ import annotations
-from dataclasses import dataclass, field, InitVar
+from dataclasses import dataclass, field
 import math
 from typing import Any
 from ultralytics import YOLO
@@ -8,6 +8,7 @@ from utils.config_base import ConfigBase
 from utils.path_utils import join_paths, create_parent_directory
 from frame_reader import FrameReader
 
+# TODO: MOVE CONFIG CLASSES TO THEIR MATCHING FILES, EXCEPT TimingConfig AND ExperimentConfig which should remain here
 
 @dataclass
 class TimingConfig(ConfigBase):

@@ -59,11 +59,11 @@ class YoloController(SimController):
         bbox = self.predict([frame])
         bbox = bbox[0]
         
-        if np.isnan(bbox).any():
+        if not np.isfinite(bbox).all():
             return 0, 0
 
         bbox_mid = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
-        camera_mid = sim.camera.camera_size[0] / 2, sim.camera.camera_size[1] / 2
+        camera_mid = sim.view.camera_size[0] / 2, sim.view.camera_size[1] / 2
 
         return round(bbox_mid[0] - camera_mid[0]), round(bbox_mid[1] - camera_mid[1])
 
