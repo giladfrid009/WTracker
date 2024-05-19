@@ -86,7 +86,7 @@ class MLPController(CsvController):
         
         dx = round(pred[0].item() + rel_x)
         dy = round(pred[1].item() + rel_y)
-        print(f"pred = {(dx, dy)}")
+        #print(f"pred = {(dx, dy)}")
         return (dx, dy)
 
 
