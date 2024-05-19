@@ -16,7 +16,7 @@ class TimingConfig(ConfigBase):
     px_per_mm: int = field(init=False)
     mm_per_px: float = field(init=False)
 
-    frames_per_sec: int
+    frames_per_sec: int = field(init=False)
     ms_per_frame: float = field(init=False)
 
     imaging_time_ms: float
@@ -35,7 +35,10 @@ class TimingConfig(ConfigBase):
     micro_size_px: tuple[int, int] = field(init=False)
 
     def __post_init__(self):
-        self.ms_per_frame = 1000 / self.frames_per_sec
+
+        self.frames_per_sec = self.experiment_config.frames_per_sec
+        self.ms_per_frame = self.experiment_config.ms_per_frame
+
         self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.ms_per_frame)
         self.pred_frame_num = math.ceil(self.pred_time_ms / self.ms_per_frame)
         self.moving_frame_num = math.ceil(self.moving_time_ms / self.ms_per_frame)

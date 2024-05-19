@@ -27,7 +27,7 @@ class Simulator:
             num_frames = experiment_config.num_frames
             padding_size = (timing_config.camera_size_px[0] // 2 * 2, timing_config.camera_size_px[1] // 2 * 2)
             resolution = tuple([sum(x) for x in zip(experiment_config.orig_resolution, padding_size)])
-            reader = DummyReader(num_frames, resolution)
+            reader = DummyReader(num_frames, resolution, colored=True)
 
         if motor_controller is None:
             motor_controller = SimpleMotorController(timing_config, move_after_ratio=0)
