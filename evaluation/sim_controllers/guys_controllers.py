@@ -8,6 +8,8 @@ from neural.mlp import MLP
 from collections import deque
 from torch import Tensor
 
+# TODO: CLEAMUP FILE
+# TODO: add MLPConfig class
 
 class MLPController(CsvController):
     def __init__(self, timing_config: TimingConfig, csv_path: str, model: MLP):

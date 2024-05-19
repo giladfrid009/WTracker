@@ -2,7 +2,7 @@ import numpy as np
 
 from typing import Collection, Iterable
 from dataset.bbox_utils import BoxUtils
-from dataset.create.box_calculator import BoxCalculator
+from dataset.box_calculator import BoxCalculator
 from utils.io_utils import FrameSaver
 
 
