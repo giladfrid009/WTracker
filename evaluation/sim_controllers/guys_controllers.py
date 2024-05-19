@@ -8,7 +8,7 @@ from neural.mlp import MLP
 from collections import deque
 from torch import Tensor
 
-# TODO: CLEAMUP FILE
+# TODO: CLEAN UP this FILE
 # TODO: add MLPConfig class
 
 class MLPController(CsvController):

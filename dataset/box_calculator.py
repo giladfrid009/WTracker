@@ -1,11 +1,12 @@
 import cv2 as cv
 import numpy as np
-from typing import Collection, Iterable
+from typing import Collection
 from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
 import multiprocessing
 
 from frame_reader import FrameReader
+from dataset.bg_extractor import BGExtractor
 
 
 class BoxCalculator:
@@ -77,20 +78,8 @@ class BoxCalculator:
         return self._background
 
     def _calc_background(self) -> np.ndarray:
-        length = len(self._frame_reader)
-        size = min(self._bg_probes, length)
-
-        # get frames
-        frame_ids = np.random.choice(length, size=size, replace=False)
-        extracted_list = []
-        for frame_id in tqdm(frame_ids, desc="Extracting background frames", unit="fr"):
-            frame = self._frame_reader[frame_id]
-            extracted_list.append(frame)
-
-        # calculate the median along the time axis
-        extracted = np.stack(extracted_list, axis=0)
-        median = np.median(extracted, axis=0).astype(np.uint8, copy=False)
-        return median
+        bg_calc = BGExtractor(self._frame_reader)
+        return bg_calc.calc_background(self._bg_probes, spacing="random", method="median")
 
     def _calc_bounding_box(self, frame_idx: int) -> np.ndarray:
         # get mask according to the threshold value
