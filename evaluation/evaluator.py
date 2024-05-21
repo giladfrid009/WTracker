@@ -1,6 +1,9 @@
 import numpy as np
 import cv2 as cv
+from .vlc import StreamViewer
 
+# viewer = StreamViewer("Viewer")
+# viewer.start()
 
 class Evaluator:
     def __init__(self, background: np.ndarray, diff_thresh: float):

@@ -83,6 +83,12 @@ class StreamViewer:
             cv.destroyWindow(self.window_name)
             self.window = None
 
+    def imshow(self, image: np.ndarray, title: str = "image"):
+        self.update(image, wait=0)
+        self.set_title(title)
+        cv.setWindowProperty(self.window_name, cv.WND_PROP_TOPMOST, 1)
+
+
 
 class VLC:
     def __init__(
