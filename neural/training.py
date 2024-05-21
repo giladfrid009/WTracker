@@ -6,16 +6,11 @@ import torch.nn as nn
 import torch.nn.functional
 import tqdm.auto
 from torch import Tensor
-from typing import Any, Tuple, Callable, Optional, cast
+from typing import Any, Tuple, Callable, Optional, cast, Union
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 
 from neural.train_results import FitResult, BatchResult, EpochResult
-from neural.mlp import MLP
-
-# from .classifier import Classifier
-# from .layers import Layer
-
 
 class Trainer(abc.ABC):
     """
@@ -107,7 +102,6 @@ class Trainer(abc.ABC):
                 best_val_loss = curr_val_loss
                 epochs_without_improvement = 0
                 if checkpoints is not None:
-
                     self.save_checkpoint(checkpoints, curr_val_loss)
             else:
                 epochs_without_improvement += 1
@@ -228,7 +222,7 @@ class Trainer(abc.ABC):
 
 
 class MLPTrainer(Trainer):
-    def __init__(self, model: MLP, loss_fn: nn.Module, optimizer: Optimizer, device: Optional[torch.device] = None):
+    def __init__(self, model: nn.Module, loss_fn: nn.Module, optimizer: Optimizer, device: Optional[torch.device] = None):
         super().__init__(model, device)
         self.loss_fn = loss_fn
         self.optimizer = optimizer
@@ -239,15 +233,13 @@ class MLPTrainer(Trainer):
             X = X.to(self.device)
             y = y.to(self.device)
 
-        self.model: MLP
+        self.model: nn.Module
         self.optimizer.zero_grad()
         preds = self.model.forward(X)
         loss = self.loss_fn(preds, y)
         loss.backward()
-        # self.model.backward(dl)
         self.optimizer.step()
 
-        # preds = torch.argmax(preds, dim=1)
         num_correct = torch.sum((preds - y).norm(dim=1) < 1.0)
 
         return self._make_batch_result(loss, num_correct)
@@ -260,107 +252,9 @@ class MLPTrainer(Trainer):
             y = y.to(self.device)
 
         preds = self.model.forward(X)
-        # preds = torch.argmax(probs, dim=1)
+
         num_correct = torch.sum((preds - y).norm(dim=1) < 1.0)
         loss = self.loss_fn(preds, y)
 
         return self._make_batch_result(loss, num_correct)
     
-
-# class ClassifierTrainer(Trainer):
-#     """
-#     Trainer for our Classifier-based models.
-#     """
-
-#     def __init__(
-#         self,
-#         model: Classifier,
-#         loss_fn: nn.Module,
-#         optimizer: Optimizer,
-#         device: Optional[torch.device] = None,
-#     ):
-#         """
-#         Initialize the trainer.
-#         :param model: Instance of the classifier model to train.
-#         :param loss_fn: The loss function to evaluate with.
-#         :param optimizer: The optimizer to train with.
-#         :param device: torch.device to run training on (CPU or GPU).
-#         """
-#         super().__init__(model, device)
-#         self.optimizer = optimizer
-#         self.loss_fn = loss_fn
-
-#     def train_batch(self, batch) -> BatchResult:
-#         X, y = batch
-#         if self.device:
-#             X = X.to(self.device)
-#             y = y.to(self.device)
-
-#         loss: Tensor
-#         self.optimizer.zero_grad()
-#         scores = self.model.forward(X)
-#         y_hot = torch.nn.functional.one_hot(y, num_classes=scores.size(1))
-#         loss = self.loss_fn(scores, y_hot.float())
-#         loss.backward()
-#         self.optimizer.step()
-
-#         preds = self.model.classify_scores(scores)
-#         num_correct = torch.sum(preds == y)
-
-#         return self._make_batch_result(loss, num_correct)
-
-#     @torch.no_grad()
-#     def test_batch(self, batch) -> BatchResult:
-#         X, y = batch
-#         if self.device:
-#             X = X.to(self.device)
-#             y = y.to(self.device)
-
-#         self.model: Classifier
-#         scores = self.model.forward(X)
-#         y_hot = torch.nn.functional.one_hot(y, num_classes=scores.size(1))
-#         loss = self.loss_fn(scores, y_hot.float())
-#         preds = self.model.classify_scores(scores)
-#         num_correct = torch.sum(preds == y)
-
-#         return self._make_batch_result(loss, num_correct)
-
-
-# class LayerTrainer(Trainer):
-#     def __init__(self, model: Layer, loss_fn: Layer, optimizer: Optimizer):
-#         super().__init__(model)
-#         self.loss_fn = loss_fn
-#         self.optimizer = optimizer
-
-#     def train_batch(self, batch) -> BatchResult:
-#         X, y = batch
-#         if self.device:
-#             X = X.to(self.device)
-#             y = y.to(self.device)
-
-#         self.model: Layer
-#         self.optimizer.zero_grad()
-#         probs = self.model.forward(X)
-#         loss = self.loss_fn(probs, y)
-#         dl = self.loss_fn.backward()
-#         self.model.backward(dl)
-#         self.optimizer.step()
-
-#         preds = torch.argmax(probs, dim=1)
-#         num_correct = torch.sum(preds == y)
-
-#         return self._make_batch_result(loss, num_correct)
-
-#     @torch.no_grad()
-#     def test_batch(self, batch) -> BatchResult:
-#         X, y = batch
-#         if self.device:
-#             X = X.to(self.device)
-#             y = y.to(self.device)
-
-#         probs = self.model.forward(X)
-#         preds = torch.argmax(probs, dim=1)
-#         num_correct = torch.sum(preds == y)
-#         loss = self.loss_fn(probs, y)
-
-#         return self._make_batch_result(loss, num_correct)
