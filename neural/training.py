@@ -13,6 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from neural.train_results import FitResult, BatchResult, EpochResult
 
+
 class Trainer(abc.ABC):
     """
     A class abstracting the various tasks of training models.
@@ -27,8 +28,8 @@ class Trainer(abc.ABC):
         self,
         model: nn.Module,
         device: Optional[torch.device] = None,
-        log:bool = False,
-        log_dir:str = 'runs'
+        log: bool = False,
+        log_dir: str = None,
     ):
         """
         Initialize the trainer.
@@ -37,7 +38,7 @@ class Trainer(abc.ABC):
         """
         self.model = model
         self.device = device
-        self.logger = None if not log else SummaryWriter(log_dir)
+        self.logger = None if not log else SummaryWriter()
         if self.logger is not None:
             self.logger.add_hparams({"model": model.__class__.__name__}, {})
             self.logger.add_hparams({"device": str(device)}, {})
@@ -47,16 +48,22 @@ class Trainer(abc.ABC):
 
     def _make_batch_result(self, loss, num_correct) -> BatchResult:
         loss = loss.item() if isinstance(loss, Tensor) else loss
-        num_correct = num_correct.item() if isinstance(num_correct, Tensor) else num_correct
+        num_correct = (
+            num_correct.item() if isinstance(num_correct, Tensor) else num_correct
+        )
         return BatchResult(float(loss), int(num_correct))
 
-    def _make_fit_result(self, num_epochs, train_losses, train_acc, test_losses, test_acc) -> FitResult:
+    def _make_fit_result(
+        self, num_epochs, train_losses, train_acc, test_losses, test_acc
+    ) -> FitResult:
         num_epochs = num_epochs.item() if isinstance(num_epochs, Tensor) else num_epochs
         train_losses = [x.item() if isinstance(x, Tensor) else x for x in train_losses]
         train_acc = [x.item() if isinstance(x, Tensor) else x for x in train_acc]
         test_losses = [x.item() if isinstance(x, Tensor) else x for x in test_losses]
         test_acc = [x.item() if isinstance(x, Tensor) else x for x in test_acc]
-        return FitResult(int(num_epochs), train_losses, train_acc, test_losses, test_acc)
+        return FitResult(
+            int(num_epochs), train_losses, train_acc, test_losses, test_acc
+        )
 
     def fit(
         self,
@@ -86,7 +93,7 @@ class Trainer(abc.ABC):
         epochs_without_improvement = 0
         train_loss, train_acc, test_loss, test_acc = [], [], [], []
         best_val_loss = None
-        
+
         # add graph to tensorboard
         if self.logger is not None:
             self.logger.add_graph(self.model, next(iter(dl_train))[0])
@@ -95,7 +102,9 @@ class Trainer(abc.ABC):
             actual_epoch_num += 1
             verbose = False  # pass this to train/test_epoch.
 
-            if print_every > 0 and (epoch % print_every == 0 or epoch == num_epochs - 1):
+            if print_every > 0 and (
+                epoch % print_every == 0 or epoch == num_epochs - 1
+            ):
                 verbose = True
 
             self._print(f"--- EPOCH {epoch+1}/{num_epochs} ---", verbose)
@@ -109,9 +118,19 @@ class Trainer(abc.ABC):
             test_acc.append(test_result.accuracy)
             # log results to tensorboard
             if self.logger is not None:
-                epoch_log = {"train_loss": train_result.losses, "train_acc": train_result.accuracy, "test_loss": test_result.losses, "test_acc": test_result.accuracy}
-                self.logger.add_scalars("losses", epoch_log, epoch)
-                self.logger.add_scalar("learning_rate", self.optimizer.param_groups[0]["lr"], epoch)
+                epoch_loss = {
+                    "train_loss": Tensor(train_result.losses).mean(),
+                    "test_loss": Tensor(test_result.losses).mean(),
+                }
+                self.logger.add_scalars("losses", epoch_loss, epoch)
+                epoch_accuracy = {
+                    "train_acc": train_result.accuracy,
+                    "test_acc": test_result.accuracy,
+                }
+                self.logger.add_scalars("accuracy", epoch_accuracy, epoch)
+                self.logger.add_scalar(
+                    "learning_rate", self.optimizer.param_groups[0]["lr"], epoch
+                )
 
             curr_val_loss = Tensor(test_result.losses).mean().item()
             if best_val_loss is None or curr_val_loss < best_val_loss:
@@ -121,12 +140,19 @@ class Trainer(abc.ABC):
                     self.save_checkpoint(checkpoints, curr_val_loss)
             else:
                 epochs_without_improvement += 1
-                if early_stopping is not None and epochs_without_improvement >= early_stopping:
+                if (
+                    early_stopping is not None
+                    and epochs_without_improvement >= early_stopping
+                ):
                     break
 
-        return self._make_fit_result(actual_epoch_num, train_loss, train_acc, test_loss, test_acc)
+        return self._make_fit_result(
+            actual_epoch_num, train_loss, train_acc, test_loss, test_acc
+        )
 
-    def save_checkpoint(self, checkpoint_filename: str, loss: Optional[float] = None) -> None:
+    def save_checkpoint(
+        self, checkpoint_filename: str, loss: Optional[float] = None
+    ) -> None:
         """
         Saves the model in it's current state to a file with the given name (treated
         as a relative path).
@@ -231,7 +257,11 @@ class Trainer(abc.ABC):
 
             avg_loss = sum(losses) / num_batches
             accuracy = 100.0 * num_correct / num_samples
-            pbar.set_description(f"{pbar_name} " f"(Avg. Loss {avg_loss:.3f}, " f"Accuracy {accuracy:.2f}%)")
+            pbar.set_description(
+                f"{pbar_name} "
+                f"(Avg. Loss {avg_loss:.3f}, "
+                f"Accuracy {accuracy:.2f}%)"
+            )
 
         if not verbose:
             pbar_file.close()
@@ -240,15 +270,26 @@ class Trainer(abc.ABC):
 
 
 class MLPTrainer(Trainer):
-    def __init__(self, model: nn.Module, loss_fn: nn.Module, optimizer: Optimizer, device: Optional[torch.device] = None):
-        super().__init__(model, device)
+    def __init__(
+        self,
+        model: nn.Module,
+        loss_fn: nn.Module,
+        optimizer: Optimizer,
+        device: Optional[torch.device] = None,
+        log: bool = False,
+        log_dir: str = "runs",
+    ):
+        super().__init__(model, device, log=log, log_dir=log_dir)
         self.loss_fn = loss_fn
         self.optimizer = optimizer
-        
+
         if self.logger is not None:
             self.logger.add_hparams({"loss_fn": loss_fn.__class__.__name__}, {})
             self.logger.add_hparams({"optimizer": optimizer.__class__.__name__}, {})
-            optimizer_params = optimizer.param_groups[0].updaate({"params": []})
+            optimizer_params = {}
+            for key, val in optimizer.param_groups[0].items():
+                optimizer_params[key] = str(val)
+            optimizer_params.update({"params": ""})
             self.logger.add_hparams(optimizer_params, {})
 
     def train_batch(self, batch) -> BatchResult:
@@ -281,4 +322,3 @@ class MLPTrainer(Trainer):
         loss = self.loss_fn(preds, y)
 
         return self._make_batch_result(loss, num_correct)
-    
