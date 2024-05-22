@@ -4,11 +4,9 @@ from torch import Tensor
 import torch
 import pandas as pd
 import numpy as np
-from dataclasses import dataclass
 
-from utils.config_base import ConfigBase
 from evaluation.analysis import Plotter
-from config import DatasetConfig
+from .config import DatasetConfig
 
 
 class numpyDataset(Dataset):
@@ -35,7 +33,7 @@ class numpyDataset(Dataset):
         data = pd.read_csv(config.log_path)
         start_idx = abs(min(config.input_frames)) + 1
         X_mask = np.asanyarray(config.input_frames)
-        y_mask = np.asanyarray([config.pred_frame])
+        y_mask = np.asanyarray(config.pred_frames)
 
         data = Plotter.concat(data, Plotter.calc_centers(data, "wrm"))
         
@@ -43,16 +41,19 @@ class numpyDataset(Dataset):
         wrm_boxes = data[['wrm_x', 'wrm_y', 'wrm_w', 'wrm_h']].to_numpy(dtype=np.float64)
         
         # Create columns for X and y
-        cols = ['wrm_x', 'wrm_y', 'wrm_w', 'wrm_h']
-        y_cols = ['wrm_center_x', 'wrm_center_y']
+        X_cols_prefix = ['wrm_x', 'wrm_y', 'wrm_w', 'wrm_h']
+        y_cols_prefix = ['wrm_center_x', 'wrm_center_y']
         X_cols = []
+        y_cols = []
         for i in config.input_frames:
-            X_cols += [col+str(i) for col in cols]
+            X_cols += [col+str(i) for col in X_cols_prefix]
+        for i in config.pred_frames:
+            y_cols += [col+str(i) for col in y_cols_prefix]
         
         # Create X and y
         X = pd.DataFrame(index=data.index, columns=X_cols)
         y = pd.DataFrame(index=data.index, columns=y_cols)
-        for i in range(start_idx, len(data)-config.pred_frame-1):
+        for i in range(start_idx, len(data)-max(config.pred_frames)-1):
             X.iloc[i] = wrm_boxes[i + X_mask].reshape(1, -1)
             y.iloc[i] = wrm_centers[i + y_mask].reshape(1, -1)
 
@@ -65,14 +66,16 @@ class numpyDataset(Dataset):
         y = y.to_numpy(dtype=np.float32, copy=True)
 
         # make X and y coordinates relative to the prediction frame
-        x_cord_mask = np.arange(X.shape[1]) % 4 == 0
-        y_cord_mask = np.arange(X.shape[1]) % 4 == 1
-        
         x_cords = X[:, 0].reshape(-1, 1)
         y_cords = X[:, 1].reshape(-1, 1)
 
-        y[:, [0]] -= x_cords
-        y[:, [1]] -= y_cords
+        x_cord_mask = np.arange(y.shape[1]) % 2 == 0
+        y_cord_mask = np.arange(y.shape[1]) % 2 == 1
+        y[:, x_cord_mask] -= x_cords
+        y[:, y_cord_mask] -= y_cords
+
+        x_cord_mask = np.arange(X.shape[1]) % 4 == 0
+        y_cord_mask = np.arange(X.shape[1]) % 4 == 1
         X[:, x_cord_mask] -= x_cords#
         X[:, y_cord_mask] -= y_cords#.reshape(-1, 1)
         
