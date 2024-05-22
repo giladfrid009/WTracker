@@ -1,6 +1,5 @@
 from __future__ import annotations
-import dataclasses
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, MISSING
 import json
 import tkinter as tk
 from tkinter import filedialog
@@ -50,18 +49,23 @@ class ConfigBase:
             json.dump(self.__dict__, f, indent=4)
 
     @classmethod
-    def print_initialization(cls):
+    def print_initialization(cls, include_default:bool=True, init_fields_only:bool=True) -> str:
         """
         Print the initialization of the class as a string
         """
         print(f"{cls.__name__}(")
         for field in fields(cls):
-            if field.init is False:
+            if init_fields_only and field.init is False:
                 continue
-            val = None if isinstance(field.default, dataclasses._MISSING_TYPE) else field.default
+            
+            is_default = not isinstance(field.default, type(MISSING))
+            val = None
+            if include_default and is_default:
+                val = field.default
+
             if type(val) is str:
                 val = f'f"{val}"'
-            print(f"    {field.name}:{field.type} = {val},")
+            print(f"    {field.name} = {val}, # {field.type.__name__}")
         print(")")
 
 

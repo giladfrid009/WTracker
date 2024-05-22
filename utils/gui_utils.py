@@ -13,11 +13,11 @@ class UserPrompt:
      
     @staticmethod
     def file_path(path:str=None, title:str=None, file_types:tuple[str] = [], **kwargs) -> str:
-        if path is not None:
-            return path
-        file_types += [("all files", "*.*")]
-        return filedialog.askopenfilename(title=title, filetypes=file_types, **kwargs)
-
+        if path is None:
+            file_types += [("all files", "*.*")]
+            path = filedialog.askopenfilename(title=title, filetypes=file_types, **kwargs)
+        return path
+    
     @staticmethod
     def directory_path(title:str=None, **kwargs) -> str:
         
@@ -28,12 +28,6 @@ class UserPrompt:
         file_types += [("all files", "*.*")]
         return filedialog.asksaveasfilename(title=title, filetypes=file_types, **kwargs)
 
-class FilePath:
-    def __init__(self, path:str=None, title:str=None, file_types:tuple[str] = [], **kwargs):
-        self.path = UserPrompt.file_path(path, title, file_types, **kwargs)
-    
-    def __str__(self):
-        return self.path
 
 @dataclass
 class ExampleDataClass:
