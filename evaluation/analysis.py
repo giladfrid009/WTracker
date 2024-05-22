@@ -415,3 +415,24 @@ class Plotter:
         ax.invert_yaxis()
         fig.tight_layout()
         plt.show()
+
+    def plot_histogram(self, x_col:str, n:int=1, stat:str='count', hue=None, condition=None, transform=None, **kwargs):
+        data = self.data_prep_frames(n=n)
+        
+        if transform is not None:
+            data = transform(data)
+        if condition is not None:
+            data = data[condition(data)]
+        fig, ax = plt.subplots()
+        sns.histplot(data=data, x=x_col, hue=hue, stat=stat, **kwargs)
+
+    def plot_jointplot(self, x_col:str, y_col:str, n:int=1, kind:str='scatter', hue=None, condition=None, transform=None, **kwargs):
+        data = self.data_prep_frames(n=n)
+        
+        if transform is not None:
+            data = transform(data)
+            
+        if condition is not None:
+            data = data[condition(data)]
+        
+        sns.jointplot(data=data, x=x_col, y=y_col, hue=hue, kind=kind, **kwargs)
