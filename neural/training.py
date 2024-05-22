@@ -9,6 +9,7 @@ from torch import Tensor
 from typing import Any, Tuple, Callable, Optional, cast, Union
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
 from neural.train_results import FitResult, BatchResult, EpochResult
 
@@ -26,6 +27,8 @@ class Trainer(abc.ABC):
         self,
         model: nn.Module,
         device: Optional[torch.device] = None,
+        log:bool = False,
+        log_dir:str = 'runs'
     ):
         """
         Initialize the trainer.
@@ -34,6 +37,10 @@ class Trainer(abc.ABC):
         """
         self.model = model
         self.device = device
+        self.logger = None if not log else SummaryWriter(log_dir)
+        if self.logger is not None:
+            self.logger.add_hparams({"model": model.__class__.__name__}, {})
+            self.logger.add_hparams({"device": str(device)}, {})
 
         if self.device:
             model.to(self.device)
@@ -79,6 +86,10 @@ class Trainer(abc.ABC):
         epochs_without_improvement = 0
         train_loss, train_acc, test_loss, test_acc = [], [], [], []
         best_val_loss = None
+        
+        # add graph to tensorboard
+        if self.logger is not None:
+            self.logger.add_graph(self.model, next(iter(dl_train))[0])
 
         for epoch in range(num_epochs):
             actual_epoch_num += 1
@@ -96,6 +107,11 @@ class Trainer(abc.ABC):
             train_acc.append(train_result.accuracy)
             test_loss.extend(test_result.losses)
             test_acc.append(test_result.accuracy)
+            # log results to tensorboard
+            if self.logger is not None:
+                epoch_log = {"train_loss": train_result.losses, "train_acc": train_result.accuracy, "test_loss": test_result.losses, "test_acc": test_result.accuracy}
+                self.logger.add_scalars("losses", epoch_log, epoch)
+                self.logger.add_scalar("learning_rate", self.optimizer.param_groups[0]["lr"], epoch)
 
             curr_val_loss = Tensor(test_result.losses).mean().item()
             if best_val_loss is None or curr_val_loss < best_val_loss:
@@ -116,6 +132,8 @@ class Trainer(abc.ABC):
         as a relative path).
         :param checkpoint_filename: File name or relative path to save to.
         """
+        if self.logger is not None:
+            checkpoint_filename = f"{self.logger.log_dir}/{checkpoint_filename}"
         torch.save(self.model, checkpoint_filename)
         print(f"\n*** Saved checkpoint {checkpoint_filename} :: val_loss={loss:.3f}")
 
@@ -226,6 +244,12 @@ class MLPTrainer(Trainer):
         super().__init__(model, device)
         self.loss_fn = loss_fn
         self.optimizer = optimizer
+        
+        if self.logger is not None:
+            self.logger.add_hparams({"loss_fn": loss_fn.__class__.__name__}, {})
+            self.logger.add_hparams({"optimizer": optimizer.__class__.__name__}, {})
+            optimizer_params = optimizer.param_groups[0].updaate({"params": []})
+            self.logger.add_hparams(optimizer_params, {})
 
     def train_batch(self, batch) -> BatchResult:
         X, y = batch
