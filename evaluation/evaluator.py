@@ -2,8 +2,7 @@ import numpy as np
 import cv2 as cv
 from .vlc import StreamViewer
 
-# viewer = StreamViewer("Viewer")
-# viewer.start()
+
 
 class Evaluator:
     def __init__(self, background: np.ndarray, diff_thresh: float):
@@ -21,7 +20,7 @@ class Evaluator:
         # get mask according to the threshold value
         x, y, w, h = worm_bbox
 
-        assert (w, h) == worm_view.shape[:2]
+        assert (h, w) == worm_view.shape[:2]
 
         bg = self._background[y : y + h, x : x + w]
 
@@ -29,18 +28,18 @@ class Evaluator:
         _, mask = cv.threshold(diff, self._diff_thresh, 255, cv.THRESH_BINARY)
 
         # apply morphological ops to the mask
-        mask = cv.morphologyEx(mask, cv.MORPH_OPEN, np.ones((5, 5), np.uint8))
-        mask = cv.dilate(mask, np.ones((11, 11), np.uint8))
+        # mask = cv.morphologyEx(mask, cv.MORPH_OPEN, np.ones((5, 5), np.uint8))
+        # mask = cv.dilate(mask, np.ones((11, 11), np.uint8))
 
         # extract contours
-        contours, _ = cv.findContours(mask[:, :, 0], cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
-        largest_contour = max(contours, key=cv.contourArea)
+        # contours, _ = cv.findContours(mask[:, :, 0], cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+        # largest_contour = max(contours, key=cv.contourArea)
 
-        img = np.zeros_like(worm_view, dtype=np.uint8)
-        cv.drawContours(img, largest_contour, -1, color=(1, 1, 1), thickness=cv.FILLED)
-        contour_mask = img.astype(bool, copy=False).any(axis=-1)
+        # img = np.zeros_like(worm_view, dtype=np.uint8)
+        # cv.drawContours(img, largest_contour, -1, color=(1, 1, 1), thickness=cv.FILLED)
+        # contour_mask = img.astype(bool, copy=False).any(axis=-1)
 
-        return contour_mask
+        return mask
 
     # TODO: make implementation more efficient.
     # perhaps accept a list of worm_bboxes and micro_bbox and of worm_views and calculate all errors at once

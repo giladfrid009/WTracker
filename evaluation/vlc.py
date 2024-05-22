@@ -116,9 +116,7 @@ class VLC:
         self.log: pd.DataFrame = self._load_log(log_path)
         self.reader: FrameReader = self._create_reader(files)
 
-        self.initialize()
-
-    def initialize(self):
+    def initialize(self) -> None:
         self._init_hotkeys()
         self._create_window()
         self.streamer.update_trakbar("delay", round(self.config.ms_per_frame))
@@ -172,6 +170,14 @@ class VLC:
         filenames = [f for f in files]
         reader = FrameReader(files.root, filenames)
         return reader
+    
+    def __enter__(self):
+        self.streamer.open()
+        self.initialize()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.streamer.close()
 
     def _get_title(self):
         curr_phase = self.get_attribute("phase")
@@ -189,8 +195,6 @@ class VLC:
         return title
 
     def get_attribute(self, col_name: str):
-        # log_row = self.log.iloc[self.index]
-        # return log_row[col_name]
         return self._curr_row[col_name]
 
     def update_curr_row(self):
@@ -241,12 +245,12 @@ class VLC:
         self.show_cam = not self.show_cam
 
     def mainloop(self):
-        with self.streamer as streamer:
+        with self as vlc:
             while not self.exit:
                 delay = 0 if not self.play else self.delay
                 if self.play:
                     self.next()
-                streamer.waitKey(delay)
+                vlc.streamer.waitKey(delay)
 
     def get_bbox(self, prefix: str) -> tuple[float, float, float, float]:
         x = self.get_attribute(prefix + "_x")
