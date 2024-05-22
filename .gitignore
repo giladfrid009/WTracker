@@ -12,7 +12,7 @@ samples_all
 tiger-pose
 logs
 logs2
-*.csv
+logs/*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
