@@ -1,20 +1,20 @@
-from utils.path_utils import Files
+from utils.path_utils import Files, create_directory, join_paths
+from utils.io_utils import ImageSaver
 from frame_reader import DummyReader
 
 import cv2 as cv
 from typing import Callable
 from dataclasses import dataclass, field
 import matplotlib
-
 matplotlib.use("QTAgg")
 
 from frame_reader import FrameReader
-from evaluation.view_controller import ViewController
 from evaluation.simulator import TimingConfig
 import pandas as pd
 import numpy as np
 import cv2 as cv
 from math import ceil, floor
+import os
 
 
 @dataclass
@@ -74,6 +74,7 @@ class StreamViewer:
     def open(self):
         self.close()
         self.window = cv.namedWindow(self.window_name, flags=cv.WINDOW_GUI_EXPANDED)
+        cv.setWindowProperty(self.window_name, cv.WND_PROP_TOPMOST, 1)
         # cv.displayStatusBar(self.window_name, "Press 'q' to close")
         # cv.setWindowProperty(self.window_name, cv.WINDOW_GUI_EXPANDED, 1)
         self.set_title(self.window_name)
@@ -89,10 +90,16 @@ class StreamViewer:
         cv.setWindowProperty(self.window_name, cv.WND_PROP_TOPMOST, 1)
 
 
-
 class VLC:
     def __init__(
-        self, files: Files, config: TimingConfig, log_path: str, cam_type: str = None
+        self,
+        files: Files,
+        config: TimingConfig,
+        log_path: str,
+        cam_type: str,
+        show_pred=True,
+        show_micro=False,
+        show_cam=False,
     ) -> None:
         self.streamer = StreamViewer()
         self.index = 0
@@ -100,16 +107,15 @@ class VLC:
         self.exit = False
         self.delay = 0
         self.play = False
-        self.show_pred = False
-        self.show_micro = False
-        self.show_cam = False
+        self.show_pred = show_pred
+        self.show_micro = show_micro
+        self.show_cam = show_cam
 
         self.cam_type: str = cam_type
         self.config: TimingConfig = config
         self.log: pd.DataFrame = self._load_log(log_path)
         self.reader: FrameReader = self._create_reader(files)
-        
-        
+
         self.initialize()
 
     def initialize(self):
@@ -121,17 +127,12 @@ class VLC:
         if log_path is None:
             return None
         log = pd.read_csv(log_path, index_col="frame")
-        if self.cam_type == 'plt':
-            log['plt_x'] = 0
-            log['plt_y'] = 0
-            log['plt_h'] = max(log['cam_y']) + max(log['cam_h'])
-            log['plt_w'] = max(log['cam_x']) + max(log['cam_w'])
+        if self.cam_type == "plt":
+            log["plt_x"] = 0
+            log["plt_y"] = 0
+            log["plt_h"] = max(log["cam_y"]) + max(log["cam_h"])
+            log["plt_w"] = max(log["cam_x"]) + max(log["cam_w"])
         # assert len(log.index) == len(self.reader)
-        pad_x = (log["cam_w"].to_numpy()//2).reshape(-1,1)
-        pad_y = (log["cam_h"].to_numpy()//2).reshape(-1,1)
-        log.loc[:,["cam_x", "mic_x", "wrm_x"]] = log[["cam_x", "mic_x", "wrm_x"]].values - pad_x
-        log.loc[:,["cam_y", "mic_y", "wrm_y"]] = log[["cam_y", "mic_y", "wrm_y"]].values - pad_y
-
 
         self._curr_row = log.iloc[self.index]
 
@@ -142,8 +143,12 @@ class VLC:
         self.streamer.register_hotkey(HotKey("d", self.next, "next frame"))
         self.streamer.register_hotkey(HotKey("a", self.prev, "previous frame"))
         self.streamer.register_hotkey(HotKey("p", self.toggle_play, "play/pause"))
-        self.streamer.register_hotkey(HotKey("h", self.toggle_pred, "toggle prediction box"))
-        self.streamer.register_hotkey(HotKey("m", self.toggle_micro, "toggle microscope box"))
+        self.streamer.register_hotkey(
+            HotKey("h", self.toggle_pred, "toggle prediction box")
+        )
+        self.streamer.register_hotkey(
+            HotKey("m", self.toggle_micro, "toggle microscope box")
+        )
         self.streamer.register_hotkey(HotKey("c", self.toggle_cam, "toggle camera box"))
 
     def print_hotkeys(self):
@@ -152,7 +157,6 @@ class VLC:
             print(f" - {hotkey.key} : {hotkey.description}")
 
     def _create_window(self):
-        self.streamer.open()
         self.streamer.create_trakbar("delay", 0, 250, self.set_delay)
         self.streamer.create_trakbar("#frame", 0, len(self.reader), self.seek)
 
@@ -160,8 +164,8 @@ class VLC:
         if files is None:
             frame_num = len(self.log.index)
             frame_size = (
-                self.get_attribute(self.cam_type+"_h"),
-                self.get_attribute(self.cam_type+"_w"),
+                self.get_attribute(self.cam_type + "_h"),
+                self.get_attribute(self.cam_type + "_w"),
             )
             return DummyReader(frame_num, frame_size)
 
@@ -170,7 +174,6 @@ class VLC:
         return reader
 
     def _get_title(self):
-        frame_num = self.index
         curr_phase = self.get_attribute("phase")
         phase_title = f"Action: {curr_phase}"
 
@@ -189,7 +192,7 @@ class VLC:
         # log_row = self.log.iloc[self.index]
         # return log_row[col_name]
         return self._curr_row[col_name]
-    
+
     def update_curr_row(self):
         self._curr_row = self.log.iloc[self.index]
 
@@ -230,7 +233,7 @@ class VLC:
 
     def toggle_pred(self, key: str = None):
         self.show_pred = not self.show_pred
-    
+
     def toggle_micro(self, key: str = None):
         self.show_micro = not self.show_micro
 
@@ -259,6 +262,8 @@ class VLC:
         color: tuple[int, int, int] = (0, 0, 255),
         width: int = 1,
     ) -> None:
+        if any(bbox) is np.nan:
+            return
         x, y, w, h = self.get_bbox(self.cam_type)
         pred_x, pred_y, pred_w, pred_h = bbox
 
@@ -267,14 +272,10 @@ class VLC:
         pred_w = ceil(pred_w)
         pred_h = ceil(pred_h)
 
-        # pred_x = max(pred_x, 0)
-        # pred_y = max(pred_y, 0)
-        # pred_w = min(pred_w, w)
-        # pred_h = min(pred_h, h)
         cv.rectangle(
             photo, (pred_x, pred_y), (pred_x + pred_w, pred_y + pred_h), color, width
         )
-    
+
     def draw_marker(
         self,
         photo: np.ndarray,
@@ -286,17 +287,15 @@ class VLC:
         thickness: int = 1,
     ) -> None:
         frame_x, frame_y, frame_w, frame_h = self.get_bbox(self.cam_type)
-        x, y = floor(x-frame_x), floor(y-frame_y)
+        x, y = floor(x - frame_x), floor(y - frame_y)
         cv.drawMarker(photo, (x, y), color, marker_type, marker_size, thickness)
 
-    def draw_center(self, photo:np.ndarray):
-        x, y, w, h = self.get_bbox('mic')
+    def draw_center(self, photo: np.ndarray):
+        x, y, w, h = self.get_bbox("mic")
         center = (x + w // 2, y + h // 2)
         cv.drawMarker(photo, center, (0, 0, 255), cv.MARKER_CROSS, 7, 1)
 
     def add_pred(self, photo: np.ndarray) -> None:
-        # x, y, w, h = self.get_bbox(self.cam_type)
-        # pred_x, pred_y, pred_w, pred_h = self.get_bbox("wrm")
         worm_bbox = self.get_bbox("wrm")
         self.draw_box(photo, worm_bbox, (0, 0, 0), 1)
 
@@ -308,11 +307,31 @@ class VLC:
         cam_bbox = self.get_bbox("cam")
         self.draw_box(photo, cam_bbox, (128, 0, 0), 2)
 
+    def save_stream(
+        self,
+        folder_path: str,
+    ) -> None:
+        create_directory(folder_path)
+        filename = f"{self.cam_type}_" + "{:07d}.png"
 
+        worker = ImageSaver(folder_path, tqdm_kwargs={"total": len(self.log.index)})
+        worker.start()
 
+        for index in range(len(self.log.index)):
+            self.index = index
+            self.update_curr_row()
 
+            path = join_paths(folder_path, filename.format(index))
+            img = self.get_photo()
+            worker.schedule_save(img, path)
+        
+        worker.close()
 
-
-
-
-
+        image_format = filename.replace("{:", "%").replace("}", "")
+        self.make_vid(folder_path, image_format, folder_path)
+    
+    def make_vid(self, folder_path: str, img_name_format:str, output_dir: str) -> None:
+        fps = self.config.frames_per_sec
+        command = f"ffmpeg -framerate {fps} -start_number 0 -i {join_paths(folder_path, img_name_format)} -c:v copy {join_paths(output_dir, "0_output.mp4")}"
+        print(command)
+        os.system(command)
