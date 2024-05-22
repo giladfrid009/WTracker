@@ -4,14 +4,14 @@ from torch.optim import Optimizer
 from torch.utils.data import Dataset
 from typing import Any, Tuple, Callable, Optional, cast, Union
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from utils.config_base import ConfigBase
 
 
 @dataclass
 class DatasetConfig(ConfigBase):
     input_frames: list[int]
-    pred_frame: int
+    pred_frames: list[int]
     log_path: str
 
     def __post_init__(self):
@@ -22,7 +22,7 @@ class DatasetConfig(ConfigBase):
 @dataclass
 class TrainConfig(ConfigBase):
     # general parameters
-    seed: int = 42 # Random seed for reproducibility
+    seed: int = field(default=42, kw_only=True) # Random seed for reproducibility
     dataset:Dataset
 
     # trainer parameters
@@ -35,11 +35,11 @@ class TrainConfig(ConfigBase):
     num_epochs: int = 100 # Number of times to iterate over the dataset
     checkpoints: str = None # Path to save model checkpoints
     early_stopping: int = None, # Number of epochs to wait before stopping training if no improvement was made
-    print_every: int = 1, # How often (#epochs) to print training progress
+    print_every: int = 5, # How often (#epochs) to print training progress
     
     # optimizer parameters
     learning_rate: float = 0.001 # Learning rate for the optimizer
-    weight_decay: float = 0.0 # Weight decay for the optimizer (regularization, values typically in range [0.0, 1e-4] but can be bigger)
+    weight_decay: float = 1e-5 # Weight decay for the optimizer (regularization, values typically in range [0.0, 1e-4] but can be bigger)
     
     # dataloader parameters
     batch_size: int = 64 # Number of samples in each batch
@@ -56,12 +56,27 @@ class TrainConfig(ConfigBase):
         # self.device = torch.device(self.device)
 
 
+@dataclass
+class IOConfig:
+    input_frames: list[int]
+    pred_frames: list[int]
+
+    in_dim: int = field(init=False)
+    out_dim: int = field(init=False)
 
 
+@dataclass
+class ModuleConfig:
+    name:str
+    args:dict[str, Any]
 
+    def initialize():
+        pass
 
-
-
+@dataclass
+class NetworkConfig:
+    io: IOConfig
+    architecture: list[ModuleConfig]
 
 
 
