@@ -3,6 +3,7 @@ from torch import Tensor, nn
 from typing import Union, Sequence
 from collections import defaultdict
 
+
 ACTIVATIONS = {
     "relu": nn.ReLU,
     "tanh": nn.Tanh,
@@ -84,7 +85,7 @@ class MLPLayer(nn.Module):
 
     def __init__(
         self, in_dim: int, out_dim: Sequence[int], nonlin: Union[str, nn.Module], batch_norm: bool = True
-    ):
+    ) -> None:
         """
         :param in_dim: Input dimension.
         :param dims: Hidden dimensions, including output dimension.
