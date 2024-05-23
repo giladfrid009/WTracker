@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 
 # TODO: test implementation on real images. we're using numpy directly since it's faster than opencv
-class ErrorCalc:
+class ErrorCalculator:
     def __init__(self, background: np.ndarray, diff_thresh: float):
         self._diff_thresh = diff_thresh
         self._background = self._to_grayscale(background)
