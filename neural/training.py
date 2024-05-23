@@ -29,7 +29,6 @@ class Trainer(abc.ABC):
         model: nn.Module,
         device: Optional[torch.device] = None,
         log: bool = False,
-        log_dir: str = None,
     ):
         """
         Initialize the trainer.
@@ -40,8 +39,8 @@ class Trainer(abc.ABC):
         self.device = device
         self.logger = None if not log else SummaryWriter()
         if self.logger is not None:
-            self.logger.add_hparams({"model": model.__class__.__name__}, {})
-            self.logger.add_hparams({"device": str(device)}, {})
+            self.logger.add_hparams({"model": model.__class__.__name__}, {}, run_name="hparams")
+            self.logger.add_hparams({"device": str(device)}, {}, run_name="hparams")
 
         if self.device:
             model.to(self.device)
@@ -118,19 +117,11 @@ class Trainer(abc.ABC):
             test_acc.append(test_result.accuracy)
             # log results to tensorboard
             if self.logger is not None:
-                epoch_loss = {
-                    "train_loss": Tensor(train_result.losses).mean(),
-                    "test_loss": Tensor(test_result.losses).mean(),
-                }
-                self.logger.add_scalars("losses", epoch_loss, epoch)
-                epoch_accuracy = {
-                    "train_acc": train_result.accuracy,
-                    "test_acc": test_result.accuracy,
-                }
-                self.logger.add_scalars("accuracy", epoch_accuracy, epoch)
-                self.logger.add_scalar(
-                    "learning_rate", self.optimizer.param_groups[0]["lr"], epoch
-                )
+                self.logger.add_scalar("loss/train", Tensor(train_result.losses).mean(), epoch)
+                self.logger.add_scalar("loss/test", Tensor(test_result.losses).mean(), epoch)
+                self.logger.add_scalars("accuracy/train", train_result.accuracy, epoch)
+                self.logger.add_scalars("accuracy/test", test_result.accuracy, epoch)
+                self.logger.add_scalar("learning_rate", self.optimizer.param_groups[0]["lr"], epoch)
 
             curr_val_loss = Tensor(test_result.losses).mean().item()
             if best_val_loss is None or curr_val_loss < best_val_loss:
@@ -267,6 +258,10 @@ class Trainer(abc.ABC):
             pbar_file.close()
 
         return EpochResult(losses=losses, accuracy=accuracy)
+    
+    def log_hparam(self, hparam_dict:dict[str, Any], metric_dict:dict[str, Any]={}, run_name:str="hparams"):
+        if self.logger is not None:
+            self.logger.add_hparams(hparam_dict, metric_dict, run_name=run_name)
 
 
 class MLPTrainer(Trainer):
@@ -277,20 +272,19 @@ class MLPTrainer(Trainer):
         optimizer: Optimizer,
         device: Optional[torch.device] = None,
         log: bool = False,
-        log_dir: str = "runs",
     ):
-        super().__init__(model, device, log=log, log_dir=log_dir)
+        super().__init__(model, device, log=log)
         self.loss_fn = loss_fn
         self.optimizer = optimizer
 
         if self.logger is not None:
-            self.logger.add_hparams({"loss_fn": loss_fn.__class__.__name__}, {})
-            self.logger.add_hparams({"optimizer": optimizer.__class__.__name__}, {})
+            self.logger.add_hparams({"loss_fn": loss_fn.__class__.__name__}, {}, run_name="hparams")
+            self.logger.add_hparams({"optimizer": optimizer.__class__.__name__}, {}, run_name="hparams")
             optimizer_params = {}
             for key, val in optimizer.param_groups[0].items():
                 optimizer_params[key] = str(val)
             optimizer_params.update({"params": ""})
-            self.logger.add_hparams(optimizer_params, {})
+            self.logger.add_hparams(optimizer_params, {}, run_name="hparams")
 
     def train_batch(self, batch) -> BatchResult:
         X, y = batch
