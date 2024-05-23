@@ -1,4 +1,3 @@
-import torch
 from torch import Tensor, nn
 from typing import Union, Sequence
 from collections import defaultdict
@@ -27,75 +26,14 @@ ACTIVATION_DEFAULT_KWARGS = defaultdict(
     },
 )
 
-# Do not Change this, otherwise the current best model will be lost
-class MLP(nn.Module):
-    """
-    A general-purpose MLP.
-    """
-
-    def __init__(
-        self, in_dim: int, dims: Sequence[int], nonlins: Sequence[Union[str, nn.Module]]
-    ):
-        """
-        :param in_dim: Input dimension.
-        :param dims: Hidden dimensions, including output dimension.
-        :param nonlins: Non-linearities to apply after each one of the hidden
-            dimensions.
-            Can be either a sequence of strings which are keys in the ACTIVATIONS
-            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).
-            Length should match 'dims'.
-        """
-        assert len(nonlins) == len(dims)
-        self.in_dim = in_dim
-        self.out_dim = dims[-1]
-        self.dims = dims
-        self.nonlins = nonlins
-
-        super().__init__()
-
-        layers = []
-        for i, out_dim in enumerate(self.dims):
-            layers.append(nn.Linear(in_dim, out_dim))
-            in_dim = out_dim
-            layers.append(nn.BatchNorm1d(out_dim))
-            layers.append(self._make_activation(nonlins[i]))
-
-        layers[-2] = nn.Identity()
-        layers[-1] = nn.Identity()
-
-        self.sequence = nn.Sequential(*layers)
-
-    def _make_activation(self, act: Union[str, nn.Module]) -> nn.Module:
-        if isinstance(act, str):
-            return ACTIVATIONS[act](**ACTIVATION_DEFAULT_KWARGS[act])
-        return act
-
-    def forward(self, x: Tensor) -> Tensor:
-        """
-        :param x: An input tensor, of shape (N, D) containing N samples with D features.
-        :return: An output tensor of shape (N, D_out) where D_out is the output dim.
-        """
-        return self.sequence.forward(x.reshape(x.size(0), -1))
-
-
 class MLPLayer(nn.Module):
     """
-    A general-purpose MLP.
+    A single layer perceptron, that can hold a bach-norm and activation layers as well.
     """
 
     def __init__(
         self, in_dim: int, out_dim: Sequence[int], nonlin: Union[str, nn.Module], batch_norm: bool = True
     ) -> None:
-        """
-        :param in_dim: Input dimension.
-        :param dims: Hidden dimensions, including output dimension.
-        :param nonlins: Non-linearities to apply after each one of the hidden
-            dimensions.
-            Can be either a sequence of strings which are keys in the ACTIVATIONS
-            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).
-            Length should match 'dims'.
-        """
-
         super().__init__()
 
         layers = []
@@ -186,30 +124,20 @@ class RMLP(nn.Module):
     ) -> None:
         super().__init__()
         
-
-        self.input = nn.Identity()
         # Create first layer if in_dim is not None
+        self.input = nn.Identity()
         if in_dim is not None:
             self.input = MLPLayer(in_dim, block_in_dim, block_nonlins[0], batch_norm)
-            # layers = []
-            # layers.append(nn.Linear(in_dim, block_in_dim))
-            # if batch_norm:
-            #     layers.append(nn.BatchNorm1d(block_in_dim))
-            # layers.append(self._make_activation(block_nonlins[0]))
-            # self.input = nn.Sequential(*layers)
         
         # Create blocks
         layers = []
         for i in range(n_blocks):
             layers.append(
-                MlpBlock(
-                    block_in_dim, block_dims, block_nonlins, batch_norm
-                )
+                MlpBlock(block_in_dim, block_dims, block_nonlins, batch_norm)
             )
-        
-        # Create output layer
-        
+
         self.blocks = nn.ModuleList(layers)
+        # Create output layer
         self.output = nn.Linear(block_dims[-1], out_dim)
 
     def _make_activation(self, act: Union[str, nn.Module]) -> nn.Module:
