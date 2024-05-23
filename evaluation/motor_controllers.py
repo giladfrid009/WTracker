@@ -1,10 +1,22 @@
 import abc
 import numpy as np
 
-from evaluation.config import TimingConfig
+from .config import TimingConfig
 
 
 class MotorController(abc.ABC):
+    """
+    Abstract base class for motor controllers used in the Simulator class.
+
+    Attributes:
+        timing_config (TimingConfig): The timing configuration for the motor controller.
+        movement_steps (int): The number of movement steps (in units of frames) based on the timing configuration.
+
+    Methods:
+        register_move(dx: int, dy: int): Abstract method to register a move. This is called on the start of the moving phase according to the controller prediction.
+        step() -> tuple[int, int]: Abstract method to perform a step (called in each frame in the simulation) and return the resulting position.
+    """
+
     def __init__(self, timing_config: TimingConfig):
         self.timing_config = timing_config
         self.movement_steps = self.timing_config.moving_frame_num
@@ -19,6 +31,20 @@ class MotorController(abc.ABC):
 
 
 class SimpleMotorController(MotorController):
+    """
+    A simple motor controller that manages the movement of a motor. 
+    The motor moved the entire distance in one step, the movement happens after 'move_after_ratio' percent of 'movement_steps' have passed.
+
+    Args:
+        timing_config (TimingConfig): The timing configuration for the motor controller.
+        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move. Defaults to 0.5.
+
+    Attributes:
+        queue (list): The queue of movement steps.
+        move_at_step (int): The step at which the motor should move.
+
+    """
+
     def __init__(self, timing_config: TimingConfig, move_after_ratio: float = 0.5):
         assert 0 <= move_after_ratio <= 1
         super().__init__(timing_config)
@@ -35,6 +61,21 @@ class SimpleMotorController(MotorController):
 
 
 class SineMotorController(MotorController):
+    """
+    A motor controller that generates sinusoidal movements.
+
+    Inherits from MotorController class.
+
+    Attributes:
+        timing_config (TimingConfig): The timing configuration for the motor controller.
+        queue (list): A list to store the movement steps.
+
+    Methods:
+        register_move(dx: int, dy: int) -> None: Registers a movement step in the queue.
+        step() -> tuple[int, int]: Performs a movement step and returns the displacement.
+
+    """
+
     def __init__(self, timing_config: TimingConfig):
         super().__init__(timing_config)
         self.queue: list = []

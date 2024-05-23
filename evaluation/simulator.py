@@ -10,6 +10,25 @@ from evaluation.motor_controllers import MotorController, SimpleMotorController
 
 
 class Simulator:
+    """
+    A class representing a simulator for a biological experiment.
+
+    Args:
+        timing_config (TimingConfig): The timing configuration for the experiment.
+        experiment_config (ExperimentConfig): The experiment configuration.
+        sim_controller (SimController): The simulation controller.
+        reader (FrameReader, optional): The frame reader. Defaults to None.
+        motor_controller (MotorController, optional): The motor controller. Defaults to None.
+
+    Attributes:
+        _timing_config (TimingConfig): The timing configuration for the experiment.
+        _experiment_config (ExperimentConfig): The experiment configuration.
+        _sim_controller (SimController): The simulation controller.
+        _motor_controller (MotorController): The motor controller.
+        _view (ViewController): The view controller.
+
+    """
+
     def __init__(
         self,
         timing_config: TimingConfig,
@@ -41,35 +60,96 @@ class Simulator:
 
     @property
     def view(self) -> ViewController:
+        """
+        Get the view controller.
+
+        Returns:
+            ViewController: The view controller.
+
+        """
         return self._view
 
     @property
     def position(self) -> tuple[int, int]:
+        """
+        Get the current position.
+
+        Returns:
+            tuple[int, int]: The current position.
+
+        """
         return self._view.position
 
     @property
     def cycle_number(self) -> int:
+        """
+        Get the current cycle number.
+
+        Returns:
+            int: The current cycle number.
+
+        """
         return self._view.index // self._timing_config.cycle_length
 
     @property
     def frame_number(self) -> int:
+        """
+        Get the current frame number.
+
+        Returns:
+            int: The current frame number.
+
+        """
         return self._view.index
 
     @property
     def cycle_step(self) -> int:
+        """
+        Get the current cycle step.
+
+        Returns:
+            int: The current cycle step.
+
+        """
         return self._view.index % self._timing_config.cycle_length
 
     def camera_view(self) -> np.ndarray:
+        """
+        Get the view that the camera sees.
+
+        Returns:
+            np.ndarray: The camera view.
+
+        """
         return self._view.camera_view()
 
     def micro_view(self) -> np.ndarray:
+        """
+        Get the view that the microscope sees.
+
+        Returns:
+            np.ndarray: The micro view.
+
+        """
         return self._view.micro_view()
 
     def _reset(self):
+        """
+        Reset the simulator.
+
+        """
         self.view.reset()
         self.view.set_position(*self._experiment_config.init_position)
 
     def run(self, visualize: bool = False, wait_key: bool = False):
+        """
+        Run the simulation.
+
+        Args:
+            visualize (bool, optional): Whether to visualize the simulation. Defaults to False.
+            wait_key (bool, optional): Whether to wait for a key press to advance the simulation during visualization. Defaults to False.
+
+        """
         config = self._timing_config
 
         total_cycles = len(self._view) // config.cycle_length
@@ -116,6 +196,27 @@ class Simulator:
 
 
 class SimController(abc.ABC):
+    """
+    Abstract base class for simulator controllers.
+
+    Attributes:
+        timing_config (TimingConfig): The timing configuration for the simulator.
+
+    Methods:
+        on_sim_start(sim: Simulator): Called when the simulation starts.
+        on_sim_end(sim: Simulator): Called when the simulation ends.
+        on_cycle_start(sim: Simulator): Called when a new cycle starts.
+        on_cycle_end(sim: Simulator): Called when a cycle ends.
+        on_camera_frame(sim: Simulator): Called when a camera frame is captured.
+        on_imaging_start(sim: Simulator): Called when imaging phase starts.
+        on_micro_frame(sim: Simulator): Called when a micro frame is captured.
+        on_imaging_end(sim: Simulator): Called when imaging phase ends.
+        on_movement_start(sim: Simulator): Called when movement phase starts.
+        on_movement_end(sim: Simulator): Called when movement phase ends.
+        provide_moving_vector(sim: Simulator) -> tuple[int, int]: Provides the moving vector for the simulator. This vector is passed to the MotorController for movement.
+        _cycle_predict_all(sim: Simulator) -> np.ndarray: Returns a list of bbox predictions of the worm for each frame of the current cycle.
+    """
+
     def __init__(self, timing_config: TimingConfig):
         self.timing_config = timing_config
 

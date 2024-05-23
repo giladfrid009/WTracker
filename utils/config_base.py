@@ -82,7 +82,7 @@ class ConfigBase:
 
 def print_initialization(cls, include_default:bool=True, init_fields_only:bool=True) -> str:
     """
-    Print the initialization of the class as a string
+    Print the initialization of a dataclass as a string
     """
     if not is_dataclass(cls):
         print(f"ERROR::{cls.__name__} is not a dataclass")

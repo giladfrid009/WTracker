@@ -7,6 +7,8 @@ from tkinter import filedialog
 
 from evaluation.config import TimingConfig
 
+# TODO: clean this class and provide a set of predefined plot along with the 
+#       generalized functions of histplot and jointplot
 
 class Plotter:
     def __init__(self, log_path: str=None, timing_config: TimingConfig = None):
