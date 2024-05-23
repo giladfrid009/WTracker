@@ -1,7 +1,7 @@
 from __future__ import annotations
-from dataclasses import dataclass, fields, MISSING
+from dataclasses import dataclass, fields, MISSING, is_dataclass
 import json
-import tkinter as tk
+from utils.io_utils import pickle_load_object, pickle_save_object
 from tkinter import filedialog
 
 
@@ -38,7 +38,6 @@ class ConfigBase:
         Args:
             path (str): The path to the output JSON file.
         """
-        print(type(self))
         if path is None:
             path = filedialog.asksaveasfilename(
                 title=f"save {type(self).__name__} config as",
@@ -49,24 +48,60 @@ class ConfigBase:
             json.dump(self.__dict__, f, indent=4)
 
     @classmethod
-    def print_initialization(cls, include_default:bool=True, init_fields_only:bool=True) -> str:
+    def load_pickle(cls, path: str = None):
         """
-        Print the initialization of the class as a string
-        """
-        print(f"{cls.__name__}(")
-        for field in fields(cls):
-            if init_fields_only and field.init is False:
-                continue
-            
-            is_default = not isinstance(field.default, type(MISSING))
-            val = None
-            if include_default and is_default:
-                val = field.default
+        Load the class from a pickle file.
 
-            if type(val) is str:
-                val = f'f"{val}"'
-            print(f"    {field.name} = {val}, # {field.type.__name__}")
-        print(")")
+        Args:
+            path (str): The path to the pickle file.
+
+        Returns:
+            The class loaded from the pickle file.
+        """
+        if path is None:
+            path = filedialog.askopenfilename(
+                title=f"open {cls.__name__} file",
+                filetypes=[("pickle", ".pkl"), ("Any type", ".*")],
+            )
+        return pickle_load_object(path)
+
+    def save_pickle(self, path: str = None) -> None:
+        """
+        Saves the class as a pickle file.
+
+        Args:
+            path (str): The path to the output pickle file.
+        """
+        if path is None:
+            path = filedialog.asksaveasfilename(
+                title=f"save {type(self).__name__} config as",
+                defaultextension=".pkl",
+                filetypes=[("pickle", ".pkl"), ("Any type", ".*")],
+            )
+        pickle_save_object(self, path)
+
+def print_initialization(cls, include_default:bool=True, init_fields_only:bool=True) -> str:
+    """
+    Print the initialization of the class as a string
+    """
+    if not is_dataclass(cls):
+        print(f"ERROR::{cls.__name__} is not a dataclass")
+        return ""
+
+    print(f"{cls.__name__}(")
+    for field in fields(cls):
+        if init_fields_only and field.init is False:
+            continue
+        
+        is_default = not isinstance(field.default, type(MISSING))
+        val = None
+        if include_default and is_default:
+            val = field.default
+
+        if type(val) is str:
+            val = f'f"{val}"'
+        print(f"    {field.name} = {val}, # {field.type}")
+    print(")")
 
 
 
