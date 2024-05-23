@@ -1,7 +1,6 @@
 from typing import List, NamedTuple
 
 
-
 class BatchResult(NamedTuple):
     """
     Represents the result of training for a single batch: the loss

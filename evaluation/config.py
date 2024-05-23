@@ -8,7 +8,6 @@ from utils.config_base import ConfigBase
 from utils.path_utils import join_paths, create_parent_directory
 from frame_reader import FrameReader
 
-# TODO: MOVE CONFIG CLASSES TO THEIR MATCHING FILES, EXCEPT TimingConfig AND ExperimentConfig which should remain here
 
 @dataclass
 class TimingConfig(ConfigBase):
@@ -43,7 +42,7 @@ class TimingConfig(ConfigBase):
         self.imaging_frame_num = math.ceil(self.imaging_time_ms / self.ms_per_frame)
         self.pred_frame_num = math.ceil(self.pred_time_ms / self.ms_per_frame)
         self.moving_frame_num = math.ceil(self.moving_time_ms / self.ms_per_frame)
-        
+
         self.mm_per_px = self.experiment_config.mm_per_px
         self.px_per_mm = self.experiment_config.px_per_mm
 
@@ -57,7 +56,7 @@ class TimingConfig(ConfigBase):
             round(self.px_per_mm * self.micro_size_mm[1]),
         )
 
-        del self.experiment_config # experiment_config was temporaty, only for the constructor
+        del self.experiment_config  # experiment_config was temporaty, only for the constructor
 
     @property
     def cycle_length(self) -> int:

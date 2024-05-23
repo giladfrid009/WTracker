@@ -26,6 +26,7 @@ ACTIVATION_DEFAULT_KWARGS = defaultdict(
     },
 )
 
+
 class MLPLayer(nn.Module):
     """
     A single layer perceptron, that can hold a bach-norm and activation layers as well.
@@ -57,6 +58,7 @@ class MLPLayer(nn.Module):
         :return: An output tensor of shape (N, D_out) where D_out is the output dim.
         """
         return self.mlp_layer.forward(x.reshape(x.size(0), -1))
+
 
 class MlpBlock(nn.Module):
     """
@@ -93,7 +95,7 @@ class MlpBlock(nn.Module):
             # layers.append(nn.Linear(in_dim, out_dim))
             in_dim = out_dim
             # if batch_norm and nonlins[i] not in ["none", None]:
-                # layers.append(nn.BatchNorm1d(out_dim))
+            # layers.append(nn.BatchNorm1d(out_dim))
             # layers.append(self._make_activation(nonlins[i]))
 
         self.sequence = nn.Sequential(*layers)
@@ -119,22 +121,20 @@ class RMLP(nn.Module):
         block_nonlins: Sequence[Union[str, nn.Module]],
         n_blocks: int,
         out_dim: int,
-        in_dim: int=None, # if in_dim is an int, then a first layer will be made
+        in_dim: int = None,  # if in_dim is an int, then a first layer will be made
         batch_norm: bool = True,
     ) -> None:
         super().__init__()
-        
+
         # Create first layer if in_dim is not None
         self.input = nn.Identity()
         if in_dim is not None:
             self.input = MLPLayer(in_dim, block_in_dim, block_nonlins[0], batch_norm)
-        
+
         # Create blocks
         layers = []
         for i in range(n_blocks):
-            layers.append(
-                MlpBlock(block_in_dim, block_dims, block_nonlins, batch_norm)
-            )
+            layers.append(MlpBlock(block_in_dim, block_dims, block_nonlins, batch_norm))
 
         self.blocks = nn.ModuleList(layers)
         # Create output layer
@@ -155,13 +155,3 @@ class RMLP(nn.Module):
             out = block(x)
             x = x + out
         return self.output(x)
-
-
-
-
-
-
-
-
-
-

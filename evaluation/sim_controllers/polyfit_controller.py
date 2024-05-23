@@ -1,10 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from dataset.bbox_utils import *
+from utils.bbox_utils import *
 from evaluation.simulator import *
 from evaluation.sim_controllers import CsvController
-from dataset.bbox_utils import *
 
 
 class PolyfitController(CsvController):

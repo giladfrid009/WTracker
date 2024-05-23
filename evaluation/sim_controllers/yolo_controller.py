@@ -3,10 +3,9 @@ import numpy as np
 import cv2 as cv
 from collections import deque
 
-from dataset.bbox_utils import BoxConverter, BoxFormat
 from utils.path_utils import *
 from evaluation.simulator import *
-from dataset.bbox_utils import *
+from utils.bbox_utils import *
 from evaluation.config import *
 
 

@@ -7,13 +7,16 @@ from tkinter import filedialog
 
 from evaluation.config import TimingConfig
 
-# TODO: clean this class and provide a set of predefined plot along with the 
+# TODO: clean this class and provide a set of predefined plot along with the
 #       generalized functions of histplot and jointplot
 
+
 class Plotter:
-    def __init__(self, log_path: str=None, timing_config: TimingConfig = None):
+    def __init__(self, log_path: str = None, timing_config: TimingConfig = None):
         if log_path is None:
-            log_path = filedialog.askopenfilename(title="open log path (bboxes.csv)", filetypes=[("csv",".csv"), ("Any type",".*")])
+            log_path = filedialog.askopenfilename(
+                title="open log path (bboxes.csv)", filetypes=[("csv", ".csv"), ("Any type", ".*")]
+            )
 
         if timing_config is None:
             timing_config = TimingConfig.load_json()
@@ -25,14 +28,14 @@ class Plotter:
     def data_prep_frames(self, n: int = 1) -> pd.DataFrame:
         data = self._data.copy()
 
-        data["cycle_step"] = data["frame"] % self.timing_config.cycle_length # NEW
+        data["cycle_step"] = data["frame"] % self.timing_config.cycle_length  # NEW
         data = Plotter.concat(data, Plotter.calc_centers(data, "wrm"))
         data = Plotter.concat(data, Plotter.calc_centers(data, "mic"))
         data = Plotter.remove_no_pred_rows(data)
         data = Plotter.concat(data, Plotter.calc_speed(data, n=n))
         data = Plotter.concat(data, Plotter.calc_area_diff(data), Plotter.calc_max_edge_diff(data))
-        data['worm_angle'] = Plotter.worm_angle(data, n=n) # NEW
-        data = Plotter.worm_deviation(data) # NEW
+        data["worm_angle"] = Plotter.worm_angle(data, n=n)  # NEW
+        data = Plotter.worm_deviation(data)  # NEW
         data = Plotter.remove_cycle(data, 0)
         return data
 
@@ -43,7 +46,7 @@ class Plotter:
         data = Plotter.remove_cycle(data, 0)
         return data
 
-    def print_statistics(self, n:int=1) -> pd.DataFrame:
+    def print_statistics(self, n: int = 1) -> pd.DataFrame:
         print("##################### No Preds #####################")
         no_pred_mask = np.ma.mask_or(self._data["wrm_x"].isna(), self._data["wrm_x"] < 0)
         no_pred_frames = (self._data[no_pred_mask])["frame"]
@@ -53,7 +56,7 @@ class Plotter:
         print("##################### Cycles #####################")
         print(f"Num of cycles: {self._data['cycle'].nunique()}")
         print("##################### Area Diff #####################")
-        
+
         data = self.data_prep_frames(n=n)
         non_perfect_pred_ratio = (data["bbox_area_diff"] > 1e-7).sum() / len(data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect_pred_ratio, 3)}%")
@@ -182,7 +185,9 @@ class Plotter:
         wrm_speed_y = data["wrm_center_y"].diff(n) / frame_diff
         wrm_speed = np.sqrt(data["wrm_center_x"].diff(n) ** 2 + data["wrm_center_y"].diff(n) ** 2) / frame_diff
 
-        return pd.DataFrame({"wrm_speed": wrm_speed, "wrm_speed_x":wrm_speed_x, "wrm_speed_y":wrm_speed_y}, index=data.index)
+        return pd.DataFrame(
+            {"wrm_speed": wrm_speed, "wrm_speed_x": wrm_speed_x, "wrm_speed_y": wrm_speed_y}, index=data.index
+        )
 
     @staticmethod
     def get_cycle_stats(data: pd.DataFrame, transforms: dict) -> pd.DataFrame:
@@ -204,20 +209,20 @@ class Plotter:
         return rolling_avg
 
     @staticmethod
-    def worm_angle(data:pd.DataFrame, n:int=10) -> np.ndarray:
+    def worm_angle(data: pd.DataFrame, n: int = 10) -> np.ndarray:
         min_h, min_w = np.min(data["wrm_h"]), np.min(data["wrm_w"])
         x_sign = np.sign(data["wrm_center_x"].diff(n))
         y_sign = np.sign(data["wrm_center_y"].diff(n))
-        angle = np.arctan2((data['wrm_h']-min_h)*y_sign, (data['wrm_w']-min_w)*x_sign)
+        angle = np.arctan2((data["wrm_h"] - min_h) * y_sign, (data["wrm_w"] - min_w) * x_sign)
         return angle
-    
+
     @staticmethod
-    def worm_deviation(data:pd.DataFrame) -> pd.DataFrame:
+    def worm_deviation(data: pd.DataFrame) -> pd.DataFrame:
         data["worm_deviation_x"] = data["wrm_center_x"] - data["mic_center_x"]
         data["worm_deviation_y"] = data["wrm_center_y"] - data["mic_center_y"]
-        data["worm_deviation"] = np.sqrt(data["worm_deviation_x"]**2 + data["worm_deviation_y"]**2)
+        data["worm_deviation"] = np.sqrt(data["worm_deviation_x"] ** 2 + data["worm_deviation_y"] ** 2)
         return data
-    
+
     @staticmethod
     def scatter_data(
         data: pd.DataFrame,
@@ -270,7 +275,9 @@ class Plotter:
 
         eval_data = data.loc[eval_frames]
 
-        mse = np.sum(eval_data["mic_center_x"] - eval_data["wrm_center_x"])**2 + np.sum(eval_data["mic_center_y"] - eval_data["wrm_center_y"])
+        mse = np.sum(eval_data["mic_center_x"] - eval_data["wrm_center_x"]) ** 2 + np.sum(
+            eval_data["mic_center_y"] - eval_data["wrm_center_y"]
+        )
         mse = mse / (2 * len(eval_data))
 
         return mse
@@ -339,13 +346,13 @@ class Plotter:
             "Max Area Diff vs. Distance",
         )
 
-    def plot_deviation(self, n:int=1, condition=None) -> plt.Figure:
+    def plot_deviation(self, n: int = 1, condition=None) -> plt.Figure:
         data = self.data_prep_frames(n=n)
         data["worm_center_dist"] = np.sqrt(
             (data["wrm_center_x"] - data["mic_center_x"]) ** 2 + (data["wrm_center_y"] - data["mic_center_y"]) ** 2
         )
         data["cycle_step"] = data["frame"] % self.timing_config.cycle_length
-        data['angle'] = np.arctan2(data['wrm_w'], data['wrm_h'])
+        data["angle"] = np.arctan2(data["wrm_w"], data["wrm_h"])
         if condition is not None:
             data = data[condition(data)]
 
@@ -355,7 +362,7 @@ class Plotter:
         plt.show()
         return g.figure
 
-    def plot_2d_deviation(self, n:int=1, hue="cycle_step", condition=None) -> plt.Figure:
+    def plot_2d_deviation(self, n: int = 1, hue="cycle_step", condition=None) -> plt.Figure:
         data = self.data_prep_frames(n=n)
         data["worm_center_dist_x"] = data["wrm_center_x"] - data["mic_center_x"]
         data["worm_center_dist_y"] = data["wrm_center_y"] - data["mic_center_y"]
@@ -381,7 +388,7 @@ class Plotter:
         )
         g.figure.suptitle(f"n = {n}, rolling window = {window_size}")
         return g.figure
-    
+
     def plot_area_vs_time(self, n: int = 1, window_size: int = 15, hue=None, condition=None) -> plt.Figure:
         data = self.data_prep_frames(n=n)
         data["wrm_speed_avg"] = Plotter.rolling_average(data, window_size=window_size, column="wrm_speed")
@@ -405,22 +412,24 @@ class Plotter:
         g.set_axis_labels("cycle step", "worm speed")
         return g.figure
 
-    def plot_trajectory(self, n=1, hue:str='frame', condition=None):
+    def plot_trajectory(self, n=1, hue: str = "frame", condition=None):
         data = self.data_prep_frames(n=n)
         if condition is not None:
             data = data[condition(data)]
 
         fig, ax = plt.subplots()
-        sns.scatterplot(data=data, x='wrm_center_x', y='wrm_center_y', hue=hue, ax=ax, alpha=0.3, linewidth=0.2)
+        sns.scatterplot(data=data, x="wrm_center_x", y="wrm_center_y", hue=hue, ax=ax, alpha=0.3, linewidth=0.2)
         ax.set_xlim(0)
         ax.set_ylim(0)
         ax.invert_yaxis()
         fig.tight_layout()
         plt.show()
 
-    def plot_histogram(self, x_col:str, n:int=1, stat:str='count', hue=None, condition=None, transform=None, **kwargs):
+    def plot_histogram(
+        self, x_col: str, n: int = 1, stat: str = "count", hue=None, condition=None, transform=None, **kwargs
+    ):
         data = self.data_prep_frames(n=n)
-        
+
         if transform is not None:
             data = transform(data)
         if condition is not None:
@@ -428,13 +437,23 @@ class Plotter:
         fig, ax = plt.subplots()
         sns.histplot(data=data, x=x_col, hue=hue, stat=stat, **kwargs)
 
-    def plot_jointplot(self, x_col:str, y_col:str, n:int=1, kind:str='scatter', hue=None, condition=None, transform=None, **kwargs):
+    def plot_jointplot(
+        self,
+        x_col: str,
+        y_col: str,
+        n: int = 1,
+        kind: str = "scatter",
+        hue=None,
+        condition=None,
+        transform=None,
+        **kwargs,
+    ):
         data = self.data_prep_frames(n=n)
-        
+
         if transform is not None:
             data = transform(data)
-            
+
         if condition is not None:
             data = data[condition(data)]
-        
+
         sns.jointplot(data=data, x=x_col, y=y_col, hue=hue, kind=kind, **kwargs)

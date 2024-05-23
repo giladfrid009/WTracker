@@ -336,6 +336,6 @@ class VLC:
     
     def make_vid(self, folder_path: str, img_name_format:str, output_dir: str) -> None:
         fps = self.config.frames_per_sec
-        command = f"ffmpeg -framerate {fps} -start_number 0 -i {join_paths(folder_path, img_name_format)} -c:v copy {join_paths(output_dir, "0_output.mp4")}"
+        command = f"ffmpeg -framerate {fps} -start_number 0 -i {join_paths(folder_path, img_name_format)} -c:v copy {join_paths(output_dir, "video.mp4")}"
         print(command)
         os.system(command)

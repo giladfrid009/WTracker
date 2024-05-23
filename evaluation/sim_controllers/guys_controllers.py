@@ -2,7 +2,7 @@ from typing import Collection
 from numpy import ndarray
 from evaluation.simulator import *
 from evaluation.sim_controllers import CsvController
-from dataset.bbox_utils import *
+from utils.bbox_utils import *
 from neural.mlp import *
 from neural.config import IOConfig
 

@@ -3,7 +3,7 @@ from typing import Collection
 import pandas as pd
 
 from evaluation.simulator import *
-from dataset.bbox_utils import *
+from utils.bbox_utils import *
 
 
 class CsvController(SimController):

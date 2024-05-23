@@ -47,22 +47,16 @@ class Trainer(abc.ABC):
 
     def _make_batch_result(self, loss, num_correct) -> BatchResult:
         loss = loss.item() if isinstance(loss, Tensor) else loss
-        num_correct = (
-            num_correct.item() if isinstance(num_correct, Tensor) else num_correct
-        )
+        num_correct = num_correct.item() if isinstance(num_correct, Tensor) else num_correct
         return BatchResult(float(loss), int(num_correct))
 
-    def _make_fit_result(
-        self, num_epochs, train_losses, train_acc, test_losses, test_acc
-    ) -> FitResult:
+    def _make_fit_result(self, num_epochs, train_losses, train_acc, test_losses, test_acc) -> FitResult:
         num_epochs = num_epochs.item() if isinstance(num_epochs, Tensor) else num_epochs
         train_losses = [x.item() if isinstance(x, Tensor) else x for x in train_losses]
         train_acc = [x.item() if isinstance(x, Tensor) else x for x in train_acc]
         test_losses = [x.item() if isinstance(x, Tensor) else x for x in test_losses]
         test_acc = [x.item() if isinstance(x, Tensor) else x for x in test_acc]
-        return FitResult(
-            int(num_epochs), train_losses, train_acc, test_losses, test_acc
-        )
+        return FitResult(int(num_epochs), train_losses, train_acc, test_losses, test_acc)
 
     def fit(
         self,
@@ -101,9 +95,7 @@ class Trainer(abc.ABC):
             actual_epoch_num += 1
             verbose = False  # pass this to train/test_epoch.
 
-            if print_every > 0 and (
-                epoch % print_every == 0 or epoch == num_epochs - 1
-            ):
+            if print_every > 0 and (epoch % print_every == 0 or epoch == num_epochs - 1):
                 verbose = True
 
             self._print(f"--- EPOCH {epoch+1}/{num_epochs} ---", verbose)
@@ -131,19 +123,12 @@ class Trainer(abc.ABC):
                     self.save_checkpoint(checkpoints, curr_val_loss)
             else:
                 epochs_without_improvement += 1
-                if (
-                    early_stopping is not None
-                    and epochs_without_improvement >= early_stopping
-                ):
+                if early_stopping is not None and epochs_without_improvement >= early_stopping:
                     break
 
-        return self._make_fit_result(
-            actual_epoch_num, train_loss, train_acc, test_loss, test_acc
-        )
+        return self._make_fit_result(actual_epoch_num, train_loss, train_acc, test_loss, test_acc)
 
-    def save_checkpoint(
-        self, checkpoint_filename: str, loss: Optional[float] = None
-    ) -> None:
+    def save_checkpoint(self, checkpoint_filename: str, loss: Optional[float] = None) -> None:
         """
         Saves the model in it's current state to a file with the given name (treated
         as a relative path).
@@ -248,18 +233,14 @@ class Trainer(abc.ABC):
 
             avg_loss = sum(losses) / num_batches
             accuracy = 100.0 * num_correct / num_samples
-            pbar.set_description(
-                f"{pbar_name} "
-                f"(Avg. Loss {avg_loss:.3f}, "
-                f"Accuracy {accuracy:.2f}%)"
-            )
+            pbar.set_description(f"{pbar_name} " f"(Avg. Loss {avg_loss:.3f}, " f"Accuracy {accuracy:.2f}%)")
 
         if not verbose:
             pbar_file.close()
 
         return EpochResult(losses=losses, accuracy=accuracy)
-    
-    def log_hparam(self, hparam_dict:dict[str, Any], metric_dict:dict[str, Any]={}, run_name:str="hparams"):
+
+    def log_hparam(self, hparam_dict: dict[str, Any], metric_dict: dict[str, Any] = {}, run_name: str = "hparams"):
         if self.logger is not None:
             self.logger.add_hparams(hparam_dict, metric_dict, run_name=run_name)
 
