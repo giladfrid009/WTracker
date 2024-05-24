@@ -35,10 +35,10 @@ class StreamViewer:
     def register_hotkey(self, hotkey: HotKey):
         self.hotkeys.append(hotkey)
 
-    def create_trakbar(self, name: str, val: int, maxval: int, onChange=lambda x: x):
+    def create_trackbar(self, name: str, val: int, maxval: int, onChange=lambda x: x):
         cv.createTrackbar(name, self.window_name, val, maxval, onChange)
 
-    def update_trakbar(self, name: str, val: int):
+    def update_trackbar(self, name: str, val: int):
         cv.setTrackbarPos(name, self.window_name, val)
 
     def set_title(self, title: str):
@@ -94,9 +94,9 @@ class VLC:
         config: TimingConfig,
         log_path: str,
         cam_type: str,
-        show_pred=True,
-        show_micro=False,
-        show_cam=False,
+        show_pred: bool = True,
+        show_micro: bool = False,
+        show_cam: bool = False,
     ) -> None:
         self.streamer = StreamViewer()
         self.index = 0
@@ -116,7 +116,7 @@ class VLC:
     def initialize(self) -> None:
         self._init_hotkeys()
         self._create_window()
-        self.streamer.update_trakbar("delay", round(self.config.ms_per_frame))
+        self.streamer.update_trackbar("delay", round(self.config.ms_per_frame))
 
     def _load_log(self, log_path: str) -> pd.DataFrame:
         if log_path is None:
@@ -152,8 +152,8 @@ class VLC:
             print(f" - {hotkey.key} : {hotkey.description}")
 
     def _create_window(self):
-        self.streamer.create_trakbar("delay", 0, 250, self.set_delay)
-        self.streamer.create_trakbar("#frame", 0, len(self.reader), self.seek)
+        self.streamer.create_trackbar("delay", 0, 250, self.set_delay)
+        self.streamer.create_trackbar("#frame", 0, len(self.reader), self.seek)
 
     def _create_reader(self, files: Files) -> FrameReader:
         if files is None:
@@ -217,11 +217,11 @@ class VLC:
 
     def next(self, key=None):
         self.index = (self.index + 1) % len(self.reader)
-        self.streamer.update_trakbar("#frame", self.index)
+        self.streamer.update_trackbar("#frame", self.index)
 
     def prev(self, key=None):
         self.index = (self.index - 1) % len(self.reader)
-        self.streamer.update_trakbar("#frame", self.index)
+        self.streamer.update_trackbar("#frame", self.index)
 
     def close(self, key=None):
         self.exit = True
@@ -315,19 +315,16 @@ class VLC:
         create_directory(folder_path)
         filename = f"{self.cam_type}_" + "{:07d}.png"
 
-        worker = ImageSaver(folder_path, tqdm_kwargs={"total": len(self.log.index)})
-        worker.start()
+        with ImageSaver(folder_path, tqdm_kwargs={"total": len(self.log.index)}) as worker:
 
-        for index in range(len(self.log.index)):
-            self.index = index
-            self.update_curr_row()
+            for index in range(len(self.log.index)):
+                self.index = index
+                self.update_curr_row()
 
-            path = join_paths(folder_path, filename.format(index))
-            img = self.get_photo()
-            worker.schedule_save(img, path)
+                path = join_paths(folder_path, filename.format(index))
+                img = self.get_photo()
+                worker.schedule_save(img, path)
         
-        worker.close()
-
         image_format = filename.replace("{:", "%").replace("}", "")
         self.make_vid(folder_path, image_format, folder_path)
     

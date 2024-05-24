@@ -259,7 +259,6 @@ class SimController(abc.ABC):
         """
         Returns a list of bbox predictions of the worm, for each frame of the current cycle.
         If a prediction is not available, return None for that frame.
-        Must work even if the current cycle is not finished yet.
         Used internally for logging.
         """
         raise NotImplementedError()

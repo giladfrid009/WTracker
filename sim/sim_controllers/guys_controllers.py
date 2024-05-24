@@ -13,6 +13,7 @@ from neural.config import IOConfig
 
 # TODO: CLEAN UP this FILE
 # TODO: add MLPConfig class
+# TODO: fix crash of MLPController when reaching the end of the csv file
 
 
 class MLPController(CsvController):
