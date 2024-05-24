@@ -103,7 +103,6 @@ class WeightEvaluator:
 
         self._initialize()
 
-    # TODO: CLEANUP CODE, MAYBE SPLIT INTO SEVERAL FUNCTIONS
     def _initialize(self):
         N = self.input_offsets.shape[0]
 

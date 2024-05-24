@@ -3,7 +3,6 @@ import torch
 from torch import nn
 from torch.optim import Optimizer
 from torch.utils.data import Dataset, DataLoader, random_split
-from typing import Any, Tuple, Callable, Optional, cast, Union
 
 from dataclasses import dataclass, field
 from utils.config_base import ConfigBase
@@ -41,11 +40,9 @@ class TrainConfig(ConfigBase):
     dataset: DatasetConfig  # The dataset to use for training, can also be a config object (if Dataset, it will be used as is)
 
     # trainer parameters
-    model: Union[
-        nn.Module, str
-    ]  # The model to train, can also be a pretrained model (if str, it will be loaded from disk)
+    model: nn.Module | str  # The model to train, can also be a pretrained model (if str, it will be loaded from disk)
     loss_fn: nn.Module  # The loss function to use
-    optimizer: Union[Optimizer, str]  # The optimizer to use
+    optimizer: Optimizer | str  # The optimizer to use
     device: str = "cuda"  # 'cuda' for training on GPU or 'cpu' otherwise
     log: bool = False  # Whether to log and save the training process with tensorboard
 
@@ -115,7 +112,7 @@ class IOConfig(ConfigBase):
 @dataclass
 class ModuleConfig(ConfigBase):
     name: str
-    args: dict[str, Any]
+    args: dict[str, object]
 
     def initialize():
         pass
