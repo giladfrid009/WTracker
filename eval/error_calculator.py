@@ -3,8 +3,8 @@ import numpy as np
 import cv2 as cv
 
 
-from utils.bbox_utils import *
 from frame_reader import FrameReader
+from utils.bbox_utils import *
 
 
 class ErrorCalculator:

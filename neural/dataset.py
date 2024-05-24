@@ -5,8 +5,8 @@ import torch
 import pandas as pd
 import numpy as np
 
-from evaluation.analysis import Plotter
-from .config import DatasetConfig
+from neural.config import DatasetConfig
+from utils.bbox_utils import BoxUtils
 
 
 class numpyDataset(Dataset):
@@ -35,10 +35,8 @@ class numpyDataset(Dataset):
         X_mask = np.asanyarray(config.input_frames)
         y_mask = np.asanyarray(config.pred_frames)
 
-        data = Plotter.concat(data, Plotter.calc_centers(data, "wrm"))
-
-        wrm_centers = data[["wrm_center_x", "wrm_center_y"]].to_numpy(dtype=np.float64)
         wrm_boxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy(dtype=np.float64)
+        wrm_centers = BoxUtils.center(wrm_boxes)
 
         # Create columns for X and y
         X_cols_prefix = ["wrm_x", "wrm_y", "wrm_w", "wrm_h"]
@@ -80,6 +78,7 @@ class numpyDataset(Dataset):
         X[:, y_cord_mask] -= y_cords  # .reshape(-1, 1)
 
         dataset = numpyDataset(X, y, config)
+        
         if save_path is not None:
             dataset.save(save_path)
 

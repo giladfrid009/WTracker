@@ -5,7 +5,7 @@ import seaborn as sns
 from typing import Collection
 from tkinter import filedialog
 
-from evaluation.config import TimingConfig
+from sim.config import TimingConfig
 
 # TODO: clean this class and provide a set of predefined plot along with the
 #       generalized functions of histplot and jointplot

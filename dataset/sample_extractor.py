@@ -1,6 +1,6 @@
 import numpy as np
 
-from typing import Collection, Iterable
+from typing import Collection
 from utils.bbox_utils import BoxUtils
 from dataset.box_calculator import BoxCalculator
 from utils.io_utils import FrameSaver

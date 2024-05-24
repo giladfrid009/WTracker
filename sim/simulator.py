@@ -4,9 +4,9 @@ import abc
 from tqdm.auto import tqdm
 
 from frame_reader import FrameReader, DummyReader
-from evaluation.view_controller import ViewController
-from evaluation.config import *
-from evaluation.motor_controllers import MotorController, SimpleMotorController
+from sim.view_controller import ViewController
+from sim.config import *
+from sim.motor_controllers import MotorController, SimpleMotorController
 
 
 class Simulator:

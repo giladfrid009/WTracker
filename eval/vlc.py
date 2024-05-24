@@ -1,20 +1,17 @@
-from utils.path_utils import Files, create_directory, join_paths
-from utils.io_utils import ImageSaver
-from frame_reader import DummyReader
-
+import pandas as pd
+import numpy as np
+from math import ceil, floor
+import os
 import cv2 as cv
 from typing import Callable
 from dataclasses import dataclass, field
 import matplotlib
 matplotlib.use("QTAgg")
 
-from frame_reader import FrameReader
-from evaluation.simulator import TimingConfig
-import pandas as pd
-import numpy as np
-import cv2 as cv
-from math import ceil, floor
-import os
+from utils.path_utils import Files, create_directory, join_paths
+from utils.io_utils import ImageSaver
+from frame_reader import FrameReader, DummyReader
+from sim.simulator import TimingConfig
 
 
 @dataclass

@@ -3,10 +3,9 @@ import numpy as np
 import cv2 as cv
 from collections import deque
 
-from utils.path_utils import *
-from evaluation.simulator import *
+from sim.simulator import Simulator, SimController
 from utils.bbox_utils import *
-from evaluation.config import *
+from sim.config import YoloConfig, TimingConfig
 
 
 class YoloController(SimController):

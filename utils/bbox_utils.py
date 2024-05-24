@@ -2,9 +2,6 @@ import numpy as np
 from enum import Enum
 
 
-from enum import Enum
-
-
 class BoxFormat(Enum):
     """
     Enumeration representing different box formats.

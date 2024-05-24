@@ -2,7 +2,8 @@ from collections import deque
 from typing import Collection
 import pandas as pd
 
-from evaluation.simulator import *
+from sim.config import TimingConfig
+from sim.simulator import SimController, Simulator
 from utils.bbox_utils import *
 
 

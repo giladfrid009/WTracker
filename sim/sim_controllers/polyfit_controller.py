@@ -2,8 +2,9 @@ import numpy as np
 import pandas as pd
 
 from utils.bbox_utils import *
-from evaluation.simulator import *
-from evaluation.sim_controllers import CsvController
+from sim.config import TimingConfig
+from sim.simulator import Simulator
+from sim.sim_controllers.csv_controller import CsvController
 
 
 class PolyfitController(CsvController):

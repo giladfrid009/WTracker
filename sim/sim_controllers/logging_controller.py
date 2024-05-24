@@ -1,10 +1,10 @@
 from collections import deque
+import numpy as np
 
-from utils.path_utils import *
 from utils.io_utils import ImageSaver
 from utils.log_utils import CSVLogger
-from evaluation.simulator import *
-from evaluation.config import *
+from sim.simulator import Simulator, SimController
+from sim.config import LogConfig
 
 
 class LoggingController(SimController):

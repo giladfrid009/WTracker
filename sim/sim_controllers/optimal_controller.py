@@ -1,6 +1,8 @@
-from utils.path_utils import *
-from evaluation.simulator import *
-from evaluation.sim_controllers.csv_controller import CsvController
+import numpy as np
+
+from sim.config import TimingConfig
+from sim.simulator import Simulator
+from sim.sim_controllers.csv_controller import CsvController
 
 
 class OptimalController(CsvController):

@@ -1,8 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass, fields, MISSING, is_dataclass
-import json
-from utils.io_utils import pickle_load_object, pickle_save_object
 from tkinter import filedialog
+import json
+
+from utils.io_utils import pickle_load_object, pickle_save_object
 
 
 @dataclass
@@ -80,7 +81,8 @@ class ConfigBase:
             )
         pickle_save_object(self, path)
 
-def print_initialization(cls, include_default:bool=True, init_fields_only:bool=True) -> str:
+
+def print_initialization(cls, include_default: bool = True, init_fields_only: bool = True) -> str:
     """
     Print the initialization of a dataclass as a string
     """
@@ -92,7 +94,7 @@ def print_initialization(cls, include_default:bool=True, init_fields_only:bool=T
     for field in fields(cls):
         if init_fields_only and field.init is False:
             continue
-        
+
         is_default = not isinstance(field.default, type(MISSING))
         val = None
         if include_default and is_default:
@@ -102,8 +104,3 @@ def print_initialization(cls, include_default:bool=True, init_fields_only:bool=T
             val = f'f"{val}"'
         print(f"    {field.name} = {val}, # {field.type}")
     print(")")
-
-
-
-
-

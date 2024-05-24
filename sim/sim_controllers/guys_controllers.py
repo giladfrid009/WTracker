@@ -1,16 +1,19 @@
 from typing import Collection
 from numpy import ndarray
-from evaluation.simulator import *
-from evaluation.sim_controllers import CsvController
+from collections import deque
+from torch import Tensor
+
+from sim.config import TimingConfig
+from sim.simulator import Simulator
+from sim.sim_controllers.csv_controller import CsvController
 from utils.bbox_utils import *
 from neural.mlp import *
 from neural.config import IOConfig
 
-from collections import deque
-from torch import Tensor
 
 # TODO: CLEAN UP this FILE
 # TODO: add MLPConfig class
+
 
 class MLPController(CsvController):
     def __init__(self, timing_config: TimingConfig, csv_path: str, model: nn.Module, io_config: IOConfig):
@@ -18,7 +21,7 @@ class MLPController(CsvController):
         self.io_config = io_config
         self.model = model
         self.model.eval()
-        
+
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         # frames for prediction (input to the model)
         frames_for_pred = np.asanyarray(self.io_config.input_frames, dtype=int)
@@ -28,10 +31,10 @@ class MLPController(CsvController):
         worm_bboxes = self._csv_data[frames_for_pred, :].reshape(1, -1)
         if not np.isfinite(worm_bboxes).all():
             return 0, 0
-        
+
         # worm_center = BoxUtils.center(worm_bboxes[0, :4]) # center of first bbox (should be the box of the pred frame (0))
         # print(f"boxes= {worm_bboxes[0, :4]} :: center= {worm_center}")
-        
+
         # relative position of the worm to the camera center, we use the worm x,y instead of center because of how the model and dataset are built
         rel_x, rel_y = worm_bboxes[0, 0] - cam_center[0], worm_bboxes[0, 1] - cam_center[1]
         # make coordinates relative to first bbox
@@ -50,7 +53,7 @@ class MLPController(CsvController):
         pred = np.clip(pred, -20, 20)
         dx = round(pred[0].item() + rel_x)
         dy = round(pred[1].item() + rel_y)
-        
+
         # print(f"pred = {(dx, dy)}")
         return (dx, dy)
 

@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional
 import tqdm.auto
 from torch import Tensor
-from typing import Any, Tuple, Callable, Optional, cast, Union
+from typing import Any, Tuple, Callable, Optional
 from torch.optim import Optimizer
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
