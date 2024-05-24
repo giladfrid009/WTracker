@@ -238,9 +238,10 @@ class Plotter:
 
         x_data = data[x_col]
         y_data = data[y_col]
-        corr = np.corrcoef(x_data, y_data)[0, 1]
+        corr = 0.0
         slope = 0.0
         try:
+            corr = np.corrcoef(x_data, y_data)[0, 1]
             slope = np.polyfit(x_data, y_data, 1)[0]
         except:
             pass
@@ -258,27 +259,6 @@ class Plotter:
         plt.title(title, fontsize=16)
         plt.tight_layout()
         plt.show()
-
-    def calc_mse(self, eval_frames: Collection[int] = None) -> float:
-        data = self.data_prep_frames()
-
-        if eval_frames is None:
-            eval_frames = list(
-                range(
-                    self.timing_config.cycle_length + self.timing_config.imaging_frame_num // 4,
-                    len(data),
-                    self.timing_config.cycle_length,
-                )
-            )
-
-        eval_data = data.loc[eval_frames]
-
-        mse = np.sum(eval_data["mic_center_x"] - eval_data["wrm_center_x"]) ** 2 + np.sum(
-            eval_data["mic_center_y"] - eval_data["wrm_center_y"]
-        )
-        mse = mse / (2 * len(eval_data))
-
-        return mse
 
     def plot_area_vs_speed(self, min_speed: float = None, min_diff: float = None):
         data = self.data_prep_frames()
@@ -433,6 +413,7 @@ class Plotter:
         if condition is not None:
             data = data[condition(data)]
         fig, ax = plt.subplots()
+
         sns.histplot(data=data, x=x_col, hue=hue, stat=stat, **kwargs)
 
     def plot_jointplot(

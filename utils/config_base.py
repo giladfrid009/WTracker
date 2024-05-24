@@ -1,15 +1,18 @@
 from __future__ import annotations
+from typing import Type, TypeVar
 from dataclasses import dataclass, fields, MISSING, is_dataclass
 import json
 
 from utils.gui_utils import UserPrompt
 from utils.io_utils import pickle_load_object, pickle_save_object
 
+T = TypeVar("T", bound="ConfigBase")
+
 
 @dataclass
 class ConfigBase:
     @classmethod
-    def load_json(cls, path: str = None) -> ConfigBase:
+    def load_json(cls: type[T], path: str = None) -> T:
         """
         Load the class from a JSON file.
 
@@ -50,7 +53,7 @@ class ConfigBase:
             json.dump(self.__dict__, f, indent=4)
 
     @classmethod
-    def load_pickle(cls, path: str = None):
+    def load_pickle(cls: type[T], path: str = None) -> T:
         """
         Load the class from a pickle file.
 

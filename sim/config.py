@@ -5,7 +5,6 @@ from typing import Any
 from ultralytics import YOLO
 
 from utils.config_base import ConfigBase
-from utils.path_utils import join_paths, create_parent_directory
 from frame_reader import FrameReader
 
 
@@ -65,37 +64,6 @@ class TimingConfig(ConfigBase):
     @property
     def cycle_time_ms(self) -> float:
         return self.cycle_length * self.ms_per_frame
-
-
-@dataclass
-class LogConfig(ConfigBase):
-    root_folder: str
-    save_mic_view: bool = False
-    save_cam_view: bool = False
-    save_err_view: bool = True
-    mic_folder_name: str = "micro"
-    cam_folder_name: str = "camera"
-    err_folder_name: str = "errors"
-    bbox_file_name: str = "bboxes.csv"
-    mic_file_name: str = "mic_{:09d}.png"
-    cam_file_name: str = "cam_{:09d}.png"
-
-    mic_file_path: str = field(init=False)
-    cam_file_path: str = field(init=False)
-    err_file_path: str = field(init=False)
-    bbox_file_path: str = field(init=False)
-
-    def __post_init__(self):
-        self.mic_file_path = join_paths(self.root_folder, self.mic_folder_name, self.mic_file_name)
-        self.cam_file_path = join_paths(self.root_folder, self.cam_folder_name, self.cam_file_name)
-        self.err_file_path = join_paths(self.root_folder, self.err_folder_name, self.cam_file_name)
-        self.bbox_file_path = join_paths(self.root_folder, self.bbox_file_name)
-
-    def create_dirs(self):
-        create_parent_directory(self.mic_file_path)
-        create_parent_directory(self.cam_file_path)
-        create_parent_directory(self.err_file_path)
-        create_parent_directory(self.bbox_file_path)
 
 
 @dataclass

@@ -58,6 +58,9 @@ class MLPController(CsvController):
         # print(f"pred = {(dx, dy)}")
         return (dx, dy)
 
+    def print_model(self):
+        print(self.model)
+
 
 class Controller2(CsvController):
     def __init__(self, timing_config: TimingConfig, csv_path: str, past_frames_list=[0]):

@@ -6,7 +6,7 @@ from tqdm.auto import tqdm
 from frame_reader import FrameReader, DummyReader
 from sim.view_controller import ViewController
 from sim.config import *
-from sim.motor_controllers import MotorController, SimpleMotorController
+from sim.motor_controllers import MotorController, SineMotorController
 
 
 class Simulator:
@@ -48,7 +48,7 @@ class Simulator:
             reader = DummyReader(num_frames, resolution, colored=True)
 
         if motor_controller is None:
-            motor_controller = SimpleMotorController(timing_config, move_after_ratio=0)
+            motor_controller = SineMotorController(timing_config)
         self._motor_controller = motor_controller
 
         self._view = ViewController(

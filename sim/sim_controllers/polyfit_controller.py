@@ -1,54 +1,52 @@
 import numpy as np
 import pandas as pd
+from dataclasses import dataclass
 
 from utils.bbox_utils import *
 from sim.config import TimingConfig
 from sim.simulator import Simulator
 from sim.sim_controllers.csv_controller import CsvController
+from utils.config_base import ConfigBase
+
+
+@dataclass
+class PolyfitConfig(ConfigBase):
+    degree: int
+    sample_times: list[int]
+    weights: list[float] = None
+
+    def __post_init__(self):
+        self.sample_times = sorted(self.sample_times)
+        if self.weights is None:
+            self.weights = [1.0 for _ in self.sample_times]
+
+        assert len(self.sample_times) == len(self.weights)
 
 
 class PolyfitController(CsvController):
     def __init__(
         self,
         timing_config: TimingConfig,
+        polyfit_config: PolyfitConfig,
         csv_path: str,
-        degree: int = 2,
-        weights: np.ndarray | None = None,
-        sample_times: np.ndarray | None = None,
     ) -> None:
         """
         Args:
             timing_config (TimingConfig): The timing configuration of the simulation.
             csv_path (str): The path to the csv file with the worm data.
-            degree (int, optional): The degree of the polynomial to fit. Defaults to 2.
-            weights (np.ndarray, optional): The weights for the polynomial fitting. If None then all weights are 1.
-            sample_times (np.ndarray, optional): The sample times to use for the polynomial fitting.
-                If None then all samples are gathered from the current cycle, in intervals of pred_frame_num.
-                Value 0 marks the begging of the current cycle, negative values are allowed.
+            polyfit_config (PolyfitConfig): The configuration for the polynomial fit.
         """
-        super().__init__(timing_config, csv_path)
-        self.degree = degree
+        super().__init__(csv_path, timing_config)
 
-        timing = self.timing_config
-
-        if sample_times is None:
-            sample_times = np.arange(timing.imaging_frame_num - timing.pred_frame_num, -1, -timing.pred_frame_num)
-            sample_times = np.flip(sample_times)
-
-        sample_times = np.sort(sample_times)
-        self.sample_times = sample_times
-
-        if weights is None:
-            weights = np.ones(sample_times.shape[0])
-
-        self.weights = weights
-
-        assert weights.shape[0] == sample_times.shape[0]
+        self.polyfit_config = polyfit_config
+        self._sample_times = np.asanyarray(polyfit_config.sample_times, dtype=int)
+        self._weights = np.asanyarray(polyfit_config.weights, dtype=float)
 
     def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config
+        config = self.polyfit_config
 
-        bboxes = self.predict(sim.cycle_number * timing.cycle_length + self.sample_times, relative=False)
+        bboxes = self.predict(sim.cycle_number * timing.cycle_length + self._sample_times, relative=False)
 
         # make all bboxes relative to current camera view
         camera_bbox = sim.view.camera_position
@@ -57,16 +55,16 @@ class PolyfitController(CsvController):
 
         positions = BoxUtils.center(bboxes)
         mask = np.isfinite(positions).all(axis=1)
-        time = self.sample_times[mask]
+        time = self._sample_times[mask]
         positions = positions[mask]
-        weights = self.weights[mask]
+        weights = self._weights[mask]
 
         if len(time) == 0:
             return 0, 0
 
-        try:    
+        try:
             # predict future x and future y based on the fitted polynomial
-            coeffs = np.polyfit(time, positions, deg=self.degree, w=weights)
+            coeffs = np.polyfit(time, positions, deg=config.degree, w=weights)
             x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num // 2)
         except:
             x_pred, y_pred = positions[-1, :]
@@ -116,9 +114,9 @@ class WeightEvaluator:
         start_times = self.start_times[time_mask]
 
         # create data arrays
-        input_times = np.repeat(start_times, repeats=N) + np.tile(self.input_offsets, reps=start_times.shape[0]) 
+        input_times = np.repeat(start_times, repeats=N) + np.tile(self.input_offsets, reps=start_times.shape[0])
         dst_times = start_times + self.eval_offset
-        input_pos = self.positions[input_times, :]  
+        input_pos = self.positions[input_times, :]
         dst_pos = self.positions[dst_times, :]
 
         # remove invalid positions according to dst
