@@ -21,6 +21,9 @@ class YoloController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_frames.append(sim.camera_view())
 
+    def on_cycle_end(self, sim: Simulator):
+        self._camera_frames.clear()
+
     def predict(self, frames: Collection[np.ndarray]) -> np.ndarray:
         assert len(frames) > 0
 
@@ -49,14 +52,14 @@ class YoloController(SimController):
 
         return np.stack(bboxes, axis=0)
 
-    def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
-        return self.predict(self._camera_frames)
+    def begin_movement_prediction(self, sim: Simulator) -> None:
+        pass # TODO: IMPLEMENT
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+    def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         frame = self._camera_frames[-self.timing_config.pred_frame_num]
         bbox = self.predict([frame])
         bbox = bbox[0]
-        
+
         if not np.isfinite(bbox).all():
             return 0, 0
 
@@ -65,5 +68,5 @@ class YoloController(SimController):
 
         return round(bbox_mid[0] - camera_mid[0]), round(bbox_mid[1] - camera_mid[1])
 
-    def on_cycle_end(self, sim: Simulator):
-        self._camera_frames.clear()
+    def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
+        return self.predict(self._camera_frames)

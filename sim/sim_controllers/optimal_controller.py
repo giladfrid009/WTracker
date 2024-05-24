@@ -13,7 +13,7 @@ class OptimalController(CsvController):
         self._csv_centers[:, 0] = self._csv_data[:, 0] + self._csv_data[:, 2] / 2
         self._csv_centers[:, 1] = self._csv_data[:, 1] + self._csv_data[:, 3] / 2
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+    def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         # extract portion matching next imaging phase
         next_imaging_start = (sim.cycle_number + 1) * self.timing_config.cycle_length
         next_imaging_end = next_imaging_start + self.timing_config.imaging_frame_num

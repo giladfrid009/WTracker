@@ -15,8 +15,6 @@ class CsvController(SimController):
         self._csv_data = pd.read_csv(self.csv_path, usecols=["wrm_x", "wrm_y", "wrm_w", "wrm_h"]).to_numpy(dtype=float)
         self._camera_bboxes = deque(maxlen=timing_config.cycle_length)
 
-        print(self._csv_data.shape)
-
     def on_sim_start(self, sim: Simulator):
         self._camera_bboxes.clear()
 
@@ -48,13 +46,10 @@ class CsvController(SimController):
 
         return worm_bboxes
 
-    def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
-        start = (sim.cycle_number - 1) * self.timing_config.cycle_length
-        end = start + self.timing_config.cycle_length
-        end = min(end, len(self._csv_data))
-        return self.predict(np.arange(start, end))
+    def begin_movement_prediction(self, sim: Simulator) -> None:
+        pass
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+    def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         bbox = self.predict([sim.frame_number - self.timing_config.pred_frame_num])
         bbox = bbox[0, :]
 
@@ -68,3 +63,9 @@ class CsvController(SimController):
         dy = round(center[1] - cam_center[1])
 
         return dx, dy
+
+    def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
+        start = (sim.cycle_number - 1) * self.timing_config.cycle_length
+        end = start + self.timing_config.cycle_length
+        end = min(end, len(self._csv_data))
+        return self.predict(np.arange(start, end))

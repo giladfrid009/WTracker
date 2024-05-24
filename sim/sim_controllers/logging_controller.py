@@ -183,8 +183,11 @@ class LoggingController(SimController):
     def on_movement_end(self, sim: Simulator):
         self.sim_controller.on_movement_end(sim)
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
-        return self.sim_controller.provide_moving_vector(sim)
+    def begin_movement_prediction(self, sim: Simulator) -> None:
+        return self.sim_controller.begin_movement_prediction(sim)
+
+    def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
+        return self.sim_controller.provide_movement_vector(sim)
 
     def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
         return self.sim_controller._cycle_predict_all(sim)

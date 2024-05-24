@@ -42,7 +42,7 @@ class PolyfitController(CsvController):
         self._sample_times = np.asanyarray(polyfit_config.sample_times, dtype=int)
         self._weights = np.asanyarray(polyfit_config.weights, dtype=float)
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+    def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         timing = self.timing_config
         config = self.polyfit_config
 

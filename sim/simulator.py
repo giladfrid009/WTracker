@@ -174,10 +174,13 @@ class Simulator:
             if self.cycle_step < config.imaging_frame_num:
                 self._sim_controller.on_micro_frame(self)
 
+            if self.cycle_step == config.imaging_frame_num - config.pred_frame_num:
+                self._sim_controller.begin_movement_prediction(self)
+
             if self.cycle_step == config.imaging_frame_num:
                 self._sim_controller.on_imaging_end(self)
+                dx, dy = self._sim_controller.provide_movement_vector(self)
                 self._sim_controller.on_movement_start(self)
-                dx, dy = self._sim_controller.provide_moving_vector(self)
                 self._motor_controller.register_move(dx, dy)
 
             if config.imaging_frame_num <= self.cycle_step < config.imaging_frame_num + config.moving_frame_num:
@@ -213,7 +216,8 @@ class SimController(abc.ABC):
         on_imaging_end(sim: Simulator): Called when imaging phase ends.
         on_movement_start(sim: Simulator): Called when movement phase starts.
         on_movement_end(sim: Simulator): Called when movement phase ends.
-        provide_moving_vector(sim: Simulator) -> tuple[int, int]: Provides the moving vector for the simulator. This vector is passed to the MotorController for movement.
+        begin_movement_prediction(sim: Simulator) -> None: Begins the movement prediction.
+        provide_movement_vector(sim: Simulator) -> tuple[int, int]: Provides the movement vector for the simulator. The platform is moved by the provided vector.
         _cycle_predict_all(sim: Simulator) -> np.ndarray: Returns a list of bbox predictions of the worm for each frame of the current cycle.
     """
 
@@ -251,7 +255,11 @@ class SimController(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+    def begin_movement_prediction(self, sim: Simulator) -> None:
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         raise NotImplementedError()
 
     @abc.abstractmethod

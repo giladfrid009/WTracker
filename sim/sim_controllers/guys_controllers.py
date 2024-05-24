@@ -23,7 +23,7 @@ class MLPController(CsvController):
         self.model = model
         self.model.eval()
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+    def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         # frames for prediction (input to the model)
         frames_for_pred = np.asanyarray(self.io_config.input_frames, dtype=int)
         frames_for_pred += sim.frame_number - self.timing_config.pred_frame_num
@@ -71,7 +71,7 @@ class Controller2(CsvController):
     def on_camera_frame(self, sim: Simulator):
         super().on_camera_frame(sim)
 
-    def provide_moving_vector(self, sim: Simulator) -> tuple[int, int]:
+    def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         # how many frames to go back from the last prediction to estimate the speed
         # assert self.timing_config.imaging_frame_num - self.timing_config.pred_frame_num - past_frames_num >= 0
         print("############## provide_moving_vector ##############")
