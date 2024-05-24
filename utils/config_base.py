@@ -1,8 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, fields, MISSING, is_dataclass
-from tkinter import filedialog
 import json
 
+from utils.gui_utils import UserPrompt
 from utils.io_utils import pickle_load_object, pickle_save_object
 
 
@@ -21,9 +21,9 @@ class ConfigBase:
 
         """
         if path is None:
-            path = filedialog.askopenfilename(
-                title=f"open {cls.__name__} file",
-                filetypes=[("json", ".json"), ("Any type", ".*")],
+            path = UserPrompt.open_file(
+                title=f"Open {cls.__name__} File",
+                file_types=[("json", ".json")],
             )
 
         with open(path, "r") as f:
@@ -40,11 +40,12 @@ class ConfigBase:
             path (str): The path to the output JSON file.
         """
         if path is None:
-            path = filedialog.asksaveasfilename(
-                title=f"save {type(self).__name__} config as",
+            path = UserPrompt.save_file(
+                title=f"Save {type(self).__name__} As",
+                file_types=[("json", ".json")],
                 defaultextension=".json",
-                filetypes=[("json", ".json"), ("Any type", ".*")],
             )
+
         with open(path, "w") as f:
             json.dump(self.__dict__, f, indent=4)
 
@@ -60,10 +61,11 @@ class ConfigBase:
             The class loaded from the pickle file.
         """
         if path is None:
-            path = filedialog.askopenfilename(
-                title=f"open {cls.__name__} file",
-                filetypes=[("pickle", ".pkl"), ("Any type", ".*")],
+            path = UserPrompt.open_file(
+                title=f"Open {cls.__name__} File",
+                file_types=[("pickle", ".pkl")],
             )
+
         return pickle_load_object(path)
 
     def save_pickle(self, path: str = None) -> None:
@@ -74,11 +76,12 @@ class ConfigBase:
             path (str): The path to the output pickle file.
         """
         if path is None:
-            path = filedialog.asksaveasfilename(
-                title=f"save {type(self).__name__} config as",
+            path = UserPrompt.save_file(
+                title=f"Save {type(self).__name__} As",
+                file_types=[("pickle", ".pkl")],
                 defaultextension=".pkl",
-                filetypes=[("pickle", ".pkl"), ("Any type", ".*")],
             )
+
         pickle_save_object(self, path)
 
 

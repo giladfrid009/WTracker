@@ -3,8 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Collection
-from tkinter import filedialog
 
+from utils.gui_utils import UserPrompt
 from sim.config import TimingConfig
 
 # TODO: clean this class and provide a set of predefined plot along with the
@@ -14,9 +14,7 @@ from sim.config import TimingConfig
 class Plotter:
     def __init__(self, log_path: str = None, timing_config: TimingConfig = None):
         if log_path is None:
-            log_path = filedialog.askopenfilename(
-                title="open log path (bboxes.csv)", filetypes=[("csv", ".csv"), ("Any type", ".*")]
-            )
+            log_path = UserPrompt.open_file(title="Open Log (bboxes.csv)", file_types=[("csv", ".csv")])
 
         if timing_config is None:
             timing_config = TimingConfig.load_json()

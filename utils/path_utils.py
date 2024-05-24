@@ -68,6 +68,7 @@ def bulk_rename(dir_path: str, rename_fn: Callable[[str], str]):
         file_name.rename(new_name)
 
 
+
 class Files:
     def __init__(
         self,

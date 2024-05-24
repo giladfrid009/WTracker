@@ -99,13 +99,15 @@ class ErrorCalculator:
             worm_view = reader[frame_num][wy : wy + wh, wx : wx + ww]
             bg_view = background[wy : wy + wh, wx : wx + ww]
 
-            errors[i] = ErrorCalculator.calculate_precise_single(
+            err = ErrorCalculator.calculate_precise_single(
                 bg_view=bg_view,
                 worm_view=worm_view,
                 worm_bbox=worm_bboxes[i],
                 micro_bbox=mic_bboxes[i],
                 diff_thresh=diff_thresh,
             )
+
+            errors[i] = err
 
         errors = np.nan_to_num(errors, nan=0, neginf=0.0, posinf=0.0, copy=False)
 
@@ -135,7 +137,6 @@ class ErrorCalculator:
         total = wrm_width * wrm_height
 
         errors = 1.0 - intersection / total
-
         errors = np.nan_to_num(errors, nan=0, neginf=0.0, posinf=0.0, copy=False)
 
         return errors
