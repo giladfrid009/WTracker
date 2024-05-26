@@ -51,10 +51,10 @@ class LoggingController(SimController):
         self.sim_controller = sim_controller
         self.log_config = log_config
 
-        self._camera_frames = deque(maxlen=self.timing_config.cycle_length)
-        self._platform_positions = deque(maxlen=self.timing_config.cycle_length)
-        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_length)
-        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_length)
+        self._camera_frames = deque(maxlen=self.timing_config.cycle_frame_num)
+        self._platform_positions = deque(maxlen=self.timing_config.cycle_frame_num)
+        self._camera_bboxes = deque(maxlen=self.timing_config.cycle_frame_num)
+        self._micro_bboxes = deque(maxlen=self.timing_config.cycle_frame_num)
 
     def on_sim_start(self, sim: Simulator):
         self.sim_controller.on_sim_start(sim)
@@ -120,7 +120,7 @@ class LoggingController(SimController):
 
     def _log_cycle(self, sim: Simulator):
         cycle_number = sim.cycle_number - 1
-        frame_offset = cycle_number * self.timing_config.cycle_length
+        frame_offset = cycle_number * self.timing_config.cycle_frame_num
 
         worm_bboxes = self.sim_controller._cycle_predict_all(sim)
 

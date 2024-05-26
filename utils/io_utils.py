@@ -65,6 +65,14 @@ class FrameSaver(TaskScheduler):
 
 
 class ImageSaver(TaskScheduler):
+    """
+    A class for saving images asynchronously using a task scheduler.
+
+    Methods:
+        schedule_save: Adds an image to the queue for saving.
+        close: Waits for all images to be saved and closes the image saver.
+    """
+
     def __init__(
         self,
         root_path: str = "",

@@ -26,7 +26,7 @@ class Plotter:
     def data_prep_frames(self, n: int = 1) -> pd.DataFrame:
         data = self._data.copy()
 
-        data["cycle_step"] = data["frame"] % self.timing_config.cycle_length  # NEW
+        data["cycle_step"] = data["frame"] % self.timing_config.cycle_frame_num  # NEW
         data = Plotter.concat(data, Plotter.calc_centers(data, "wrm"))
         data = Plotter.concat(data, Plotter.calc_centers(data, "mic"))
         data = Plotter.remove_no_pred_rows(data)
@@ -50,7 +50,7 @@ class Plotter:
         no_pred_frames = (self._data[no_pred_mask])["frame"]
         print(f"Num of No Preds: {len(no_pred_frames)}")
         print(f"No prediction in frames: {no_pred_frames.to_list()}")
-        print(f"corresponding cycle steps: {(no_pred_frames%self.timing_config.cycle_length).to_list()}")
+        print(f"corresponding cycle steps: {(no_pred_frames%self.timing_config.cycle_frame_num).to_list()}")
         print("##################### Cycles #####################")
         print(f"Num of cycles: {self._data['cycle'].nunique()}")
         print("##################### Area Diff #####################")
@@ -329,7 +329,7 @@ class Plotter:
         data["worm_center_dist"] = np.sqrt(
             (data["wrm_center_x"] - data["mic_center_x"]) ** 2 + (data["wrm_center_y"] - data["mic_center_y"]) ** 2
         )
-        data["cycle_step"] = data["frame"] % self.timing_config.cycle_length
+        data["cycle_step"] = data["frame"] % self.timing_config.cycle_frame_num
         data["angle"] = np.arctan2(data["wrm_w"], data["wrm_h"])
         if condition is not None:
             data = data[condition(data)]
@@ -345,7 +345,7 @@ class Plotter:
         data["worm_center_dist_x"] = data["wrm_center_x"] - data["mic_center_x"]
         data["worm_center_dist_y"] = data["wrm_center_y"] - data["mic_center_y"]
 
-        data["cycle_step"] = data["frame"] % self.timing_config.cycle_length
+        data["cycle_step"] = data["frame"] % self.timing_config.cycle_frame_num
         if condition is not None:
             data = data[condition(data)]
         g = sns.jointplot(data=data, x="worm_center_dist_x", y="worm_center_dist_y", kind="scatter", hue=hue, alpha=0.6)
@@ -382,7 +382,7 @@ class Plotter:
 
     def plot_cycle_step_vs_speed(self, n: int = 1, hue=None, condition=None) -> plt.Figure:
         data = self.data_prep_frames(n=n)
-        data["cycle_step"] = data["frame"] % self.timing_config.cycle_length
+        data["cycle_step"] = data["frame"] % self.timing_config.cycle_frame_num
 
         if condition is not None:
             data = data[condition(data)]

@@ -1,7 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 import math
-from typing import Any
 
 from utils.config_base import ConfigBase
 from utils.frame_reader import FrameReader
@@ -9,6 +8,12 @@ from utils.frame_reader import FrameReader
 
 @dataclass
 class TimingConfig(ConfigBase):
+    """
+    Configuration for timing parameters of the experiment.
+    These parameters should not change between different experiments.
+    This class affects the timing of the simulation.
+    """
+
     experiment_config: ExperimentConfig = field(repr=False)
 
     px_per_mm: int = field(init=False)
@@ -54,19 +59,24 @@ class TimingConfig(ConfigBase):
             round(self.px_per_mm * self.micro_size_mm[1]),
         )
 
-        del self.experiment_config  # experiment_config was temporaty, only for the constructor
+        del self.experiment_config  # experiment_config was temporary, only for the constructor
 
     @property
-    def cycle_length(self) -> int:
+    def cycle_frame_num(self) -> int:
         return self.imaging_frame_num + self.moving_frame_num
 
     @property
     def cycle_time_ms(self) -> float:
-        return self.cycle_length * self.ms_per_frame
+        return self.cycle_frame_num * self.ms_per_frame
 
 
 @dataclass
 class ExperimentConfig(ConfigBase):
+    """
+    Configuration for the experiment parameters.
+    These parameters can change between different experiments.
+    """
+
     name: str
     num_frames: int
     frames_per_sec: float
@@ -83,7 +93,12 @@ class ExperimentConfig(ConfigBase):
 
     @classmethod
     def from_frame_reader(
-        cls, reader: FrameReader, name: str, frames_per_sec: int, px_per_mm: float, init_position: tuple[int, int]
+        cls,
+        reader: FrameReader,
+        name: str,
+        frames_per_sec: int,
+        px_per_mm: float,
+        init_position: tuple[int, int],
     ) -> ExperimentConfig:
         return ExperimentConfig(
             name=name,

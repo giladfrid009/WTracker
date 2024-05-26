@@ -46,7 +46,7 @@ class PolyfitController(CsvController):
         timing = self.timing_config
         config = self.polyfit_config
 
-        bboxes = self.predict(sim.cycle_number * timing.cycle_length + self._sample_times, relative=False)
+        bboxes = self.predict(sim.cycle_number * timing.cycle_frame_num + self._sample_times, relative=False)
 
         # make all bboxes relative to current camera view
         camera_bbox = sim.view.camera_position
@@ -65,7 +65,7 @@ class PolyfitController(CsvController):
         try:
             # predict future x and future y based on the fitted polynomial
             coeffs = np.polyfit(time, positions, deg=config.degree, w=weights)
-            x_pred, y_pred = np.polyval(coeffs, timing.cycle_length + timing.imaging_frame_num // 2)
+            x_pred, y_pred = np.polyval(coeffs, timing.cycle_frame_num + timing.imaging_frame_num // 2)
         except:
             x_pred, y_pred = positions[-1, :]
 

@@ -65,7 +65,6 @@ class MLPController(CsvController):
 class Controller2(CsvController):
     def __init__(self, timing_config: TimingConfig, csv_path: str, past_frames_list=[0]):
         super().__init__(timing_config, csv_path)
-        # self._camera_bboxes = deque(maxlen=timing_config.cycle_length*3)
         self.pred_data = deque(maxlen=3)
 
     def on_camera_frame(self, sim: Simulator):

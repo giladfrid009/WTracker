@@ -13,7 +13,7 @@ class CsvController(SimController):
 
         self.csv_path = csv_path
         self._csv_data = pd.read_csv(self.csv_path, usecols=["wrm_x", "wrm_y", "wrm_w", "wrm_h"]).to_numpy(dtype=float)
-        self._camera_bboxes = deque(maxlen=timing_config.cycle_length)
+        self._camera_bboxes = deque(maxlen=timing_config.cycle_frame_num)
 
     def on_sim_start(self, sim: Simulator):
         self._camera_bboxes.clear()
@@ -37,7 +37,7 @@ class CsvController(SimController):
         if not relative:
             return worm_bboxes
 
-        cam_bboxes = [self._camera_bboxes[n % self.timing_config.cycle_length] for n in frame_nums]
+        cam_bboxes = [self._camera_bboxes[n % self.timing_config.cycle_frame_num] for n in frame_nums]
         cam_bboxes = np.asanyarray(cam_bboxes, dtype=float)
 
         # make bbox relative to camera view
@@ -65,7 +65,7 @@ class CsvController(SimController):
         return dx, dy
 
     def _cycle_predict_all(self, sim: Simulator) -> np.ndarray:
-        start = (sim.cycle_number - 1) * self.timing_config.cycle_length
-        end = start + self.timing_config.cycle_length
+        start = (sim.cycle_number - 1) * self.timing_config.cycle_frame_num
+        end = start + self.timing_config.cycle_frame_num
         end = min(end, len(self._csv_data))
         return self.predict(np.arange(start, end))

@@ -89,7 +89,7 @@ class Simulator:
             int: The current cycle number.
 
         """
-        return self._view.index // self._timing_config.cycle_length
+        return self._view.index // self._timing_config.cycle_frame_num
 
     @property
     def frame_number(self) -> int:
@@ -111,7 +111,7 @@ class Simulator:
             int: The current cycle step.
 
         """
-        return self._view.index % self._timing_config.cycle_length
+        return self._view.index % self._timing_config.cycle_frame_num
 
     def camera_view(self) -> np.ndarray:
         """
@@ -152,7 +152,7 @@ class Simulator:
         """
         config = self._timing_config
 
-        total_cycles = len(self._view) // config.cycle_length
+        total_cycles = len(self._view) // config.cycle_frame_num
         pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
 
         self._reset()
@@ -187,7 +187,7 @@ class Simulator:
                 dx, dy = self._motor_controller.step()
                 self._view.move_position(dx, dy)
 
-            if self.cycle_step == config.cycle_length - 1:
+            if self.cycle_step == config.cycle_frame_num - 1:
                 pbar.update(1)
 
             if visualize:

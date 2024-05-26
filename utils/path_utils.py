@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 from pathlib import Path, PurePath
 from typing import Callable, Union
@@ -68,15 +69,40 @@ def bulk_rename(dir_path: str, rename_fn: Callable[[str], str]):
         file_name.rename(new_name)
 
 
+import os
+import shutil
+from typing import Callable, Union
 
 class Files:
+    """
+    A utility class for working with files in a directory.
+
+    Args:
+        directory (str): The directory path to scan for files.
+        extension (str, optional): The file extension to filter the files. Defaults to "".
+        scan_dirs (bool, optional): Whether to include directories in the results. Defaults to False.
+        return_full_path (bool, optional): Whether to return the full path of the files. Defaults to True.
+        sorting_key (Callable[[os.DirEntry], Union[int, str]], optional): A function to determine the sorting order of the files. Defaults to lambda f: f.name.
+
+    Methods:
+        __getitem__(index: int) -> os.DirEntry: Returns the file at the specified index.
+        __iter__() -> Files: Returns an iterator object.
+        __next__() -> str: Returns the next file name or path in the iteration.
+        __len__() -> int: Returns the number of files in the results list.
+        __contains__(key: str) -> bool: Checks if a file with the specified name exists in the results list.
+        get_filename() -> str: Returns the name of the current file.
+        get_path() -> str: Returns the path of the current file.
+        seek(pos: int) -> str: Moves the iterator to the specified position and returns the file name or path.
+        copy(dst_root: str) -> None: Copies the current file to the specified destination directory.
+    """
+
     def __init__(
         self,
         directory: str,
         extension: str = "",
         scan_dirs: bool = False,
         return_full_path: bool = True,
-        sorting_key: Callable[[str], Union[int, str]] = lambda f: f.name,
+        sorting_key: Callable[[os.DirEntry], Union[int, str]] = lambda f: f.name,
     ) -> None:
         self.root = directory
         self.extension = extension
@@ -103,41 +129,110 @@ class Files:
         self.results = sorted(self.results, key=lambda f: self.sorting_func(f.name))
 
     def __getitem__(self, index: int) -> os.DirEntry:
+        """
+        Returns the file at the specified index.
+
+        Args:
+            index (int): The index of the file.
+
+        Returns:
+            os.DirEntry: The file at the specified index.
+        """
         return self.results[index]
 
-    def __iter__(self):
+    def __iter__(self) -> Files:
+        """
+        Returns an iterator object.
+
+        Returns:
+            Files: The iterator object.
+        """
         self._pos = -1
         return self
 
-    def __next__(self):
+    def __next__(self) -> str:
+        """
+        Returns the next file name or path in the iteration.
+
+        Returns:
+            str: The next file name or path.
+        
+        Raises:
+            StopIteration: If there are no more files in the iteration.
+        """
         self._pos += 1
         if self._pos >= self.__len__():
             raise StopIteration
 
-        result: os.DirEntry = self.results[self._pos]
+        result = self.results[self._pos]
         if self.return_full_path:
             return result.path
         return result.name
 
     def __len__(self) -> int:
+        """
+        Returns the number of files in the results list.
+
+        Returns:
+            int: The number of files.
+        """
         return len(self.results)
 
     def __contains__(self, key: str) -> bool:
+        """
+        Checks if a file with the specified name exists in the results list.
+
+        Args:
+            key (str): The file name to check.
+
+        Returns:
+            bool: True if the file exists, False otherwise.
+        """
         for res in self.results:
             if key == res.name:
                 return True
         return False
 
     def get_filename(self) -> str:
+        """
+        Returns the name of the current file.
+
+        Returns:
+            str: The name of the current file.
+        """
         return self.results[self._pos].name
 
     def get_path(self) -> str:
+        """
+        Returns the path of the current file.
+
+        Returns:
+            str: The path of the current file.
+        """
         return self.results[self._pos].path
 
-    def seek(self, pos: int):
+    def seek(self, pos: int) -> str:
+        """
+        Moves the iterator to the specified position and returns the file name or path.
+
+        Args:
+            pos (int): The position to seek to.
+
+        Returns:
+            str: The file name or path at the specified position.
+
+        Raises:
+            AssertionError: If the specified position is invalid.
+        """
         assert 0 <= pos < self.__len__(), "Invalid position"
         self._pos = pos - 1
         return self.__next__()
 
     def copy(self, dst_root: str) -> None:
+        """
+        Copies the current file to the specified destination directory.
+
+        Args:
+            dst_root (str): The destination directory path.
+        """
         shutil.copy2(self.get_path(), dst=dst_root)

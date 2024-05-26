@@ -43,7 +43,7 @@ class YoloController(SimController):
     def __init__(self, timing_config: TimingConfig, yolo_config: YoloConfig):
         super().__init__(timing_config)
         self.yolo_config = yolo_config
-        self._camera_frames = deque(maxlen=timing_config.cycle_length)
+        self._camera_frames = deque(maxlen=timing_config.cycle_frame_num)
         self._model = yolo_config.load_model()
 
     def on_sim_start(self, sim: Simulator):
