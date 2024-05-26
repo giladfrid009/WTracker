@@ -1,9 +1,10 @@
-from typing import Collection
+from typing import Collection, Any
 from dataclasses import dataclass, field
 import numpy as np
 import cv2 as cv
 from collections import deque
 from ultralytics import YOLO
+
 
 from sim.simulator import Simulator, SimController
 from utils.bbox_utils import *
