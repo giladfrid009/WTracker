@@ -2,7 +2,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import math
 from typing import Any
-from ultralytics import YOLO
 
 from utils.config_base import ConfigBase
 from utils.frame_reader import FrameReader
@@ -64,32 +63,6 @@ class TimingConfig(ConfigBase):
     @property
     def cycle_time_ms(self) -> float:
         return self.cycle_length * self.ms_per_frame
-
-
-@dataclass
-class YoloConfig(ConfigBase):
-    model_path: str
-    device: str = "cpu"
-    task: str = "detect"
-    verbose: bool = False
-    pred_kwargs: dict = field(
-        default_factory=lambda: {
-            "imgsz": 384,
-            "conf": 0.1,
-        }
-    )
-
-    model: YOLO = field(default=None, init=False, repr=False)
-
-    def __getstate__(self) -> dict[str, Any]:
-        state = self.__dict__.copy()
-        del state["model"]  # we dont want to serialize the model
-        return state
-
-    def load_model(self) -> YOLO:
-        if self.model is None:
-            self.model = YOLO(self.model_path, task=self.task, verbose=self.verbose)
-        return self.model
 
 
 @dataclass

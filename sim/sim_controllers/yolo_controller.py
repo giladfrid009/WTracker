@@ -1,11 +1,41 @@
 from typing import Collection
+from dataclasses import dataclass, field
 import numpy as np
 import cv2 as cv
 from collections import deque
+from ultralytics import YOLO
 
 from sim.simulator import Simulator, SimController
 from utils.bbox_utils import *
-from sim.config import YoloConfig, TimingConfig
+from sim.config import TimingConfig
+from utils.config_base import ConfigBase
+
+
+@dataclass
+class YoloConfig(ConfigBase):
+    model_path: str
+    device: str = "cpu"
+    task: str = "detect"
+    verbose: bool = False
+    pred_kwargs: dict = field(
+        default_factory=lambda: {
+            "imgsz": 384,
+            "conf": 0.1,
+        }
+    )
+
+    model: YOLO = field(default=None, init=False, repr=False)
+
+    def __getstate__(self) -> dict[str, Any]:
+        state = self.__dict__.copy()
+        del state["model"]  # we dont want to serialize the model
+        return state
+
+    def load_model(self) -> YOLO:
+        if self.model is None:
+            self.model = YOLO(self.model_path, task=self.task, verbose=self.verbose)
+        return self.model
+
 
 
 class YoloController(SimController):
