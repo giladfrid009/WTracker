@@ -14,6 +14,9 @@ from utils.frame_reader import FrameReader, DummyReader
 from sim.simulator import TimingConfig
 
 
+# TODO: do we want to document VLC or no?
+
+
 @dataclass
 class HotKey:
     key: str

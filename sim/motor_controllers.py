@@ -32,7 +32,7 @@ class MotorController(abc.ABC):
 
 class StepMotorController(MotorController):
     """
-    A simple motor controller that manages the movement of a motor. 
+    A simple motor controller that manages the movement of a motor.
     The motor moved the entire distance in one step, the movement happens after 'move_after_ratio' percent of 'movement_steps' have passed.
 
     Args:
@@ -58,7 +58,7 @@ class StepMotorController(MotorController):
 class SineMotorController(MotorController):
     """
     A motor controller that generates sinusoidal movements.
-    
+
     Methods:
         register_move(dx: int, dy: int) -> None: Registers a movement step in the queue.
         step() -> tuple[int, int]: Performs a movement step and returns the displacement.

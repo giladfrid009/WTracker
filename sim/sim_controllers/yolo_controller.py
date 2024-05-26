@@ -38,7 +38,6 @@ class YoloConfig(ConfigBase):
         return self.model
 
 
-
 class YoloController(SimController):
     def __init__(self, timing_config: TimingConfig, yolo_config: YoloConfig):
         super().__init__(timing_config)
@@ -84,7 +83,7 @@ class YoloController(SimController):
         return np.stack(bboxes, axis=0)
 
     def begin_movement_prediction(self, sim: Simulator) -> None:
-        pass # TODO: IMPLEMENT
+        pass  # TODO: IMPLEMENT
 
     def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         frame = self._camera_frames[-self.timing_config.pred_frame_num]

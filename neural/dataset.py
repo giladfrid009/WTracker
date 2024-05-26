@@ -102,7 +102,7 @@ class numpyDataset(Dataset):
         X[:, y_cord_mask] -= y_cords  # .reshape(-1, 1)
 
         dataset = numpyDataset(X, y, config)
-        
+
         if save_path is not None:
             dataset.save(save_path)
 

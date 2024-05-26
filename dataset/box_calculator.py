@@ -79,7 +79,7 @@ class BoxCalculator:
 
     def _calc_background(self) -> np.ndarray:
         bg_calc = BGExtractor(self._frame_reader)
-        return bg_calc.calc_background(self._bg_probes, spacing="random", method="median")
+        return bg_calc.calc_background(self._bg_probes, sampling="random", method="median")
 
     def _calc_bounding_box(self, frame_idx: int) -> np.ndarray:
         # get mask according to the threshold value

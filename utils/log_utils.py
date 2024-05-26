@@ -1,6 +1,7 @@
 import csv
 from typing import Iterable
 
+
 class CSVLogger:
     """
     A class for logging data to a CSV file.

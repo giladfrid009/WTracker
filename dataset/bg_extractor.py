@@ -5,19 +5,38 @@ from utils.frame_reader import FrameReader
 
 
 class BGExtractor:
+    """
+    A class for extracting the background from a given sequence of frames, provided by a FrameReader.
+    """
+
     def __init__(self, reader: FrameReader):
         self.reader = reader
 
-    def calc_background(self, num_probes: int, spacing: str = "random", method: str = "median") -> np.ndarray:
-        assert spacing in ["random", "uniform"]
+    def calc_background(self, num_probes: int, sampling: str = "random", method: str = "median") -> np.ndarray:
+        """
+        Calculate the background of the dataset.
+
+        Args:
+            num_probes (int): The number of probes to sample for background calculation.
+            sampling (str, optional): The sampling method for selecting probes. Can be "random" or "uniform". Defaults to "random".
+                "uniform" will select frames uniformly spaced from the FrameReader.
+                "random" will select frames randomly from the FrameReader.
+            method (str, optional): The method for calculating the background. Can be "median" or "mean". Defaults to "median".
+                The background is calculated by either taking the median or mean of the sampled frames.
+
+        Returns:
+            np.ndarray: The calculated background as a numpy array.
+        """
+
+        assert sampling in ["random", "uniform"]
         assert method in ["median", "mean"]
 
         length = len(self.reader)
         size = min(num_probes, length)
 
-        if spacing == "random":
+        if sampling == "random":
             frame_ids = np.random.choice(length, size=size, replace=False)
-        elif spacing == "uniform":
+        elif sampling == "uniform":
             frame_ids = np.linspace(0, length - 1, num=size)
             frame_ids = np.unique(frame_ids.astype(int, copy=False))
 

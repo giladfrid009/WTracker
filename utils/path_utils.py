@@ -73,6 +73,7 @@ import os
 import shutil
 from typing import Callable, Union
 
+
 class Files:
     """
     A utility class for working with files in a directory.
@@ -156,7 +157,7 @@ class Files:
 
         Returns:
             str: The next file name or path.
-        
+
         Raises:
             StopIteration: If there are no more files in the iteration.
         """

@@ -2,9 +2,11 @@ from typing import Collection
 import numpy as np
 import cv2 as cv
 
-
 from utils.frame_reader import FrameReader
 from utils.bbox_utils import *
+
+
+# TODO: decide on final design of the class and its methods for best ease of use and flexibility.
 
 
 class ErrorCalculator:
