@@ -43,8 +43,11 @@ class UserPrompt:
         title: str = None,
         file_types: list[tuple[str, str]] = None,
         multiple: bool = False,
+        path: str | None = None,
         **kwargs,
     ) -> str | tuple[str]:
+        if path is not None:
+            return path
         if file_types is None:
             file_types = []
 
@@ -86,7 +89,9 @@ class UserPrompt:
             )
 
     @staticmethod
-    def open_directory(title: str = None, **kwargs) -> str:
+    def open_directory(title: str = None, path: str | None = None, **kwargs) -> str:
+        if path is not None:
+            return path
         with FocusedWindow() as root:
             return filedialog.askdirectory(
                 parent=root,
