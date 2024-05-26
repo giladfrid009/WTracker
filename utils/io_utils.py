@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 
 from utils.path_utils import join_paths, create_directory, create_parent_directory
-from frame_reader import FrameReader
+from utils.frame_reader import FrameReader
 from utils.threading_utils import TaskScheduler
 
 

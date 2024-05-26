@@ -3,7 +3,7 @@ import numpy as np
 import abc
 from tqdm.auto import tqdm
 
-from frame_reader import FrameReader, DummyReader
+from utils.frame_reader import FrameReader, DummyReader
 from sim.view_controller import ViewController
 from sim.config import *
 from sim.motor_controllers import MotorController, SineMotorController

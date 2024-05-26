@@ -5,7 +5,7 @@ from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
 import multiprocessing
 
-from frame_reader import FrameReader
+from utils.frame_reader import FrameReader
 from dataset.bg_extractor import BGExtractor
 
 

@@ -1,7 +1,7 @@
 import numpy as np
 from tqdm.auto import tqdm
 
-from frame_reader import FrameReader
+from utils.frame_reader import FrameReader
 
 
 class BGExtractor:

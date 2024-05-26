@@ -10,7 +10,7 @@ matplotlib.use("QTAgg")
 
 from utils.path_utils import Files, create_directory, join_paths
 from utils.io_utils import ImageSaver
-from frame_reader import FrameReader, DummyReader
+from utils.frame_reader import FrameReader, DummyReader
 from sim.simulator import TimingConfig
 
 

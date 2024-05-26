@@ -5,7 +5,7 @@ from typing import Any
 from ultralytics import YOLO
 
 from utils.config_base import ConfigBase
-from frame_reader import FrameReader
+from utils.frame_reader import FrameReader
 
 
 @dataclass

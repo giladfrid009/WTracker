@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-from frame_reader import FrameReader, FrameStream
+from utils.frame_reader import FrameReader, FrameStream
 
 
 class ViewController(FrameStream):

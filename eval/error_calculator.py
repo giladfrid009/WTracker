@@ -3,7 +3,7 @@ import numpy as np
 import cv2 as cv
 
 
-from frame_reader import FrameReader
+from utils.frame_reader import FrameReader
 from utils.bbox_utils import *
 
 
