@@ -78,18 +78,17 @@ class TrainConfig(ConfigBase):
         #     self.weight_decay = self.optimizer.param_groups[0]['weight_decay']
 
 
-"""
-Configuration for the basic input/output of the network
-The input_frames and pred_frames are lists of integers that represent the frames 
-that will be used as input and output of the network. The frames are in the format
-of the number of frames before (negative) or after (positive) the prediction frame(0).
-To calculate in_dim,out_dim we assume that each input frame has 4 features (x,y,w,h), representing the worm bbox in that frame
-and each prediction frame has 2 features (x,y), representing the worm center in that frame.
-"""
-
 
 @dataclass
 class IOConfig(ConfigBase):
+    """
+    Configuration for the basic input/output of the network
+    The input_frames and pred_frames are lists of integers that represent the frames 
+    that will be used as input and output of the network. The frames are in the format
+    of the number of frames before (negative) or after (positive) the prediction frame(0).
+    To calculate in_dim,out_dim we assume that each input frame has 4 features (x,y,w,h), representing the worm bbox in that frame
+    and each prediction frame has 2 features (x,y), representing the worm center in that frame.
+"""
     input_frames: list[int]
     pred_frames: list[int]
 

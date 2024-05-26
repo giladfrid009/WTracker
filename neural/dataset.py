@@ -10,6 +10,30 @@ from utils.bbox_utils import BoxUtils
 
 
 class numpyDataset(Dataset):
+    """
+    A custom Dataset class used to train the neural network. This class is used to create a PyTorch Dataset from a numpy array, and
+    can be initialized with 'ndarrays' of the samples and labels, as well as a DatasetConfig configuration, in which the samples (X)
+    and labels(y) will be created automatically.
+
+    Args:
+        X (np.ndarray): The input data as a numpy array.
+        y (np.ndarray): The output data as a numpy array.
+        config (DatasetConfig, optional): The configuration object for the dataset. Defaults to None.
+
+    Attributes:
+        config (DatasetConfig): The configuration object for the dataset.
+        X (Tensor): The input data as a PyTorch tensor.
+        y (Tensor): The output data as a PyTorch tensor.
+
+    Methods:
+        __len__(): Returns the length of the dataset.
+        __getitem__(idx): Returns the input and output data at the given index.
+        save(path): Saves the dataset to a file.
+        load(path): Loads a saved dataset from a file.
+        create_from_config(config, save_path): Creates a new dataset from a DatasetConfig configuration object.
+
+    """
+
     def __init__(self, X: np.ndarray, y: np.ndarray, config: DatasetConfig = None):
         self.config = config
         self.X = Tensor(X)
@@ -29,7 +53,7 @@ class numpyDataset(Dataset):
         return torch.load(path)
 
     @staticmethod
-    def create_from_config(config: DatasetConfig, save_path: str = None) -> numpyDataset:
+    def create_from_config(config: DatasetConfig, save_path: str | None = None) -> numpyDataset:
         data = pd.read_csv(config.log_path)
         start_idx = abs(min(config.input_frames)) + 1
         X_mask = np.asanyarray(config.input_frames)

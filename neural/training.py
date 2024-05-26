@@ -246,6 +246,29 @@ class Trainer(abc.ABC):
 
 
 class MLPTrainer(Trainer):
+    """
+    The `MLPTrainer` class is responsible for training and testing a multi-layer perceptron (MLP) models.
+
+    Args:
+        model (nn.Module): The MLP model to be trained.
+        loss_fn (nn.Module): The loss function used for training.
+        optimizer (Optimizer): The optimizer used for updating the model's parameters.
+        device (Optional[torch.device], optional): The device on which the model and data should be loaded. Defaults to None.
+        log (bool, optional): Whether to log training progress with tensorboard. Defaults to False.
+
+    Attributes:
+        loss_fn (nn.Module): The loss function used for training.
+        optimizer (Optimizer): The optimizer used for updating the model's parameters.
+
+    Methods:
+        train_batch(batch) -> BatchResult:
+            Trains the model on a batch of data.
+
+        test_batch(batch) -> BatchResult:
+            Tests the model on a batch of data.
+
+    """
+
     def __init__(
         self,
         model: nn.Module,
