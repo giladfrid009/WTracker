@@ -1,7 +1,7 @@
 from torch import Tensor, nn
 from typing import Union, Sequence
 from collections import defaultdict
-
+from abc import ABC, abstractmethod
 
 ACTIVATIONS = {
     "relu": nn.ReLU,
@@ -25,6 +25,16 @@ ACTIVATION_DEFAULT_KWARGS = defaultdict(
         "logsoftmax": dict(dim=1),
     },
 )
+
+
+class WormPredictor(nn.Module, ABC):
+    def __init__(self):
+        super().__init__()
+        self.io_config = None
+
+    @abstractmethod
+    def forward(self, x: Tensor) -> Tensor:
+        return x
 
 
 class MLPLayer(nn.Module):

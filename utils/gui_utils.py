@@ -45,7 +45,7 @@ class UserPrompt:
         multiple: bool = False,
         path: str | None = None,
         **kwargs,
-    ) -> str | tuple[str]:
+    ) -> str | list[str]:
         if path is not None:
             return path
         if file_types is None:
@@ -61,6 +61,8 @@ class UserPrompt:
                     filetypes=file_types,
                     **kwargs,
                 )
+                
+                path = list(path)
 
             else:
                 path = filedialog.askopenfilename(

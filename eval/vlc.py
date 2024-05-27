@@ -6,6 +6,7 @@ import cv2 as cv
 from typing import Callable
 from dataclasses import dataclass, field
 import matplotlib
+
 matplotlib.use("QTAgg")
 
 from utils.path_utils import Files, create_directory, join_paths
@@ -141,12 +142,8 @@ class VLC:
         self.streamer.register_hotkey(HotKey("d", self.next, "next frame"))
         self.streamer.register_hotkey(HotKey("a", self.prev, "previous frame"))
         self.streamer.register_hotkey(HotKey("p", self.toggle_play, "play/pause"))
-        self.streamer.register_hotkey(
-            HotKey("h", self.toggle_pred, "toggle prediction box")
-        )
-        self.streamer.register_hotkey(
-            HotKey("m", self.toggle_micro, "toggle microscope box")
-        )
+        self.streamer.register_hotkey(HotKey("h", self.toggle_pred, "toggle prediction box"))
+        self.streamer.register_hotkey(HotKey("m", self.toggle_micro, "toggle microscope box"))
         self.streamer.register_hotkey(HotKey("c", self.toggle_cam, "toggle camera box"))
 
     def print_hotkeys(self):
@@ -170,7 +167,7 @@ class VLC:
         filenames = [f for f in files]
         reader = FrameReader(files.root, filenames)
         return reader
-    
+
     def __enter__(self):
         self.streamer.open()
         self.initialize()
@@ -276,9 +273,7 @@ class VLC:
         pred_w = ceil(pred_w)
         pred_h = ceil(pred_h)
 
-        cv.rectangle(
-            photo, (pred_x, pred_y), (pred_x + pred_w, pred_y + pred_h), color, width
-        )
+        cv.rectangle(photo, (pred_x, pred_y), (pred_x + pred_w, pred_y + pred_h), color, width)
 
     def draw_marker(
         self,
@@ -327,12 +322,12 @@ class VLC:
                 path = join_paths(folder_path, filename.format(index))
                 img = self.get_photo()
                 worker.schedule_save(img, path)
-        
+
         image_format = filename.replace("{:", "%").replace("}", "")
         self.make_vid(folder_path, image_format, folder_path)
-    
-    def make_vid(self, folder_path: str, img_name_format:str, output_dir: str) -> None:
+
+    def make_vid(self, folder_path: str, img_name_format: str, output_dir: str) -> None:
         fps = self.config.frames_per_sec
-        command = f"ffmpeg -framerate {fps} -start_number 0 -i {join_paths(folder_path, img_name_format)} -c:v copy {join_paths(output_dir, "video.mp4")}"
+        command = f"ffmpeg -framerate {fps} -start_number 0 -i {join_paths(folder_path, img_name_format)} -c:v copy {join_paths(output_dir, 'video.mp4')}"
         print(command)
         os.system(command)
