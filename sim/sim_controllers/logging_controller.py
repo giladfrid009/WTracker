@@ -12,9 +12,17 @@ from utils.config_base import ConfigBase
 @dataclass
 class LogConfig(ConfigBase):
     root_folder: str
+    """The directory where the logs will be saved into."""
+
     save_mic_view: bool = False
+    """Whether to save the microscope view of each frame."""
+
     save_cam_view: bool = False
+    """Whether to save the camera view of each frame."""
+
     save_err_view: bool = True
+    """Whether to camera view of frames in which no prediction was made."""
+
     mic_folder_name: str = "micro"
     cam_folder_name: str = "camera"
     err_folder_name: str = "errors"

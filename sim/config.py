@@ -11,10 +11,11 @@ class TimingConfig(ConfigBase):
     """
     Configuration for timing parameters of the experiment.
     These parameters should not change between different experiments.
-    This class affects the timing of the simulation.
+    This class affects the timings of the simulation.
     """
 
     experiment_config: ExperimentConfig = field(repr=False)
+    """The configuration of the experiment parameters."""
 
     px_per_mm: int = field(init=False)
     mm_per_px: float = field(init=False)
@@ -78,14 +79,30 @@ class ExperimentConfig(ConfigBase):
     """
 
     name: str
+    """Experiment name"""
+
     num_frames: int
     frames_per_sec: float
+    """Number of frames per second that the experiment was recorded at"""
+
     orig_resolution: tuple[int, int]
+    """Original resolution of the frames in pixels"""
+
     px_per_mm: float
+    """Number of pixels in a single millimeter"""
+
     init_position: tuple[int, int]
+    """The initial position of the center of the platform, in pixels. 
+    Platform's initial position should point to the worm, or close to it."""
+
     comments: str = ""
+    """Additional comments about the experiment"""
+
     mm_per_px: float = field(init=False)
+    """Number of millimeters in a single pixel"""
+
     ms_per_frame: float = field(init=False)
+    """Number of milliseconds per frame"""
 
     def __post_init__(self):
         self.ms_per_frame = 1000 / self.frames_per_sec

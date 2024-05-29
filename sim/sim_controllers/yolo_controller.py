@@ -15,17 +15,26 @@ from utils.config_base import ConfigBase
 @dataclass
 class YoloConfig(ConfigBase):
     model_path: str
+    """The path to the pretrained YOLO weights file."""
+
     device: str = "cpu"
-    task: str = "detect"
+    """Inference device for YOLO. Can be either 'cpu' or 'cuda'."""
+
+    task: str = "detect"  # TODO: SHOULD REMOVE THIS PARAMETER PROBABLY
+
     verbose: bool = False
+    """Whether to print verbose output during YOLO inference."""
+
     pred_kwargs: dict = field(
         default_factory=lambda: {
             "imgsz": 384,
             "conf": 0.1,
         }
     )
+    """Additional keyword arguments for the YOLO prediction method."""
 
     model: YOLO = field(default=None, init=False, repr=False)
+    """The YOLO model object."""
 
     def __getstate__(self) -> dict[str, Any]:
         state = self.__dict__.copy()

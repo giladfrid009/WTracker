@@ -12,8 +12,16 @@ from utils.config_base import ConfigBase
 @dataclass
 class PolyfitConfig(ConfigBase):
     degree: int
+    """The degree of the polynomial, which will be fitted to the worm movement."""
+
     sample_times: list[int]
+    """Times at which the worm position is be sampled for the polynomial fit.
+    Time 0 denotes the beginning of the current cycle. Negative values are allowed."""
+
     weights: list[float] = None
+    """Weights for each position sample for the polynomial fit. If None, all weights are set to 1.0.
+    If the weights are not uniform, weighted polynomial fit is performed, 
+    where the residuals of samples with higher weights are more important for the fitting."""
 
     def __post_init__(self):
         self.sample_times = sorted(self.sample_times)
