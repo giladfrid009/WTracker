@@ -82,6 +82,8 @@ class ExperimentConfig(ConfigBase):
     """Experiment name"""
 
     num_frames: int
+    """total number of frames of the experiment"""
+
     frames_per_sec: float
     """Number of frames per second that the experiment was recorded at"""
 

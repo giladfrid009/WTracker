@@ -10,9 +10,9 @@ from utils.config_base import ConfigBase
 
 @dataclass
 class DatasetConfig(ConfigBase):
-    input_frames: list[int]
-    pred_frames: list[int]
-    log_path: str
+    input_frames: list[int] # The frames to use as input for the network. The frames are in the format of the number of frames before (negative) or after (positive) the prediction frame(0).
+    pred_frames: list[int] # The frames to predict. The frames are in the format of the number of frames before (negative) or after (positive) the prediction frame(0).
+    log_path: str # The path to the log file containing the worm head predictions (by YOLO).
 
     def __post_init__(self) -> None:
         if self.input_frames[0] != 0:
@@ -32,6 +32,11 @@ OPTIMIZERS = {
     "adamw": torch.optim.AdamW,
 }
 
+LOSSES = {
+    "mse": nn.MSELoss,
+    "l1": nn.L1Loss,
+}
+
 
 @dataclass
 class TrainConfig(ConfigBase):
@@ -41,14 +46,14 @@ class TrainConfig(ConfigBase):
 
     # trainer parameters
     model: nn.Module | str  # The model to train, can also be a pretrained model (if str, it will be loaded from disk)
-    loss_fn: nn.Module  # The loss function to use
-    optimizer: Optimizer | str  # The optimizer to use
+    loss_fn: nn.Module  # The loss function to use, can be any of the keys in the LOSSES dict
+    optimizer: str  # The optimizer to use, can be any of the keys in the OPTIMIZERS dict
     device: str = "cuda"  # 'cuda' for training on GPU or 'cpu' otherwise
     log: bool = False  # Whether to log and save the training process with tensorboard
 
     # training parameters
     num_epochs: int = 100  # Number of times to iterate over the dataset
-    checkpoints: str = None  # Path to save model checkpoints
+    checkpoints: str = None  # Path to save model checkpoints, influding the checkpoint name.
     early_stopping: int = None  # Number of epochs to wait before stopping training if no improvement was made
     print_every: int = 5  # How often (#epochs) to print training progress
 
@@ -66,16 +71,6 @@ class TrainConfig(ConfigBase):
 
     dl_train: DataLoader = field(init=False)
     dl_test: DataLoader = field(init=False)
-
-    def __post_init__(self) -> None:
-        self.device = torch.device(self.device)
-        # if isinstance(self.model, str):
-        #     self.model = torch.load(self.model)
-        if isinstance(self.optimizer, str):
-            self.optimizer = OPTIMIZERS[self.optimizer]
-        # else:
-        #     self.learning_rate = self.optimizer.param_groups[0]['lr']
-        #     self.weight_decay = self.optimizer.param_groups[0]['weight_decay']
 
 
 @dataclass

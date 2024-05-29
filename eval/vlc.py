@@ -20,6 +20,15 @@ from sim.simulator import TimingConfig
 
 @dataclass
 class HotKey:
+    """
+    Represents a hotkey that can be used to trigger a specific function.
+
+    Attributes:
+        key (str): The key for the hotkey.
+        func (Callable[[str], None]): The function to be called when the hotkey is triggered.
+        description (str): The description of the hotkey (optional).
+    """
+
     key: str
     func: Callable[[str], None]
     description: str = field(default="")
@@ -29,7 +38,34 @@ class HotKey:
 
 
 class StreamViewer:
+    """
+    A class for viewing and interacting with photos and video streams.
+
+    Methods:
+        register_hotkey(self, hotkey: HotKey): Registers a hotkey.
+        create_trackbar(self, name: str, val: int, maxval: int, onChange=lambda x: x): Creates a trackbar.
+        update_trackbar(self, name: str, val: int): Updates the value of a trackbar.
+        set_title(self, title: str): Sets the title of the window.
+        update(self, image: np.ndarray, wait: int = 1): Updates the window with a new image.
+        waitKey(self, timeout: int = 0): Waits for a key press.
+        open(self): Opens the window.
+        close(self, key: str = "q"): Closes the window.
+        imshow(self, image: np.ndarray, title: str = "image"): Displays an image in the window.
+    
+    Example:
+        with StreamViewer() as streamer:
+            streamer.imshow(image)
+            streamer.waitKey()
+        
+    """
+
     def __init__(self, window_name: str = "streamer") -> None:
+        """
+        Initializes the StreamViewer object.
+
+        Args:
+            window_name (str, optional): The name of the window.
+        """
         self.window_name = window_name
         self.window = None
         self.hotkeys: list[HotKey] = []
@@ -37,32 +73,85 @@ class StreamViewer:
         self.register_hotkey(HotKey("q", self.close, "close the window"))
 
     def register_hotkey(self, hotkey: HotKey):
+        """
+        Registers a hotkey.
+
+        Args:
+            hotkey (HotKey): The hotkey to register.
+        """
         self.hotkeys.append(hotkey)
 
     def create_trackbar(self, name: str, val: int, maxval: int, onChange=lambda x: x):
+        """
+        Creates a trackbar.
+
+        Args:
+            name (str): The name of the trackbar.
+            val (int): The initial value of the trackbar.
+            maxval (int): The maximum value of the trackbar.
+            onChange (function): The function to call when the trackbar value changes.
+        """
         cv.createTrackbar(name, self.window_name, val, maxval, onChange)
 
     def update_trackbar(self, name: str, val: int):
+        """
+        Updates the value of a trackbar.
+
+        Args:
+            name (str): The name of the trackbar.
+            val (int): The new value of the trackbar.
+        """
         cv.setTrackbarPos(name, self.window_name, val)
 
     def set_title(self, title: str):
+        """
+        Sets the title of the window.
+
+        Args:
+            title (str): The new title of the window.
+        """
         cv.setWindowTitle(self.window_name, title)
 
     def __enter__(self):
+        """
+        Enters the context manager.
+        """
         self.open()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exits the context manager.
+        """
         self.close()
 
     def __del__(self):
+        """
+        Destructor method.
+        """
         self.close()
 
     def update(self, image: np.ndarray, wait: int = 1):
+        """
+        Updates the window with a new image.
+
+        Args:
+            image (np.ndarray): The image to display.
+            wait (int): The delay in milliseconds before updating the window.
+        """
         cv.imshow(self.window_name, image)
         self.waitKey(wait)
 
     def waitKey(self, timeout: int = 0):
+        """
+        Waits for a key press. This Function also triggers the hotkeys.
+
+        Args:
+            timeout (int): The timeout in milliseconds.
+
+        Returns:
+            str: The key that was pressed.
+        """
         key = cv.waitKey(timeout)
         if key <= 0:
             return key
@@ -73,28 +162,68 @@ class StreamViewer:
         return key
 
     def open(self):
+        """
+        Opens the window.
+        """
         self.close()
         self.window = cv.namedWindow(self.window_name, flags=cv.WINDOW_GUI_EXPANDED)
         cv.setWindowProperty(self.window_name, cv.WND_PROP_TOPMOST, 1)
-        # cv.displayStatusBar(self.window_name, "Press 'q' to close")
-        # cv.setWindowProperty(self.window_name, cv.WINDOW_GUI_EXPANDED, 1)
         self.set_title(self.window_name)
 
     def close(self, key: str = "q"):
+        """
+        Closes the window.
+
+        Args:
+            key (str): The key to close the window.
+        """
         if self.window is not None:
             cv.destroyWindow(self.window_name)
             self.window = None
 
     def imshow(self, image: np.ndarray, title: str = "image"):
+        """
+        Displays an image in the window.
+
+        Args:
+            image (np.ndarray): The image to display.
+            title (str): The title of the image.
+        """
         self.update(image, wait=0)
         self.set_title(title)
-        cv.setWindowProperty(self.window_name, cv.WND_PROP_TOPMOST, 1)
+        cv.setWindowProperty(self.windD_PROP_TOPMOST, 1)
 
 
 class VLC:
+    """
+    The VLC class represents a video player for visualizing Simulations. This class supports saving Simulation frames (with or without boxes overlay) as well.
+
+    Args:
+        files (Files): The files to read frames from. If None, the video player will present the log data (simulation) on a white background.
+        config (TimingConfig): The timing configuration of the system.
+        log_path (str): The path to the log file.
+        cam_type (str): The type of camera. This should match the prefix of the corresponding columns in the log file.
+        show_pred (bool, optional): Whether to show the prediction box. Defaults to True.
+        show_micro (bool, optional): Whether to show the microscope box. Defaults to False.
+        show_cam (bool, optional): Whether to show the camera box. Defaults to False.
+
+    Methods:
+        initialize(): Initializes the video player.
+        print_hotkeys(): Prints the available hotkeys along with their descriptions.
+        get_attribute(col_name: str): Gets the value of an attribute from the current row in the log.
+        get_photo() -> np.ndarray: Gets the current frame with overlays (i.e the image that will be displayed).
+        seek(pos: int): Seeks to a specific frame.
+        next(key=None): Moves to the next frame.
+        prev(key=None): Moves to the previous frame.
+        close(key=None): Closes the video player.
+        set_delay(delay: int): Sets the delay between frames.
+        mainloop(): Runs the main loop of the video player.
+        save_stream(folder_path: str) -> None: Saves the frames as images in a folder and creates a video file of it. This function doesn't show the video player (thus mainloop should not be called).
+        make_vid(folder_path: str, img_name_format: str, output_dir: str) -> None: Creates a video from the saved frames.
+    """
     def __init__(
         self,
-        files: Files,
+        files: Files | None,
         config: TimingConfig,
         log_path: str,
         cam_type: str,
@@ -242,6 +371,19 @@ class VLC:
         self.show_cam = not self.show_cam
 
     def mainloop(self):
+        """
+        Main loop for the VLC player.
+
+        This method continuously runs the VLC player until the `exit` flag is set to True (by self.close() (called by an hotkey)).
+        It checks the `play` flag to determine if the player should continue playing or pause.
+        The `delay` variable is used to control the delay between each iteration of the loop and is set to 0 to pause.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         with self as vlc:
             while not self.exit:
                 delay = 0 if not self.play else self.delay

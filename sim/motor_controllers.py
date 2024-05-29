@@ -70,11 +70,9 @@ class SineMotorController(MotorController):
         super().__init__(timing_config)
         self.queue: list = []
 
-    # TODO: not called from anywhere
-    def _reset(self):
-        self.queue.clear()
-
     def register_move(self, dx: int, dy: int) -> None:
+        assert len(self.queue) == 0
+
         for i in range(self.movement_steps):
             step_size = (
                 np.cos((i * np.pi) / self.movement_steps) - np.cos(((i + 1) * np.pi) / self.movement_steps)
@@ -86,6 +84,7 @@ class SineMotorController(MotorController):
         dx, dy = self.queue.pop(0)
         rdx, rdy = (round(dx), round(dy))
         resid_x, resid_y = dx - rdx, dy - rdy
+
         if self.queue:
             self.queue[0] = (self.queue[0][0] + resid_x, self.queue[0][1] + resid_y)
 
