@@ -7,11 +7,6 @@ from typing import Collection
 from utils.gui_utils import UserPrompt
 from sim.config import TimingConfig
 
-# TODO: clean this class and provide a set of predefined plot along with the
-#       generalized functions of histplot and jointplot
-
-# TODO: display(data.describe()) and such calls does not work if the code is not run from ipynb notebook. fix.
-
 
 class Plotter:
     def __init__(self, log_path: str = None, timing_config: TimingConfig = None):

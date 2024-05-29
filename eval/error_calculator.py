@@ -63,9 +63,6 @@ class ErrorCalculator:
 
         return error
 
-    # TODO: make implementation more efficient.
-    # perhaps accept a list of worm_bboxes and micro_bbox and of worm_views and calculate all errors at once
-    # note, that the function find_contour can't be vectorized to, and should process each worm_view separately
     @staticmethod
     def calculate_precise(
         background: np.ndarray,

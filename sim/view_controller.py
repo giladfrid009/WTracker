@@ -7,6 +7,8 @@ from utils.frame_reader import FrameReader, FrameStream
 class ViewController(FrameStream):
     """
     A class representing a view controller for a frame stream.
+    This class allows for easy manipulation of the camera and microscope positions,
+    and provides their corresponding views.
 
     Attributes:
         frame_reader (FrameReader): The frame reader object.

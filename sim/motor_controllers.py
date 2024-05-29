@@ -7,6 +7,7 @@ from .config import TimingConfig
 class MotorController(abc.ABC):
     """
     Abstract base class for motor controllers used in the Simulator class.
+    This motor controls the movement of the simulated platform.
 
     Attributes:
         timing_config (TimingConfig): The timing configuration for the motor controller.
@@ -69,6 +70,7 @@ class SineMotorController(MotorController):
         super().__init__(timing_config)
         self.queue: list = []
 
+    # TODO: not called from anywhere
     def _reset(self):
         self.queue.clear()
 
@@ -87,4 +89,4 @@ class SineMotorController(MotorController):
         if self.queue:
             self.queue[0] = (self.queue[0][0] + resid_x, self.queue[0][1] + resid_y)
 
-        return (rdx, rdy)  # TODO: remove round for more accurate movement
+        return (rdx, rdy)

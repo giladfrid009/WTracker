@@ -11,11 +11,12 @@ from utils.gui_utils import UserPrompt
 from eval.error_calculator import ErrorCalculator
 
 
-# TODO: review which additional functions are needed to import from the original 
+# TODO: review which additional functions are needed to import from the original
 # plotter to this one.
 
 # Notice that Plotter2 class is able to switch between units of time
 # Also, plotter2 first needs to be explicitly initialized
+
 
 class Plotter2:
     def __init__(
