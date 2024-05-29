@@ -43,11 +43,8 @@ class UserPrompt:
         title: str = None,
         file_types: list[tuple[str, str]] = None,
         multiple: bool = False,
-        path: str | None = None,
         **kwargs,
     ) -> str | list[str]:
-        if path is not None:
-            return path
         if file_types is None:
             file_types = []
 
@@ -61,18 +58,14 @@ class UserPrompt:
                     filetypes=file_types,
                     **kwargs,
                 )
-                
-                path = list(path)
-
+                return list(path)
             else:
-                path = filedialog.askopenfilename(
+                return filedialog.askopenfilename(
                     parent=root,
                     title=title,
                     filetypes=file_types,
                     **kwargs,
                 )
-
-        return path
 
     @staticmethod
     def save_file(title: str = None, file_types: list[tuple[str, str]] = None, **kwargs) -> str:
@@ -91,9 +84,7 @@ class UserPrompt:
             )
 
     @staticmethod
-    def open_directory(title: str = None, path: str | None = None, **kwargs) -> str:
-        if path is not None:
-            return path
+    def open_directory(title: str = None, **kwargs) -> str:
         with FocusedWindow() as root:
             return filedialog.askdirectory(
                 parent=root,

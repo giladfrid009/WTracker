@@ -69,11 +69,6 @@ def bulk_rename(dir_path: str, rename_fn: Callable[[str], str]):
         file_name.rename(new_name)
 
 
-import os
-import shutil
-from typing import Callable, Union
-
-
 class Files:
     """
     A utility class for working with files in a directory.
@@ -83,7 +78,7 @@ class Files:
         extension (str, optional): The file extension to filter the files. Defaults to "".
         scan_dirs (bool, optional): Whether to include directories in the results. Defaults to False.
         return_full_path (bool, optional): Whether to return the full path of the files. Defaults to True.
-        sorting_key (Callable[[os.DirEntry], Union[int, str]], optional): A function to determine the sorting order of the files. Defaults to lambda f: f.name.
+        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files. Defaults to lambda name: name.
 
     Methods:
         __getitem__(index: int) -> os.DirEntry: Returns the file at the specified index.
@@ -103,10 +98,10 @@ class Files:
         extension: str = "",
         scan_dirs: bool = False,
         return_full_path: bool = True,
-        sorting_key: Callable[[os.DirEntry], Union[int, str]] = lambda f: f.name,
+        sorting_key: Callable[[str], Union[int, str]] = lambda name: name,
     ) -> None:
         self.root = directory
-        self.extension = extension
+        self.extension = extension.lower()
         self.scan_dirs: bool = scan_dirs
         self.return_full_path = return_full_path
         self.results: list[os.DirEntry] = []
@@ -124,7 +119,7 @@ class Files:
             if self.scan_dirs and result.is_dir():
                 self.results.append(result)
             else:
-                if result.name.endswith(self.extension):
+                if result.name.lower().endswith(self.extension):
                     self.results.append(result)
 
         self.results = sorted(self.results, key=lambda f: self.sorting_func(f.name))

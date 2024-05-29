@@ -127,7 +127,7 @@ class SampleExtractor:
             name_format (str, optional): The format of the sample names. Defaults to "img_{:09d}.png".
             num_workers (int, optional): The number of workers to use for parallel processing. Defaults to None.
                 If None, the number of workers is determined automatically.
-            chunk_size (int, optional): The size of each processing chunk. Defaults to 50.
+            chunk_size (int, optional): The size of each processing chunk sent to each worker. Defaults to 50.
         """
 
         length = len(self._frame_reader)
