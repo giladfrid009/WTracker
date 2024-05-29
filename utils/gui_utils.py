@@ -38,6 +38,8 @@ class FocusedWindow:
 
 
 class UserPrompt:
+    """Class for creating a user prompt dialogs."""
+
     @staticmethod
     def open_file(
         title: str = None,
@@ -45,6 +47,19 @@ class UserPrompt:
         multiple: bool = False,
         **kwargs,
     ) -> str | list[str]:
+        """
+        Opens a file dialog to select one or multiple files.
+
+        Args:
+            title (str, optional): The title of the file dialog window. Defaults to None.
+            file_types (list[tuple[str, str]], optional): A list of file types to filter the displayed files. Each file type is represented as a tuple of the form (description, pattern). Defaults to None.
+            multiple (bool, optional): Whether to allow multiple file selection. Defaults to False.
+            **kwargs: Additional keyword arguments to be passed to the file dialog.
+
+        Returns:
+            str | list[str]: The path of the selected file(s). If multiple is True, a list of paths is returned. Otherwise, a single path is returned.
+
+        """
         if file_types is None:
             file_types = []
 
@@ -69,6 +84,19 @@ class UserPrompt:
 
     @staticmethod
     def save_file(title: str = None, file_types: list[tuple[str, str]] = None, **kwargs) -> str:
+        """
+        Opens a file dialog to save a file and returns the selected file path.
+
+        Args:
+            title (str, optional): The title of the file dialog window. Defaults to None.
+            file_types (list[tuple[str, str]], optional): A list of file types to filter the displayed files.
+                Each file type is represented as a tuple of the form (description, pattern). Defaults to None.
+            **kwargs: Additional keyword arguments to be passed to the file dialog.
+
+        Returns:
+            str: The selected file path.
+
+        """
         if file_types is None:
             file_types = []
 
@@ -85,6 +113,17 @@ class UserPrompt:
 
     @staticmethod
     def open_directory(title: str = None, **kwargs) -> str:
+        """
+        Opens a dialog box to select a directory.
+
+        Args:
+            title (str, optional): The title of the dialog box. Defaults to None.
+            **kwargs: Additional keyword arguments to be passed to the filedialog.askdirectory function.
+
+        Returns:
+            str: The path of the selected directory.
+
+        """
         with FocusedWindow() as root:
             return filedialog.askdirectory(
                 parent=root,
@@ -92,42 +131,3 @@ class UserPrompt:
                 mustexist=True,
                 **kwargs,
             )
-
-
-@dataclass
-class ExampleDataClass:
-    param1: str
-    param2: list[int]
-    param3: float
-
-
-class Config_GUI:
-    def __init__(self, data_class: dataclass):
-        self.root = tk.Tk()
-        self.data_class = data_class
-        self.entries = {}
-
-    def create_gui(self):
-        for field in fields(self.data_class):
-            if field.type not in [int, float, str, list[int]]:
-                tk.Button(self.root, text=f"Select {field.name}").pack()
-                raise ValueError(f"Type {field.type.__name__} not supported")
-            label = tk.Label(self.root, text=f"{field.name}: {field.type.__name__}")
-            entry = tk.Entry(self.root)
-            label.pack()
-            entry.pack()
-            self.entries[field.name] = entry
-
-        button = tk.Button(self.root, text="Print values", command=self.print_values)
-        button.pack()
-
-        self.root.mainloop()
-
-    def print_values(self):
-        for field in fields(self.data_class):
-            # entries[field.name] = field.type(entry.get())
-            print(field.type)
-            print(f"{field.name}: {field.type(self.entries[field.name].get())}")
-
-
-# Config_GUI(ExampleDataClass).create_gui()
