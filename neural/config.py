@@ -102,17 +102,3 @@ class IOConfig(ConfigBase):
     def from_datasetConfig(config: DatasetConfig) -> IOConfig:
         return IOConfig(config.input_frames, config.pred_frames)
 
-
-@dataclass
-class ModuleConfig(ConfigBase):
-    name: str
-    args: dict[str, object]
-
-    def initialize():
-        pass
-
-
-@dataclass
-class NetworkConfig(ConfigBase):
-    io: IOConfig
-    architecture: list[ModuleConfig]

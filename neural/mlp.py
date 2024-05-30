@@ -1,7 +1,7 @@
 from torch import Tensor, nn
 from typing import Union, Sequence
 from collections import defaultdict
-from abc import ABC, abstractmethod
+from neural.config import IOConfig
 
 ACTIVATIONS = {
     "relu": nn.ReLU,
@@ -27,14 +27,23 @@ ACTIVATION_DEFAULT_KWARGS = defaultdict(
 )
 
 
-class WormPredictor(nn.Module, ABC):
-    def __init__(self):
-        super().__init__()
-        self.io_config = None
+class WormPredictor(nn.Module):
+    """
+    A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class 
+    so that it can be destinguished from other models that don't predict worm behavior (for example the layers/blocks that make this model). 
+    This class also holds the IOConfig object that is used to determine the input and output shapes of the model, and the specific frames it expects as input and output.
 
-    @abstractmethod
+    attributes:
+    - model: The neural network model that predicts worm behavior.
+    - io_config: The IOConfig object of the model.
+    """
+    def __init__(self, model: nn.Module, io_config: IOConfig):
+        super().__init__()
+        self.io_config: IOConfig = io_config
+        self.model: nn.Module = model
+
     def forward(self, x: Tensor) -> Tensor:
-        return x
+        return self.model(x)
 
 
 class MLPLayer(nn.Module):
@@ -102,12 +111,8 @@ class MlpBlock(nn.Module):
         layers = []
         for i, out_dim in enumerate(self.dims):
             layers.append(MLPLayer(in_dim, out_dim, nonlins[i], batch_norm))
-            # layers.append(nn.Linear(in_dim, out_dim))
             in_dim = out_dim
-            # if batch_norm and nonlins[i] not in ["none", None]:
-            # layers.append(nn.BatchNorm1d(out_dim))
-            # layers.append(self._make_activation(nonlins[i]))
-
+            
         self.sequence = nn.Sequential(*layers)
 
     def _make_activation(self, act: Union[str, nn.Module]) -> nn.Module:
