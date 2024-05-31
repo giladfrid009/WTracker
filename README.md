@@ -17,7 +17,24 @@ This library provides tools for simulating worm movement, training predictors, a
 
 ## Installation
 
-Clone the repository and install the necessary Python dependencies. This project requires Python 3.7 or higher.
+Clone the repository and install the necessary Python dependencies. This project requires Python 3.12 or higher.
+
+Step 1 - Install mamba:
+    Install 'Miniforge' from this [link](https://github.com/conda-forge/miniforge), make sure to download the right version (that match the OS and CPU of the computer).
+    If asked during installation: add to PATH.
+
+Step 2 - verify that mamba is installed correctly::
+    1. open terminal/command prompt
+    2. enter 'mamba -h'
+    
+    if no error is encoutered than mamba is installed correctly.
+
+Step 3 - create the project environment:
+    1. copy the path of the 'installation.py' file (found in the project directory)
+    2. open terminal/command prompt
+    3. enter 'mamba activate base'
+    4. enter 'python PATH' where PATH is the path from step 1 
+     
 
 ## Usage
 
