@@ -17,6 +17,7 @@ from eval.error_calculator import ErrorCalculator
 # Notice that Plotter2 class is able to switch between units of time
 # Also, plotter2 first needs to be explicitly initialized
 
+#TODO: add exp_num/exp_name column
 
 class Plotter2:
     def __init__(
