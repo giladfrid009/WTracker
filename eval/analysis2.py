@@ -20,6 +20,7 @@ from eval.error_calculator import ErrorCalculator
 #TODO: add exp_num/exp_name column
 #TODO: add ability for joint plot and histogram to create plot for each exp seperatly
 #TODO: replace histplot with distplot
+#TODO: use exact error
 
 class Plotter2:
     def __init__(
