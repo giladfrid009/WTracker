@@ -14,8 +14,12 @@ dependencies:
   - numpy
   - pandas
   - matplotlib
-  - seaborn
+  - seaborn>=0.13
   - ipywidgets
   - ultralytics
   - pip
-    - opencv-python
+  - ipykernel
+  - opencv
+  - tensorboard
+  - pip:
+    - mealpy
