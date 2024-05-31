@@ -9,25 +9,22 @@ from functools import partial
 from sim.config import TimingConfig
 from utils.gui_utils import UserPrompt
 from eval.error_calculator import ErrorCalculator
+from utils.frame_reader import FrameReader
+from dataset.bg_extractor import BGExtractor
 
+# TODO: should we add a find_anomalies function that finds all the rows in the data with anomalous values?
+# for example, when the worm is moving too fast, or when the error is too high
 
-# TODO: review which additional functions are needed to import from the original
-# plotter to this one.
-
-# Notice that Plotter2 class is able to switch between units of time
-# Also, plotter2 first needs to be explicitly initialized
-
-#TODO: add exp_num/exp_name column
-#TODO: add ability for joint plot and histogram to create plot for each exp seperatly
-#TODO: replace histplot with distplot
-#TODO: use exact error
 
 class Plotter2:
     def __init__(
         self,
         time_config: TimingConfig = None,
         log_paths: list[str] = None,
+        plot_height: int = 7,
     ) -> None:
+        self.plot_height = plot_height
+
         if time_config is None:
             time_config = TimingConfig.load_json()
 
@@ -56,20 +53,25 @@ class Plotter2:
 
     def initialize(
         self,
+        unit: str = "frame",
         n: int = 10,
         imaging_only: bool = True,
-        unit: str = "frame",
+        legal_bounds: tuple[float, float, float, float] = None,
     ) -> None:
         """
         Initialize the data for analysis.
 
         Args:
+            unit (str, optional): The unit for time. Can be "frame" or "sec". Defaults to "frame".
             n (int, optional): The number of frames to calculate speed over. Defaults to 10.
             imaging_only (bool, optional): Whether to include only imaging phases. Defaults to True.
-            unit (str, optional): The unit for time. Can be "frame" or "sec". Defaults to "frame".
+            legal_bounds (tuple[float, float, float, float], optional): The legal bounds for the worm head location. Defaults to None. Bounds format is (x, y, w, h).
         """
 
         assert unit in ["frame", "sec"]
+
+        for i, data in enumerate(self.data_list):
+            self.data_list[i] = Plotter2._add_log_num_column(data, i)
 
         self.apply_foreach(Plotter2._add_time_column)
         self.apply_foreach(Plotter2._calc_cycle_steps, time_config=self.time_config)
@@ -79,13 +81,19 @@ class Plotter2:
 
         self.apply_foreach(Plotter2._calc_centers)
         self.apply_foreach(Plotter2._calc_speed, n=n)
-        self.apply_foreach(Plotter2._clean)
+
+        if legal_bounds is not None:
+            self.apply_foreach(Plotter2._remove_out_of_bounds, bounds=legal_bounds)
+
+        self.apply_foreach(Plotter2._remove_nopreds)
+        self.apply_foreach(Plotter2._remove_first_cycle)
+        self.apply_foreach(Plotter2._remove_first_cycle)
 
         if imaging_only:
             self.apply_foreach(Plotter2._remove_phase, phase="moving")
 
-        self.apply_foreach(Plotter2._worm_deviation)
-        self.apply_foreach(Plotter2._calc_bbox_error)
+        self.apply_foreach(Plotter2._calc_worm_deviation)
+        self.apply_foreach(Plotter2._calc_errors)
 
         self.all_data = self.concat_all()
 
@@ -111,7 +119,7 @@ class Plotter2:
         num_cycles = sum([len(log["cycle"].unique()) for log in self.data_list])
         print(f"Num of Cycles: {num_cycles}")
 
-        non_perfect = (self.all_data["bbox_area_diff"] > 1e-7).sum() / len(self.all_data.index)
+        non_perfect = (self.all_data["bbox_error"] > 1e-7).sum() / len(self.all_data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect, 3)}%")
 
     @staticmethod
@@ -132,6 +140,11 @@ class Plotter2:
     @staticmethod
     def _add_time_column(data: pd.DataFrame) -> pd.DataFrame:
         data["time"] = data["frame"]
+        return data
+
+    @staticmethod
+    def _add_log_num_column(data: pd.DataFrame, num: int) -> pd.DataFrame:
+        data["log_num"] = num
         return data
 
     @staticmethod
@@ -156,17 +169,10 @@ class Plotter2:
         return data
 
     @staticmethod
-    def _worm_deviation(data: pd.DataFrame) -> pd.DataFrame:
+    def _calc_worm_deviation(data: pd.DataFrame) -> pd.DataFrame:
         data["worm_deviation_x"] = data["wrm_center_x"] - data["mic_center_x"]
         data["worm_deviation_y"] = data["wrm_center_y"] - data["mic_center_y"]
         data["worm_deviation"] = np.sqrt(data["worm_deviation_x"] ** 2 + data["worm_deviation_y"] ** 2)
-        return data
-
-    @staticmethod
-    def _clean(data: pd.DataFrame) -> pd.DataFrame:
-        data = Plotter2._remove_nopreds(data)
-        data = Plotter2._remove_cycle(data, 0)
-        data = Plotter2._remove_cycle(data, data["cycle"].max())
         return data
 
     @staticmethod
@@ -175,56 +181,229 @@ class Plotter2:
         return data
 
     @staticmethod
-    def _remove_cycle(data: pd.DataFrame, cycle: int) -> pd.DataFrame:
-        return data[data["cycle"] != cycle]
+    def _remove_out_of_bounds(data: pd.DataFrame, bounds: tuple[float, float, float, float]) -> pd.DataFrame:
+        mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[0] + bounds[2])
+        mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[1] + bounds[3])
+        return data[mask]
+
+    @staticmethod
+    def _remove_first_cycle(data: pd.DataFrame) -> pd.DataFrame:
+        return data[data["cycle"] != 0]
+
+    @staticmethod
+    def _remove_last_cycle(data: pd.DataFrame) -> pd.DataFrame:
+        return data[data["cycle"] != data["cycle"].max()]
 
     @staticmethod
     def _remove_phase(data: pd.DataFrame, phase: str) -> pd.DataFrame:
         return data[data["phase"] != phase]
 
     @staticmethod
-    def _calc_bbox_error(data: pd.DataFrame) -> pd.DataFrame:
+    def _calc_errors(data: pd.DataFrame) -> pd.DataFrame:
         wrm_bboxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
         mic_bboxes = data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
-        area_diff = ErrorCalculator.calculate_approx(wrm_bboxes, mic_bboxes)
-        data["bbox_area_diff"] = area_diff
+        bbox_error = ErrorCalculator.calculate_bbox_error(wrm_bboxes, mic_bboxes)
+        data["bbox_error"] = bbox_error
+
+        mse_error = ErrorCalculator.calculate_mse_error(wrm_bboxes, mic_bboxes)
+        data["mse_error"] = mse_error
+
         return data
 
-    def plot_speed_vs_error(self, error_kind: str = "bbox", **kwargs) -> sns.JointGrid:
+    # TODO: is this really a good place for this function?
+    def calc_precise_error(self, frames: list[FrameReader], bg_probes=1000, diff_thresh=20):
+        for i, data in enumerate(self.data_list):
+            reader = frames[i]
+            background = BGExtractor(reader).calc_background(
+                num_probes=bg_probes,
+                sampling="uniform",
+                method="median",
+            )
+
+            worm_bboxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
+            mic_bboxes = data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
+
+            precise_error = ErrorCalculator.calculate_precise(
+                background,
+                worm_bboxes,
+                mic_bboxes,
+                reader=reader,
+                frame_nums=data["frame"].values,
+                diff_thresh=diff_thresh,
+            )
+
+            data["precise_error"] = precise_error
+
+        self.all_data["precise_error"] = pd.concat([log["precise_error"] for log in self.data_list])
+
+    def plot_speed_vs_error(
+        self,
+        error_kind: str = "bbox",
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        **kwargs,
+    ) -> sns.JointGrid:
         if error_kind == "bbox":
-            error_col = "bbox_area_diff"
+            error_col = "bbox_error"
         elif error_kind == "dist":
             error_col = "worm_deviation"
+        elif error_kind == "mse":
+            error_col = "mse_error"
+        elif error_kind == "precise":
+            if "precise_error" not in self.all_data.columns:
+                raise ValueError("Precise error have not been calculated")
+            error_col = "precise_error"
         else:
             raise ValueError(f"Invalid error kind: {error_kind}")
 
-        plot = self.create_jointplot("wrm_speed", error_col, kind="scatter", **kwargs)
+        plot = self.create_jointplot("wrm_speed", error_col, kind="scatter", condition=condition, **kwargs)
         plot.figure.suptitle(f"Speed vs Error")
         plot.set_axis_labels("speed", "Error")
         return plot
 
-    def plot_speed(self) -> Axes:
-        plot = self.create_histogram("wrm_speed", stat="density", bins=100)
-        plot.figure.suptitle("Worm Speed Distribution")
-        plot.set_xlabel("speed")
-        plot.set_ylabel("density")
+    def plot_speed(
+        self,
+        log_wise: bool = False,
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        **kwargs,
+    ) -> sns.FacetGrid:
+
+        plot = self.create_distplot(
+            x_col="wrm_speed",
+            kind="hist",
+            x_label="speed",
+            y_label="count",
+            title="Worm Speed Distribution",
+            log_wise=log_wise,
+            condition=condition,
+            kde=True,
+            **kwargs,
+        )
         return plot
 
-    def plot_deviation(self) -> sns.JointGrid:
-        plot = self.create_jointplot("cycle_step", "worm_deviation", kind="hist", stat="count")
-        plt.title("Distance between worm and microscope centers as a function of cycle step")
-        plot.set_axis_labels("cycle step", "distance")
+    def plot_error(
+        self,
+        error_kind: str = "bbox",
+        log_wise: bool = False,
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        **kwargs,
+    ) -> sns.FacetGrid:
+        if error_kind == "bbox":
+            error_col = "bbox_error"
+        elif error_kind == "dist":
+            error_col = "worm_deviation"
+        elif error_kind == "mse":
+            error_col = "mse_error"
+        elif error_kind == "precise":
+            if "precise_error" not in self.all_data.columns:
+                raise ValueError("Precise error have not been calculated")
+            error_col = "precise_error"
+        else:
+            raise ValueError(f"Invalid error kind: {error_kind}")
+
+        plot = self.create_distplot(
+            x_col=error_col,
+            kind="hist",
+            x_label="error",
+            y_label="density",
+            title="Worm Error Distribution",
+            log_wise=log_wise,
+            condition=condition,
+            stat="density",
+            kde=True,
+            **kwargs,
+        )
         return plot
 
-    def create_histogram(
+    def plot_trajectory(
+        self,
+        hue_col="log_num",
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        **kwargs,
+    ) -> sns.JointGrid:
+        plot = self.create_jointplot(
+            x_col="wrm_center_x",
+            y_col="wrm_center_y",
+            x_label="x",
+            y_label="y",
+            title="Worm Trajectory",
+            hue_col=hue_col,
+            kind="scatter",
+            alpha=1,
+            linewidth=0,
+            condition=condition,
+            **kwargs,
+        )
+
+        plot.ax_marg_x.remove()
+        plot.ax_marg_y.remove()
+        plot.ax_joint.invert_yaxis()
+
+        return plot
+
+    def plot_head_size(
+        self,
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        **kwargs,
+    ) -> sns.JointGrid:
+        plot = self.create_jointplot(
+            x_col="wrm_w",
+            y_col="wrm_h",
+            x_label="width",
+            y_label="height",
+            title="Worm Head Size",
+            kind="hex",
+            condition=condition,
+            **kwargs,
+        )
+
+        return plot
+
+    def plot_deviation(
+        self,
+        percentile: float = 0.999,
+        log_wise: bool = False,
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        **kwargs,
+    ) -> sns.JointGrid:
+
+        q = self.all_data["worm_deviation"].quantile(percentile)
+
+        if condition is not None:
+            cond_func = lambda x: condition(x) & (x["worm_deviation"] < q)
+        else:
+            cond_func = lambda x: x["worm_deviation"] < q
+
+        plot = self.create_catplot(
+            x_col="cycle_step",
+            y_col="worm_deviation",
+            x_label="cycle step",
+            y_label="distance",
+            kind="violin",
+            title="Distance between worm and microscope centers as a function of cycle step",
+            log_wise=log_wise,
+            condition=cond_func,
+            **kwargs,
+        )
+
+        return plot
+
+    def create_distplot(
         self,
         x_col: str,
-        bins: int = None,
+        y_col: str = None,
         hue_col: str = None,
-        condition: Callable = None,
+        log_wise: bool = False,
+        kind: str = "hist",
+        x_label="",
+        y_label="",
+        title=None,
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
-    ) -> Axes:
+    ) -> sns.FacetGrid:
+
+        assert kind in ["hist", "kde", "ecdf"]
+
         data = self.all_data
         if transform is not None:
             data = transform(data)
@@ -232,29 +411,107 @@ class Plotter2:
         if condition is not None:
             data = data[condition(data)]
 
-        if bins is None:
-            bins = "auto"
+        plot = sns.displot(
+            data=data,
+            x=x_col,
+            y=y_col,
+            hue=hue_col,
+            col="log_num" if log_wise else None,
+            kind=kind,
+            height=self.plot_height,
+            **kwargs,
+        )
 
-        plot = sns.histplot(data=data, x=x_col, hue=hue_col, bins=bins, **kwargs)
+        plot.set_xlabels(x_label)
+        plot.set_ylabels(y_label)
+
+        if title is not None:
+            if log_wise is not None:
+                title = f"Log {{col_name}} :: {title}"
+            plot.set_titles(title)
+
+        return plot
+
+    def create_catplot(
+        self,
+        x_col: str,
+        y_col: str = None,
+        hue_col: str = None,
+        log_wise: bool = False,
+        kind: str = "strip",
+        x_label="",
+        y_label="",
+        title=None,
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        **kwargs,
+    ) -> sns.FacetGrid:
+
+        assert kind in ["strip", "swarm", "box", "violin", "boxen", "point", "bar", "count"]
+
+        data = self.all_data
+        if transform is not None:
+            data = transform(data)
+
+        if condition is not None:
+            data = data[condition(data)]
+
+        plot = sns.catplot(
+            data=data,
+            x=x_col,
+            y=y_col,
+            hue=hue_col,
+            col="log_num" if log_wise else None,
+            kind=kind,
+            height=self.plot_height,
+            **kwargs,
+        )
+
+        plot.set_xlabels(x_label)
+        plot.set_ylabels(y_label)
+
+        if title is not None:
+            if log_wise is not None:
+                title = f"Log {{col_name}} :: {title}"
+            plot.set_titles(title)
+
         return plot
 
     def create_jointplot(
         self,
         x_col: str,
         y_col: str,
-        kind: str = "scatter",
         hue_col: str = None,
-        condition: Callable = None,
+        kind: str = "scatter",
+        x_label="",
+        y_label="",
+        title="",
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
     ) -> sns.JointGrid:
 
+        assert kind in ["scatter", "kde", "hist", "hex", "reg", "resid"]
+
         data = self.all_data
+
         if transform is not None:
             data = transform(data)
 
         if condition is not None:
             data = data[condition(data)]
 
-        plot = sns.jointplot(data=data, x=x_col, y=y_col, hue=hue_col, kind=kind, **kwargs)
+        plot = sns.jointplot(
+            data=data,
+            x=x_col,
+            y=y_col,
+            hue=hue_col,
+            kind=kind,
+            height=self.plot_height,
+            **kwargs,
+        )
+
+        plot.set_axis_labels(x_label, y_label)
+        plot.figure.suptitle(title)
+
         return plot

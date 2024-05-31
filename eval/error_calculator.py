@@ -1,12 +1,10 @@
 from typing import Collection
 import numpy as np
 import cv2 as cv
+from tqdm.auto import tqdm
 
 from utils.frame_reader import FrameReader
 from utils.bbox_utils import *
-
-
-# TODO: decide on final design of the class and its methods for best ease of use and flexibility.
 
 
 class ErrorCalculator:
@@ -93,7 +91,7 @@ class ErrorCalculator:
 
         errors = np.zeros(len(frame_nums), dtype=float)
 
-        for i, frame_num in enumerate(frame_nums):
+        for i, frame_num in tqdm(enumerate(frame_nums), desc="Calculating Error", unit="fr"):
             wx, wy, ww, wh = worm_bboxes[i]
             worm_view = reader[frame_num][wy : wy + wh, wx : wx + ww]
             bg_view = background[wy : wy + wh, wx : wx + ww]
@@ -113,7 +111,7 @@ class ErrorCalculator:
         return errors
 
     @staticmethod
-    def calculate_approx(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -> np.ndarray:
+    def calculate_bbox_error(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -> np.ndarray:
         """
         Calculates error according to the bounding box difference between the worm and the microscope view.
         The error is calculated as the proportion of the worm bounding box that is not within the microscope view.
@@ -138,4 +136,14 @@ class ErrorCalculator:
         errors = 1.0 - intersection / total
         errors = np.nan_to_num(errors, nan=0, neginf=0.0, posinf=0.0, copy=False)
 
+        return errors
+
+    @staticmethod
+    def calculate_mse_error(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -> np.ndarray:
+        """
+        Calculates error according to the mean squared error between the centers of the worm and the microscope view.
+        """
+        worm_centers = BoxUtils.center(worm_bboxes)
+        mic_centers = BoxUtils.center(mic_bboxes)
+        errors = np.linalg.norm(worm_centers - mic_centers, axis=1)
         return errors

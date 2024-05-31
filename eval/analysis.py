@@ -53,7 +53,7 @@ class Plotter:
         print("##################### Area Diff #####################")
 
         data = self.data_prep_frames(n=n)
-        non_perfect_pred_ratio = (data["bbox_area_diff"] > 1e-7).sum() / len(data.index)
+        non_perfect_pred_ratio = (data["bbox_error"] > 1e-7).sum() / len(data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect_pred_ratio, 3)}%")
         print("##################### General #####################")
         display(data.describe())
@@ -147,7 +147,7 @@ class Plotter:
 
         area_diff = (worm_area - inter_area) / worm_area
 
-        return pd.DataFrame({"bbox_area_diff": area_diff}, index=data.index)
+        return pd.DataFrame({"bbox_error": area_diff}, index=data.index)
 
     @staticmethod
     def calc_centers(data: pd.DataFrame, field_name: str = "wrm") -> pd.DataFrame:
@@ -264,20 +264,20 @@ class Plotter:
 
         data = Plotter.remove_phase(data, "moving")
 
-        max_area_diff = data.groupby("cycle")["bbox_area_diff"].max()
+        max_area_diff = data.groupby("cycle")["bbox_error"].max()
 
-        data = pd.DataFrame({"wrm_speed": avg_speed, "bbox_area_diff": max_area_diff})
+        data = pd.DataFrame({"wrm_speed": avg_speed, "bbox_error": max_area_diff})
 
         if min_speed is not None:
             data = data[data["wrm_speed"] >= min_speed]
 
         if min_diff is not None:
-            data = data[data["bbox_area_diff"] >= min_diff]
+            data = data[data["bbox_error"] >= min_diff]
 
         Plotter.scatter_data(
             data,
             "wrm_speed",
-            "bbox_area_diff",
+            "bbox_error",
             "Area Diff vs. Avg Speed",
         )
 
@@ -304,7 +304,7 @@ class Plotter:
 
         data = Plotter.remove_phase(data, "moving")
 
-        max_area_diff = data.groupby("cycle")["bbox_area_diff"].max()
+        max_area_diff = data.groupby("cycle")["bbox_error"].max()
 
         data = pd.DataFrame({"dist": dist, "max_area_diff": max_area_diff})
 
@@ -355,11 +355,11 @@ class Plotter:
         data = self.data_prep_frames(n=n)
         data["wrm_speed_avg"] = Plotter.rolling_average(data, window_size=window_size, column="wrm_speed")
         # fig, ax = plt.subplots()
-        mask = data["bbox_area_diff"] > 1e-3
+        mask = data["bbox_error"] > 1e-3
         if condition is not None:
             mask = condition(data) & mask
         g = sns.jointplot(
-            data=data[mask], x="wrm_speed_avg", y="bbox_area_diff", hue=hue, kind="scatter", xlim=(0, 3), dropna=True
+            data=data[mask], x="wrm_speed_avg", y="bbox_error", hue=hue, kind="scatter", xlim=(0, 3), dropna=True
         )
         g.figure.suptitle(f"n = {n}, rolling window = {window_size}")
         return g.figure
@@ -368,11 +368,11 @@ class Plotter:
         data = self.data_prep_frames(n=n)
         data["wrm_speed_avg"] = Plotter.rolling_average(data, window_size=window_size, column="wrm_speed")
         # fig, ax = plt.subplots()
-        mask = data["bbox_area_diff"] > 1e-3
+        mask = data["bbox_error"] > 1e-3
         if condition is not None:
             mask = condition(data) & mask
         g = sns.jointplot(
-            data=data[mask], x="wrm_speed_avg", y="bbox_area_diff", hue=hue, kind="scatter", xlim=(0, 3), dropna=True
+            data=data[mask], x="wrm_speed_avg", y="bbox_error", hue=hue, kind="scatter", xlim=(0, 3), dropna=True
         )
         g.figure.suptitle(f"n = {n}, rolling window = {window_size}")
         return g.figure
