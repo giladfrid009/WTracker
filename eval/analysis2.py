@@ -323,8 +323,8 @@ class Plotter2:
         plot = self.create_jointplot(
             x_col="wrm_center_x",
             y_col="wrm_center_y",
-            x_label="x",
-            y_label="y",
+            x_label="X",
+            y_label="Y",
             title="Worm Trajectory",
             hue_col=hue_col,
             kind="scatter",
@@ -379,7 +379,7 @@ class Plotter2:
             x_label="cycle step",
             y_label="distance",
             kind="violin",
-            title="Distance between worm and microscope centers as a function of cycle step",
+            title="Distance between worm and microscope centers as function of cycle step",
             log_wise=log_wise,
             condition=cond_func,
             **kwargs,
@@ -394,9 +394,9 @@ class Plotter2:
         hue_col: str = None,
         log_wise: bool = False,
         kind: str = "hist",
-        x_label="",
-        y_label="",
-        title=None,
+        x_label: str = "",
+        y_label: str = "",
+        title: str | None = None,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
@@ -422,13 +422,17 @@ class Plotter2:
             **kwargs,
         )
 
-        plot.set_xlabels(x_label)
-        plot.set_ylabels(y_label)
+        plot.set_xlabels(x_label.capitalize())
+        plot.set_ylabels(y_label.capitalize())
 
         if title is not None:
-            if log_wise is not None:
-                title = f"Log {{col_name}} :: {title}"
-            plot.set_titles(title)
+            if log_wise:
+                title = f"Log {{col_name}} :: {title.title()}"
+                plot.set_titles(title)
+            else:
+                plot.figure.suptitle(title.title())
+
+        plot.tight_layout()
 
         return plot
 
@@ -439,9 +443,9 @@ class Plotter2:
         hue_col: str = None,
         log_wise: bool = False,
         kind: str = "strip",
-        x_label="",
-        y_label="",
-        title=None,
+        x_label: str = "",
+        y_label: str = "",
+        title: str | None = None,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
@@ -467,13 +471,17 @@ class Plotter2:
             **kwargs,
         )
 
-        plot.set_xlabels(x_label)
-        plot.set_ylabels(y_label)
+        plot.set_xlabels(x_label.capitalize())
+        plot.set_ylabels(y_label.capitalize())
 
         if title is not None:
-            if log_wise is not None:
-                title = f"Log {{col_name}} :: {title}"
-            plot.set_titles(title)
+            if log_wise:
+                title = f"Log {{col_name}} :: {title.title()}"
+                plot.set_titles(title)
+            else:
+                plot.figure.suptitle(title.title())
+
+        plot.tight_layout()
 
         return plot
 
@@ -483,9 +491,9 @@ class Plotter2:
         y_col: str,
         hue_col: str = None,
         kind: str = "scatter",
-        x_label="",
-        y_label="",
-        title="",
+        x_label: str = "",
+        y_label: str = "",
+        title: str = "",
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
@@ -511,7 +519,8 @@ class Plotter2:
             **kwargs,
         )
 
-        plot.set_axis_labels(x_label, y_label)
-        plot.figure.suptitle(title)
+        plot.set_axis_labels(x_label.capitalize(), y_label.capitalize())
+        plot.figure.suptitle(title.title())
+        plot.figure.tight_layout()
 
         return plot
