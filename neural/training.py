@@ -111,8 +111,8 @@ class Trainer(abc.ABC):
             if self.logger is not None:
                 self.logger.add_scalar("loss/train", Tensor(train_result.losses).mean(), epoch)
                 self.logger.add_scalar("loss/test", Tensor(test_result.losses).mean(), epoch)
-                self.logger.add_scalars("accuracy/train", train_result.accuracy, epoch)
-                self.logger.add_scalars("accuracy/test", test_result.accuracy, epoch)
+                self.logger.add_scalar("accuracy/train", train_result.accuracy, epoch)
+                self.logger.add_scalar("accuracy/test", test_result.accuracy, epoch)
                 self.logger.add_scalar("learning_rate", self.optimizer.param_groups[0]["lr"], epoch)
 
             curr_val_loss = Tensor(test_result.losses).mean().item()

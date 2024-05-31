@@ -46,7 +46,7 @@ class TrainConfig(ConfigBase):
 
     # trainer parameters
     model: nn.Module | str  # The model to train, can also be a pretrained model (if str, it will be loaded from disk)
-    loss_fn: nn.Module  # The loss function to use, can be any of the keys in the LOSSES dict
+    loss_fn: str  # The loss function to use, can be any of the keys in the LOSSES dict
     optimizer: str  # The optimizer to use, can be any of the keys in the OPTIMIZERS dict
     device: str = "cuda"  # 'cuda' for training on GPU or 'cpu' otherwise
     log: bool = False  # Whether to log and save the training process with tensorboard
