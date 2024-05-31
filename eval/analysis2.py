@@ -18,6 +18,8 @@ from eval.error_calculator import ErrorCalculator
 # Also, plotter2 first needs to be explicitly initialized
 
 #TODO: add exp_num/exp_name column
+#TODO: add ability for joint plot and histogram to create plot for each exp seperatly
+#TODO: replace histplot with distplot
 
 class Plotter2:
     def __init__(
