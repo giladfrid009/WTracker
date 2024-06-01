@@ -88,10 +88,7 @@ class Plotter2:
 
             self.apply_foreach(Plotter2._remove_out_of_bounds, bounds=legal_bounds)
 
-        # TODO: do we want to fill nopreds or remove them? when calculating speed, filling would be better.
 
-        # self.apply_foreach(Plotter2._fill_nopreds)
-        self.apply_foreach(Plotter2._remove_nopreds)
         self.apply_foreach(Plotter2._remove_first_cycle)
         self.apply_foreach(Plotter2._remove_first_cycle)
 
@@ -122,8 +119,11 @@ class Plotter2:
         return self.all_data[columns].describe(percentiles).round(3)
 
     def print_stats(self):
+        no_preds = self.all_data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1).sum()
+        print(f"Total Count of No Pred Frames: {no_preds} ({round(100 * no_preds / len(self.all_data.index), 3)}%)")
+
         num_cycles = sum([len(log["cycle"].unique()) for log in self.data_list])
-        print(f"Num of Cycles: {num_cycles}")
+        print(f"Total Num of Cycles: {num_cycles}")
 
         non_perfect = (self.all_data["bbox_error"] > 1e-7).sum() / len(self.all_data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect, 3)}%")
@@ -433,7 +433,7 @@ class Plotter2:
             data = data[condition(data)]
 
         plot = sns.displot(
-            data=data,
+            data=data.dropna(),
             x=x_col,
             y=y_col,
             hue=hue_col,
@@ -482,7 +482,7 @@ class Plotter2:
             data = data[condition(data)]
 
         plot = sns.catplot(
-            data=data,
+            data=data.dropna(),
             x=x_col,
             y=y_col,
             hue=hue_col,
@@ -531,7 +531,7 @@ class Plotter2:
             data = data[condition(data)]
 
         plot = sns.jointplot(
-            data=data,
+            data=data.dropna(),
             x=x_col,
             y=y_col,
             hue=hue_col,
