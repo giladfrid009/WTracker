@@ -88,7 +88,6 @@ class Plotter2:
 
             self.apply_foreach(Plotter2._remove_out_of_bounds, bounds=legal_bounds)
 
-
         self.apply_foreach(Plotter2._remove_first_cycle)
         self.apply_foreach(Plotter2._remove_first_cycle)
 
