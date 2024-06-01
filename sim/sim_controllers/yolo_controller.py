@@ -20,8 +20,6 @@ class YoloConfig(ConfigBase):
     device: str = "cpu"
     """Inference device for YOLO. Can be either 'cpu' or 'cuda'."""
 
-    task: str = "detect"  # TODO: SHOULD REMOVE THIS PARAMETER PROBABLY
-
     verbose: bool = False
     """Whether to print verbose output during YOLO inference."""
 
@@ -43,7 +41,7 @@ class YoloConfig(ConfigBase):
 
     def load_model(self) -> YOLO:
         if self.model is None:
-            self.model = YOLO(self.model_path, task=self.task, verbose=self.verbose)
+            self.model = YOLO(self.model_path, task="detect", verbose=self.verbose)
         return self.model
 
 
@@ -92,7 +90,7 @@ class YoloController(SimController):
         return np.stack(bboxes, axis=0)
 
     def begin_movement_prediction(self, sim: Simulator) -> None:
-        pass  # TODO: IMPLEMENT
+        pass
 
     def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         frame = self._camera_frames[-self.timing_config.pred_frame_num]

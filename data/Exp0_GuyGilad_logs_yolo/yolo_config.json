@@ -1,7 +1,6 @@
 {
     "model_path": "yolov8s-datav5-best.pt",
     "device": "cpu",
-    "task": "detect",
     "verbose": false,
     "pred_kwargs": {
         "imgsz": 384,

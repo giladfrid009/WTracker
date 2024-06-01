@@ -15,9 +15,6 @@ from utils.frame_reader import FrameReader, DummyReader
 from sim.simulator import TimingConfig
 
 
-# TODO: do we want to document VLC or no?
-
-
 @dataclass
 class HotKey:
     """
@@ -51,12 +48,12 @@ class StreamViewer:
         open(self): Opens the window.
         close(self, key: str = "q"): Closes the window.
         imshow(self, image: np.ndarray, title: str = "image"): Displays an image in the window.
-    
+
     Example:
         with StreamViewer() as streamer:
             streamer.imshow(image)
             streamer.waitKey()
-        
+
     """
 
     def __init__(self, window_name: str = "streamer") -> None:
@@ -221,6 +218,7 @@ class VLC:
         save_stream(folder_path: str) -> None: Saves the frames as images in a folder and creates a video file of it. This function doesn't show the video player (thus mainloop should not be called).
         make_vid(folder_path: str, img_name_format: str, output_dir: str) -> None: Creates a video from the saved frames.
     """
+
     def __init__(
         self,
         files: Files | None,

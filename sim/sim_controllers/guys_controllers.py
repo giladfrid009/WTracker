@@ -12,8 +12,8 @@ from neural.config import IOConfig
 
 
 # TODO: CLEAN UP this FILE
-# TODO: add MLPConfig class
 # TODO: fix crash of MLPController when reaching the end of the csv file
+# I believe this crash happens when we provide a framereader as input, and the simulator reaches the last cycle.
 
 
 class MLPController(CsvController):
