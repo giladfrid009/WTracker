@@ -266,9 +266,19 @@ class Plotter2:
         else:
             raise ValueError(f"Invalid error kind: {error_kind}")
 
-        plot = self.create_jointplot("wrm_speed", error_col, kind="scatter", condition=condition, **kwargs)
-        plot.figure.suptitle(f"Speed vs Error")
-        plot.set_axis_labels("speed", "Error")
+        plot = self.create_jointplot(
+            x_col="wrm_speed",
+            y_col=error_col,
+            kind="reg",
+            x_label="speed",
+            y_label="error",
+            title=f"Speed vs {error_kind} Error",
+            condition=condition,
+            scatter_kws=dict(linewidths=0.5, edgecolor="black"),
+            line_kws=dict(color="r"),
+            **kwargs,
+        )
+
         return plot
 
     def plot_speed(
@@ -288,6 +298,7 @@ class Plotter2:
             kde=True,
             **kwargs,
         )
+
         return plot
 
     def plot_error(
@@ -314,7 +325,7 @@ class Plotter2:
             x_col=error_col,
             kind="hist",
             x_label="error",
-            title="Worm Error Distribution",
+            title=f"{error_kind} Error Distribution",
             log_wise=log_wise,
             condition=condition,
             kde=True,
@@ -328,6 +339,7 @@ class Plotter2:
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
     ) -> sns.JointGrid:
+
         plot = self.create_jointplot(
             x_col="wrm_center_x",
             y_col="wrm_center_y",
@@ -353,6 +365,7 @@ class Plotter2:
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
     ) -> sns.JointGrid:
+
         plot = self.create_jointplot(
             x_col="wrm_w",
             y_col="wrm_h",
@@ -459,7 +472,7 @@ class Plotter2:
         **kwargs,
     ) -> sns.FacetGrid:
 
-        assert kind in ["strip", "swarm", "box", "violin", "boxen", "point", "bar", "count"]
+        assert kind in ["strip", "box", "violin", "boxen", "bar", "count"]
 
         data = self.all_data
         if transform is not None:
