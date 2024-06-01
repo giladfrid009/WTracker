@@ -65,7 +65,7 @@ class Plotter2:
             unit (str, optional): The unit for time. Can be "frame" or "sec". Defaults to "frame".
             n (int, optional): The number of frames to calculate speed over. Defaults to 10.
             imaging_only (bool, optional): Whether to include only imaging phases. Defaults to True.
-            legal_bounds (tuple[float, float, float, float], optional): The legal bounds for the worm head location. Defaults to None. Bounds format is (x, y, w, h).
+            legal_bounds (tuple[float, float, float, float], optional): The legal bounds for the worm head location, in frames. Defaults to None. Bounds format is (x_min, y_min, x_max, y_max).
         """
 
         assert unit in ["frame", "sec"]
@@ -83,8 +83,14 @@ class Plotter2:
         self.apply_foreach(Plotter2._calc_speed, n=n)
 
         if legal_bounds is not None:
+            if unit == "sec":
+                legal_bounds = tuple(x * self.time_config.mm_per_px * 1000 for x in legal_bounds)
+
             self.apply_foreach(Plotter2._remove_out_of_bounds, bounds=legal_bounds)
 
+        # TODO: do we want to fill nopreds or remove them? when calculating speed, filling would be better.
+
+        # self.apply_foreach(Plotter2._fill_nopreds)
         self.apply_foreach(Plotter2._remove_nopreds)
         self.apply_foreach(Plotter2._remove_first_cycle)
         self.apply_foreach(Plotter2._remove_first_cycle)
@@ -177,13 +183,18 @@ class Plotter2:
 
     @staticmethod
     def _remove_nopreds(data: pd.DataFrame) -> pd.DataFrame:
-        data.dropna(inplace=True)
+        data = data.dropna()
+        return data
+
+    @staticmethod
+    def _fill_nopreds(data: pd.DataFrame) -> pd.DataFrame:
+        data = data.ffill()
         return data
 
     @staticmethod
     def _remove_out_of_bounds(data: pd.DataFrame, bounds: tuple[float, float, float, float]) -> pd.DataFrame:
-        mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[0] + bounds[2])
-        mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[1] + bounds[3])
+        mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[2])
+        mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[3])
         return data[mask]
 
     @staticmethod
@@ -271,7 +282,6 @@ class Plotter2:
             x_col="wrm_speed",
             kind="hist",
             x_label="speed",
-            y_label="count",
             title="Worm Speed Distribution",
             log_wise=log_wise,
             condition=condition,
@@ -304,11 +314,9 @@ class Plotter2:
             x_col=error_col,
             kind="hist",
             x_label="error",
-            y_label="density",
             title="Worm Error Distribution",
             log_wise=log_wise,
             condition=condition,
-            stat="density",
             kde=True,
             **kwargs,
         )
