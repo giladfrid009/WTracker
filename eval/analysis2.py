@@ -12,9 +12,6 @@ from eval.error_calculator import ErrorCalculator
 from utils.frame_reader import FrameReader
 from dataset.bg_extractor import BGExtractor
 
-# TODO: should we add a find_anomalies function that finds all the rows in the data with anomalous values?
-# for example, when the worm is moving too fast, or when the error is too high
-
 
 class Plotter2:
     def __init__(
@@ -126,6 +123,42 @@ class Plotter2:
 
         non_perfect = (self.all_data["bbox_error"] > 1e-7).sum() / len(self.all_data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect, 3)}%")
+
+    def find_anomalies(
+        self,
+        no_preds: bool = True,
+        min_bbox_error: float = np.inf,
+        min_dist_error: float = np.inf,
+        min_speed: float = np.inf,
+        min_size: float = np.inf,
+    ) -> pd.DataFrame:
+
+        mask_speed = self.all_data["wrm_speed"] >= min_speed
+        mask_bbox_error = self.all_data["bbox_error"] >= min_bbox_error
+        mask_dist_error = self.all_data["worm_deviation"] >= min_dist_error
+        mask_worm_width = self.all_data["wrm_w"] >= min_size
+        mask_worm_height = self.all_data["wrm_h"] >= min_size
+        mask_no_preds = self.all_data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1) & no_preds
+
+        mask = mask_speed | mask_bbox_error | mask_dist_error | mask_worm_width | mask_worm_height | mask_no_preds
+
+        mask_speed = mask_speed[mask]
+        mask_bbox_error = mask_bbox_error[mask]
+        mask_dist_error = mask_dist_error[mask]
+        mask_worm_width = mask_worm_width[mask]
+        mask_worm_height = mask_worm_height[mask]
+        mask_no_preds = mask_no_preds[mask]
+
+        anomalies = self.all_data[mask].copy()
+
+        anomalies["speed_anomaly"] = mask_speed
+        anomalies["bbox_error_anomaly"] = mask_bbox_error
+        anomalies["dist_error_anomaly"] = mask_dist_error
+        anomalies["width_anomaly"] = mask_worm_width
+        anomalies["height_anomaly"] = mask_worm_height
+        anomalies["no_pred_anomaly"] = mask_no_preds
+
+        return anomalies
 
     @staticmethod
     def _frame_to_secs(data: pd.DataFrame, time_config: TimingConfig) -> pd.DataFrame:
