@@ -1,5 +1,5 @@
 from sim.sim_controllers.csv_controller import *
-from sim.sim_controllers.guys_controllers import *
+from sim.sim_controllers.mlp_controllers import *
 from sim.sim_controllers.logging_controller import *
 from sim.sim_controllers.optimal_controller import *
 from sim.sim_controllers.polyfit_controller import *
