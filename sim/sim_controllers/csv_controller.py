@@ -36,7 +36,7 @@ class CsvController(SimController):
 
         if not relative:
             return worm_bboxes
-
+        
         cam_bboxes = [self._camera_bboxes[n % self.timing_config.cycle_frame_num] for n in frame_nums]
         cam_bboxes = np.asanyarray(cam_bboxes, dtype=float)
 

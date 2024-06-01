@@ -41,7 +41,7 @@ Step 3 - create the project environment:
 Use the provided Jupyter notebooks for various tasks:
 
 - [initialize_experiment.ipynb](create_experiment.ipynb) to set up a new experiment
-- [create_yolo_dataset.ipynb](create_yolo_dataset.ipynb) to create a dataset for YOLO
+- [create_yolo_images.ipynb](create_yolo_images.ipynb) to create a dataset for YOLO
 - [predictor_training.ipynb](predictor_training.ipynb) to train the predictor
 - [simulate.ipynb](simulate.ipynb) to run the simulation
 - [yolo_training.ipynb](yolo_training.ipynb) to train YOLO
