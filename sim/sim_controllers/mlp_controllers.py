@@ -17,10 +17,22 @@ from neural.config import IOConfig
 
 
 class MLPController(CsvController):
-    def __init__(self, timing_config: TimingConfig, csv_path: str, model: nn.Module, io_config: IOConfig):
+    """
+    MLPController class represents a controller that uses a WormPredictor model to provide movement vectors for a simulation.
+
+    Args:
+        timing_config (TimingConfig): The timing configuration for the simulation.
+        csv_path (str): The path to the CSV file containing the simulation data.
+        model (WormPredictor): The WormPredictor model used for predicting worm movement.
+
+    Methods:
+        provide_movement_vector: Provides a movement vector based on the current simulation state.
+        print_model: Prints the model used by the controller.
+    """
+    def __init__(self, timing_config: TimingConfig, csv_path: str, model: WormPredictor):
         super().__init__(timing_config, csv_path)
-        self.io_config = io_config
-        self.model = model
+        self.model: WormPredictor = model
+        self.io_config: IOConfig = model.io_config
         self.model.eval()
 
     def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
@@ -33,11 +45,9 @@ class MLPController(CsvController):
         if not np.isfinite(worm_bboxes).all():
             return 0, 0
 
-        # worm_center = BoxUtils.center(worm_bboxes[0, :4]) # center of first bbox (should be the box of the pred frame (0))
-        # print(f"boxes= {worm_bboxes[0, :4]} :: center= {worm_center}")
-
         # relative position of the worm to the camera center, we use the worm x,y instead of center because of how the model and dataset are built
         rel_x, rel_y = worm_bboxes[0, 0] - cam_center[0], worm_bboxes[0, 1] - cam_center[1]
+        
         # make coordinates relative to first bbox
         x = worm_bboxes[0, 0]
         x_mask = np.arange(0, worm_bboxes.shape[1]) % 4 == 0
@@ -55,7 +65,6 @@ class MLPController(CsvController):
         dx = round(pred[0].item() + rel_x)
         dy = round(pred[1].item() + rel_y)
 
-        # print(f"pred = {(dx, dy)}")
         return (dx, dy)
 
     def print_model(self):
