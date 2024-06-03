@@ -21,7 +21,7 @@ class DatasetConfig(ConfigBase):
             )
 
     @staticmethod
-    def from_ioConfig(io: IOConfig, log_path: str) -> DatasetConfig:
+    def from_io_config(io: IOConfig, log_path: str) -> DatasetConfig:
         return DatasetConfig(io.input_frames, io.pred_frames, log_path)
 
 
