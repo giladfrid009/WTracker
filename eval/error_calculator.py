@@ -17,7 +17,7 @@ class ErrorCalculator:
         worm_bboxes: np.ndarray,
         mic_bboxes: np.ndarray,
         frame_nums: Collection[int],
-        reader: FrameReader,
+        worm_reader: FrameReader,
         diff_thresh: float = 10,
     ) -> np.ndarray:
         """
@@ -27,8 +27,8 @@ class ErrorCalculator:
         """
         assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]
 
-        worm_bboxes = np.round(worm_bboxes, decimals=0).astype(int, copy=False)
-        mic_bboxes = np.round(mic_bboxes, decimals=0).astype(int, copy=False)
+        worm_bboxes = BoxUtils.round(worm_bboxes)
+        mic_bboxes = BoxUtils.round(mic_bboxes)
 
         worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
         mic_bboxes = BoxConverter.change_format(mic_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
@@ -37,11 +37,11 @@ class ErrorCalculator:
         mic_left, mic_top, mic_right, mic_bottom = BoxUtils.unpack(mic_bboxes)
 
         # clip worm bounding boxes to the frame size
-        h, w = reader.frame_size
+        H, W = background.shape[:2]
         wrm_left = np.maximum(wrm_left, 0)
         wrm_top = np.maximum(wrm_top, 0)
-        wrm_right = np.minimum(wrm_right, w)
-        wrm_bottom = np.minimum(wrm_bottom, h)
+        wrm_right = np.minimum(wrm_right, W)
+        wrm_bottom = np.minimum(wrm_bottom, H)
 
         worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)
 
@@ -71,9 +71,11 @@ class ErrorCalculator:
                 errors[i] = np.nan
                 continue
 
-            frame = reader[frame_num]
+            worm_view = worm_reader[frame_num]
 
-            worm_view = frame[wrm_bbox[1] : wrm_bbox[3], wrm_bbox[0] : wrm_bbox[2]]
+            assert worm_view.shape[0] == wrm_bbox[3] - wrm_bbox[1]
+            assert worm_view.shape[1] == wrm_bbox[2] - wrm_bbox[0]
+
             bg_view = background[wrm_bbox[1] : wrm_bbox[3], wrm_bbox[0] : wrm_bbox[2]]
 
             diff = np.abs(worm_view.astype(int) - bg_view.astype(int))
@@ -126,7 +128,7 @@ class ErrorCalculator:
         total = wrm_width * wrm_height
 
         errors = 1.0 - intersection / total
-        errors = np.nan_to_num(errors, nan=0, neginf=0.0, posinf=0.0, copy=False)
+        errors[total == 0] = 0.0
 
         return errors
 

@@ -153,9 +153,6 @@ class FrameReader:
         path = join_paths(self.root_folder, self.files[idx])
         frame = cv.imread(path, self._read_format)
 
-        if self.frame_shape and frame.shape != self.frame_shape:
-            raise Exception("shape mismatch")
-
         return frame.astype(np.uint8, copy=False)
 
     def __iter__(self):

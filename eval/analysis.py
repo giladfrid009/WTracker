@@ -253,12 +253,11 @@ class Plotter:
         return data
 
     # TODO: is this really a good place for this function?
-    # TODO: current perf: about 60fps
-    def calc_precise_error(self, frames: list[FrameReader], backgrounds: list[np.ndarray], diff_thresh=20) -> None:
-        assert len(frames) == len(backgrounds) == len(self.data_list)
+    def calc_precise_error(self, worm_image_paths: list[str], backgrounds: list[np.ndarray], diff_thresh=20) -> None:
+        assert len(worm_image_paths) == len(backgrounds) == len(self.data_list)
 
         for i, data in enumerate(self.data_list):
-            reader = frames[i]
+            worm_reader = FrameReader.create_from_directory(worm_image_paths[i])
             background = backgrounds[i]
 
             worm_bboxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
@@ -268,7 +267,7 @@ class Plotter:
                 background,
                 worm_bboxes,
                 mic_bboxes,
-                reader=reader,
+                worm_reader=worm_reader,
                 frame_nums=data["frame"].values,
                 diff_thresh=diff_thresh,
             )

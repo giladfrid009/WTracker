@@ -116,6 +116,24 @@ class BoxUtils:
         center_y = y + h / 2
         return np.array([center_x, center_y]).T
 
+    @staticmethod
+    def round(bbox: np.ndarray) -> np.ndarray:
+        """
+        Rounds the bounding box coordinates to integers.
+
+        Args:
+            bbox (np.ndarray): The bounding box coordinates to convert.
+
+        Returns:
+            np.ndarray: The bounding box coordinates as integers.
+        """
+        c1, c2, c3, c4 = BoxUtils.unpack(bbox)
+        c1 = np.floor(c1, dtype=int)
+        c2 = np.floor(c2, dtype=int)
+        c3 = np.ceil(c3, dtype=int)
+        c4 = np.ceil(c4, dtype=int)
+        return BoxUtils.pack(c1, c2, c3, c4)
+
 
 class BoxConverter:
     """
