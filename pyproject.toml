@@ -41,12 +41,6 @@ Homepage = "https://example.com"
 Documentation = "https://readthedocs.org"
 Repository = "https://github.com/giladfrid009/Bio-Proj"
 
-[project.scripts]
-spam-cli = "spam:main_cli"
-
-[project.gui-scripts]
-spam-gui = "spam:main_gui"
-
 [tool.portray]
 package = "."
-modules = ["sim", "dataset", "neural", "utils", "yolo", "eval"]
+modules = ["sim", "dataset", "neural", "utils", "eval"]
