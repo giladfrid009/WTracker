@@ -21,5 +21,6 @@ dependencies:
   - ipykernel
   - opencv
   - tensorboard
+  - pyqt
   - pip:
     - mealpy

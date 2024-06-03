@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "worms"
+version = "0.1"
+dependencies = [
+  "tqdm",
+  "numpy",
+  "pandas",
+  "matplotlib",
+  "seaborn>=0.13",
+  "ipywidgets",
+  "ultralytics",
+  "pip",
+  "ipykernel",
+  "opencv",
+  "tensorboard",
+  "mealpy",
+  "pyqt"
+]
+requires-python = ">=3.12"
+authors = [
+  {name = "Guy Cohen", email = ""},
+  {name = "Gilad Freidkin", email = ""},
+]
+
+description = "wormsss"
+readme = "README.md"
+
+[project.optional-dependencies]
+gui = ["PyQt5"]
+cli = [
+  "rich",
+  "click",
+]
+
+[project.urls]
+Homepage = "https://example.com"
+Documentation = "https://readthedocs.org"
+Repository = "https://github.com/giladfrid009/Bio-Proj"
+
+[project.scripts]
+spam-cli = "spam:main_cli"
+
+[project.gui-scripts]
+spam-gui = "spam:main_gui"
+
+[tool.portray]
+package = "."
+modules = ["sim", "dataset", "neural", "utils", "yolo", "eval"]
