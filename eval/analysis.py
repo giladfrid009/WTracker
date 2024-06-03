@@ -10,10 +10,9 @@ from sim.config import TimingConfig
 from utils.gui_utils import UserPrompt
 from eval.error_calculator import ErrorCalculator
 from utils.frame_reader import FrameReader
-from dataset.bg_extractor import BGExtractor
 
 
-class Plotter2:
+class Plotter:
     def __init__(
         self,
         time_config: TimingConfig = None,
@@ -32,7 +31,7 @@ class Plotter2:
         self.time_config = time_config
         self.log_paths = log_paths
 
-        self.data_list = Plotter2.load_logs(self.log_paths)
+        self.data_list = Plotter.load_logs(self.log_paths)
         self.all_data: pd.DataFrame = None
 
     @staticmethod
@@ -68,31 +67,31 @@ class Plotter2:
         assert unit in ["frame", "sec"]
 
         for i, data in enumerate(self.data_list):
-            self.data_list[i] = Plotter2._add_log_num_column(data, i)
+            self.data_list[i] = Plotter._add_log_num_column(data, i)
 
-        self.apply_foreach(Plotter2._add_time_column)
-        self.apply_foreach(Plotter2._calc_cycle_steps, time_config=self.time_config)
+        self.apply_foreach(Plotter._add_time_column)
+        self.apply_foreach(Plotter._calc_cycle_steps, time_config=self.time_config)
 
         if unit == "sec":
-            self.apply_foreach(Plotter2._frame_to_secs, time_config=self.time_config)
+            self.apply_foreach(Plotter._frame_to_secs, time_config=self.time_config)
 
-        self.apply_foreach(Plotter2._calc_centers)
-        self.apply_foreach(Plotter2._calc_speed, n=n)
+        self.apply_foreach(Plotter._calc_centers)
+        self.apply_foreach(Plotter._calc_speed, n=n)
 
         if legal_bounds is not None:
             if unit == "sec":
                 legal_bounds = tuple(x * self.time_config.mm_per_px * 1000 for x in legal_bounds)
 
-            self.apply_foreach(Plotter2._remove_out_of_bounds, bounds=legal_bounds)
+            self.apply_foreach(Plotter._remove_out_of_bounds, bounds=legal_bounds)
 
-        self.apply_foreach(Plotter2._remove_first_cycle)
-        self.apply_foreach(Plotter2._remove_first_cycle)
+        self.apply_foreach(Plotter._remove_first_cycle)
+        self.apply_foreach(Plotter._remove_first_cycle)
 
         if imaging_only:
-            self.apply_foreach(Plotter2._remove_phase, phase="moving")
+            self.apply_foreach(Plotter._remove_phase, phase="moving")
 
-        self.apply_foreach(Plotter2._calc_worm_deviation)
-        self.apply_foreach(Plotter2._calc_errors)
+        self.apply_foreach(Plotter._calc_worm_deviation)
+        self.apply_foreach(Plotter._calc_errors)
 
         self.all_data = self.concat_all()
 
@@ -255,14 +254,12 @@ class Plotter2:
 
     # TODO: is this really a good place for this function?
     # TODO: current perf: about 60fps
-    def calc_precise_error(self, frames: list[FrameReader], bg_probes=1000, diff_thresh=20):
+    def calc_precise_error(self, frames: list[FrameReader], backgrounds: list[np.ndarray], diff_thresh=20) -> None:
+        assert len(frames) == len(backgrounds) == len(self.data_list)
+
         for i, data in enumerate(self.data_list):
             reader = frames[i]
-            background = BGExtractor(reader).calc_background(
-                num_probes=bg_probes,
-                sampling="uniform",
-                method="median",
-            )
+            background = backgrounds[i]
 
             worm_bboxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
             mic_bboxes = data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
