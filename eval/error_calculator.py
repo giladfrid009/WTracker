@@ -8,60 +8,9 @@ from utils.bbox_utils import *
 
 
 class ErrorCalculator:
-    @staticmethod
-    def _image_to_grayscale(image: np.ndarray) -> np.ndarray:
-        image = image.astype(np.uint8, copy=False)
-        if image.ndim == 3:
-            if image.shape[-1] == 3:
-                image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-            elif image.shape[-1] == 1:
-                image = image[:, :, 0]
-            else:
-                raise ValueError("Image must be either a gray or a color image.")
-        return image
-
-    @staticmethod
-    def calculate_precise_single(
-        bg_view: np.ndarray,
-        worm_view: np.ndarray,
-        worm_bbox: np.ndarray,
-        micro_bbox: np.ndarray,
-        diff_thresh: float,
-    ) -> float:
-
-        worm_view = ErrorCalculator._image_to_grayscale(worm_view)
-        bg_view = ErrorCalculator._image_to_grayscale(bg_view)
-        mask_worm = np.abs(worm_view.astype(int) - bg_view.astype(int)) > diff_thresh
-
-        worm_bbox = BoxConverter.change_format(worm_bbox, BoxFormat.XYWH, BoxFormat.XYXY)
-        micro_bbox = BoxConverter.change_format(micro_bbox, BoxFormat.XYWH, BoxFormat.XYXY)
-        wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bbox)
-        mic_left, mic_top, mic_right, mic_bottom = BoxUtils.unpack(micro_bbox)
-
-        int_left = int(max(wrm_left, mic_left))
-        int_top = int(max(wrm_top, mic_top))
-        int_right = int(min(wrm_right, mic_right))
-        int_bottom = int(min(wrm_bottom, mic_bottom))
-        int_width = int(max(0, int_right - int_left))
-        int_height = int(max(0, int_bottom - int_top))
-
-        # shift the intersection to the worm view coordinates
-        int_left -= wrm_left
-        int_top -= wrm_top
-
-        mask_mic = np.zeros(worm_view.shape[:2], dtype=bool)
-        mask_mic[int_left : int_left + int_height, int_left : int_left + int_width] = True
-
-        total = mask_worm.sum()
-        if total == 0:
-            return 0.0
-
-        intersection = np.logical_and(mask_worm, mask_mic).sum()
-        error = 1.0 - intersection / total
-
-        return error
-
     # TODO: FIX. DOES NOT VWORK CORRECTLY.
+    # TODO: CURRENT PERF: 60 FPS
+    # TODO: TEST IMPLEMENTATION
     @staticmethod
     def calculate_precise(
         background: np.ndarray,
@@ -78,14 +27,16 @@ class ErrorCalculator:
         """
         assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]
 
-        # TODO: we should ignore no pred bboxes, instead of setting worm position to 0,0,0,0
-        # i.e. set the error for nopred frames to np.nan
-        mask = np.isfinite(worm_bboxes).all(axis = 1) == False
-        worm_bboxes[mask, :] = np.asanyarray([[0,0,0,0]])
+        worm_bboxes = np.round(worm_bboxes, decimals=0).astype(int, copy=False)
+        mic_bboxes = np.round(mic_bboxes, decimals=0).astype(int, copy=False)
 
         worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
-        wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bboxes)
+        mic_bboxes = BoxConverter.change_format(mic_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
 
+        wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bboxes)
+        mic_left, mic_top, mic_right, mic_bottom = BoxUtils.unpack(mic_bboxes)
+
+        # clip worm bounding boxes to the frame size
         h, w = reader.frame_size
         wrm_left = np.maximum(wrm_left, 0)
         wrm_top = np.maximum(wrm_top, 0)
@@ -93,27 +44,61 @@ class ErrorCalculator:
         wrm_bottom = np.minimum(wrm_bottom, h)
 
         worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)
-        worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYXY, BoxFormat.XYWH)
-        worm_bboxes = worm_bboxes.astype(int, copy=False)
+
+        # calculate intersection of worm and microscope bounding boxes
+        int_left = np.maximum(wrm_left, mic_left)
+        int_top = np.maximum(wrm_top, mic_top)
+        int_right = np.minimum(wrm_right, mic_right)
+        int_bottom = np.minimum(wrm_bottom, mic_bottom)
+
+        int_width = np.maximum(0, int_right - int_left)
+        int_height = np.maximum(0, int_bottom - int_top)
+
+        # shift the intersection to the worm view coordinates
+        int_left -= wrm_left
+        int_top -= wrm_top
+
+        int_bboxes = BoxUtils.pack(int_left, int_top, int_width, int_height)
+        int_bboxes = BoxConverter.change_format(int_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
 
         errors = np.zeros(len(frame_nums), dtype=float)
 
         for i, frame_num in tqdm(enumerate(frame_nums), desc="Calculating Error", unit="fr"):
-            wx, wy, ww, wh = worm_bboxes[i].astype(int)
-            worm_view = reader[frame_num][wy : wy + wh, wx : wx + ww]
-            bg_view = background[wy : wy + wh, wx : wx + ww]
+            wrm_bbox = worm_bboxes[i]
+            int_bbox = int_bboxes[i]
 
-            err = ErrorCalculator.calculate_precise_single(
-                bg_view=bg_view,
-                worm_view=worm_view,
-                worm_bbox=worm_bboxes[i],
-                micro_bbox=mic_bboxes[i],
-                diff_thresh=diff_thresh,
-            )
+            if np.isfinite(wrm_bbox).all() == False:
+                errors[i] = np.nan
+                continue
 
-            errors[i] = err
+            frame = reader[frame_num]
 
-        errors = np.nan_to_num(errors, nan=0, neginf=0.0, posinf=0.0, copy=False)
+            worm_view = frame[wrm_bbox[1] : wrm_bbox[3], wrm_bbox[0] : wrm_bbox[2]]
+            bg_view = background[wrm_bbox[1] : wrm_bbox[3], wrm_bbox[0] : wrm_bbox[2]]
+
+            diff = np.abs(worm_view.astype(int) - bg_view.astype(int))
+
+            # if images are color, convert to grayscale
+            # conversion is correct if it's BGR
+            if diff.ndim == 3 and diff.shape[2] == 3:
+                diff = 0.114 * diff[:, :, 0] + 0.587 * diff[:, :, 1] + 0.299 * diff[:, :, 2]
+
+            if diff.ndim != 2:
+                raise ValueError("Image must be either a gray or a color image.")
+
+            mask_wrm = diff > diff_thresh
+
+            mask_mic = np.zeros_like(mask_wrm, dtype=bool)
+            mask_mic[int_bbox[1] : int_bbox[3], int_bbox[0] : int_bbox[2]] = True
+
+            total = mask_wrm.sum()
+            if total == 0:
+                errors[i] = 0.0
+                continue
+
+            intersection = np.logical_and(mask_wrm, mask_mic).sum()
+            error = 1.0 - intersection / total
+            errors[i] = error
 
         return errors
 
