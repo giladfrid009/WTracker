@@ -254,6 +254,7 @@ class Plotter2:
         return data
 
     # TODO: is this really a good place for this function?
+    # TODO: current perf: about 60fps
     def calc_precise_error(self, frames: list[FrameReader], bg_probes=1000, diff_thresh=20):
         for i, data in enumerate(self.data_list):
             reader = frames[i]

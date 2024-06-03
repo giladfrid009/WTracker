@@ -38,12 +38,12 @@ class ErrorCalculator:
         wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bbox)
         mic_left, mic_top, mic_right, mic_bottom = BoxUtils.unpack(micro_bbox)
 
-        int_left = max(wrm_left, mic_left)
-        int_top = max(wrm_top, mic_top)
-        int_right = min(wrm_right, mic_right)
-        int_bottom = min(wrm_bottom, mic_bottom)
-        int_width = max(0, int_right - int_left)
-        int_height = max(0, int_bottom - int_top)
+        int_left = int(max(wrm_left, mic_left))
+        int_top = int(max(wrm_top, mic_top))
+        int_right = int(min(wrm_right, mic_right))
+        int_bottom = int(min(wrm_bottom, mic_bottom))
+        int_width = int(max(0, int_right - int_left))
+        int_height = int(max(0, int_bottom - int_top))
 
         # shift the intersection to the worm view coordinates
         int_left -= wrm_left
@@ -61,6 +61,7 @@ class ErrorCalculator:
 
         return error
 
+    # TODO: FIX. DOES NOT VWORK CORRECTLY.
     @staticmethod
     def calculate_precise(
         background: np.ndarray,
@@ -77,6 +78,11 @@ class ErrorCalculator:
         """
         assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]
 
+        # TODO: we should ignore no pred bboxes, instead of setting worm position to 0,0,0,0
+        # i.e. set the error for nopred frames to np.nan
+        mask = np.isfinite(worm_bboxes).all(axis = 1) == False
+        worm_bboxes[mask, :] = np.asanyarray([[0,0,0,0]])
+
         worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
         wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bboxes)
 
@@ -88,11 +94,12 @@ class ErrorCalculator:
 
         worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)
         worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYXY, BoxFormat.XYWH)
+        worm_bboxes = worm_bboxes.astype(int, copy=False)
 
         errors = np.zeros(len(frame_nums), dtype=float)
 
         for i, frame_num in tqdm(enumerate(frame_nums), desc="Calculating Error", unit="fr"):
-            wx, wy, ww, wh = worm_bboxes[i]
+            wx, wy, ww, wh = worm_bboxes[i].astype(int)
             worm_view = reader[frame_num][wy : wy + wh, wx : wx + ww]
             bg_view = background[wy : wy + wh, wx : wx + ww]
 
