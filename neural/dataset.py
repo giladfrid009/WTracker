@@ -20,11 +20,6 @@ class numpyDataset(Dataset):
         y (np.ndarray): The output data as a numpy array.
         config (DatasetConfig, optional): The configuration object for the dataset. Defaults to None.
 
-    Attributes:
-        config (DatasetConfig): The configuration object for the dataset.
-        X (Tensor): The input data as a PyTorch tensor.
-        y (Tensor): The output data as a PyTorch tensor.
-
     Methods:
         __len__(): Returns the length of the dataset.
         __getitem__(idx): Returns the input and output data at the given index.
