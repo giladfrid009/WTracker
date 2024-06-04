@@ -12,7 +12,7 @@ matplotlib.use("QTAgg")
 from utils.path_utils import Files, create_directory, join_paths
 from utils.io_utils import ImageSaver
 from utils.frame_reader import FrameReader, DummyReader
-from sim.simulator import TimingConfig
+from sim.config import TimingConfig
 
 
 @dataclass
@@ -164,7 +164,7 @@ class StreamViewer:
         """
         self.close()
         self.window = cv.namedWindow(self.window_name, flags=cv.WINDOW_GUI_EXPANDED)
-        cv.setWindowProperty(self.window_name, cv.WND_PROP_TOPMOST, 1)
+        # cv.setWindowProperty(self.window_name, cv.WND_PROP_TOPMOST, 1)
         self.set_title(self.window_name)
 
     def close(self, key: str = "q"):
@@ -229,7 +229,7 @@ class VLC:
         show_micro: bool = False,
         show_cam: bool = False,
     ) -> None:
-        self.streamer = StreamViewer()
+        self.streamer = StreamViewer(window_name="VLC")
         self.index = 0
         self._curr_row = None
         self.exit = False
@@ -245,9 +245,20 @@ class VLC:
         self.reader: FrameReader = self._create_reader(files)
 
     def initialize(self) -> None:
-        self._init_hotkeys()
-        self._create_window()
-        self.streamer.update_trackbar("delay", round(self.config.ms_per_frame))
+            """
+            Initializes the VLC player by setting up hotkeys, opening the streamer,
+            creating a window, and updating the trackbar.
+
+            Parameters:
+                None
+
+            Returns:
+                None
+            """
+            self._init_hotkeys()
+            self._create_window()
+            self.streamer.update_trackbar("delay", round(self.config.ms_per_frame))
+            self.print_hotkeys()
 
     def _load_log(self, log_path: str) -> pd.DataFrame:
         if log_path is None:
@@ -279,6 +290,7 @@ class VLC:
             print(f" - {hotkey.key} : {hotkey.description}")
 
     def _create_window(self):
+        self.streamer.open()
         self.streamer.create_trackbar("delay", 0, 250, self.set_delay)
         self.streamer.create_trackbar("#frame", 0, len(self.reader), self.seek)
 
@@ -296,7 +308,6 @@ class VLC:
         return reader
 
     def __enter__(self):
-        self.streamer.open()
         self.initialize()
         return self
 
@@ -370,7 +381,7 @@ class VLC:
 
     def mainloop(self):
         """
-        Main loop for the VLC player.
+        Main loop for the VLC player. This method makes the VLC player interactive by allowing the user to control the player using hotkeys.
 
         This method continuously runs the VLC player until the `exit` flag is set to True (by self.close() (called by an hotkey)).
         It checks the `play` flag to determine if the player should continue playing or pause.

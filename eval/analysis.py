@@ -255,6 +255,9 @@ class Plotter:
 
         self.all_data["precise_error"] = pd.concat([log["precise_error"] for log in self.data_list])
 
+    # TODO: HERE WE DISPLAY THE ERROR PER FRAME, WE NEED TO DISPLAY ERROR PER CYCLE.
+    # I.E. ARGMAX OF ERROR PER CYCLE
+
     def plot_speed_vs_error(
         self,
         error_kind: str = "bbox",
