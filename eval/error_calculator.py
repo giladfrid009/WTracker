@@ -4,7 +4,7 @@ import cv2 as cv
 from tqdm.auto import tqdm
 
 from utils.frame_reader import FrameReader
-from utils.bbox_utils import *
+from utils.bbox_utils import BoxUtils, BoxConverter, BoxFormat
 
 
 class ErrorCalculator:

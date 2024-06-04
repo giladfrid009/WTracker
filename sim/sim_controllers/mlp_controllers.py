@@ -6,8 +6,8 @@ from torch import Tensor
 from sim.config import TimingConfig
 from sim.simulator import Simulator
 from sim.sim_controllers.csv_controller import CsvController
-from utils.bbox_utils import *
-from neural.mlp import *
+from utils.bbox_utils import BoxUtils, BoxConverter, BoxFormat
+from neural.mlp import WormPredictor
 from neural.config import IOConfig
 
 

@@ -4,7 +4,7 @@ import pandas as pd
 
 from sim.config import TimingConfig
 from sim.simulator import SimController, Simulator
-from utils.bbox_utils import *
+from utils.bbox_utils import BoxUtils, BoxConverter, BoxFormat
 
 
 class CsvController(SimController):

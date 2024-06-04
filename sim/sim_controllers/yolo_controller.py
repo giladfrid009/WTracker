@@ -7,7 +7,7 @@ from ultralytics import YOLO
 
 
 from sim.simulator import Simulator, SimController
-from utils.bbox_utils import *
+from utils.bbox_utils import BoxUtils, BoxConverter, BoxFormat
 from sim.config import TimingConfig
 from utils.config_base import ConfigBase
 

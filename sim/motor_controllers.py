@@ -1,7 +1,7 @@
 import abc
 import numpy as np
 
-from .config import TimingConfig
+from sim.config import TimingConfig
 
 
 class MotorController(abc.ABC):

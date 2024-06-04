@@ -5,7 +5,7 @@ from tqdm.auto import tqdm
 
 from utils.frame_reader import FrameReader, DummyReader
 from sim.view_controller import ViewController
-from sim.config import *
+from sim.config import TimingConfig, ExperimentConfig
 from sim.motor_controllers import MotorController, SineMotorController
 
 

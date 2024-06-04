@@ -308,7 +308,6 @@ class VLC:
         return reader
 
     def __enter__(self):
-        self.initialize()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
