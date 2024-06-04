@@ -188,7 +188,7 @@ class StreamViewer:
         """
         self.update(image, wait=0)
         self.set_title(title)
-        cv.setWindowProperty(self.windD_PROP_TOPMOST, 1)
+        # cv.setWindowProperty(self.window_name, cv.WND_PROP_TOPMOST, 1)
 
 
 class VLC:

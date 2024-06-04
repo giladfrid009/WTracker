@@ -93,8 +93,8 @@ class ExperimentConfig(ConfigBase):
     px_per_mm: float
     """Number of pixels in a single millimeter"""
 
-    init_position: tuple[int, int]
-    """The initial position of the center of the platform, in pixels. 
+    init_position: tuple[int, int] #TODO: WICH Format
+    """The initial position of the center of the platform, in pixels (x,y). 
     Platform's initial position should point to the worm, or close to it."""
 
     comments: str = ""

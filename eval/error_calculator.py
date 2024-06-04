@@ -2,6 +2,7 @@ from typing import Collection
 import numpy as np
 import cv2 as cv
 from tqdm.auto import tqdm
+from typing import Callable
 
 from utils.frame_reader import FrameReader
 from utils.bbox_utils import BoxUtils, BoxConverter, BoxFormat
@@ -10,7 +11,35 @@ from utils.bbox_utils import BoxUtils, BoxConverter, BoxFormat
 class ErrorCalculator:
     # TODO: FIX. DOES NOT VWORK CORRECTLY.
     # TODO: CURRENT PERF: 60 FPS
-    # TODO: TEST IMPLEMENTATION
+    # TODO: TEST IMPLEMENTATIONs
+    probe_hook: Callable[[np.ndarray, np.ndarray], None] = None # takes mask and view for testing
+
+    @staticmethod
+    def calculate_segmentation(
+        bbox: np.ndarray,
+        view: np.ndarray,
+        background: np.ndarray,
+        diff_thresh: float,
+    ) -> np.ndarray:
+        assert view.shape[0] == bbox[3] - bbox[1]
+        assert view.shape[1] == bbox[2] - bbox[0]
+
+        bg_view = background[bbox[1] : bbox[3], bbox[0] : bbox[2]]
+
+        diff = np.abs(view.astype(int) - bg_view.astype(int))
+
+        # if images are color, convert to grayscale
+        # conversion is correct if it's BGR
+        if diff.ndim == 3 and diff.shape[2] == 3:
+            diff = 0.114 * diff[:, :, 0] + 0.587 * diff[:, :, 1] + 0.299 * diff[:, :, 2]
+
+        if diff.ndim != 2:
+            raise ValueError("Image must be either a gray or a color image.")
+
+        mask_wrm = diff > diff_thresh
+
+        return mask_wrm
+
     @staticmethod
     def calculate_precise(
         background: np.ndarray,
@@ -38,18 +67,27 @@ class ErrorCalculator:
 
         # clip worm bounding boxes to the frame size
         H, W = background.shape[:2]
-        wrm_left = np.maximum(wrm_left, 0)
-        wrm_top = np.maximum(wrm_top, 0)
-        wrm_right = np.minimum(wrm_right, W)
-        wrm_bottom = np.minimum(wrm_bottom, H)
+        
+        # wrm_left = np.maximum(wrm_left, 0)
+        # wrm_top = np.maximum(wrm_top, 0)
+        # wrm_right = np.minimum(wrm_right, W)
+        # wrm_bottom = np.minimum(wrm_bottom, H)
+        wrm_left = np.clip(wrm_left, a_min=0, a_max=W-1)
+        wrm_top = np.clip(wrm_top, a_min=0, a_max=H-1)
+        wrm_right = np.clip(wrm_right, a_min=0, a_max=W-1)
+        wrm_bottom = np.clip(wrm_bottom, a_min=0, a_max=H-1)
 
         worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)
 
         # calculate intersection of worm and microscope bounding boxes
-        int_left = np.maximum(wrm_left, mic_left)
-        int_top = np.maximum(wrm_top, mic_top)
-        int_right = np.minimum(wrm_right, mic_right)
-        int_bottom = np.minimum(wrm_bottom, mic_bottom)
+        # int_left = np.maximum(wrm_left, mic_left)
+        # int_top = np.maximum(wrm_top, mic_top)
+        # int_right = np.minimum(wrm_right, mic_right)
+        # int_bottom = np.minimum(wrm_bottom, mic_bottom)
+        int_left = np.clip(wrm_left, a_min=mic_left, a_max=mic_right)
+        int_top = np.clip(wrm_top, a_min=mic_top, a_max=mic_bottom)
+        int_right = np.clip(wrm_right, a_min=mic_left, a_max=mic_right)
+        int_bottom = np.clip(wrm_bottom, a_min=mic_top, a_max=mic_bottom)
 
         int_width = np.maximum(0, int_right - int_left)
         int_height = np.maximum(0, int_bottom - int_top)
@@ -73,22 +111,15 @@ class ErrorCalculator:
 
             worm_view = worm_reader[frame_num]
 
-            assert worm_view.shape[0] == wrm_bbox[3] - wrm_bbox[1]
-            assert worm_view.shape[1] == wrm_bbox[2] - wrm_bbox[0]
-
-            bg_view = background[wrm_bbox[1] : wrm_bbox[3], wrm_bbox[0] : wrm_bbox[2]]
-
-            diff = np.abs(worm_view.astype(int) - bg_view.astype(int))
-
-            # if images are color, convert to grayscale
-            # conversion is correct if it's BGR
-            if diff.ndim == 3 and diff.shape[2] == 3:
-                diff = 0.114 * diff[:, :, 0] + 0.587 * diff[:, :, 1] + 0.299 * diff[:, :, 2]
-
-            if diff.ndim != 2:
-                raise ValueError("Image must be either a gray or a color image.")
-
-            mask_wrm = diff > diff_thresh
+            mask_wrm = ErrorCalculator.calculate_segmentation(
+                bbox=wrm_bbox, 
+                view=worm_view, 
+                background=background, 
+                diff_thresh=diff_thresh
+                )
+            
+            if ErrorCalculator.probe_hook is not None:
+                ErrorCalculator.probe_hook(worm_view, mask_wrm)
 
             mask_mic = np.zeros_like(mask_wrm, dtype=bool)
             mask_mic[int_bbox[1] : int_bbox[3], int_bbox[0] : int_bbox[2]] = True

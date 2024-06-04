@@ -128,10 +128,10 @@ class BoxUtils:
             np.ndarray: The bounding box coordinates as integers.
         """
         c1, c2, c3, c4 = BoxUtils.unpack(bbox)
-        c1 = np.floor(c1, dtype=int)
-        c2 = np.floor(c2, dtype=int)
-        c3 = np.ceil(c3, dtype=int)
-        c4 = np.ceil(c4, dtype=int)
+        c1 = np.floor(c1).astype(int, copy=False)
+        c2 = np.floor(c2).astype(int, copy=False)
+        c3 = np.ceil(c3).astype(int, copy=False)
+        c4 = np.ceil(c4).astype(int, copy=False)
         return BoxUtils.pack(c1, c2, c3, c4)
 
 

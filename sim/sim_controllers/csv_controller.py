@@ -1,6 +1,7 @@
 from collections import deque
 from typing import Collection
 import pandas as pd
+import numpy as np
 
 from sim.config import TimingConfig
 from sim.simulator import SimController, Simulator

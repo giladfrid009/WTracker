@@ -21,7 +21,7 @@ class FrameSaver(TaskScheduler):
         self,
         frame_reader: FrameReader,
         root_path: str = "",
-        maxsize: int = 0,
+        maxsize: int = 100, #TODO: determain max size
         tqdm: bool = True,
         **tqdm_kwargs,
     ):
@@ -55,7 +55,16 @@ class FrameSaver(TaskScheduler):
         save_path = join_paths(self._root_path, img_name)
 
         img = self._frame_reader[img_index]
-        img = img[y : y + h, x : x + w]
+        H, W = img.shape[:2]
+
+        x_min, y_min, x_max, y_max = x, y, x + w, y + h
+        
+        x_min = np.clip(x_min, a_min=0, a_max=W-1)
+        x_max = np.clip(x_max, a_min=0, a_max=W-1)
+        y_min = np.clip(y_min, a_min=0, a_max=H-1)
+        y_max = np.clip(y_max, a_min=0, a_max=H-1)
+
+        img = img[y_min : y_max, x_min : x_max]
         success = cv.imwrite(save_path, img)
 
         if not success:

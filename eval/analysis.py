@@ -233,6 +233,9 @@ class Plotter:
         return data
 
     def calc_precise_error(self, worm_image_paths: list[str], backgrounds: list[np.ndarray], diff_thresh=20) -> None:
+        # TODO: DOESNT WORK IF unit is "sec"
+        # TODO: DIESNT WORK IF WE REMOVE DIFFERENT ROWS 
+        
         assert len(worm_image_paths) == len(backgrounds) == len(self.data_list)
 
         for i, data in enumerate(self.data_list):
@@ -247,7 +250,7 @@ class Plotter:
                 worm_bboxes,
                 mic_bboxes,
                 worm_reader=worm_reader,
-                frame_nums=data["frame"].values,
+                frame_nums=data["frame"].astype(int).to_list(),
                 diff_thresh=diff_thresh,
             )
 

@@ -16,7 +16,7 @@ class FocusedWindow:
         return self.focus()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.root.destroy()
+        self.hide()
 
     def focus(self) -> tk.Tk:
         root = self.root
@@ -24,10 +24,12 @@ class FocusedWindow:
         root.deiconify()
         root.lift()
         root.focus_force()
+        root.attributes('-topmost', True)
         return root
 
     def hide(self) -> tk.Tk:
         root = self.root
+        root.attributes('-topmost', False)
         root.withdraw()
         root.overrideredirect(True)
         root.geometry("0x0+0+0")
@@ -73,6 +75,7 @@ class UserPrompt:
                     filetypes=file_types,
                     **kwargs,
                 )
+                
                 return list(path)
             else:
                 return filedialog.askopenfilename(

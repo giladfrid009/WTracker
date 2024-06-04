@@ -86,10 +86,10 @@ class LoggingController(SimController):
         self._micro_bboxes.clear()
         self.log_config.create_dirs()
 
-        self._image_saver = ImageSaver(tqdm=False)
+        self._image_saver = ImageSaver(tqdm=True)
         self._image_saver.start()
 
-        self._frame_saver = FrameSaver(deepcopy(frame_reader=sim.view._frame_reader), tqdm=False)
+        self._frame_saver = FrameSaver(deepcopy(sim.view._frame_reader), tqdm=True)
         self._frame_saver.start()
 
         self._bbox_logger = CSVLogger(
@@ -147,7 +147,7 @@ class LoggingController(SimController):
         frame_offset = cycle_number * self.timing_config.cycle_frame_num
 
         worm_bboxes = self.sim_controller._cycle_predict_all(sim)
-        worm_bboxes_round = BoxUtils.round(worm_bboxes)
+        worm_bboxes_round = BoxUtils.round(worm_bboxes) # TODO: MISBEHAVES IF THE WORM_BBOXES HAS A NAN VALUE.
 
         for i, worm_bbox in enumerate(worm_bboxes):
             csv_row = {}
@@ -173,7 +173,7 @@ class LoggingController(SimController):
                 if self.log_config.save_wrm_view:
                     # save worm view
                     path = self.log_config.wrm_file_path.format(frame_number)
-                    self._frame_saver.schedule_save(i, (0, 0, 0, 0), path)
+                    self._frame_saver.schedule_save(i, (0, 0, 20, 20), path)
 
             else:
                 # format bbox to have absolute position
@@ -184,16 +184,16 @@ class LoggingController(SimController):
                     # format bbox to have absolute position
                     worm_bbox_round = worm_bboxes_round[i]
                     worm_bbox_round = (
-                        worm_bboxes_round[0] + cam_bbox[0],
-                        worm_bboxes_round[1] + cam_bbox[1],
-                        worm_bboxes_round[2],
-                        worm_bboxes_round[3],
+                        worm_bbox_round[0] + cam_bbox[0],
+                        worm_bbox_round[1] + cam_bbox[1],
+                        worm_bbox_round[2],
+                        worm_bbox_round[3],
                     )
 
                     # save worm view
                     path = self.log_config.wrm_file_path.format(frame_number)
                     self._frame_saver.schedule_save(
-                        img_index=i,
+                        img_index=frame_number,
                         crop_dims=worm_bbox_round,
                         img_name=path,
                     )
