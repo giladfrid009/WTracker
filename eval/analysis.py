@@ -84,14 +84,16 @@ class Plotter:
 
             self.apply_foreach(Plotter._remove_out_of_bounds, bounds=legal_bounds)
 
-        self.apply_foreach(Plotter._remove_first_cycle)
-        self.apply_foreach(Plotter._remove_first_cycle)
+        self.apply_foreach(lambda df: df[df["cycle"] != 0])
+        self.apply_foreach(lambda df: df[df["cycle"] != df["cycle"].max()])
 
         if imaging_only:
-            self.apply_foreach(Plotter._remove_phase, phase="moving")
+            self.apply_foreach(lambda df: df[df["phase"] == "imaging"])
 
         self.apply_foreach(Plotter._calc_worm_deviation)
         self.apply_foreach(Plotter._calc_errors)
+
+        self.apply_foreach(lambda df: df.round(5))
 
         self.all_data = self.concat_all()
 
@@ -213,32 +215,10 @@ class Plotter:
         return data
 
     @staticmethod
-    def _remove_nopreds(data: pd.DataFrame) -> pd.DataFrame:
-        data = data.dropna()
-        return data
-
-    @staticmethod
-    def _fill_nopreds(data: pd.DataFrame) -> pd.DataFrame:
-        data = data.ffill()
-        return data
-
-    @staticmethod
     def _remove_out_of_bounds(data: pd.DataFrame, bounds: tuple[float, float, float, float]) -> pd.DataFrame:
         mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[2])
         mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[3])
         return data[mask]
-
-    @staticmethod
-    def _remove_first_cycle(data: pd.DataFrame) -> pd.DataFrame:
-        return data[data["cycle"] != 0]
-
-    @staticmethod
-    def _remove_last_cycle(data: pd.DataFrame) -> pd.DataFrame:
-        return data[data["cycle"] != data["cycle"].max()]
-
-    @staticmethod
-    def _remove_phase(data: pd.DataFrame, phase: str) -> pd.DataFrame:
-        return data[data["phase"] != phase]
 
     @staticmethod
     def _calc_errors(data: pd.DataFrame) -> pd.DataFrame:
@@ -252,7 +232,6 @@ class Plotter:
 
         return data
 
-    # TODO: is this really a good place for this function?
     def calc_precise_error(self, worm_image_paths: list[str], backgrounds: list[np.ndarray], diff_thresh=20) -> None:
         assert len(worm_image_paths) == len(backgrounds) == len(self.data_list)
 
@@ -298,13 +277,12 @@ class Plotter:
         plot = self.create_jointplot(
             x_col="wrm_speed",
             y_col=error_col,
-            kind="reg",
+            kind="scatter",
             x_label="speed",
-            y_label="error",
+            y_label=f"{error_kind} Error",
             title=f"Speed vs {error_kind} Error",
             condition=condition,
-            scatter_kws=dict(linewidths=0.5, edgecolor="black"),
-            line_kws=dict(color="r"),
+            #            scatter_kws=dict(linewidths=0.5, edgecolor="black"),
             **kwargs,
         )
 

@@ -139,5 +139,5 @@ class ErrorCalculator:
         """
         worm_centers = BoxUtils.center(worm_bboxes)
         mic_centers = BoxUtils.center(mic_bboxes)
-        errors = np.linalg.norm(worm_centers - mic_centers, axis=1)
+        errors = np.mean((worm_centers - mic_centers) ** 2, axis=1)
         return errors
