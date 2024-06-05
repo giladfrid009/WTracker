@@ -12,15 +12,16 @@ class Plotter:
         self,
         data_list: list[DataAnalyzer],
         plot_height: int = 7,
+        palette: str = "viridis",
     ) -> None:
         self._plot_height = plot_height
         self._data_list = data_list
+        self._palette = palette
 
-        serials = [d.data["log_num"].unique().tolist() for d in data_list]
-        serials = itertools.chain(*serials)
-        assert len(set(serials)) == len(data_list), "Serial numbers must be unique"
+        for i, data_obj in enumerate(data_list):
+            data_obj.table["log_num"] = i
 
-        self._all_data = pd.concat([d.data for d in data_list], ignore_index=True)
+        self._all_data = pd.concat([d.table for d in data_list], ignore_index=True)
 
     # TODO: HERE WE DISPLAY THE ERROR PER FRAME, WE NEED TO DISPLAY ERROR PER CYCLE.
     # I.E. ARGMAX OF ERROR PER CYCLE
@@ -46,7 +47,7 @@ class Plotter:
         plot = self.create_jointplot(
             x_col="wrm_speed",
             y_col=error_col,
-            kind="scatter",
+            kind="hex",
             x_label="speed",
             y_label=f"{error_kind} Error",
             title=f"Speed vs {error_kind} Error",
@@ -147,7 +148,7 @@ class Plotter:
             x_label="width",
             y_label="height",
             title="Worm Head Size",
-            kind="hex",
+            kind="hist",
             condition=condition,
             **kwargs,
         )
@@ -215,6 +216,7 @@ class Plotter:
             col="log_num" if log_wise else None,
             kind=kind,
             height=self._plot_height,
+            palette=self._palette,
             **kwargs,
         )
 
@@ -264,6 +266,7 @@ class Plotter:
             col="log_num" if log_wise else None,
             kind=kind,
             height=self._plot_height,
+            palette=self._palette,
             **kwargs,
         )
 
@@ -312,6 +315,8 @@ class Plotter:
             hue=hue_col,
             kind=kind,
             height=self._plot_height,
+            palette=self._palette,
+            marginal_kws=dict(palette=self._palette),
             **kwargs,
         )
 
