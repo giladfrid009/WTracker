@@ -33,6 +33,7 @@ class Plotter:
 
         self.data_list = Plotter.load_logs(self.log_paths)
         self.all_data: pd.DataFrame = None
+        self.unit = None
 
     @staticmethod
     def load_logs(log_paths: list[str]) -> list[pd.DataFrame]:
@@ -65,6 +66,7 @@ class Plotter:
         """
 
         assert unit in ["frame", "sec"]
+        self.unit = unit
 
         for i, data in enumerate(self.data_list):
             self.data_list[i] = Plotter._add_log_num_column(data, i)
@@ -233,28 +235,39 @@ class Plotter:
         return data
 
     def calc_precise_error(self, worm_image_paths: list[str], backgrounds: list[np.ndarray], diff_thresh=20) -> None:
-        # TODO: DOESNT WORK IF unit is "sec"
-        # TODO: DIESNT WORK IF WE REMOVE DIFFERENT ROWS 
-        
         assert len(worm_image_paths) == len(backgrounds) == len(self.data_list)
 
-        for i, data in enumerate(self.data_list):
+        for i, df in enumerate(self.data_list):
             worm_reader = FrameReader.create_from_directory(worm_image_paths[i])
             background = backgrounds[i]
 
-            worm_bboxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
-            mic_bboxes = data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
+            frames = df["frame"].to_numpy().astype(int, copy=False)
+            wrm_bboxes = df[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
+            mic_bboxes = df[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
 
-            precise_error = ErrorCalculator.calculate_precise(
+            # TODO: TEST IF FIXES - DOESNT WORK IF unit is "sec"
+            if self.unit == "sec":
+                wrm_bboxes = wrm_bboxes * self.time_config.px_per_mm * 1000
+                mic_bboxes = mic_bboxes * self.time_config.px_per_mm * 1000
+
+            errors = np.full_like(frames, np.nan, dtype=float)
+            mask = np.isfinite(wrm_bboxes).all(axis=1)
+
+            wrm_bboxes = wrm_bboxes[mask]
+            mic_bboxes = mic_bboxes[mask]
+            frames = frames[mask]
+
+            results = ErrorCalculator.calculate_precise(
                 background,
-                worm_bboxes,
+                wrm_bboxes,
                 mic_bboxes,
                 worm_reader=worm_reader,
-                frame_nums=data["frame"].astype(int).to_list(),
+                frame_nums=frames,
                 diff_thresh=diff_thresh,
             )
 
-            data["precise_error"] = precise_error
+            errors[mask] = results
+            df["precise_error"] = errors
 
         self.all_data["precise_error"] = pd.concat([log["precise_error"] for log in self.data_list])
 

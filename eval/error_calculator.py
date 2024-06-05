@@ -7,12 +7,11 @@ from typing import Callable
 from utils.frame_reader import FrameReader
 from utils.bbox_utils import BoxUtils, BoxConverter, BoxFormat
 
+# TODO: ADD DOCS
 
 class ErrorCalculator:
-    # TODO: FIX. DOES NOT VWORK CORRECTLY.
-    # TODO: CURRENT PERF: 60 FPS
     # TODO: TEST IMPLEMENTATIONs
-    probe_hook: Callable[[np.ndarray, np.ndarray], None] = None # takes mask and view for testing
+    probe_hook: Callable[[np.ndarray, np.ndarray], None] = None  # takes mask and view for testing
 
     @staticmethod
     def calculate_segmentation(
@@ -67,23 +66,14 @@ class ErrorCalculator:
 
         # clip worm bounding boxes to the frame size
         H, W = background.shape[:2]
-        
-        # wrm_left = np.maximum(wrm_left, 0)
-        # wrm_top = np.maximum(wrm_top, 0)
-        # wrm_right = np.minimum(wrm_right, W)
-        # wrm_bottom = np.minimum(wrm_bottom, H)
-        wrm_left = np.clip(wrm_left, a_min=0, a_max=W-1)
-        wrm_top = np.clip(wrm_top, a_min=0, a_max=H-1)
-        wrm_right = np.clip(wrm_right, a_min=0, a_max=W-1)
-        wrm_bottom = np.clip(wrm_bottom, a_min=0, a_max=H-1)
+        wrm_left = np.clip(wrm_left, a_min=0, a_max=W - 1)
+        wrm_top = np.clip(wrm_top, a_min=0, a_max=H - 1)
+        wrm_right = np.clip(wrm_right, a_min=0, a_max=W - 1)
+        wrm_bottom = np.clip(wrm_bottom, a_min=0, a_max=H - 1)
 
         worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)
 
         # calculate intersection of worm and microscope bounding boxes
-        # int_left = np.maximum(wrm_left, mic_left)
-        # int_top = np.maximum(wrm_top, mic_top)
-        # int_right = np.minimum(wrm_right, mic_right)
-        # int_bottom = np.minimum(wrm_bottom, mic_bottom)
         int_left = np.clip(wrm_left, a_min=mic_left, a_max=mic_right)
         int_top = np.clip(wrm_top, a_min=mic_top, a_max=mic_bottom)
         int_right = np.clip(wrm_right, a_min=mic_left, a_max=mic_right)
@@ -112,12 +102,12 @@ class ErrorCalculator:
             worm_view = worm_reader[frame_num]
 
             mask_wrm = ErrorCalculator.calculate_segmentation(
-                bbox=wrm_bbox, 
-                view=worm_view, 
-                background=background, 
-                diff_thresh=diff_thresh
-                )
-            
+                bbox=wrm_bbox,
+                view=worm_view,
+                background=background,
+                diff_thresh=diff_thresh,
+            )
+
             if ErrorCalculator.probe_hook is not None:
                 ErrorCalculator.probe_hook(worm_view, mask_wrm)
 
