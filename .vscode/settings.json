@@ -7,7 +7,8 @@
         "pbar",
         "polyfit",
         "ultralytics",
-        "waitkey"
+        "waitkey",
+        "wtracker"
     ],
     "python.analysis.typeCheckingMode": "off",
     "python.analysis.autoImportCompletions": false,
