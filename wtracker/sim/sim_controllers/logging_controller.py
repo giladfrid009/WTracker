@@ -1,14 +1,13 @@
 from collections import deque
 import numpy as np
 from dataclasses import dataclass, field
-from utils.path_utils import join_paths, create_parent_directory
 from copy import deepcopy
 
 from wtracker.sim.simulator import Simulator, SimController
 from wtracker.utils.io_utils import ImageSaver, FrameSaver
 from wtracker.utils.log_utils import CSVLogger
 from wtracker.utils.config_base import ConfigBase
-from wtracker.utils.bbox_utils import BoxUtils
+from wtracker.utils.path_utils import join_paths, create_parent_directory
 
 
 @dataclass
@@ -47,10 +46,18 @@ class LogConfig(ConfigBase):
     bbox_file_path: str = field(init=False)
 
     def __post_init__(self):
-        self.mic_file_path = join_paths(self.root_folder, self.mic_folder_name, self.mic_file_name)
-        self.cam_file_path = join_paths(self.root_folder, self.cam_folder_name, self.cam_file_name)
-        self.err_file_path = join_paths(self.root_folder, self.err_folder_name, self.cam_file_name)
-        self.wrm_file_path = join_paths(self.root_folder, self.wrm_folder_name, self.wrm_file_name)
+        self.mic_file_path = join_paths(
+            self.root_folder, self.mic_folder_name, self.mic_file_name
+        )
+        self.cam_file_path = join_paths(
+            self.root_folder, self.cam_folder_name, self.cam_file_name
+        )
+        self.err_file_path = join_paths(
+            self.root_folder, self.err_folder_name, self.cam_file_name
+        )
+        self.wrm_file_path = join_paths(
+            self.root_folder, self.wrm_folder_name, self.wrm_file_name
+        )
         self.bbox_file_path = join_paths(self.root_folder, self.bbox_file_name)
 
     def create_dirs(self) -> None:
@@ -151,8 +158,12 @@ class LoggingController(SimController):
         for i, worm_bbox in enumerate(worm_bboxes):
             csv_row = {}
             csv_row["plt_x"], csv_row["plt_y"] = self._platform_positions[i]
-            csv_row["cam_x"], csv_row["cam_y"], csv_row["cam_w"], csv_row["cam_h"] = self._camera_bboxes[i]
-            csv_row["mic_x"], csv_row["mic_y"], csv_row["mic_w"], csv_row["mic_h"] = self._micro_bboxes[i]
+            csv_row["cam_x"], csv_row["cam_y"], csv_row["cam_w"], csv_row["cam_h"] = (
+                self._camera_bboxes[i]
+            )
+            csv_row["mic_x"], csv_row["mic_y"], csv_row["mic_w"], csv_row["mic_h"] = (
+                self._micro_bboxes[i]
+            )
 
             frame_number = frame_offset + i
             phase = "imaging" if i < self.timing_config.imaging_frame_num else "moving"
@@ -177,7 +188,12 @@ class LoggingController(SimController):
             else:
                 # format bbox to have absolute position
                 cam_bbox = self._camera_bboxes[i]
-                worm_bbox = (worm_bbox[0] + cam_bbox[0], worm_bbox[1] + cam_bbox[1], worm_bbox[2], worm_bbox[3])
+                worm_bbox = (
+                    worm_bbox[0] + cam_bbox[0],
+                    worm_bbox[1] + cam_bbox[1],
+                    worm_bbox[2],
+                    worm_bbox[3],
+                )
 
                 if self.log_config.save_wrm_view:
                     # save worm view
@@ -189,7 +205,9 @@ class LoggingController(SimController):
                     )
 
             # log current cycle
-            csv_row["wrm_x"], csv_row["wrm_y"], csv_row["wrm_w"], csv_row["wrm_h"] = worm_bbox
+            csv_row["wrm_x"], csv_row["wrm_y"], csv_row["wrm_w"], csv_row["wrm_h"] = (
+                worm_bbox
+            )
             self._bbox_logger.write(csv_row)
 
         self._bbox_logger.flush()

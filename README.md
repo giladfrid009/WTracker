@@ -41,13 +41,14 @@ Download the project [repository](https://github.com/giladfrid009/Bio-Proj) (by 
 	* If you used another name for the environment, replace 'bio-proj' with the name you have chosen.   
 
 **Step 5** - Installing Pytorch:  
-> 1. Head to the pytorch website, there you will find a table to select your configuration, select the following:  
+> 1. Head to the pytorch website [here](https://pytorch.org/get-started/locally/), there you will find a table to select your configuration, select the following:  
 	1. PyTorch Build = stable  
 	2. OS - the operating system of the computer \[Windows/Linux\]  
 	3. Package - the package manager \[conda\]  
 	4. Language - the programming language \[Python\]  
 	5. Compute Platform - if the computer has GPU select the newest version of CUDA \[12.1 was tested\], otherwise select CPU.  
 2. Copy the command below the table and enter it in the terminal/command prompt  
+3. Wait till the installation is complate. That might take a while.
 
 **Step 6** - Install the rest of the libraries:  
 >	Enter the command - 'mamba env update -f requirements.yaml -n bio-proj'   
