@@ -301,7 +301,6 @@ class Plotter:
             y_label=f"{error_kind} Error",
             title=f"Speed vs {error_kind} Error",
             condition=condition,
-            #            scatter_kws=dict(linewidths=0.5, edgecolor="black"),
             **kwargs,
         )
 
