@@ -25,3 +25,4 @@ dependencies:
   - pip:
     - mealpy
     - portray
+    - tkfilebrowser

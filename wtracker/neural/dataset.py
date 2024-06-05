@@ -9,7 +9,7 @@ from wtracker.neural.config import DatasetConfig
 from wtracker.utils.bbox_utils import BoxUtils
 
 
-class numpyDataset(Dataset):
+class NumpyDataset(Dataset):
     """
     A custom Dataset class used to train the neural network. This class is used to create a PyTorch Dataset from a numpy array, and
     can be initialized with 'ndarrays' of the samples and labels, as well as a DatasetConfig configuration, in which the samples (X)
@@ -48,7 +48,7 @@ class numpyDataset(Dataset):
         return torch.load(path)
 
     @staticmethod
-    def create_from_config(config: DatasetConfig, save_path: str | None = None) -> numpyDataset:
+    def create_from_config(config: DatasetConfig, save_path: str | None = None) -> NumpyDataset:
         data = pd.read_csv(config.log_path)
         start_idx = abs(min(config.input_frames)) + 1
         X_mask = np.asanyarray(config.input_frames)
@@ -96,7 +96,7 @@ class numpyDataset(Dataset):
         X[:, x_cord_mask] -= x_cords  #
         X[:, y_cord_mask] -= y_cords  # .reshape(-1, 1)
 
-        dataset = numpyDataset(X, y, config)
+        dataset = NumpyDataset(X, y, config)
 
         if save_path is not None:
             dataset.save(save_path)
