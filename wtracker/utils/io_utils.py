@@ -21,7 +21,7 @@ class FrameSaver(TaskScheduler):
         self,
         frame_reader: FrameReader,
         root_path: str = "",
-        maxsize: int = 100, #TODO: determain max size
+        maxsize: int = 100,  # TODO: determain max size
         tqdm: bool = True,
         **tqdm_kwargs,
     ):
@@ -38,18 +38,18 @@ class FrameSaver(TaskScheduler):
         self._root_path = root_path
         create_directory(root_path)
 
-    def schedule_save(self, img_index: int, crop_dims: tuple[int, int, int, int], img_name: str):
+    def schedule_save(self, img_index: int, crop_dims: tuple[float, float, float, float], img_name: str):
         """
         Adds an image to the queue for saving.
 
         Args:
             img_index (int): The index of the image in the frame reader.
-            crop_dims (tuple[int, int, int, int]): The crop dimensions (x, y, w, h) for the image.
+            crop_dims (tuple[float, float, float, float]): The crop dimensions (x, y, w, h) for the image.
             img_name (str): The name (path) of the image file relative to the root path.
         """
         super().schedule_save(img_index, crop_dims, img_name)
 
-    def _save_frame(self, params: tuple[int, tuple[int, int, int, int], str]):
+    def _save_frame(self, params: tuple[int, tuple[float, float, float, float], str]):
         img_index, crop_dims, img_name = params
         x, y, w, h = crop_dims
         save_path = join_paths(self._root_path, img_name)
@@ -58,13 +58,15 @@ class FrameSaver(TaskScheduler):
         H, W = img.shape[:2]
 
         x_min, y_min, x_max, y_max = x, y, x + w, y + h
-        
-        x_min = np.clip(x_min, a_min=0, a_max=W-1)
-        x_max = np.clip(x_max, a_min=0, a_max=W-1)
-        y_min = np.clip(y_min, a_min=0, a_max=H-1)
-        y_max = np.clip(y_max, a_min=0, a_max=H-1)
+        x_min, y_min = np.floor(x_min, dtype=int), np.floor(y_min, dtype=int)
+        x_max, y_max = np.ceil(x_max, dtype=int), np.ceil(y_max, dtype=int)
 
-        img = img[y_min : y_max, x_min : x_max]
+        x_min = np.clip(x_min, a_min=0, a_max=W - 1)
+        x_max = np.clip(x_max, a_min=0, a_max=W - 1)
+        y_min = np.clip(y_min, a_min=0, a_max=H - 1)
+        y_max = np.clip(y_max, a_min=0, a_max=H - 1)
+
+        img = img[y_min:y_max, x_min:x_max]
         success = cv.imwrite(save_path, img)
 
         if not success:
@@ -85,7 +87,7 @@ class ImageSaver(TaskScheduler):
     def __init__(
         self,
         root_path: str = "",
-        maxsize: int = 0,
+        maxsize: int = 0,  # TODO: determain max size
         tqdm: bool = True,
         **tqdm_kwargs,
     ):

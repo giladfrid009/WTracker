@@ -147,7 +147,6 @@ class LoggingController(SimController):
         frame_offset = cycle_number * self.timing_config.cycle_frame_num
 
         worm_bboxes = self.sim_controller._cycle_predict_all(sim)
-        worm_bboxes_round = BoxUtils.round(worm_bboxes) # TODO: MISBEHAVES IF THE WORM_BBOXES HAS A NAN VALUE.
 
         for i, worm_bbox in enumerate(worm_bboxes):
             csv_row = {}
@@ -173,7 +172,7 @@ class LoggingController(SimController):
                 if self.log_config.save_wrm_view:
                     # save worm view
                     path = self.log_config.wrm_file_path.format(frame_number)
-                    self._frame_saver.schedule_save(i, (0, 0, 20, 20), path)
+                    self._frame_saver.schedule_save(0, (0, 0, 20, 20), path)
 
             else:
                 # format bbox to have absolute position
@@ -181,20 +180,11 @@ class LoggingController(SimController):
                 worm_bbox = (worm_bbox[0] + cam_bbox[0], worm_bbox[1] + cam_bbox[1], worm_bbox[2], worm_bbox[3])
 
                 if self.log_config.save_wrm_view:
-                    # format bbox to have absolute position
-                    worm_bbox_round = worm_bboxes_round[i]
-                    worm_bbox_round = (
-                        worm_bbox_round[0] + cam_bbox[0],
-                        worm_bbox_round[1] + cam_bbox[1],
-                        worm_bbox_round[2],
-                        worm_bbox_round[3],
-                    )
-
                     # save worm view
                     path = self.log_config.wrm_file_path.format(frame_number)
                     self._frame_saver.schedule_save(
                         img_index=frame_number,
-                        crop_dims=worm_bbox_round,
+                        crop_dims=worm_bbox,
                         img_name=path,
                     )
 
