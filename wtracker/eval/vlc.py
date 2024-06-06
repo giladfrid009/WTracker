@@ -413,7 +413,7 @@ class VLC:
         color: tuple[int, int, int] = (0, 0, 255),
         width: int = 1,
     ) -> None:
-        if any(bbox) is np.nan:
+        if not np.isfinite(bbox).all():
             return
         x, y, w, h = self.get_bbox(self.cam_type)
         pred_x, pred_y, pred_w, pred_h = bbox

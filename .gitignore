@@ -14,6 +14,7 @@ logs
 logs2
 logs/*.csv
 runs/*
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

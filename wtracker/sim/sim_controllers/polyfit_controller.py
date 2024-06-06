@@ -44,7 +44,7 @@ class PolyfitController(CsvController):
             csv_path (str): The path to the csv file with the worm data.
             polyfit_config (PolyfitConfig): The configuration for the polynomial fit.
         """
-        super().__init__(csv_path, timing_config)
+        super().__init__(timing_config, csv_path)
 
         self.polyfit_config = polyfit_config
         self._sample_times = np.asanyarray(polyfit_config.sample_times, dtype=int)

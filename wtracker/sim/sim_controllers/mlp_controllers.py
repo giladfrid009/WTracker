@@ -11,10 +11,6 @@ from wtracker.neural.mlp import WormPredictor
 from wtracker.neural.config import IOConfig
 
 
-# TODO: fix crash of MLPController when reaching the end of the csv file
-# I believe this crash happens when we provide a framereader as input, and the simulator reaches the last cycle.
-
-
 class MLPController(CsvController):
     """
     MLPController class represents a controller that uses a WormPredictor model to provide movement vectors for a simulation.
@@ -23,16 +19,21 @@ class MLPController(CsvController):
         timing_config (TimingConfig): The timing configuration for the simulation.
         csv_path (str): The path to the CSV file containing the simulation data.
         model (WormPredictor): The WormPredictor model used for predicting worm movement.
-
+        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped
     Methods:
         provide_movement_vector: Provides a movement vector based on the current simulation state.
         print_model: Prints the model used by the controller.
     """
-    def __init__(self, timing_config: TimingConfig, csv_path: str, model: WormPredictor):
+    def __init__(self, timing_config: TimingConfig, csv_path: str, model: WormPredictor, max_speed:float=0.9):
         super().__init__(timing_config, csv_path)
         self.model: WormPredictor = model
         self.io_config: IOConfig = model.io_config
         self.model.eval()
+
+        px_per_mm = self.timing_config.px_per_mm
+        fps = self.timing_config.frames_per_sec
+        max_speed_px_frame = max_speed * (px_per_mm / fps)
+        self.max_dist_per_pred = max_speed_px_frame * (self.io_config.pred_frames[0])
 
     def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
         # frames for prediction (input to the model)
@@ -40,7 +41,7 @@ class MLPController(CsvController):
         frames_for_pred += sim.frame_number - self.timing_config.pred_frame_num
 
         cam_center = BoxUtils.center(np.asanyarray(sim.view.camera_position))
-        worm_bboxes = self._csv_data[frames_for_pred, :].reshape(1, -1)
+        worm_bboxes = self.predict(frames_for_pred, relative=False).reshape(1, -1)
         if not np.isfinite(worm_bboxes).all():
             return 0, 0
 
@@ -60,10 +61,12 @@ class MLPController(CsvController):
         pred = self.model.forward(Tensor(worm_bboxes)).flatten().detach().numpy()
 
         # make sure the prediction is within the limits and apply post-proccessing steps
-        pred = np.clip(pred, -20, 20)
+        
+        pred = np.clip(pred, -self.max_dist_per_pred, self.max_dist_per_pred)
         dx = round(pred[0].item() + rel_x)
         dy = round(pred[1].item() + rel_y)
-
+        # dx = np.clip(dx, -self.max_dist_per_pred, self.max_dist_per_pred)
+        # dy = np.clip(dy, -self.max_dist_per_pred, self.max_dist_per_pred)
         return (dx, dy)
 
     def print_model(self):

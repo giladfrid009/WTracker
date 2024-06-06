@@ -12,7 +12,7 @@ from wtracker.utils.config_base import ConfigBase
 class DatasetConfig(ConfigBase):
     input_frames: list[int] # The frames to use as input for the network. The frames are in the format of the number of frames before (negative) or after (positive) the prediction frame(0).
     pred_frames: list[int] # The frames to predict. The frames are in the format of the number of frames before (negative) or after (positive) the prediction frame(0).
-    log_path: str # The path to the log file containing the worm head predictions (by YOLO).
+    log_path: list[str] # The path to the log file containing the worm head predictions (by YOLO).
 
     def __post_init__(self) -> None:
         if self.input_frames[0] != 0:
