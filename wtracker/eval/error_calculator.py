@@ -27,7 +27,7 @@ class ErrorCalculator:
         Calculates the segmentation error between a view and background image.
 
         Args:
-            bbox (np.ndarray): The bounding box of the image, in the format (x, y, w, h).
+            bbox (np.ndarray): The bounding box of the image, in the format (x, y, x, y).
             image (np.ndarray): The image to calculate segmantation in.
             background (np.ndarray): The background image.
             diff_thresh (float): The difference threshold to distinguish foreground and background objects from.
@@ -90,11 +90,11 @@ class ErrorCalculator:
         """
         assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]
 
-        worm_bboxes = BoxUtils.round(worm_bboxes)
-        mic_bboxes = BoxUtils.round(mic_bboxes)
-
         worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
         mic_bboxes = BoxConverter.change_format(mic_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
+
+        worm_bboxes = BoxUtils.round(worm_bboxes, BoxFormat.XYXY)
+        mic_bboxes = BoxUtils.round(mic_bboxes, BoxFormat.XYXY)
 
         wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bboxes)
         mic_left, mic_top, mic_right, mic_bottom = BoxUtils.unpack(mic_bboxes)
@@ -126,12 +126,12 @@ class ErrorCalculator:
 
         errors = np.zeros(len(frame_nums), dtype=float)
 
-        for i, frame_num in tqdm(enumerate(frame_nums), desc="Calculating Error", unit="fr"):
+        for i, frame_num in tqdm(enumerate(frame_nums), total=len(frame_nums), desc="Calculating Error", unit="fr"):
             wrm_bbox = worm_bboxes[i]
             int_bbox = int_bboxes[i]
 
             if np.isfinite(wrm_bbox).all() == False:
-                errors[i] = np.nan
+                errors[i] = 1
                 continue
 
             worm_view = worm_reader[frame_num]

@@ -117,22 +117,28 @@ class BoxUtils:
         return np.array([center_x, center_y]).T
 
     @staticmethod
-    def round(bbox: np.ndarray) -> np.ndarray:
+    def round(bboxes: np.ndarray, box_format: BoxFormat) -> np.ndarray:
         """
         Rounds the bounding box coordinates to integers.
 
         Args:
-            bbox (np.ndarray): The bounding box coordinates to convert.
+            bboxes (np.ndarray): The bounding box coordinates to convert.
+            box_format (BoxFormat): The format of the input bounding boxes.
 
         Returns:
             np.ndarray: The bounding box coordinates as integers.
         """
-        c1, c2, c3, c4 = BoxUtils.unpack(bbox)
-        c1 = np.floor(c1).astype(int, copy=False)
-        c2 = np.floor(c2).astype(int, copy=False)
-        c3 = np.ceil(c3).astype(int, copy=False)
-        c4 = np.ceil(c4).astype(int, copy=False)
-        return BoxUtils.pack(c1, c2, c3, c4)
+
+        bboxes = BoxConverter.change_format(bboxes, box_format, BoxFormat.XYXY)
+
+        x1, y1, x2, y2 = BoxUtils.unpack(bboxes)
+        x1 = np.floor(x1).astype(int, copy=False)
+        y1 = np.floor(y1).astype(int, copy=False)
+        x2 = np.ceil(x2).astype(int, copy=False)
+        y2 = np.ceil(y2).astype(int, copy=False)
+        bboxes = BoxUtils.pack(x1, y1, x2, y2)
+
+        return BoxConverter.change_format(bboxes, BoxFormat.XYXY, box_format)
 
 
 class BoxConverter:

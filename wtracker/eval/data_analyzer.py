@@ -161,23 +161,20 @@ class DataAnalyzer:
             diff_thresh (int): Difference threshold to differentiate between the background and foreground.
                 A foreground object is detected if the pixel value difference with the background is greater than this threshold.
         """
-        assert len(worm_reader) == len(self.table)
-
         frames = self.table["frame"].to_numpy().astype(int, copy=False)
         wrm_bboxes = self.table[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
         mic_bboxes = self.table[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
 
-        # TODO: TEST IF WORKS WHEN unit is "sec"
-        if self.unit == "sec":
-            wrm_bboxes = wrm_bboxes * self.time_config.px_per_mm * 1000
-            mic_bboxes = mic_bboxes * self.time_config.px_per_mm * 1000
-
-        errors = np.ones_like(frames, np.nan, dtype=float)
+        errors = np.ones_like(frames, dtype=float)
         mask = np.isfinite(wrm_bboxes).all(axis=1)
 
         wrm_bboxes = wrm_bboxes[mask]
         mic_bboxes = mic_bboxes[mask]
         frames = frames[mask]
+
+        if self.unit == "sec":
+            wrm_bboxes = wrm_bboxes * self.time_config.mm_per_px / 1000
+            mic_bboxes = mic_bboxes * self.time_config.mm_per_px / 1000
 
         results = ErrorCalculator.calculate_precise(
             background,
