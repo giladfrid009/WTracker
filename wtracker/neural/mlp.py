@@ -30,14 +30,15 @@ ACTIVATION_DEFAULT_KWARGS = defaultdict(
 
 class WormPredictor(nn.Module):
     """
-    A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class 
-    so that it can be destinguished from other models that don't predict worm behavior (for example the layers/blocks that make this model). 
+    A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class
+    so that it can be distinguished from other models that don't predict worm behavior (for example the layers/blocks that make this model).
     This class also holds the IOConfig object that is used to determine the input and output shapes of the model, and the specific frames it expects as input and output.
 
-    attributes:
-    - model: The neural network model that predicts worm behavior.
-    - io_config: The IOConfig object of the model.
+    Attributes:
+        model: The neural network model that predicts worm behavior.
+        io_config: The IOConfig object of the model.
     """
+
     def __init__(self, model: nn.Module, io_config: IOConfig):
         super().__init__()
         self.io_config: IOConfig = io_config
@@ -53,7 +54,11 @@ class MLPLayer(nn.Module):
     """
 
     def __init__(
-        self, in_dim: int, out_dim: Sequence[int], nonlin: Union[str, nn.Module], batch_norm: bool = True
+        self,
+        in_dim: int,
+        out_dim: Sequence[int],
+        nonlin: Union[str, nn.Module],
+        batch_norm: bool = True,
     ) -> None:
         super().__init__()
 
@@ -74,8 +79,12 @@ class MLPLayer(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         """
-        :param x: An input tensor, of shape (N, D) containing N samples with D features.
-        :return: An output tensor of shape (N, D_out) where D_out is the output dim.
+        Args:
+            x: An input tensor, of shape (N, D) containing N samples with D features.
+
+        Returns:
+            An output tensor of shape (N, D_out) where D_out is the output dim.
+
         """
         return self.mlp_layer.forward(x.reshape(x.size(0), -1))
 
@@ -83,6 +92,15 @@ class MLPLayer(nn.Module):
 class MlpBlock(nn.Module):
     """
     A general-purpose MLP.
+
+    Args:
+        in_dim: Input dimension.
+        dims: Hidden dimensions, including output dimension.
+        nonlins: Non-linearities to apply after each one of the hidden
+            dimensions.
+            Can be either a sequence of strings which are keys in the ACTIVATIONS
+            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).
+            Length should match 'dims'.
     """
 
     def __init__(
@@ -92,15 +110,6 @@ class MlpBlock(nn.Module):
         nonlins: Sequence[Union[str, nn.Module]],
         batch_norm: bool = True,
     ):
-        """
-        :param in_dim: Input dimension.
-        :param dims: Hidden dimensions, including output dimension.
-        :param nonlins: Non-linearities to apply after each one of the hidden
-            dimensions.
-            Can be either a sequence of strings which are keys in the ACTIVATIONS
-            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).
-            Length should match 'dims'.
-        """
         assert len(nonlins) == len(dims)
         self.in_dim = in_dim
         self.out_dim = dims[-1]
@@ -113,7 +122,7 @@ class MlpBlock(nn.Module):
         for i, out_dim in enumerate(self.dims):
             layers.append(MLPLayer(in_dim, out_dim, nonlins[i], batch_norm))
             in_dim = out_dim
-            
+
         self.sequence = nn.Sequential(*layers)
 
     def _make_activation(self, act: Union[str, nn.Module]) -> nn.Module:
@@ -123,8 +132,11 @@ class MlpBlock(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         """
-        :param x: An input tensor, of shape (N, D) containing N samples with D features.
-        :return: An output tensor of shape (N, D_out) where D_out is the output dim.
+        Args:
+            x: An input tensor, of shape (N, D) containing N samples with D features.
+
+        Returns:
+            An output tensor of shape (N, D_out) where D_out is the output dim.
         """
         return self.sequence.forward(x.reshape(x.size(0), -1))
 
@@ -163,8 +175,11 @@ class RMLP(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         """
-        :param x: An input tensor, of shape (N, D) containing N samples with D features.
-        :return: An output tensor of shape (N, D_out) where D_out is the output dim.
+        Args:
+            x: An input tensor, of shape (N, D) containing N samples with D features.
+
+        Returns:
+            An output tensor of shape (N, D_out) where D_out is the output dim.
         """
         x = self.input(x)
         for block in self.blocks:

@@ -19,14 +19,6 @@ class NumpyDataset(Dataset):
         X (np.ndarray): The input data as a numpy array.
         y (np.ndarray): The output data as a numpy array.
         config (DatasetConfig, optional): The configuration object for the dataset. Defaults to None.
-
-    Methods:
-        __len__(): Returns the length of the dataset.
-        __getitem__(idx): Returns the input and output data at the given index.
-        save(path): Saves the dataset to a file.
-        load(path): Loads a saved dataset from a file.
-        create_from_config(config, save_path): Creates a new dataset from a DatasetConfig configuration object.
-
     """
 
     def __init__(self, X: np.ndarray, y: np.ndarray, config: DatasetConfig = None):

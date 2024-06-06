@@ -38,31 +38,16 @@ class StreamViewer:
     """
     A class for viewing and interacting with photos and video streams.
 
-    Methods:
-        register_hotkey(self, hotkey: HotKey): Registers a hotkey.
-        create_trackbar(self, name: str, val: int, maxval: int, onChange=lambda x: x): Creates a trackbar.
-        update_trackbar(self, name: str, val: int): Updates the value of a trackbar.
-        set_title(self, title: str): Sets the title of the window.
-        update(self, image: np.ndarray, wait: int = 1): Updates the window with a new image.
-        waitKey(self, timeout: int = 0): Waits for a key press.
-        open(self): Opens the window.
-        close(self, key: str = "q"): Closes the window.
-        imshow(self, image: np.ndarray, title: str = "image"): Displays an image in the window.
+    Args:
+        window_name (str, optional): The name of the window.
 
     Example:
         with StreamViewer() as streamer:
             streamer.imshow(image)
             streamer.waitKey()
-
     """
 
     def __init__(self, window_name: str = "streamer") -> None:
-        """
-        Initializes the StreamViewer object.
-
-        Args:
-            window_name (str, optional): The name of the window.
-        """
         self.window_name = window_name
         self.window = None
         self.hotkeys: list[HotKey] = []
@@ -203,20 +188,6 @@ class VLC:
         show_pred (bool, optional): Whether to show the prediction box. Defaults to True.
         show_micro (bool, optional): Whether to show the microscope box. Defaults to False.
         show_cam (bool, optional): Whether to show the camera box. Defaults to False.
-
-    Methods:
-        initialize(): Initializes the video player.
-        print_hotkeys(): Prints the available hotkeys along with their descriptions.
-        get_attribute(col_name: str): Gets the value of an attribute from the current row in the log.
-        get_photo() -> np.ndarray: Gets the current frame with overlays (i.e the image that will be displayed).
-        seek(pos: int): Seeks to a specific frame.
-        next(key=None): Moves to the next frame.
-        prev(key=None): Moves to the previous frame.
-        close(key=None): Closes the video player.
-        set_delay(delay: int): Sets the delay between frames.
-        mainloop(): Runs the main loop of the video player.
-        save_stream(folder_path: str) -> None: Saves the frames as images in a folder and creates a video file of it. This function doesn't show the video player (thus mainloop should not be called).
-        make_vid(folder_path: str, img_name_format: str, output_dir: str) -> None: Creates a video from the saved frames.
     """
 
     def __init__(
@@ -245,20 +216,20 @@ class VLC:
         self.reader: FrameReader = self._create_reader(files)
 
     def initialize(self) -> None:
-            """
-            Initializes the VLC player by setting up hotkeys, opening the streamer,
-            creating a window, and updating the trackbar.
+        """
+        Initializes the VLC player by setting up hotkeys, opening the streamer,
+        creating a window, and updating the trackbar.
 
-            Parameters:
-                None
+        Parameters:
+            None
 
-            Returns:
-                None
-            """
-            self._init_hotkeys()
-            self._create_window()
-            self.streamer.update_trackbar("delay", round(self.config.ms_per_frame))
-            self.print_hotkeys()
+        Returns:
+            None
+        """
+        self._init_hotkeys()
+        self._create_window()
+        self.streamer.update_trackbar("delay", round(self.config.ms_per_frame))
+        self.print_hotkeys()
 
     def _load_log(self, log_path: str) -> pd.DataFrame:
         if log_path is None:

@@ -13,19 +13,18 @@ class BoxCalculator:
     """
     A class for calculating bounding boxes for a sequence of frames.
 
-    Methods:
-        all_bboxes(): Returns all bounding boxes for all the frames.
-        get_bbox(frame_idx): Returns the bounding box for a given frame index.
-        get_background(): Returns the background image extracted from the frame reader frames.
-        calc_specified_boxes(frame_indices, num_workers, chunk_size): Calculate bounding boxes for the specified frame indices.
-        calc_all_boxes(num_workers, chunk_size): Calculate bounding boxes for all frames.
+    Args:
+        frame_reader (FrameReader): The frame reader object holing the relevant frames.
+        bg_probes (int, optional): Number of probes to use for background extraction. Defaults to 500.
+        diff_thresh (int, optional): Threshold value for the detecting foreground objects. Defaults to 20.
+            Pixels with difference value greater than this threshold are considered as foreground.
     """
 
     def __init__(
         self,
         frame_reader: FrameReader,
-        bg_probes: int = 100,
-        diff_thresh: int = 10,
+        bg_probes: int = 500,
+        diff_thresh: int = 20,
     ) -> None:
         assert bg_probes > 0 and diff_thresh > 0
 

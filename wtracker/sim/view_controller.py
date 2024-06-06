@@ -10,17 +10,17 @@ class ViewController(FrameStream):
     This class allows for easy manipulation of the camera and microscope positions,
     and provides their corresponding views.
 
+    Args:
+        frame_reader (FrameReader): The frame reader object.
+        camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).
+        micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).
+        init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).
+
     Attributes:
         frame_reader (FrameReader): The frame reader object.
         camera_size (tuple[int, int]): The size of the camera view (width, height).
         micro_size (tuple[int, int]): The size of the micro view (width, height).
         position (tuple[int, int]): The current position of the center of the view (x, y).
-
-    Methods:
-        read(): Read a frame from the frame reader and apply padding.
-        set_position(x: int, y: int): Set the position of the view controller.
-        move_position(dx: int, dy: int): Move the position of the view controller by dx and dy.
-        visualize_world(line_width: int = 4): Visualize the world view with bounding boxes.
     """
 
     def __init__(
@@ -30,15 +30,6 @@ class ViewController(FrameStream):
         micro_size: tuple[int, int] = (45, 45),
         init_position: tuple[int, int] = (0, 0),
     ):
-        """
-        Initializes the View Controller object.
-
-        Args:
-            frame_reader (FrameReader): The frame reader object.
-            camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).
-            micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).
-            init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).
-        """
         super().__init__(frame_reader)
 
         assert camera_size[0] >= micro_size[0]

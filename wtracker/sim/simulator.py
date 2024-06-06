@@ -21,12 +21,8 @@ class Simulator:
         motor_controller (MotorController, optional): The motor controller. Defaults to None.
 
     Attributes:
-        _timing_config (TimingConfig): The timing configuration for the experiment.
-        _experiment_config (ExperimentConfig): The experiment configuration.
-        _sim_controller (SimController): The simulation controller.
-        _motor_controller (MotorController): The motor controller.
-        _view (ViewController): The view controller.
-
+        timing_config (TimingConfig): The timing configuration for the experiment.
+        experiment_config (ExperimentConfig): The experiment configuration.
     """
 
     def __init__(
@@ -37,8 +33,8 @@ class Simulator:
         reader: FrameReader = None,
         motor_controller: MotorController = None,
     ) -> None:
-        self._timing_config = timing_config
-        self._experiment_config = experiment_config
+        self.timing_config = timing_config
+        self.experiment_config = experiment_config
         self._sim_controller = sim_controller
 
         if reader is None:
@@ -89,7 +85,7 @@ class Simulator:
             int: The current cycle number.
 
         """
-        return self._view.index // self._timing_config.cycle_frame_num
+        return self._view.index // self.timing_config.cycle_frame_num
 
     @property
     def frame_number(self) -> int:
@@ -111,7 +107,7 @@ class Simulator:
             int: The current cycle step.
 
         """
-        return self._view.index % self._timing_config.cycle_frame_num
+        return self._view.index % self.timing_config.cycle_frame_num
 
     def camera_view(self) -> np.ndarray:
         """
@@ -139,7 +135,7 @@ class Simulator:
 
         """
         self.view.reset()
-        self.view.set_position(*self._experiment_config.init_position)
+        self.view.set_position(*self.experiment_config.init_position)
 
     def run(self, visualize: bool = False, wait_key: bool = False):
         """
@@ -150,7 +146,7 @@ class Simulator:
             wait_key (bool, optional): Whether to wait for a key press to advance the simulation during visualization. Defaults to False.
 
         """
-        config = self._timing_config
+        config = self.timing_config
 
         total_cycles = len(self._view) // config.cycle_frame_num
         pbar = tqdm(total=total_cycles, desc="Simulation Progress", unit="cycle")
@@ -204,62 +200,87 @@ class SimController(abc.ABC):
 
     Attributes:
         timing_config (TimingConfig): The timing configuration for the simulator.
-
-    Methods:
-        on_sim_start(sim: Simulator): Called when the simulation starts.
-        on_sim_end(sim: Simulator): Called when the simulation ends.
-        on_cycle_start(sim: Simulator): Called when a new cycle starts.
-        on_cycle_end(sim: Simulator): Called when a cycle ends.
-        on_camera_frame(sim: Simulator): Called when a camera frame is captured.
-        on_imaging_start(sim: Simulator): Called when imaging phase starts.
-        on_micro_frame(sim: Simulator): Called when a micro frame is captured.
-        on_imaging_end(sim: Simulator): Called when imaging phase ends.
-        on_movement_start(sim: Simulator): Called when movement phase starts.
-        on_movement_end(sim: Simulator): Called when movement phase ends.
-        begin_movement_prediction(sim: Simulator) -> None: Begins the movement prediction.
-        provide_movement_vector(sim: Simulator) -> tuple[int, int]: Provides the movement vector for the simulator. The platform is moved by the provided vector.
-        _cycle_predict_all(sim: Simulator) -> np.ndarray: Returns a list of bbox predictions of the worm for each frame of the current cycle.
     """
 
     def __init__(self, timing_config: TimingConfig):
         self.timing_config = timing_config
 
     def on_sim_start(self, sim: Simulator):
+        """
+        Called when the simulation starts.
+        """
         pass
 
     def on_sim_end(self, sim: Simulator):
+        """
+        Called when the simulation ends.
+        """
         pass
 
     def on_cycle_start(self, sim: Simulator):
+        """
+        Called when a new cycle starts.
+        """
         pass
 
     def on_cycle_end(self, sim: Simulator):
+        """
+        Called when a cycle ends.
+        """
         pass
 
     def on_camera_frame(self, sim: Simulator):
+        """
+        Called when a camera frame is captured. Happens every frame.
+        """
         pass
 
     def on_imaging_start(self, sim: Simulator):
+        """
+        Called when imaging phase starts.
+        """
         pass
 
     def on_micro_frame(self, sim: Simulator):
+        """
+        Called when a micro frame is captured. Happens for every during the imaging phase.
+        """
         pass
 
     def on_imaging_end(self, sim: Simulator):
+        """
+        Called when imaging phase ends.
+        """
         pass
 
     def on_movement_start(self, sim: Simulator):
+        """
+        Called when movement phase starts.
+        """
         pass
 
     def on_movement_end(self, sim: Simulator):
+        """
+        Called when movement phase ends.
+        """
         pass
 
     @abc.abstractmethod
     def begin_movement_prediction(self, sim: Simulator) -> None:
+        """
+        Called when the movement prediction begins.
+        """
         raise NotImplementedError()
 
     @abc.abstractmethod
     def provide_movement_vector(self, sim: Simulator) -> tuple[int, int]:
+        """
+        Provides the movement vector for the simulator. The platform is moved by the provided vector.
+
+        Returns:
+            tuple[int, int]: The movement vector in format (dx, dy). 
+                The platform will be moved by dx pixels in the x-direction and dy pixels in the y-direction.
+        """
         raise NotImplementedError()
 
     @abc.abstractmethod

@@ -9,23 +9,23 @@ from wtracker.utils.io_utils import pickle_save_object, pickle_load_object
 
 
 class DataAnalyzer:
+    """
+    A class for analyzing the data from a simulation log file.
+
+    Args:
+        time_config (TimingConfig): The timing configuration.
+        log_path (str): The path to the log file on which to perform analysis on.
+        unit (str, optional): The unit of time. Can be "frame" or "sec". Defaults to "frame".
+            If "sec" is chosen, the time will be converted to seconds, and the distance metric is micrometer.
+            If "frame" is chosen, the time will be in frames, and the distance metric is pixels.
+    """
+    
     def __init__(
         self,
         time_config: TimingConfig,
         log_path: str,
         unit: str = "frame",
     ):
-        """
-        Initialize the DataAnalyzer class.
-
-        Args:
-            time_config (TimingConfig): The timing configuration.
-            log_path (str): The path to the log file on which to perform analysis on.
-            unit (str, optional): The unit of time. Can be "frame" or "sec". Defaults to "frame".
-                If "sec" is chosen, the time will be converted to seconds, and the distance metric is micrometer.
-                If "frame" is chosen, the time will be in frames, and the distance metric is pixels.
-        """
-
         assert unit in ["frame", "sec"]
 
         self.unit = unit
@@ -33,6 +33,7 @@ class DataAnalyzer:
         self.log_path = log_path
         self.table = pd.read_csv(log_path)
 
+    # TODO: SAVE ONLY THE DATAFRAME AS CSV
     def save(self, path: str) -> None:
         """
         Save the DataAnalyzer object to a file.
@@ -43,6 +44,7 @@ class DataAnalyzer:
 
         pickle_save_object(self, path)
 
+    # TODO: load from csv file
     @staticmethod
     def load(path: str) -> DataAnalyzer:
         """

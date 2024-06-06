@@ -19,12 +19,10 @@ class MLPController(CsvController):
         timing_config (TimingConfig): The timing configuration for the simulation.
         csv_path (str): The path to the CSV file containing the simulation data.
         model (WormPredictor): The WormPredictor model used for predicting worm movement.
-        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped
-    Methods:
-        provide_movement_vector: Provides a movement vector based on the current simulation state.
-        print_model: Prints the model used by the controller.
+        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped. Defaults to 0.9.
     """
-    def __init__(self, timing_config: TimingConfig, csv_path: str, model: WormPredictor, max_speed:float=0.9):
+
+    def __init__(self, timing_config: TimingConfig, csv_path: str, model: WormPredictor, max_speed: float = 0.9):
         super().__init__(timing_config, csv_path)
         self.model: WormPredictor = model
         self.io_config: IOConfig = model.io_config
@@ -47,7 +45,7 @@ class MLPController(CsvController):
 
         # relative position of the worm to the camera center, we use the worm x,y instead of center because of how the model and dataset are built
         rel_x, rel_y = worm_bboxes[0, 0] - cam_center[0], worm_bboxes[0, 1] - cam_center[1]
-        
+
         # make coordinates relative to first bbox
         x = worm_bboxes[0, 0]
         x_mask = np.arange(0, worm_bboxes.shape[1]) % 4 == 0
@@ -61,7 +59,7 @@ class MLPController(CsvController):
         pred = self.model.forward(Tensor(worm_bboxes)).flatten().detach().numpy()
 
         # make sure the prediction is within the limits and apply post-proccessing steps
-        
+
         pred = np.clip(pred, -self.max_dist_per_pred, self.max_dist_per_pred)
         dx = round(pred[0].item() + rel_x)
         dy = round(pred[1].item() + rel_y)

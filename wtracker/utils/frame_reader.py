@@ -11,20 +11,17 @@ class FrameReader:
     """
     An class for reading frames from a directory of frame files.
 
-    Properties:
+    Args:
+        root_folder (str): The root folder path where the frame files are located.
+        frame_files (list[str]): A list of frame file names.
+        read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.
+
+    Attributes:
         root_folder (str): The root folder path where the frame files are located.
         frame_shape (tuple[int, ...]): The shape of the frame.
         frame_size (tuple[int, int]): The size of the frame.
         files (list[str]): The list of file paths.
         read_format (int): The read format of the frame reader.
-
-    Methods:
-        create_from_template(): Creates a FrameReader object from a file name template.
-        create_from_directory(): Creates a FrameReader object from a directory.
-        make_stream(): Creates and returns a FrameStream object using the current instance of FrameReader.
-        __len__(): Returns the number of frames in the frame reader.
-        __getitem__(): Returns the frame at the specified index.
-        __iter__(): Returns an iterator for the FrameReader object.
     """
 
     def __init__(
@@ -33,14 +30,6 @@ class FrameReader:
         frame_files: list[str],
         read_format: int = cv.IMREAD_GRAYSCALE,
     ):
-        """
-        Initialize the FrameReader object.
-
-        Args:
-            root_folder (str): The root folder path where the frame files are located.
-            frame_files (list[str]): A list of frame file names.
-            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.
-        """
         assert os.path.exists(root_folder)
         assert len(frame_files) > 0
 
@@ -85,7 +74,6 @@ class FrameReader:
 
         Returns:
             FrameReader: The created FrameReader object.
-
         """
         # get all files in root
         frame_paths = glob.glob("*.*", root_dir=root_folder)
@@ -172,15 +160,12 @@ class FrameStream:
     """
     A class for streaming frames from a FrameReader object.
     This class serves as an iterator for the FrameReader object.
+ 
+    Args:
+        frame_reader (FrameReader): The frame reader object.
     """
 
     def __init__(self, frame_reader: FrameReader):
-        """
-        Initializes a new instance of the FrameReader class.
-
-        Args:
-            frame_reader (FrameReader): The frame reader object.
-        """
         self._frame_reader = frame_reader
         self._idx = -1
         self.frame = None
@@ -260,6 +245,14 @@ class FrameStream:
 
 
 class DummyReader(FrameReader):
+    """
+    A dummy frame reader that generates empty frames of a specified resolution.
+
+    Args:
+        num_frames (int): The number of frames to generate.
+        resolution (tuple[int, int]): The resolution of the frames.
+        colored (bool, optional): Whether the frames are colored or grayscale. Defaults to True.
+    """
     def __init__(self, num_frames: int, resolution: tuple[int, int], colored: bool = True):
         self.colored = colored
         self._resolution = resolution
