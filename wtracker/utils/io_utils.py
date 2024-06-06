@@ -16,7 +16,7 @@ class FrameSaver(TaskScheduler):
     Args:
         frame_reader (FrameReader): The frame reader object from which images will be saved.
         root_path (str): The root folder path, relative to which all other paths are. Defaults to "".
-        maxsize (int, optional): The maximum size of the queue. Defaults to 0.
+        maxsize (int, optional): The maximum size of the queue. Defaults to 100.
         tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
         **tqdm_kwargs: Additional keyword arguments for tqdm.
     """
@@ -25,7 +25,7 @@ class FrameSaver(TaskScheduler):
         self,
         frame_reader: FrameReader,
         root_path: str = "",
-        maxsize: int = 100,  # TODO: determain max size
+        maxsize: int = 100,
         tqdm: bool = True,
         **tqdm_kwargs,
     ):
@@ -82,7 +82,7 @@ class ImageSaver(TaskScheduler):
 
     Args:
         root_path (str): The root folder path, relative to which all other paths are. Defaults to "".
-        maxsize (int, optional): The maximum size of the queue. Defaults to 0.
+        maxsize (int, optional): The maximum size of the queue. Defaults to 100.
         tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
         **tqdm_kwargs: Additional keyword arguments for tqdm.
     """
@@ -90,7 +90,7 @@ class ImageSaver(TaskScheduler):
     def __init__(
         self,
         root_path: str = "",
-        maxsize: int = 0,  # TODO: determain max size
+        maxsize: int = 100,
         tqdm: bool = True,
         **tqdm_kwargs,
     ):

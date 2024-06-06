@@ -71,7 +71,7 @@ class PolyfitController(CsvController):
         if len(time) == 0:
             return 0, 0
 
-        # TODO: INVESTIAGATE POLY package in numpy and how to use it best
+        # TODO: INVESTIGATE POLY package in numpy and how to use it best
         # investigate window parameter and Polynomial class
 
         # predict future x and future y based on the fitted polynomial
@@ -87,7 +87,6 @@ class PolyfitController(CsvController):
         return dx, dy
 
 
-# TODO: use numpy polynomial package instead of the np.polyfit and np.polyval
 class WeightEvaluator:
     def __init__(
         self,
@@ -152,8 +151,8 @@ class WeightEvaluator:
         # set attributes
         self.x_input = self.input_offsets.reshape(N)
         self.y_input = input_pos.swapaxes(0, 1).reshape(N, -1)
-        self.x_target = np.asanyarray([self.eval_offset])
         self.y_target = dst_pos.reshape(-1)
+        self.x_target = np.full_like(self.y_target, self.eval_offset)
 
         # print stats
         init_num_cycles = len(self.start_times)
@@ -167,7 +166,7 @@ class WeightEvaluator:
         Evaluate a polynomial at given values.
 
         Args:
-            coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at decreasing order. Should have shape [deg+1, N].
+            coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at increasing order. Should have shape [deg+1, N].
             x (np.ndarray): Values at which to evaluate the polynomial. Should have shape [N].
 
         Returns:
@@ -175,7 +174,7 @@ class WeightEvaluator:
 
         """
         coeffs = coeffs.swapaxes(0, 1)
-        van = np.vander(x, N=coeffs.shape[1], increasing=False)
+        van = np.vander(x, N=coeffs.shape[1], increasing=True)
         return np.sum(van * coeffs, axis=-1)
 
     def eval(self, weights: np.ndarray, deg: int = 2) -> float:
@@ -187,10 +186,9 @@ class WeightEvaluator:
             deg (int, optional): The degree of the polynomial fit. Defaults to 2.
 
         Returns:
-            float: The mean squared error (MSE) of the polynomial fit.
+            float: The mean absolute error (MAE) of the polynomial fit.
         """
-        coeffs = np.polyfit(self.x_input, self.y_input, deg=deg, w=weights)
-        x_target = np.broadcast_to(self.x_target, shape=(coeffs.shape[1],))
-        y_hat = self._polyval(coeffs, x_target)
+        coeffs = poly.polyfit(self.x_input, self.y_input, deg=deg, w=weights)
+        y_hat = self._polyval(coeffs, self.x_target)
         mae = np.mean(np.abs(self.y_target - y_hat))
         return mae

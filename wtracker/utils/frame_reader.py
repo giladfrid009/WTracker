@@ -6,6 +6,7 @@ import cv2 as cv
 
 from wtracker.utils.path_utils import join_paths
 
+
 # TODO: (ROADMAP) GIVEN ACCESSING ELEMENT AT INDX i, Pre-load the next element in advance.
 class FrameReader:
     """
@@ -160,7 +161,7 @@ class FrameStream:
     """
     A class for streaming frames from a FrameReader object.
     This class serves as an iterator for the FrameReader object.
- 
+
     Args:
         frame_reader (FrameReader): The frame reader object.
     """
@@ -250,9 +251,10 @@ class DummyReader(FrameReader):
 
     Args:
         num_frames (int): The number of frames to generate.
-        resolution (tuple[int, int]): The resolution of the frames.
+        resolution (tuple[int, int]): The resolution of the frames, in format (h, w).
         colored (bool, optional): Whether the frames are colored or grayscale. Defaults to True.
     """
+
     def __init__(self, num_frames: int, resolution: tuple[int, int], colored: bool = True):
         self.colored = colored
         self._resolution = resolution

@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 from typing import Callable
 
+
 class Plotter:
     """
     A class for plotting experiment log data.
@@ -29,38 +30,6 @@ class Plotter:
 
         self.data = pd.concat([d for d in data_list], ignore_index=True)
 
-    # TODO: HERE WE DISPLAY THE ERROR PER FRAME, WE NEED TO DISPLAY ERROR PER CYCLE.
-    # I.E. ARGMAX OF ERROR PER CYCLE
-    def plot_speed_vs_error(
-        self,
-        error_kind: str = "bbox",
-        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
-        **kwargs,
-    ) -> sns.JointGrid:
-        if error_kind == "bbox":
-            error_col = "bbox_error"
-        elif error_kind == "dist":
-            error_col = "worm_deviation"
-        elif error_kind == "precise":
-            if "precise_error" not in self.data.columns:
-                raise ValueError("Precise error have not been calculated")
-            error_col = "precise_error"
-        else:
-            raise ValueError(f"Invalid error kind: {error_kind}")
-
-        plot = self.create_jointplot(
-            x_col="wrm_speed",
-            y_col=error_col,
-            kind="scatter",
-            x_label="speed",
-            y_label=f"{error_kind} Error",
-            title=f"Speed vs {error_kind} Error",
-            condition=condition,
-            **kwargs,
-        )
-
-        return plot
-
     def plot_speed(
         self,
         log_wise: bool = False,
@@ -81,10 +50,12 @@ class Plotter:
 
         return plot
 
+    # TODO: TEST cycle_wise
     def plot_error(
         self,
         error_kind: str = "bbox",
         log_wise: bool = False,
+        cycle_wise: bool = False,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
     ) -> sns.FacetGrid:
@@ -93,11 +64,13 @@ class Plotter:
         elif error_kind == "dist":
             error_col = "worm_deviation"
         elif error_kind == "precise":
-            if "precise_error" not in self.data.columns:
-                raise ValueError("Precise error have not been calculated")
             error_col = "precise_error"
         else:
             raise ValueError(f"Invalid error kind: {error_kind}")
+
+        data = self.data
+        if cycle_wise:
+            data = self.data.groupby(["log_num", "cycle_step"])[error_col].max().reset_index()
 
         plot = self.create_distplot(
             x_col=error_col,
@@ -107,8 +80,48 @@ class Plotter:
             log_wise=log_wise,
             condition=condition,
             kde=True,
+            data=data,
             **kwargs,
         )
+        return plot
+
+    # TODO: TEST cycle_wise
+    def plot_speed_vs_error(
+        self,
+        error_kind: str = "bbox",
+        cycle_wise: bool = False,
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        **kwargs,
+    ) -> sns.JointGrid:
+        if error_kind == "bbox":
+            error_col = "bbox_error"
+        elif error_kind == "dist":
+            error_col = "worm_deviation"
+        elif error_kind == "precise":
+            error_col = "precise_error"
+        else:
+            raise ValueError(f"Invalid error kind: {error_kind}")
+
+        data = self.data
+        if cycle_wise:
+            data = (
+                self.data.groupby(["log_num", "cycle_step"])[[error_col, "wrm_speed"]]
+                .aggregate({error_col: "max", "wrm_speed": "mean"})
+                .reset_index()
+            )
+
+        plot = self.create_jointplot(
+            x_col="wrm_speed",
+            y_col=error_col,
+            kind="scatter",
+            x_label="speed",
+            y_label=f"{error_kind} Error",
+            title=f"Speed vs {error_kind} Error",
+            condition=condition,
+            data=data,
+            **kwargs,
+        )
+
         return plot
 
     def plot_trajectory(
@@ -198,12 +211,15 @@ class Plotter:
         title: str | None = None,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        data: pd.DataFrame = None,
         **kwargs,
     ) -> sns.FacetGrid:
 
         assert kind in ["hist", "kde", "ecdf"]
 
-        data = self.data
+        if data is None:
+            data = self.data
+
         if transform is not None:
             data = transform(data)
 
@@ -248,12 +264,15 @@ class Plotter:
         title: str | None = None,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        data: pd.DataFrame = None,
         **kwargs,
     ) -> sns.FacetGrid:
 
         assert kind in ["strip", "box", "violin", "boxen", "bar", "count"]
 
-        data = self.data
+        if data is None:
+            data = self.data
+
         if transform is not None:
             data = transform(data)
 
@@ -297,12 +316,14 @@ class Plotter:
         title: str = "",
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         transform: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        data: pd.DataFrame = None,
         **kwargs,
     ) -> sns.JointGrid:
 
         assert kind in ["scatter", "kde", "hist", "hex", "reg", "resid"]
 
-        data = self.data
+        if data is None:
+            data = self.data
 
         if transform is not None:
             data = transform(data)

@@ -28,7 +28,7 @@ class ErrorCalculator:
 
         Args:
             bbox (np.ndarray): The bounding box of the image, in the format (x, y, x, y).
-            image (np.ndarray): The image to calculate segmantation in.
+            image (np.ndarray): The image to calculate segmentation from.
             background (np.ndarray): The background image.
             diff_thresh (float): The difference threshold to distinguish foreground and background objects from.
 
