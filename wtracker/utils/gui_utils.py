@@ -1,7 +1,6 @@
 import tkinter as tk
-import tkfilebrowser
+from tkinter import filedialog
 
-# TODO: REVERT TO OLD GUI UTILS. this library is shit.
 
 class FocusedWindow:
     def __init__(self):
@@ -17,18 +16,21 @@ class FocusedWindow:
 
     def focus(self) -> tk.Tk:
         root = self.root
-        root.lift()
         root.eval("tk::PlaceWindow %s center" % root.winfo_pathname(root.winfo_id()))
         root.deiconify()
-        root.focus_force()
+        root.lift()
         root.attributes("-topmost", True)
-        root.update_idletasks()
+        root.focus_force()
+        root.update()
+        root.after_idle(root.attributes, "-topmost", False)
         return root
 
     def hide(self) -> tk.Tk:
         root = self.root
         root.withdraw()
-        root.update_idletasks()
+        root.overrideredirect(True)
+        root.geometry("0x0+0+0")
+        root.update()
         return root
 
     def close(self):
@@ -55,7 +57,7 @@ class UserPrompt:
             title (str, optional): The title of the file dialog window. Defaults to None.
             file_types (list[tuple[str, str]], optional): A list of file types to filter the displayed files. Each file type is represented as a tuple of the form (description, pattern). Defaults to None.
             multiple (bool, optional): Whether to allow multiple file selection. Defaults to False.
-            **kwargs: Additional keyword arguments to be passed to the tkfilebrowser.askopenfilename or tkfilebrowser.askopenfilenames function.
+            **kwargs: Additional keyword arguments to be passed to the file dialog.
 
         Returns:
             str | list[str]: The path of the selected file(s). If multiple is True, a list of paths is returned. Otherwise, a single path is returned.
@@ -66,27 +68,22 @@ class UserPrompt:
 
         file_types += [("all files", "*.*")]
 
-        if title is None:
-            title = "Select a file"
-
         with FocusedWindow() as root:
             if multiple:
-                path = tkfilebrowser.askopenfilenames(
+                path = filedialog.askopenfilenames(
                     parent=root,
                     title=title,
                     filetypes=file_types,
-                    initialdir=".",
                     **kwargs,
                 )
                 return list(path)
-
-            return tkfilebrowser.askopenfilename(
-                parent=root,
-                title=title,
-                filetypes=file_types,
-                initialdir=".",
-                **kwargs,
-            )
+            else:
+                return filedialog.askopenfilename(
+                    parent=root,
+                    title=title,
+                    filetypes=file_types,
+                    **kwargs,
+                )
 
     @staticmethod
     def save_file(title: str = None, file_types: list[tuple[str, str]] = None, **kwargs) -> str:
@@ -97,7 +94,7 @@ class UserPrompt:
             title (str, optional): The title of the file dialog window. Defaults to None.
             file_types (list[tuple[str, str]], optional): A list of file types to filter the displayed files.
                 Each file type is represented as a tuple of the form (description, pattern). Defaults to None.
-            **kwargs: Additional keyword arguments to be passed to the tkfilebrowser.asksaveasfilename function.
+            **kwargs: Additional keyword arguments to be passed to the file dialog.
 
         Returns:
             str: The selected file path.
@@ -108,49 +105,32 @@ class UserPrompt:
 
         file_types += [("all files", "*.*")]
 
-        if title is None:
-            title = "Save file"
-
         with FocusedWindow() as root:
-            return tkfilebrowser.asksaveasfilename(
+            return filedialog.asksaveasfilename(
                 parent=root,
                 title=title,
                 filetypes=file_types,
-                initialdir=".",
-                okbuttontext="Save",
+                confirmoverwrite=True,
                 **kwargs,
             )
 
     @staticmethod
-    def open_directory(title: str = None, multiple: bool = False, **kwargs) -> str | list[str]:
+    def open_directory(title: str = None, **kwargs) -> str:
         """
         Opens a dialog box to select a directory.
 
         Args:
             title (str, optional): The title of the dialog box. Defaults to None.
-            multiple (bool, optional): Whether to allow multiple directory selection. Defaults to False.
             **kwargs: Additional keyword arguments to be passed to the filedialog.askdirectory function.
 
         Returns:
-            str | list[str]: The path of the selected directory. If multiple is True, a list of paths is returned. Otherwise, a single path is returned.
+            str: The path of the selected directory.
 
         """
-        if title is None:
-            title = "Select a directory"
-
         with FocusedWindow() as root:
-            if multiple:
-                path = tkfilebrowser.askopendirnames(
-                    parent=root,
-                    title=title,
-                    initialdir=".",
-                    **kwargs,
-                )
-                return list(path)
-
-            return tkfilebrowser.askopendirname(
+            return filedialog.askdirectory(
                 parent=root,
                 title=title,
-                initialdir=".",
+                mustexist=True,
                 **kwargs,
             )

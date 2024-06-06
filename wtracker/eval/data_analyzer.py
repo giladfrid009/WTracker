@@ -32,7 +32,6 @@ class DataAnalyzer:
 
     def initialize(
         self,
-        serial: int = 0,
         period: int = 10,
         imaging_only: bool = True,
         legal_bounds: tuple[float, float, float, float] = None,
@@ -189,11 +188,13 @@ class DataAnalyzer:
         anomalies["no_pred_anomaly"] = mask_no_preds
         return anomalies
 
-    def describe(self, columns: list[str] = None, num: int = 3) -> pd.DataFrame:
+    def describe(self, columns: list[str] = None, num: int = 3, percentiles: list[float] = None) -> pd.DataFrame:
         if columns is None:
             columns = self.column_names()
 
-        percentiles = np.linspace(start=0, stop=1.0, num=num + 2)[1:-1]
+        if percentiles is None:
+            percentiles = np.linspace(start=0, stop=1.0, num=num + 2)[1:-1]
+            
         return self.table[columns].describe(percentiles)
 
     def print_stats(self) -> None:
