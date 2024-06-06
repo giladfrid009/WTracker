@@ -11,10 +11,20 @@ from wtracker.utils.io_utils import pickle_save_object, pickle_load_object
 class DataAnalyzer:
     def __init__(
         self,
-        time_config: TimingConfig = None,
-        log_path: str = None,
+        time_config: TimingConfig,
+        log_path: str,
         unit: str = "frame",
     ):
+        """
+        Initialize the DataAnalyzer class.
+
+        Args:
+            time_config (TimingConfig): The timing configuration.
+            log_path (str): The path to the log file on which to perform analysis on.
+            unit (str, optional): The unit of time. Can be "frame" or "sec". Defaults to "frame".
+                If "sec" is chosen, the time will be converted to seconds, and the distance metric is micrometer.
+                If "frame" is chosen, the time will be in frames, and the distance metric is pixels.
+        """
 
         assert unit in ["frame", "sec"]
 
@@ -24,27 +34,46 @@ class DataAnalyzer:
         self.table = pd.read_csv(log_path)
 
     def save(self, path: str) -> None:
+        """
+        Save the DataAnalyzer object to a file.
+
+        Args:
+            path (str): The path to save the object.
+        """
+
         pickle_save_object(self, path)
 
     @staticmethod
     def load(path: str) -> DataAnalyzer:
+        """
+        Load a DataAnalyzer object from a file.
+
+        Args:
+            path (str): The path to load the object from.
+
+        Returns:
+            DataAnalyzer: The loaded DataAnalyzer object.
+        """
+
         return pickle_load_object(path)
 
-    def initialize(
+    def run_analysis(
         self,
         period: int = 10,
         imaging_only: bool = True,
         legal_bounds: tuple[float, float, float, float] = None,
     ) -> None:
         """
-        Initialize the data for analysis.
+        Runs the analysis on the data.
 
         Args:
-            period (int, optional): The number of frames to calculate speed over. Defaults to 10.
-            imaging_only (bool, optional): Whether to include only imaging phases. Defaults to True.
-            legal_bounds (tuple[float, float, float, float], optional): The legal bounds for the worm head location, in frames. Defaults to None. Bounds format is (x_min, y_min, x_max, y_max).
-        """
+            period (int): The period for calculating speed in frames.
+            imaging_only (bool): Flag indicating whether to include only imaging phases in the analysis.
+            legal_bounds (tuple[float, float, float, float]): The legal bounds for worm movement.
 
+        Returns:
+            None
+        """
         data = self.table
         data["time"] = data["frame"]
         data["cycle_step"] = data["frame"] % self.time_config.cycle_frame_num
@@ -120,6 +149,18 @@ class DataAnalyzer:
         return data
 
     def calc_precise_error(self, worm_reader: FrameReader, background: np.ndarray, diff_thresh=20) -> None:
+        """
+        Calculate the precise error between the worm and the microscope view.
+        This error is segmentation based, and measures the proportion of worm's head that is
+        outside of the view of the microscope. Note that this calculation might take a while.
+
+        Args:
+            worm_reader (FrameReader): Images of the worm at each frame, cropped to the size of the bounding box
+                which was detected around the worm.
+            background (np.ndarray): The background image of the entire experiment.
+            diff_thresh (int): Difference threshold to differentiate between the background and foreground.
+                A foreground object is detected if the pixel value difference with the background is greater than this threshold.
+        """
         assert len(worm_reader) == len(self.table)
 
         frames = self.table["frame"].to_numpy().astype(int, copy=False)
@@ -151,6 +192,12 @@ class DataAnalyzer:
         self.table["precise_error"] = errors
 
     def column_names(self) -> list[str]:
+        """
+        Returns a list of column names in the table holding the data.
+
+        Returns:
+            list[str]: A list of column names.
+        """
         return self.table.columns.to_list()
 
     def find_anomalies(
@@ -161,6 +208,19 @@ class DataAnalyzer:
         min_speed: float = np.inf,
         min_size: float = np.inf,
     ) -> pd.DataFrame:
+        """
+        Find anomalies in the data based on specified criteria.
+
+        Args:
+            no_preds (bool, optional): Flag indicating whether to consider instances with missing predictions. Defaults to True.
+            min_bbox_error (float, optional): Minimum bounding box error threshold to consider as anomaly. Defaults to np.inf.
+            min_dist_error (float, optional): Minimum distance error threshold to consider as anomaly. Defaults to np.inf.
+            min_speed (float, optional): Minimum speed threshold to consider as anomaly. Defaults to np.inf.
+            min_size (float, optional): Minimum size threshold to consider as anomaly. Defaults to np.inf.
+
+        Returns:
+            pd.DataFrame: DataFrame containing the anomalies found in the data.
+        """
 
         mask_speed = self.table["wrm_speed"] >= min_speed
         mask_bbox_error = self.table["bbox_error"] >= min_bbox_error
@@ -189,15 +249,37 @@ class DataAnalyzer:
         return anomalies
 
     def describe(self, columns: list[str] = None, num: int = 3, percentiles: list[float] = None) -> pd.DataFrame:
+        """
+        Generate descriptive statistics of the specified columns in the table containing the data.
+
+        Args:
+            columns (list[str], optional): List of column names to include in the analysis. If None, all columns will be included. Defaults to None.
+            num (int, optional): Number of evenly spaced percentiles to include in the analysis. Defaults to 3. If percentiles is not None, this parameter is ignored.
+            percentiles (list[float], optional): List of specific percentiles to include in the analysis. If None, evenly spaced percentiles will be used. Defaults to None.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the descriptive statistics of the specified columns.
+        """
         if columns is None:
             columns = self.column_names()
 
         if percentiles is None:
             percentiles = np.linspace(start=0, stop=1.0, num=num + 2)[1:-1]
-            
+
         return self.table[columns].describe(percentiles)
 
     def print_stats(self) -> None:
+        """
+        Prints various statistics related to the data.
+
+        This method calculates and prints the following statistics:
+        - Total Count of No Pred Frames: The number of frames where the predictions are missing.
+        - Total Num of Cycles: The number of unique cycles in the data.
+        - Non Perfect Predictions: The percentage of predictions that are not perfect.
+
+        Returns:
+            None
+        """
         no_preds = self.table[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1).sum()
         print(f"Total Count of No Pred Frames: {no_preds} ({round(100 * no_preds / len(self.table.index), 3)}%)")
 

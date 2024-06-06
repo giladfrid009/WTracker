@@ -7,25 +7,43 @@ from typing import Callable
 from wtracker.utils.frame_reader import FrameReader
 from wtracker.utils.bbox_utils import BoxUtils, BoxConverter, BoxFormat
 
-# TODO: ADD DOCS
 
 class ErrorCalculator:
+    """
+    The ErrorCalculator class provides methods to calculate different types of errors based on worm position and the microscope view.
+    """
+
     # TODO: TEST IMPLEMENTATIONs
     probe_hook: Callable[[np.ndarray, np.ndarray], None] = None  # takes mask and view for testing
 
     @staticmethod
     def calculate_segmentation(
         bbox: np.ndarray,
-        view: np.ndarray,
+        image: np.ndarray,
         background: np.ndarray,
         diff_thresh: float,
     ) -> np.ndarray:
-        assert view.shape[0] == bbox[3] - bbox[1]
-        assert view.shape[1] == bbox[2] - bbox[0]
+        """
+        Calculates the segmentation error between a view and background image.
+
+        Args:
+            bbox (np.ndarray): The bounding box of the image, in the format (x, y, w, h).
+            image (np.ndarray): The image to calculate segmantation in.
+            background (np.ndarray): The background image.
+            diff_thresh (float): The difference threshold to distinguish foreground and background objects from.
+
+        Returns:
+            np.ndarray: The segmentation mask.
+
+        Raises:
+            ValueError: If the image is not grayscale or color.
+        """
+        assert image.shape[0] == bbox[3] - bbox[1]
+        assert image.shape[1] == bbox[2] - bbox[0]
 
         bg_view = background[bbox[1] : bbox[3], bbox[0] : bbox[2]]
 
-        diff = np.abs(view.astype(int) - bg_view.astype(int))
+        diff = np.abs(image.astype(int) - bg_view.astype(int))
 
         # if images are color, convert to grayscale
         # conversion is correct if it's BGR
@@ -49,9 +67,26 @@ class ErrorCalculator:
         diff_thresh: float = 10,
     ) -> np.ndarray:
         """
-        Calculates error according to the precise difference between the worm and the microscope view.
-        The error is calculated as the proportion of the worm that is not within the microscope view.
-        The worm body is calculated by thresholding the difference between the worm view and the background.
+        Calculates the precise error for each frame in the given sequence.
+        This error is based on precise segmentation of the worm object from the frame, and
+        determining the exact proportion of worm's body outside the microscope view.
+
+        Args:
+            background (np.ndarray): The background image.
+            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).
+            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).
+            frame_nums (Collection[int]): The frame numbers to calculate the error for.
+            worm_reader (FrameReader): A frame reader containing segmented worm images for each frame. These worm images should match the shape of the worm bounding boxes.
+                Frames passed in frame_nums are read from this reader by index.
+            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from. Defaults to 10.
+                A foreground object is detected if the pixel value difference with the background is greater than this threshold.
+
+        Returns:
+            np.ndarray: Array of errors of shape (N,) representing the precise segmentation error for each frame.
+
+        Raises:
+            AssertionError: If the length of frame_nums, worm_bboxes, and mic_bboxes do not match.
+
         """
         assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]
 
@@ -103,7 +138,7 @@ class ErrorCalculator:
 
             mask_wrm = ErrorCalculator.calculate_segmentation(
                 bbox=wrm_bbox,
-                view=worm_view,
+                image=worm_view,
                 background=background,
                 diff_thresh=diff_thresh,
             )
@@ -128,10 +163,16 @@ class ErrorCalculator:
     @staticmethod
     def calculate_bbox_error(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -> np.ndarray:
         """
-        Calculates error according to the bounding box difference between the worm and the microscope view.
-        The error is calculated as the proportion of the worm bounding box that is not within the microscope view.
-        """
+        Calculate the bounding box error between worm bounding boxes and microscope bounding boxes.
+        This error calculates the proportion of the worm bounding box that is outside the microscope bounding box.
 
+        Args:
+            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).
+            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).
+
+        Returns:
+            np.ndarray: Array of errors of shape (N,) representing the bounding box error for each pair of worm and microscope bounding boxes.
+        """
         wrm_left, wrm_top, wrm_width, wrm_height = BoxUtils.unpack(worm_bboxes)
         mic_left, mic_top, mic_width, mic_height = BoxUtils.unpack(mic_bboxes)
         wrm_right, wrm_bottom = wrm_left + wrm_width, wrm_top + wrm_height
@@ -156,7 +197,14 @@ class ErrorCalculator:
     @staticmethod
     def calculate_mse_error(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -> np.ndarray:
         """
-        Calculates error according to the mean squared error between the centers of the worm and the microscope view.
+        Calculates the Mean Squared Error (MSE) error between the centers of worm bounding boxes and microscope bounding boxes.
+
+        Args:
+            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).
+            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).
+
+        Returns:
+            np.ndarray: Array of errors of shape (N,) representing the MSE error for each pair of worm and microscope bounding boxes.
         """
         worm_centers = BoxUtils.center(worm_bboxes)
         mic_centers = BoxUtils.center(mic_bboxes)
