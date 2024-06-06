@@ -998,6 +998,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -1044,6 +1051,13 @@
   
     <nav class="md-nav" aria-label="ImageSaver">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#ancestors-in-mro_1" class="md-nav__link">
@@ -1231,6 +1245,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -1277,6 +1298,13 @@
   
     <nav class="md-nav" aria-label="ImageSaver">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#ancestors-in-mro_1" class="md-nav__link">
@@ -1368,11 +1396,17 @@
 
 <span class="sd">    This class utilizes a queue to save images in a separate thread, which allows for non-blocking image saving.</span>
 
-<span class="sd">    Methods:</span>
+<span class="sd">    Args:</span>
 
-<span class="sd">        save_image: Adds an image to the queue for saving.</span>
+<span class="sd">        frame_reader (FrameReader): The frame reader object from which images will be saved.</span>
 
-<span class="sd">        close: Waits for all images to be saved and closes the image saver.</span>
+<span class="sd">        root_path (str): The root folder path, relative to which all other paths are. Defaults to &quot;&quot;.</span>
+
+<span class="sd">        maxsize (int, optional): The maximum size of the queue. Defaults to 0.</span>
+
+<span class="sd">        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
+
+<span class="sd">        **tqdm_kwargs: Additional keyword arguments for tqdm.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1391,22 +1425,6 @@
         <span class="o">**</span><span class="n">tqdm_kwargs</span><span class="p">,</span>
 
     <span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            frame_reader (FrameReader): The frame reader object from which images will be saved.</span>
-
-<span class="sd">            root_path (str): The root folder path, relative to which all other paths are. Defaults to &quot;&quot;.</span>
-
-<span class="sd">            maxsize (int, optional): The maximum size of the queue. Defaults to 0.</span>
-
-<span class="sd">            tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
-
-<span class="sd">            **tqdm_kwargs: Additional keyword arguments for tqdm.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_frame</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">,</span> <span class="n">tqdm</span><span class="p">,</span> <span class="o">**</span><span class="n">tqdm_kwargs</span><span class="p">)</span>
 
@@ -1486,11 +1504,15 @@
 
 <span class="sd">    A class for saving images asynchronously using a task scheduler.</span>
 
-<span class="sd">    Methods:</span>
+<span class="sd">    Args:</span>
 
-<span class="sd">        schedule_save: Adds an image to the queue for saving.</span>
+<span class="sd">        root_path (str): The root folder path, relative to which all other paths are. Defaults to &quot;&quot;.</span>
 
-<span class="sd">        close: Waits for all images to be saved and closes the image saver.</span>
+<span class="sd">        maxsize (int, optional): The maximum size of the queue. Defaults to 0.</span>
+
+<span class="sd">        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
+
+<span class="sd">        **tqdm_kwargs: Additional keyword arguments for tqdm.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1507,20 +1529,6 @@
         <span class="o">**</span><span class="n">tqdm_kwargs</span><span class="p">,</span>
 
     <span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            root_path (str): The root folder path, relative to which all other paths are. Defaults to &quot;&quot;.</span>
-
-<span class="sd">            maxsize (int, optional): The maximum size of the queue. Defaults to 0.</span>
-
-<span class="sd">            tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
-
-<span class="sd">            **tqdm_kwargs: Additional keyword arguments for tqdm.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_save_image</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">,</span> <span class="n">tqdm</span><span class="p">,</span> <span class="o">**</span><span class="n">tqdm_kwargs</span><span class="p">)</span>
 
@@ -1824,9 +1832,49 @@
 
 <p>A class for saving images from a frame reader to a specified folder.</p>
 <p>This class utilizes a queue to save images in a separate thread, which allows for non-blocking image saving.</p>
-<p>Methods:
-    save_image: Adds an image to the queue for saving.
-    close: Waits for all images to be saved and closes the image saver.</p>
+<h4 id="attributes">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>frame_reader</td>
+<td>FrameReader</td>
+<td>The frame reader object from which images will be saved.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>root_path</td>
+<td>str</td>
+<td>The root folder path, relative to which all other paths are. Defaults to "".</td>
+<td>""</td>
+</tr>
+<tr>
+<td>maxsize</td>
+<td>int</td>
+<td>The maximum size of the queue. Defaults to 0.</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tqdm</td>
+<td>bool</td>
+<td>Whether to use tqdm for progress tracking. Defaults to True.</td>
+<td>True</td>
+</tr>
+<tr>
+<td>**tqdm_kwargs</td>
+<td>None</td>
+<td>Additional keyword arguments for tqdm.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">FrameSaver</span><span class="p">(</span><span class="n">TaskScheduler</span><span class="p">)</span><span class="err">:</span>
@@ -1837,11 +1885,17 @@
 
 <span class="ss">    This class utilizes a queue to save images in a separate thread, which allows for non-blocking image saving.</span>
 
-<span class="ss">    Methods:</span>
+<span class="ss">    Args:</span>
 
-<span class="ss">        save_image: Adds an image to the queue for saving.</span>
+<span class="ss">        frame_reader (FrameReader): The frame reader object from which images will be saved.</span>
 
-<span class="ss">        close: Waits for all images to be saved and closes the image saver.</span>
+<span class="ss">        root_path (str): The root folder path, relative to which all other paths are. Defaults to &quot;&quot;.</span>
+
+<span class="ss">        maxsize (int, optional): The maximum size of the queue. Defaults to 0.</span>
+
+<span class="ss">        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
+
+<span class="ss">        **tqdm_kwargs: Additional keyword arguments for tqdm.</span>
 
 <span class="ss">    &quot;&quot;&quot;</span>
 
@@ -1860,22 +1914,6 @@
 <span class="w">        </span><span class="o">**</span><span class="n">tqdm_kwargs</span><span class="p">,</span>
 
 <span class="w">    </span><span class="p">)</span><span class="err">:</span>
-
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
-
-<span class="ss">        Args:</span>
-
-<span class="ss">            frame_reader (FrameReader): The frame reader object from which images will be saved.</span>
-
-<span class="ss">            root_path (str): The root folder path, relative to which all other paths are. Defaults to &quot;&quot;.</span>
-
-<span class="ss">            maxsize (int, optional): The maximum size of the queue. Defaults to 0.</span>
-
-<span class="ss">            tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
-
-<span class="ss">            **tqdm_kwargs: Additional keyword arguments for tqdm.</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_save_frame</span><span class="p">,</span><span class="w"> </span><span class="n">maxsize</span><span class="p">,</span><span class="w"> </span><span class="n">tqdm</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">tqdm_kwargs</span><span class="p">)</span>
 
@@ -2076,9 +2114,43 @@
 </code></pre></div>
 
 <p>A class for saving images asynchronously using a task scheduler.</p>
-<p>Methods:
-    schedule_save: Adds an image to the queue for saving.
-    close: Waits for all images to be saved and closes the image saver.</p>
+<h4 id="attributes_1">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>root_path</td>
+<td>str</td>
+<td>The root folder path, relative to which all other paths are. Defaults to "".</td>
+<td>""</td>
+</tr>
+<tr>
+<td>maxsize</td>
+<td>int</td>
+<td>The maximum size of the queue. Defaults to 0.</td>
+<td>0</td>
+</tr>
+<tr>
+<td>tqdm</td>
+<td>bool</td>
+<td>Whether to use tqdm for progress tracking. Defaults to True.</td>
+<td>True</td>
+</tr>
+<tr>
+<td>**tqdm_kwargs</td>
+<td>None</td>
+<td>Additional keyword arguments for tqdm.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">ImageSaver</span>(<span class="n">TaskScheduler</span>):
@@ -2087,11 +2159,15 @@
 
 <span class="s">    A class for saving images asynchronously using a task scheduler.</span>
 
-<span class="s">    Methods:</span>
+<span class="s">    Args:</span>
 
-<span class="s">        schedule_save: Adds an image to the queue for saving.</span>
+<span class="s">        root_path (str): The root folder path, relative to which all other paths are. Defaults to &quot;&quot;.</span>
 
-<span class="s">        close: Waits for all images to be saved and closes the image saver.</span>
+<span class="s">        maxsize (int, optional): The maximum size of the queue. Defaults to 0.</span>
+
+<span class="s">        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
+
+<span class="s">        **tqdm_kwargs: Additional keyword arguments for tqdm.</span>
 
 <span class="s">    &quot;&quot;&quot;</span>
 
@@ -2108,20 +2184,6 @@
         **<span class="n">tqdm_kwargs</span>,
 
     ):
-
-        <span class="s">&quot;&quot;&quot;</span>
-
-<span class="s">        Args:</span>
-
-<span class="s">            root_path (str): The root folder path, relative to which all other paths are. Defaults to &quot;&quot;.</span>
-
-<span class="s">            maxsize (int, optional): The maximum size of the queue. Defaults to 0.</span>
-
-<span class="s">            tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
-
-<span class="s">            **tqdm_kwargs: Additional keyword arguments for tqdm.</span>
-
-<span class="s">        &quot;&quot;&quot;</span>
 
         <span class="n">super</span>().<span class="n">__init__</span>(<span class="nb">self</span>.<span class="n">_save_image</span>, <span class="n">maxsize</span>, <span class="n">tqdm</span>, **<span class="n">tqdm_kwargs</span>)
 

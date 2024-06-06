@@ -929,6 +929,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -991,6 +998,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#descendants" class="md-nav__link">
     Descendants
   </a>
@@ -1051,6 +1065,13 @@
   
     <nav class="md-nav" aria-label="FrameStream">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#attributes_2" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#descendants_1" class="md-nav__link">
@@ -1274,6 +1295,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -1336,6 +1364,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#descendants" class="md-nav__link">
     Descendants
   </a>
@@ -1396,6 +1431,13 @@
   
     <nav class="md-nav" aria-label="FrameStream">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#attributes_2" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#descendants_1" class="md-nav__link">
@@ -1498,13 +1540,23 @@
 
 <span class="kn">from</span> <span class="nn">wtracker.utils.path_utils</span> <span class="kn">import</span> <span class="n">join_paths</span>
 
+<span class="c1"># TODO: (ROADMAP) GIVEN ACCESSING ELEMENT AT INDX i, Pre-load the next element in advance.</span>
+
 <span class="k">class</span> <span class="nc">FrameReader</span><span class="p">:</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    An class for reading frames from a directory of frame files.</span>
 
-<span class="sd">    Properties:</span>
+<span class="sd">    Args:</span>
+
+<span class="sd">        root_folder (str): The root folder path where the frame files are located.</span>
+
+<span class="sd">        frame_files (list[str]): A list of frame file names.</span>
+
+<span class="sd">        read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+
+<span class="sd">    Attributes:</span>
 
 <span class="sd">        root_folder (str): The root folder path where the frame files are located.</span>
 
@@ -1515,20 +1567,6 @@
 <span class="sd">        files (list[str]): The list of file paths.</span>
 
 <span class="sd">        read_format (int): The read format of the frame reader.</span>
-
-<span class="sd">    Methods:</span>
-
-<span class="sd">        create_from_template(): Creates a FrameReader object from a file name template.</span>
-
-<span class="sd">        create_from_directory(): Creates a FrameReader object from a directory.</span>
-
-<span class="sd">        make_stream(): Creates and returns a FrameStream object using the current instance of FrameReader.</span>
-
-<span class="sd">        __len__(): Returns the number of frames in the frame reader.</span>
-
-<span class="sd">        __getitem__(): Returns the frame at the specified index.</span>
-
-<span class="sd">        __iter__(): Returns an iterator for the FrameReader object.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1543,20 +1581,6 @@
         <span class="n">read_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">IMREAD_GRAYSCALE</span><span class="p">,</span>
 
     <span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Initialize the FrameReader object.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            root_folder (str): The root folder path where the frame files are located.</span>
-
-<span class="sd">            frame_files (list[str]): A list of frame file names.</span>
-
-<span class="sd">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">root_folder</span><span class="p">)</span>
 
@@ -1764,19 +1788,13 @@
 
 <span class="sd">    This class serves as an iterator for the FrameReader object.</span>
 
+<span class="sd">    Args:</span>
+
+<span class="sd">        frame_reader (FrameReader): The frame reader object.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_reader</span><span class="p">:</span> <span class="n">FrameReader</span><span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Initializes a new instance of the FrameReader class.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            frame_reader (FrameReader): The frame reader object.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span> <span class="o">=</span> <span class="n">frame_reader</span>
 
@@ -1898,6 +1916,20 @@
 
 <span class="k">class</span> <span class="nc">DummyReader</span><span class="p">(</span><span class="n">FrameReader</span><span class="p">):</span>
 
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    A dummy frame reader that generates empty frames of a specified resolution.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        num_frames (int): The number of frames to generate.</span>
+
+<span class="sd">        resolution (tuple[int, int]): The resolution of the frames.</span>
+
+<span class="sd">        colored (bool, optional): Whether the frames are colored or grayscale. Defaults to True.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">resolution</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">colored</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">colored</span> <span class="o">=</span> <span class="n">colored</span>
@@ -1935,23 +1967,55 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<p>An class for reading frames from a directory of frame files.</p>
-<p>Properties:
-    root_folder (str): The root folder path where the frame files are located.
-    frame_shape (tuple[int, ...]): The shape of the frame.
-    frame_size (tuple[int, int]): The size of the frame.
-    files (list[str]): The list of file paths.
-    read_format (int): The read format of the frame reader.</p>
-<p>Methods:
-    create_from_template(): Creates a FrameReader object from a file name template.
-    create_from_directory(): Creates a FrameReader object from a directory.
-    make_stream(): Creates and returns a FrameStream object using the current instance of FrameReader.
-    <strong>len</strong>(): Returns the number of frames in the frame reader.
-    <strong>getitem</strong>(): Returns the frame at the specified index.
-    <strong>iter</strong>(): Returns an iterator for the FrameReader object.</p>
+<p>A dummy frame reader that generates empty frames of a specified resolution.</p>
+<h4 id="attributes">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>num_frames</td>
+<td>int</td>
+<td>The number of frames to generate.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>resolution</td>
+<td>tuple[int, int]</td>
+<td>The resolution of the frames.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>colored</td>
+<td>bool</td>
+<td>Whether the frames are colored or grayscale. Defaults to True.</td>
+<td>True</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">DummyReader</span><span class="p">(</span><span class="nx">FrameReader</span><span class="p">):</span>
+
+<span class="w">    </span><span class="s">&quot;&quot;&quot;</span>
+
+<span class="s">    A dummy frame reader that generates empty frames of a specified resolution.</span>
+
+<span class="s">    Args:</span>
+
+<span class="s">        num_frames (int): The number of frames to generate.</span>
+
+<span class="s">        resolution (tuple[int, int]): The resolution of the frames.</span>
+
+<span class="s">        colored (bool, optional): Whether the frames are colored or grayscale. Defaults to True.</span>
+
+<span class="s">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="nx">def</span><span class="w"> </span><span class="nx">__init__</span><span class="p">(</span><span class="kp">self</span><span class="p">,</span><span class="w"> </span><span class="nx">num_frames</span><span class="p">:</span><span class="w"> </span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">resolution</span><span class="p">:</span><span class="w"> </span><span class="nx">tuple</span><span class="p">[</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">int</span><span class="p">],</span><span class="w"> </span><span class="nx">colored</span><span class="p">:</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">True</span><span class="p">):</span>
 
@@ -2233,19 +2297,67 @@
 </code></pre></div>
 
 <p>An class for reading frames from a directory of frame files.</p>
-<p>Properties:
-    root_folder (str): The root folder path where the frame files are located.
-    frame_shape (tuple[int, ...]): The shape of the frame.
-    frame_size (tuple[int, int]): The size of the frame.
-    files (list[str]): The list of file paths.
-    read_format (int): The read format of the frame reader.</p>
-<p>Methods:
-    create_from_template(): Creates a FrameReader object from a file name template.
-    create_from_directory(): Creates a FrameReader object from a directory.
-    make_stream(): Creates and returns a FrameStream object using the current instance of FrameReader.
-    <strong>len</strong>(): Returns the number of frames in the frame reader.
-    <strong>getitem</strong>(): Returns the frame at the specified index.
-    <strong>iter</strong>(): Returns an iterator for the FrameReader object.</p>
+<h4 id="attributes_1">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>root_folder</td>
+<td>str</td>
+<td>The root folder path where the frame files are located.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>frame_files</td>
+<td>list[str]</td>
+<td>A list of frame file names.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>read_format</td>
+<td>int</td>
+<td>The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</td>
+<td>cv.IMREAD_GRAYSCALE</td>
+</tr>
+<tr>
+<td>root_folder</td>
+<td>str</td>
+<td>The root folder path where the frame files are located.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>frame_shape</td>
+<td>tuple[int, ...]</td>
+<td>The shape of the frame.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>frame_size</td>
+<td>tuple[int, int]</td>
+<td>The size of the frame.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>files</td>
+<td>list[str]</td>
+<td>The list of file paths.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>read_format</td>
+<td>int</td>
+<td>The read format of the frame reader.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">FrameReader</span><span class="p">:</span>
@@ -2254,7 +2366,15 @@
 
 <span class="ss">    An class for reading frames from a directory of frame files.</span>
 
-<span class="ss">    Properties:</span>
+<span class="ss">    Args:</span>
+
+<span class="ss">        root_folder (str): The root folder path where the frame files are located.</span>
+
+<span class="ss">        frame_files (list[str]): A list of frame file names.</span>
+
+<span class="ss">        read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+
+<span class="ss">    Attributes:</span>
 
 <span class="ss">        root_folder (str): The root folder path where the frame files are located.</span>
 
@@ -2265,20 +2385,6 @@
 <span class="ss">        files (list[str]): The list of file paths.</span>
 
 <span class="ss">        read_format (int): The read format of the frame reader.</span>
-
-<span class="ss">    Methods:</span>
-
-<span class="ss">        create_from_template(): Creates a FrameReader object from a file name template.</span>
-
-<span class="ss">        create_from_directory(): Creates a FrameReader object from a directory.</span>
-
-<span class="ss">        make_stream(): Creates and returns a FrameStream object using the current instance of FrameReader.</span>
-
-<span class="ss">        __len__(): Returns the number of frames in the frame reader.</span>
-
-<span class="ss">        __getitem__(): Returns the frame at the specified index.</span>
-
-<span class="ss">        __iter__(): Returns an iterator for the FrameReader object.</span>
 
 <span class="ss">    &quot;&quot;&quot;</span>
 
@@ -2293,20 +2399,6 @@
 <span class="w">        </span><span class="nl">read_format</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">IMREAD_GRAYSCALE</span><span class="p">,</span>
 
 <span class="w">    </span><span class="p">)</span><span class="err">:</span>
-
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
-
-<span class="ss">        Initialize the FrameReader object.</span>
-
-<span class="ss">        Args:</span>
-
-<span class="ss">            root_folder (str): The root folder path where the frame files are located.</span>
-
-<span class="ss">            frame_files (list[str]): A list of frame file names.</span>
-
-<span class="ss">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">os</span><span class="p">.</span><span class="k">path</span><span class="p">.</span><span class="ow">exists</span><span class="p">(</span><span class="n">root_folder</span><span class="p">)</span>
 
@@ -2759,6 +2851,25 @@
 
 <p>A class for streaming frames from a FrameReader object.</p>
 <p>This class serves as an iterator for the FrameReader object.</p>
+<h4 id="attributes_2">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>frame_reader</td>
+<td>FrameReader</td>
+<td>The frame reader object.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">FrameStream</span><span class="p">:</span>
@@ -2769,19 +2880,13 @@
 
 <span class="ss">    This class serves as an iterator for the FrameReader object.</span>
 
+<span class="ss">    Args:</span>
+
+<span class="ss">        frame_reader (FrameReader): The frame reader object.</span>
+
 <span class="ss">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">frame_reader</span><span class="p">:</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">)</span><span class="err">:</span>
-
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
-
-<span class="ss">        Initializes a new instance of the FrameReader class.</span>
-
-<span class="ss">        Args:</span>
-
-<span class="ss">            frame_reader (FrameReader): The frame reader object.</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame_reader</span>
 

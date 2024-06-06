@@ -530,6 +530,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#methods" class="md-nav__link">
     Methods
   </a>
@@ -613,7 +620,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#attributes_1" class="md-nav__link">
+  <a href="#attributes_2" class="md-nav__link">
     Attributes
   </a>
   
@@ -1413,6 +1420,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#methods" class="md-nav__link">
     Methods
   </a>
@@ -1496,7 +1510,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#attributes_1" class="md-nav__link">
+  <a href="#attributes_2" class="md-nav__link">
     Attributes
   </a>
   
@@ -1770,25 +1784,9 @@
 
 <span class="sd">    A class for viewing and interacting with photos and video streams.</span>
 
-<span class="sd">    Methods:</span>
+<span class="sd">    Args:</span>
 
-<span class="sd">        register_hotkey(self, hotkey: HotKey): Registers a hotkey.</span>
-
-<span class="sd">        create_trackbar(self, name: str, val: int, maxval: int, onChange=lambda x: x): Creates a trackbar.</span>
-
-<span class="sd">        update_trackbar(self, name: str, val: int): Updates the value of a trackbar.</span>
-
-<span class="sd">        set_title(self, title: str): Sets the title of the window.</span>
-
-<span class="sd">        update(self, image: np.ndarray, wait: int = 1): Updates the window with a new image.</span>
-
-<span class="sd">        waitKey(self, timeout: int = 0): Waits for a key press.</span>
-
-<span class="sd">        open(self): Opens the window.</span>
-
-<span class="sd">        close(self, key: str = &quot;q&quot;): Closes the window.</span>
-
-<span class="sd">        imshow(self, image: np.ndarray, title: str = &quot;image&quot;): Displays an image in the window.</span>
+<span class="sd">        window_name (str, optional): The name of the window.</span>
 
 <span class="sd">    Example:</span>
 
@@ -1801,16 +1799,6 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;streamer&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Initializes the StreamViewer object.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            window_name (str, optional): The name of the window.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">window_name</span> <span class="o">=</span> <span class="n">window_name</span>
 
@@ -2042,32 +2030,6 @@
 
 <span class="sd">        show_cam (bool, optional): Whether to show the camera box. Defaults to False.</span>
 
-<span class="sd">    Methods:</span>
-
-<span class="sd">        initialize(): Initializes the video player.</span>
-
-<span class="sd">        print_hotkeys(): Prints the available hotkeys along with their descriptions.</span>
-
-<span class="sd">        get_attribute(col_name: str): Gets the value of an attribute from the current row in the log.</span>
-
-<span class="sd">        get_photo() -&gt; np.ndarray: Gets the current frame with overlays (i.e the image that will be displayed).</span>
-
-<span class="sd">        seek(pos: int): Seeks to a specific frame.</span>
-
-<span class="sd">        next(key=None): Moves to the next frame.</span>
-
-<span class="sd">        prev(key=None): Moves to the previous frame.</span>
-
-<span class="sd">        close(key=None): Closes the video player.</span>
-
-<span class="sd">        set_delay(delay: int): Sets the delay between frames.</span>
-
-<span class="sd">        mainloop(): Runs the main loop of the video player.</span>
-
-<span class="sd">        save_stream(folder_path: str) -&gt; None: Saves the frames as images in a folder and creates a video file of it. This function doesn&#39;t show the video player (thus mainloop should not be called).</span>
-
-<span class="sd">        make_vid(folder_path: str, img_name_format: str, output_dir: str) -&gt; None: Creates a video from the saved frames.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -2118,29 +2080,29 @@
 
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">            Initializes the VLC player by setting up hotkeys, opening the streamer,</span>
+<span class="sd">        Initializes the VLC player by setting up hotkeys, opening the streamer,</span>
 
-<span class="sd">            creating a window, and updating the trackbar.</span>
+<span class="sd">        creating a window, and updating the trackbar.</span>
 
-<span class="sd">            Parameters:</span>
+<span class="sd">        Parameters:</span>
 
-<span class="sd">                None</span>
+<span class="sd">            None</span>
 
-<span class="sd">            Returns:</span>
+<span class="sd">        Returns:</span>
 
-<span class="sd">                None</span>
+<span class="sd">            None</span>
 
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_init_hotkeys</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_hotkeys</span><span class="p">()</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_create_window</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_create_window</span><span class="p">()</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">streamer</span><span class="o">.</span><span class="n">update_trackbar</span><span class="p">(</span><span class="s2">&quot;delay&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ms_per_frame</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">streamer</span><span class="o">.</span><span class="n">update_trackbar</span><span class="p">(</span><span class="s2">&quot;delay&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ms_per_frame</span><span class="p">))</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">print_hotkeys</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_hotkeys</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_load_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 
@@ -2583,16 +2545,25 @@
 </code></pre></div>
 
 <p>A class for viewing and interacting with photos and video streams.</p>
-<p>Methods:
-    register_hotkey(self, hotkey: HotKey): Registers a hotkey.
-    create_trackbar(self, name: str, val: int, maxval: int, onChange=lambda x: x): Creates a trackbar.
-    update_trackbar(self, name: str, val: int): Updates the value of a trackbar.
-    set_title(self, title: str): Sets the title of the window.
-    update(self, image: np.ndarray, wait: int = 1): Updates the window with a new image.
-    waitKey(self, timeout: int = 0): Waits for a key press.
-    open(self): Opens the window.
-    close(self, key: str = "q"): Closes the window.
-    imshow(self, image: np.ndarray, title: str = "image"): Displays an image in the window.</p>
+<h4 id="attributes_1">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>window_name</td>
+<td>str</td>
+<td>The name of the window.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">StreamViewer</span><span class="p">:</span>
@@ -2601,25 +2572,9 @@
 
 <span class="ss">    A class for viewing and interacting with photos and video streams.</span>
 
-<span class="ss">    Methods:</span>
+<span class="ss">    Args:</span>
 
-<span class="ss">        register_hotkey(self, hotkey: HotKey): Registers a hotkey.</span>
-
-<span class="ss">        create_trackbar(self, name: str, val: int, maxval: int, onChange=lambda x: x): Creates a trackbar.</span>
-
-<span class="ss">        update_trackbar(self, name: str, val: int): Updates the value of a trackbar.</span>
-
-<span class="ss">        set_title(self, title: str): Sets the title of the window.</span>
-
-<span class="ss">        update(self, image: np.ndarray, wait: int = 1): Updates the window with a new image.</span>
-
-<span class="ss">        waitKey(self, timeout: int = 0): Waits for a key press.</span>
-
-<span class="ss">        open(self): Opens the window.</span>
-
-<span class="ss">        close(self, key: str = &quot;</span><span class="n">q</span><span class="ss">&quot;): Closes the window.</span>
-
-<span class="ss">        imshow(self, image: np.ndarray, title: str = &quot;</span><span class="nc">image</span><span class="ss">&quot;): Displays an image in the window.</span>
+<span class="ss">        window_name (str, optional): The name of the window.</span>
 
 <span class="ss">    Example:</span>
 
@@ -2632,16 +2587,6 @@
 <span class="ss">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">window_name</span><span class="p">:</span><span class="w"> </span><span class="nf">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;streamer&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span>
-
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
-
-<span class="ss">        Initializes the StreamViewer object.</span>
-
-<span class="ss">        Args:</span>
-
-<span class="ss">            window_name (str, optional): The name of the window.</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">window_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">window_name</span>
 
@@ -2910,7 +2855,7 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">val</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">maxval</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">onChange</span><span class="o">=&lt;</span><span class="n">function</span> <span class="n">StreamViewer</span><span class="o">.&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7f12c0de1f30</span><span class="o">&gt;</span>
+    <span class="n">onChange</span><span class="o">=&lt;</span><span class="n">function</span> <span class="n">StreamViewer</span><span class="o">.&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7fbda3a0e560</span><span class="o">&gt;</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -3352,7 +3297,7 @@
 </code></pre></div>
 
 <p>The VLC class represents a video player for visualizing Simulations. This class supports saving Simulation frames (with or without boxes overlay) as well.</p>
-<h4 id="attributes_1">Attributes</h4>
+<h4 id="attributes_2">Attributes</h4>
 <table>
 <thead>
 <tr>
@@ -3431,32 +3376,6 @@
 
 <span class="sd">        show_cam (bool, optional): Whether to show the camera box. Defaults to False.</span>
 
-<span class="sd">    Methods:</span>
-
-<span class="sd">        initialize(): Initializes the video player.</span>
-
-<span class="sd">        print_hotkeys(): Prints the available hotkeys along with their descriptions.</span>
-
-<span class="sd">        get_attribute(col_name: str): Gets the value of an attribute from the current row in the log.</span>
-
-<span class="sd">        get_photo() -&gt; np.ndarray: Gets the current frame with overlays (i.e the image that will be displayed).</span>
-
-<span class="sd">        seek(pos: int): Seeks to a specific frame.</span>
-
-<span class="sd">        next(key=None): Moves to the next frame.</span>
-
-<span class="sd">        prev(key=None): Moves to the previous frame.</span>
-
-<span class="sd">        close(key=None): Closes the video player.</span>
-
-<span class="sd">        set_delay(delay: int): Sets the delay between frames.</span>
-
-<span class="sd">        mainloop(): Runs the main loop of the video player.</span>
-
-<span class="sd">        save_stream(folder_path: str) -&gt; None: Saves the frames as images in a folder and creates a video file of it. This function doesn&#39;t show the video player (thus mainloop should not be called).</span>
-
-<span class="sd">        make_vid(folder_path: str, img_name_format: str, output_dir: str) -&gt; None: Creates a video from the saved frames.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span>
@@ -3507,29 +3426,29 @@
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">None</span><span class="p">:</span>
 
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">            Initializes the VLC player by setting up hotkeys, opening the streamer,</span>
+<span class="sd">        Initializes the VLC player by setting up hotkeys, opening the streamer,</span>
 
-<span class="sd">            creating a window, and updating the trackbar.</span>
+<span class="sd">        creating a window, and updating the trackbar.</span>
 
-<span class="sd">            Parameters:</span>
+<span class="sd">        Parameters:</span>
 
-<span class="sd">                None</span>
+<span class="sd">            None</span>
 
-<span class="sd">            Returns:</span>
+<span class="sd">        Returns:</span>
 
-<span class="sd">                None</span>
+<span class="sd">            None</span>
 
-<span class="sd">            &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_init_hotkeys</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_init_hotkeys</span><span class="p">()</span>
 
-<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_create_window</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_create_window</span><span class="p">()</span>
 
-<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">streamer</span><span class="o">.</span><span class="n">update_trackbar</span><span class="p">(</span><span class="s2">&quot;delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ms_per_frame</span><span class="p">))</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">streamer</span><span class="o">.</span><span class="n">update_trackbar</span><span class="p">(</span><span class="s2">&quot;delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ms_per_frame</span><span class="p">))</span>
 
-<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">print_hotkeys</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">print_hotkeys</span><span class="p">()</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_load_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">log_path</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 
@@ -4147,29 +4066,29 @@
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">initialize</span><span class="p">(</span><span class="kr">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">None</span><span class="o">:</span>
 
-<span class="w">            </span><span class="s">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="s">            Initializes the VLC player by setting up hotkeys, opening the streamer,</span>
+<span class="s">        Initializes the VLC player by setting up hotkeys, opening the streamer,</span>
 
-<span class="s">            creating a window, and updating the trackbar.</span>
+<span class="s">        creating a window, and updating the trackbar.</span>
 
-<span class="s">            Parameters:</span>
+<span class="s">        Parameters:</span>
 
-<span class="s">                None</span>
+<span class="s">            None</span>
 
-<span class="s">            Returns:</span>
+<span class="s">        Returns:</span>
 
-<span class="s">                None</span>
+<span class="s">            None</span>
 
-<span class="s">            &quot;&quot;&quot;</span>
+<span class="s">        &quot;&quot;&quot;</span>
 
-<span class="w">            </span><span class="kr">self</span><span class="p">.</span><span class="n">_init_hotkeys</span><span class="p">()</span>
+<span class="w">        </span><span class="kr">self</span><span class="p">.</span><span class="n">_init_hotkeys</span><span class="p">()</span>
 
-<span class="w">            </span><span class="kr">self</span><span class="p">.</span><span class="n">_create_window</span><span class="p">()</span>
+<span class="w">        </span><span class="kr">self</span><span class="p">.</span><span class="n">_create_window</span><span class="p">()</span>
 
-<span class="w">            </span><span class="kr">self</span><span class="p">.</span><span class="n">streamer</span><span class="p">.</span><span class="n">update_trackbar</span><span class="p">(</span><span class="s">&quot;delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="nf">round</span><span class="p">(</span><span class="kr">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">ms_per_frame</span><span class="p">))</span>
+<span class="w">        </span><span class="kr">self</span><span class="p">.</span><span class="n">streamer</span><span class="p">.</span><span class="n">update_trackbar</span><span class="p">(</span><span class="s">&quot;delay&quot;</span><span class="p">,</span><span class="w"> </span><span class="nf">round</span><span class="p">(</span><span class="kr">self</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="n">ms_per_frame</span><span class="p">))</span>
 
-<span class="w">            </span><span class="kr">self</span><span class="p">.</span><span class="n">print_hotkeys</span><span class="p">()</span>
+<span class="w">        </span><span class="kr">self</span><span class="p">.</span><span class="n">print_hotkeys</span><span class="p">()</span>
 </code></pre></div>
 
 </details>

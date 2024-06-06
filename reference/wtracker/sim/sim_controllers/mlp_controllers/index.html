@@ -1400,17 +1400,11 @@
 
 <span class="sd">        model (WormPredictor): The WormPredictor model used for predicting worm movement.</span>
 
-<span class="sd">        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped</span>
-
-<span class="sd">    Methods:</span>
-
-<span class="sd">        provide_movement_vector: Provides a movement vector based on the current simulation state.</span>
-
-<span class="sd">        print_model: Prints the model used by the controller.</span>
+<span class="sd">        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped. Defaults to 0.9.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">WormPredictor</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.9</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">WormPredictor</span><span class="p">,</span> <span class="n">max_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.9</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">timing_config</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">)</span>
 
@@ -1529,8 +1523,8 @@
 <tr>
 <td>max_speed</td>
 <td>float</td>
-<td>max speed of the worm in mm/s, predictions above this will be clipped</td>
-<td>None</td>
+<td>max speed of the worm in mm/s, predictions above this will be clipped. Defaults to 0.9.</td>
+<td>0.9</td>
 </tr>
 </tbody>
 </table>
@@ -1550,17 +1544,11 @@
 
 <span class="s">        model (WormPredictor): The WormPredictor model used for predicting worm movement.</span>
 
-<span class="s">        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped</span>
-
-<span class="s">    Methods:</span>
-
-<span class="s">        provide_movement_vector: Provides a movement vector based on the current simulation state.</span>
-
-<span class="s">        print_model: Prints the model used by the controller.</span>
+<span class="s">        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped. Defaults to 0.9.</span>
 
 <span class="s">    &quot;&quot;&quot;</span>
 
-<span class="w">    </span><span class="nx">def</span><span class="w"> </span><span class="nx">__init__</span><span class="p">(</span><span class="kp">self</span><span class="p">,</span><span class="w"> </span><span class="nx">timing_config</span><span class="p">:</span><span class="w"> </span><span class="nx">TimingConfig</span><span class="p">,</span><span class="w"> </span><span class="nx">csv_path</span><span class="p">:</span><span class="w"> </span><span class="nx">str</span><span class="p">,</span><span class="w"> </span><span class="nx">model</span><span class="p">:</span><span class="w"> </span><span class="nx">WormPredictor</span><span class="p">,</span><span class="w"> </span><span class="nx">max_speed</span><span class="p">:</span><span class="nx">float</span><span class="p">=</span><span class="m m-Double">0.9</span><span class="p">):</span>
+<span class="w">    </span><span class="nx">def</span><span class="w"> </span><span class="nx">__init__</span><span class="p">(</span><span class="kp">self</span><span class="p">,</span><span class="w"> </span><span class="nx">timing_config</span><span class="p">:</span><span class="w"> </span><span class="nx">TimingConfig</span><span class="p">,</span><span class="w"> </span><span class="nx">csv_path</span><span class="p">:</span><span class="w"> </span><span class="nx">str</span><span class="p">,</span><span class="w"> </span><span class="nx">model</span><span class="p">:</span><span class="w"> </span><span class="nx">WormPredictor</span><span class="p">,</span><span class="w"> </span><span class="nx">max_speed</span><span class="p">:</span><span class="w"> </span><span class="nx">float</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="m m-Double">0.9</span><span class="p">):</span>
 
 <span class="w">        </span><span class="nx">super</span><span class="p">().</span><span class="nx">__init__</span><span class="p">(</span><span class="nx">timing_config</span><span class="p">,</span><span class="w"> </span><span class="nx">csv_path</span><span class="p">)</span>
 
@@ -1651,6 +1639,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
+<p>Called when the movement prediction begins.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">begin_movement_prediction</span><span class="p">(</span><span class="kr">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="o">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">None</span><span class="o">:</span>
@@ -1666,6 +1655,7 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when a camera frame is captured. Happens every frame.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_camera_frame</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="err">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
@@ -1681,9 +1671,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when a cycle ends.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_cycle_end(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when a cycle ends.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -1696,9 +1693,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when a new cycle starts.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_cycle_start(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when a new cycle starts.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -1711,9 +1715,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when imaging phase ends.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_imaging_end(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when imaging phase ends.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -1726,9 +1737,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when imaging phase starts.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_imaging_start(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when imaging phase starts.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -1741,9 +1759,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when a micro frame is captured. Happens for every during the imaging phase.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_micro_frame(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when a micro frame is captured. Happens for every during the imaging phase.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -1756,9 +1781,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when movement phase ends.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_movement_end(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when movement phase ends.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -1771,9 +1803,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when movement phase starts.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_movement_start(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when movement phase starts.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -1786,9 +1825,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when the simulation ends.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_sim_end(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when the simulation ends.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -1801,6 +1847,7 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when the simulation starts.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_sim_start</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="err">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
@@ -1870,6 +1917,22 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 </code></pre></div>
 
+<p>Provides the movement vector for the simulator. The platform is moved by the provided vector.</p>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tuple[int, int]</td>
+<td>The movement vector in format (dx, dy). <br>The platform will be moved by dx pixels in the x-direction and dy pixels in the y-direction.</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nx">def</span><span class="w"> </span><span class="nx">provide_movement_vector</span><span class="p">(</span><span class="kp">self</span><span class="p">,</span><span class="w"> </span><span class="nx">sim</span><span class="p">:</span><span class="w"> </span><span class="nx">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nx">tuple</span><span class="p">[</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">int</span><span class="p">]:</span>

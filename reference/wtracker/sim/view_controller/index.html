@@ -1338,6 +1338,16 @@
 
 <span class="sd">    and provides their corresponding views.</span>
 
+<span class="sd">    Args:</span>
+
+<span class="sd">        frame_reader (FrameReader): The frame reader object.</span>
+
+<span class="sd">        camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).</span>
+
+<span class="sd">        micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).</span>
+
+<span class="sd">        init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).</span>
+
 <span class="sd">    Attributes:</span>
 
 <span class="sd">        frame_reader (FrameReader): The frame reader object.</span>
@@ -1347,16 +1357,6 @@
 <span class="sd">        micro_size (tuple[int, int]): The size of the micro view (width, height).</span>
 
 <span class="sd">        position (tuple[int, int]): The current position of the center of the view (x, y).</span>
-
-<span class="sd">    Methods:</span>
-
-<span class="sd">        read(): Read a frame from the frame reader and apply padding.</span>
-
-<span class="sd">        set_position(x: int, y: int): Set the position of the view controller.</span>
-
-<span class="sd">        move_position(dx: int, dy: int): Move the position of the view controller by dx and dy.</span>
-
-<span class="sd">        visualize_world(line_width: int = 4): Visualize the world view with bounding boxes.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1373,22 +1373,6 @@
         <span class="n">init_position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
 
     <span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Initializes the View Controller object.</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            frame_reader (FrameReader): The frame reader object.</span>
-
-<span class="sd">            camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).</span>
-
-<span class="sd">            micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).</span>
-
-<span class="sd">            init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frame_reader</span><span class="p">)</span>
 
@@ -1717,6 +1701,30 @@ and provides their corresponding views.</p>
 <tr>
 <td>camera_size</td>
 <td>tuple[int, int]</td>
+<td>The size of the camera frame. Defaults to (251, 251).</td>
+<td>(251, 251)</td>
+</tr>
+<tr>
+<td>micro_size</td>
+<td>tuple[int, int]</td>
+<td>The size of the micro frame. Defaults to (45, 45).</td>
+<td>(45, 45)</td>
+</tr>
+<tr>
+<td>init_position</td>
+<td>tuple[int, int]</td>
+<td>The initial position of the view. Defaults to (0, 0).</td>
+<td>(0, 0)</td>
+</tr>
+<tr>
+<td>frame_reader</td>
+<td>FrameReader</td>
+<td>The frame reader object.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>camera_size</td>
+<td>tuple[int, int]</td>
 <td>The size of the camera view (width, height).</td>
 <td>None</td>
 </tr>
@@ -1746,6 +1754,16 @@ and provides their corresponding views.</p>
 
 <span class="w">    </span><span class="n">and</span><span class="w"> </span><span class="n">provides</span><span class="w"> </span><span class="n">their</span><span class="w"> </span><span class="n">corresponding</span><span class="w"> </span><span class="n">views</span><span class="p">.</span>
 
+<span class="w">    </span><span class="nl">Args</span><span class="p">:</span>
+
+<span class="w">        </span><span class="n">frame_reader</span><span class="w"> </span><span class="p">(</span><span class="n">FrameReader</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">object</span><span class="p">.</span>
+
+<span class="w">        </span><span class="n">camera_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">],</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">camera</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="w"> </span><span class="n">Defaults</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="mi">251</span><span class="p">,</span><span class="w"> </span><span class="mi">251</span><span class="p">).</span>
+
+<span class="w">        </span><span class="n">micro_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">],</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">micro</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="w"> </span><span class="n">Defaults</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="mi">45</span><span class="p">,</span><span class="w"> </span><span class="mi">45</span><span class="p">).</span>
+
+<span class="w">        </span><span class="n">init_position</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">],</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">initial</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="w"> </span><span class="n">Defaults</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">).</span>
+
 <span class="w">    </span><span class="nl">Attributes</span><span class="p">:</span>
 
 <span class="w">        </span><span class="n">frame_reader</span><span class="w"> </span><span class="p">(</span><span class="n">FrameReader</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">object</span><span class="p">.</span>
@@ -1755,16 +1773,6 @@ and provides their corresponding views.</p>
 <span class="w">        </span><span class="n">micro_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">micro</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">).</span>
 
 <span class="w">        </span><span class="n">position</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">center</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">).</span>
-
-<span class="w">    </span><span class="nl">Methods</span><span class="p">:</span>
-
-<span class="w">        </span><span class="n">read</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="n">Read</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">apply</span><span class="w"> </span><span class="n">padding</span><span class="p">.</span>
-
-<span class="w">        </span><span class="n">set_position</span><span class="p">(</span><span class="n">x</span><span class="o">:</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">:</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="n">controller</span><span class="p">.</span>
-
-<span class="w">        </span><span class="n">move_position</span><span class="p">(</span><span class="n">dx</span><span class="o">:</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">dy</span><span class="o">:</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Move</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">dx</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">dy</span><span class="p">.</span>
-
-<span class="w">        </span><span class="n">visualize_world</span><span class="p">(</span><span class="n">line_width</span><span class="o">:</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">Visualize</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">world</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
 
 <span class="w">    </span><span class="s">&quot;&quot;&quot;</span>
 
@@ -1781,22 +1789,6 @@ and provides their corresponding views.</p>
 <span class="w">        </span><span class="nl">init_position</span><span class="p">:</span><span class="w"> </span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span>
 
 <span class="w">    </span><span class="p">)</span><span class="o">:</span>
-
-<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
-
-<span class="w">        </span><span class="n">Initializes</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">View</span><span class="w"> </span><span class="n">Controller</span><span class="w"> </span><span class="n">object</span><span class="p">.</span>
-
-<span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
-
-<span class="w">            </span><span class="n">frame_reader</span><span class="w"> </span><span class="p">(</span><span class="n">FrameReader</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">object</span><span class="p">.</span>
-
-<span class="w">            </span><span class="n">camera_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">],</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">camera</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="w"> </span><span class="n">Defaults</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="mi">251</span><span class="p">,</span><span class="w"> </span><span class="mi">251</span><span class="p">).</span>
-
-<span class="w">            </span><span class="n">micro_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">],</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">micro</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="w"> </span><span class="n">Defaults</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="mi">45</span><span class="p">,</span><span class="w"> </span><span class="mi">45</span><span class="p">).</span>
-
-<span class="w">            </span><span class="n">init_position</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">],</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">initial</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">view</span><span class="p">.</span><span class="w"> </span><span class="n">Defaults</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">).</span>
-
-<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">frame_reader</span><span class="p">)</span>
 

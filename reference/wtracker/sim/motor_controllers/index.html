@@ -750,6 +750,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro_1" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -791,7 +798,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#attributes_1" class="md-nav__link">
+  <a href="#attributes_2" class="md-nav__link">
     Attributes
   </a>
   
@@ -1280,6 +1287,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro_1" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -1321,7 +1335,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#attributes_1" class="md-nav__link">
+  <a href="#attributes_2" class="md-nav__link">
     Attributes
   </a>
   
@@ -1402,21 +1416,27 @@
 
 <span class="sd">    This motor controls the movement of the simulated platform.</span>
 
+<span class="sd">    Args:</span>
+
+<span class="sd">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
+
 <span class="sd">    Attributes:</span>
 
 <span class="sd">        timing_config (TimingConfig): The timing configuration for the motor controller.</span>
 
 <span class="sd">        movement_steps (int): The number of movement steps (in units of frames) based on the timing configuration.</span>
 
-<span class="sd">    Methods:</span>
-
-<span class="sd">        register_move(dx: int, dy: int): Abstract method to register a move. This is called on the start of the moving phase according to the controller prediction.</span>
-
-<span class="sd">        step() -&gt; tuple[int, int]: Abstract method to perform a step (called in each frame in the simulation) and return the resulting position.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            timing_config (TimingConfig): The timing configuration of the simulation.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span> <span class="o">=</span> <span class="n">timing_config</span>
 
@@ -1444,7 +1464,7 @@
 
 <span class="sd">    Args:</span>
 
-<span class="sd">        timing_config (TimingConfig): The timing configuration for the motor controller.</span>
+<span class="sd">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
 
 <span class="sd">        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move. Defaults to 0.5.</span>
 
@@ -1478,11 +1498,9 @@
 
 <span class="sd">    A motor controller that generates sinusoidal movements.</span>
 
-<span class="sd">    Methods:</span>
+<span class="sd">    Args:</span>
 
-<span class="sd">        register_move(dx: int, dy: int) -&gt; None: Registers a movement step in the queue.</span>
-
-<span class="sd">        step() -&gt; tuple[int, int]: Performs a movement step and returns the displacement.</span>
+<span class="sd">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1547,6 +1565,12 @@
 <tr>
 <td>timing_config</td>
 <td>TimingConfig</td>
+<td>The timing configuration of the simulation.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>timing_config</td>
+<td>TimingConfig</td>
 <td>The timing configuration for the motor controller.</td>
 <td>None</td>
 </tr>
@@ -1568,21 +1592,27 @@
 
 <span class="ss">    This motor controls the movement of the simulated platform.</span>
 
+<span class="ss">    Args:</span>
+
+<span class="ss">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
+
 <span class="ss">    Attributes:</span>
 
 <span class="ss">        timing_config (TimingConfig): The timing configuration for the motor controller.</span>
 
 <span class="ss">        movement_steps (int): The number of movement steps (in units of frames) based on the timing configuration.</span>
 
-<span class="ss">    Methods:</span>
-
-<span class="ss">        register_move(dx: int, dy: int): Abstract method to register a move. This is called on the start of the moving phase according to the controller prediction.</span>
-
-<span class="ss">        step() -&gt; tuple[int, int]: Abstract method to perform a step (called in each frame in the simulation) and return the resulting position.</span>
-
 <span class="ss">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">timing_config</span><span class="p">:</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">)</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Args:</span>
+
+<span class="ss">            timing_config (TimingConfig): The timing configuration of the simulation.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">timing_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timing_config</span>
 
@@ -1654,9 +1684,25 @@
 </code></pre></div>
 
 <p>A motor controller that generates sinusoidal movements.</p>
-<p>Methods:
-    register_move(dx: int, dy: int) -&gt; None: Registers a movement step in the queue.
-    step() -&gt; tuple[int, int]: Performs a movement step and returns the displacement.</p>
+<h4 id="attributes_1">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>timing_config</td>
+<td>TimingConfig</td>
+<td>The timing configuration of the simulation.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="n">class</span><span class="w"> </span><span class="n">SineMotorController</span><span class="p">(</span><span class="n">MotorController</span><span class="p">)</span><span class="o">:</span>
@@ -1665,11 +1711,9 @@
 
 <span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="n">motor</span><span class="w"> </span><span class="n">controller</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">generates</span><span class="w"> </span><span class="n">sinusoidal</span><span class="w"> </span><span class="n">movements</span><span class="p">.</span>
 
-<span class="w">    </span><span class="nl">Methods:</span>
+<span class="w">    </span><span class="nl">Args:</span>
 
-<span class="w">        </span><span class="n">register_move</span><span class="p">(</span><span class="nl">dx:</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="nl">dy:</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nl">None:</span><span class="w"> </span><span class="n">Registers</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">movement</span><span class="w"> </span><span class="n">step</span><span class="w"> </span><span class="n">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">queue</span><span class="p">.</span>
-
-<span class="w">        </span><span class="n">step</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="n">Performs</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">movement</span><span class="w"> </span><span class="n">step</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">returns</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">displacement</span><span class="p">.</span>
+<span class="w">        </span><span class="n">timing_config</span><span class="w"> </span><span class="p">(</span><span class="n">TimingConfig</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">timing</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">simulation</span><span class="p">.</span>
 
 <span class="w">    </span><span class="s">&quot;&quot;&quot;</span>
 
@@ -1779,7 +1823,7 @@
 
 <p>A simple motor controller that manages the movement of a motor.</p>
 <p>The motor moved the entire distance in one step, the movement happens after 'move_after_ratio' percent of 'movement_steps' have passed.</p>
-<h4 id="attributes_1">Attributes</h4>
+<h4 id="attributes_2">Attributes</h4>
 <table>
 <thead>
 <tr>
@@ -1793,7 +1837,7 @@
 <tr>
 <td>timing_config</td>
 <td>TimingConfig</td>
-<td>The timing configuration for the motor controller.</td>
+<td>The timing configuration of the simulation.</td>
 <td>None</td>
 </tr>
 <tr>
@@ -1816,7 +1860,7 @@
 
 <span class="s">    Args:</span>
 
-<span class="s">        timing_config (TimingConfig): The timing configuration for the motor controller.</span>
+<span class="s">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
 
 <span class="s">        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move. Defaults to 0.5.</span>
 

@@ -1410,27 +1410,9 @@
 
 <span class="sd">        return_full_path (bool, optional): Whether to return the full path of the files. Defaults to True.</span>
 
-<span class="sd">        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files. Defaults to lambda name: name.</span>
+<span class="sd">        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files.</span>
 
-<span class="sd">    Methods:</span>
-
-<span class="sd">        __getitem__(index: int) -&gt; os.DirEntry: Returns the file at the specified index.</span>
-
-<span class="sd">        __iter__() -&gt; Files: Returns an iterator object.</span>
-
-<span class="sd">        __next__() -&gt; str: Returns the next file name or path in the iteration.</span>
-
-<span class="sd">        __len__() -&gt; int: Returns the number of files in the results list.</span>
-
-<span class="sd">        __contains__(key: str) -&gt; bool: Checks if a file with the specified name exists in the results list.</span>
-
-<span class="sd">        get_filename() -&gt; str: Returns the name of the current file.</span>
-
-<span class="sd">        get_path() -&gt; str: Returns the path of the current file.</span>
-
-<span class="sd">        seek(pos: int) -&gt; str: Moves the iterator to the specified position and returns the file name or path.</span>
-
-<span class="sd">        copy(dst_root: str) -&gt; None: Copies the current file to the specified destination directory.</span>
+<span class="sd">            Defaults to lambda name: name.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1945,7 +1927,7 @@
     <span class="n">extension</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="n">scan_dirs</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">return_full_path</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">sorting_key</span><span class="p">:</span> <span class="s1">&#39;Callable[[str], Union[int, str]]&#39;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">Files</span><span class="o">.&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7f12ea83dbd0</span><span class="o">&gt;</span>
+    <span class="n">sorting_key</span><span class="p">:</span> <span class="s1">&#39;Callable[[str], Union[int, str]]&#39;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">Files</span><span class="o">.&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7fbdd4a49c60</span><span class="o">&gt;</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -1988,8 +1970,8 @@
 <tr>
 <td>sorting_key</td>
 <td>Callable[[str], Union[int, str]]</td>
-<td>A function to determine the sorting order of the files. Defaults to lambda name: name.</td>
-<td>lambda name: name</td>
+<td>A function to determine the sorting order of the files. <br>Defaults to lambda name: name.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -2011,27 +1993,9 @@
 
 <span class="ss">        return_full_path (bool, optional): Whether to return the full path of the files. Defaults to True.</span>
 
-<span class="ss">        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files. Defaults to lambda name: name.</span>
+<span class="ss">        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files.</span>
 
-<span class="ss">    Methods:</span>
-
-<span class="ss">        __getitem__(index: int) -&gt; os.DirEntry: Returns the file at the specified index.</span>
-
-<span class="ss">        __iter__() -&gt; Files: Returns an iterator object.</span>
-
-<span class="ss">        __next__() -&gt; str: Returns the next file name or path in the iteration.</span>
-
-<span class="ss">        __len__() -&gt; int: Returns the number of files in the results list.</span>
-
-<span class="ss">        __contains__(key: str) -&gt; bool: Checks if a file with the specified name exists in the results list.</span>
-
-<span class="ss">        get_filename() -&gt; str: Returns the name of the current file.</span>
-
-<span class="ss">        get_path() -&gt; str: Returns the path of the current file.</span>
-
-<span class="ss">        seek(pos: int) -&gt; str: Moves the iterator to the specified position and returns the file name or path.</span>
-
-<span class="ss">        copy(dst_root: str) -&gt; None: Copies the current file to the specified destination directory.</span>
+<span class="ss">            Defaults to lambda name: name.</span>
 
 <span class="ss">    &quot;&quot;&quot;</span>
 

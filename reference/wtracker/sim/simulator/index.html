@@ -1496,15 +1496,9 @@
 
 <span class="sd">    Attributes:</span>
 
-<span class="sd">        _timing_config (TimingConfig): The timing configuration for the experiment.</span>
+<span class="sd">        timing_config (TimingConfig): The timing configuration for the experiment.</span>
 
-<span class="sd">        _experiment_config (ExperimentConfig): The experiment configuration.</span>
-
-<span class="sd">        _sim_controller (SimController): The simulation controller.</span>
-
-<span class="sd">        _motor_controller (MotorController): The motor controller.</span>
-
-<span class="sd">        _view (ViewController): The view controller.</span>
+<span class="sd">        experiment_config (ExperimentConfig): The experiment configuration.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1524,9 +1518,9 @@
 
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_timing_config</span> <span class="o">=</span> <span class="n">timing_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span> <span class="o">=</span> <span class="n">timing_config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_experiment_config</span> <span class="o">=</span> <span class="n">experiment_config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_config</span> <span class="o">=</span> <span class="n">experiment_config</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span> <span class="o">=</span> <span class="n">sim_controller</span>
 
@@ -1604,7 +1598,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
 
     <span class="nd">@property</span>
 
@@ -1636,7 +1630,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
 
     <span class="k">def</span> <span class="nf">camera_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
@@ -1676,7 +1670,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_experiment_config</span><span class="o">.</span><span class="n">init_position</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">init_position</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visualize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">wait_key</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 
@@ -1692,7 +1686,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timing_config</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span>
 
         <span class="n">total_cycles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">)</span> <span class="o">//</span> <span class="n">config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
 
@@ -1766,34 +1760,6 @@
 
 <span class="sd">        timing_config (TimingConfig): The timing configuration for the simulator.</span>
 
-<span class="sd">    Methods:</span>
-
-<span class="sd">        on_sim_start(sim: Simulator): Called when the simulation starts.</span>
-
-<span class="sd">        on_sim_end(sim: Simulator): Called when the simulation ends.</span>
-
-<span class="sd">        on_cycle_start(sim: Simulator): Called when a new cycle starts.</span>
-
-<span class="sd">        on_cycle_end(sim: Simulator): Called when a cycle ends.</span>
-
-<span class="sd">        on_camera_frame(sim: Simulator): Called when a camera frame is captured.</span>
-
-<span class="sd">        on_imaging_start(sim: Simulator): Called when imaging phase starts.</span>
-
-<span class="sd">        on_micro_frame(sim: Simulator): Called when a micro frame is captured.</span>
-
-<span class="sd">        on_imaging_end(sim: Simulator): Called when imaging phase ends.</span>
-
-<span class="sd">        on_movement_start(sim: Simulator): Called when movement phase starts.</span>
-
-<span class="sd">        on_movement_end(sim: Simulator): Called when movement phase ends.</span>
-
-<span class="sd">        begin_movement_prediction(sim: Simulator) -&gt; None: Begins the movement prediction.</span>
-
-<span class="sd">        provide_movement_vector(sim: Simulator) -&gt; tuple[int, int]: Provides the movement vector for the simulator. The platform is moved by the provided vector.</span>
-
-<span class="sd">        _cycle_predict_all(sim: Simulator) -&gt; np.ndarray: Returns a list of bbox predictions of the worm for each frame of the current cycle.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">):</span>
@@ -1802,41 +1768,101 @@
 
     <span class="k">def</span> <span class="nf">on_sim_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when the simulation starts.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_sim_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when the simulation ends.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_cycle_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when a new cycle starts.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_cycle_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when a cycle ends.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_camera_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when a camera frame is captured. Happens every frame.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_imaging_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when imaging phase starts.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_micro_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when a micro frame is captured. Happens for every during the imaging phase.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_imaging_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when imaging phase ends.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_movement_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when movement phase starts.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">on_movement_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when movement phase ends.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">pass</span>
 
@@ -1844,11 +1870,29 @@
 
     <span class="k">def</span> <span class="nf">begin_movement_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Called when the movement prediction begins.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
     <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 
     <span class="k">def</span> <span class="nf">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Provides the movement vector for the simulator. The platform is moved by the provided vector.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            tuple[int, int]: The movement vector in format (dx, dy).</span>
+
+<span class="sd">                The platform will be moved by dx pixels in the x-direction and dy pixels in the y-direction.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 
@@ -1909,34 +1953,6 @@
 
 <span class="ss">        timing_config (TimingConfig): The timing configuration for the simulator.</span>
 
-<span class="ss">    Methods:</span>
-
-<span class="ss">        on_sim_start(sim: Simulator): Called when the simulation starts.</span>
-
-<span class="ss">        on_sim_end(sim: Simulator): Called when the simulation ends.</span>
-
-<span class="ss">        on_cycle_start(sim: Simulator): Called when a new cycle starts.</span>
-
-<span class="ss">        on_cycle_end(sim: Simulator): Called when a cycle ends.</span>
-
-<span class="ss">        on_camera_frame(sim: Simulator): Called when a camera frame is captured.</span>
-
-<span class="ss">        on_imaging_start(sim: Simulator): Called when imaging phase starts.</span>
-
-<span class="ss">        on_micro_frame(sim: Simulator): Called when a micro frame is captured.</span>
-
-<span class="ss">        on_imaging_end(sim: Simulator): Called when imaging phase ends.</span>
-
-<span class="ss">        on_movement_start(sim: Simulator): Called when movement phase starts.</span>
-
-<span class="ss">        on_movement_end(sim: Simulator): Called when movement phase ends.</span>
-
-<span class="ss">        begin_movement_prediction(sim: Simulator) -&gt; None: Begins the movement prediction.</span>
-
-<span class="ss">        provide_movement_vector(sim: Simulator) -&gt; tuple[int, int]: Provides the movement vector for the simulator. The platform is moved by the provided vector.</span>
-
-<span class="ss">        _cycle_predict_all(sim: Simulator) -&gt; np.ndarray: Returns a list of bbox predictions of the worm for each frame of the current cycle.</span>
-
 <span class="ss">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">timing_config</span><span class="p">:</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">)</span><span class="err">:</span>
@@ -1945,41 +1961,101 @@
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_sim_start</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
 
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when the simulation starts.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_sim_end</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when the simulation ends.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_cycle_start</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
 
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when a new cycle starts.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_cycle_end</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when a cycle ends.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_camera_frame</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
 
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when a camera frame is captured. Happens every frame.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_imaging_start</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when imaging phase starts.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_micro_frame</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
 
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when a micro frame is captured. Happens for every during the imaging phase.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_imaging_end</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when imaging phase ends.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_movement_start</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
 
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when movement phase starts.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
 <span class="w">        </span><span class="n">pass</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_movement_end</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when movement phase ends.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">pass</span>
 
@@ -1987,11 +2063,29 @@
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">begin_movement_prediction</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span>
 
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when the movement prediction begins.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
 <span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">()</span>
 
 <span class="w">    </span><span class="nv">@abc</span><span class="p">.</span><span class="n">abstractmethod</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">provide_movement_vector</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="o">[</span><span class="n">int, int</span><span class="o">]</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Provides the movement vector for the simulator. The platform is moved by the provided vector.</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            tuple[int, int]: The movement vector in format (dx, dy).</span>
+
+<span class="ss">                The platform will be moved by dx pixels in the x-direction and dy pixels in the y-direction.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">()</span>
 
@@ -2032,11 +2126,18 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;None&#39;</span>
 </code></pre></div>
 
+<p>Called when the movement prediction begins.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@abc</span><span class="p">.</span><span class="n">abstractmethod</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">begin_movement_prediction</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Called when the movement prediction begins.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">()</span>
 </code></pre></div>
@@ -2049,9 +2150,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when a camera frame is captured. Happens every frame.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">on_camera_frame</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="err">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="err">:</span>
+
+<span class="w">        </span><span class="s">&quot;&quot;</span><span class="s2">&quot;</span>
+
+<span class="s2">        Called when a camera frame is captured. Happens every frame.</span>
+
+<span class="s2">        &quot;</span><span class="s">&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">pass</span>
 </code></pre></div>
@@ -2064,9 +2172,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when a cycle ends.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_cycle_end(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when a cycle ends.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2079,9 +2194,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when a new cycle starts.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_cycle_start(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when a new cycle starts.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2094,9 +2216,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when imaging phase ends.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_imaging_end(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when imaging phase ends.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2109,9 +2238,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when imaging phase starts.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_imaging_start(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when imaging phase starts.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2124,9 +2260,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when a micro frame is captured. Happens for every during the imaging phase.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_micro_frame(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when a micro frame is captured. Happens for every during the imaging phase.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2139,9 +2282,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when movement phase ends.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_movement_end(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when movement phase ends.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2154,9 +2304,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when movement phase starts.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_movement_start(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when movement phase starts.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2169,9 +2326,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when the simulation ends.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_sim_end(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when the simulation ends.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2184,9 +2348,16 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>Called when the simulation starts.</p>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code>    def on_sim_start(self, sim: Simulator):
+
+        &quot;&quot;&quot;
+
+        Called when the simulation starts.
+
+        &quot;&quot;&quot;
 
         pass
 </code></pre></div>
@@ -2199,11 +2370,39 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;tuple[int, int]&#39;</span>
 </code></pre></div>
 
+<p>Provides the movement vector for the simulator. The platform is moved by the provided vector.</p>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tuple[int, int]</td>
+<td>The movement vector in format (dx, dy). <br>The platform will be moved by dx pixels in the x-direction and dy pixels in the y-direction.</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@abc</span><span class="p">.</span><span class="n">abstractmethod</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">provide_movement_vector</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">tuple</span><span class="o">[</span><span class="n">int, int</span><span class="o">]</span><span class="err">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Provides the movement vector for the simulator. The platform is moved by the provided vector.</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            tuple[int, int]: The movement vector in format (dx, dy).</span>
+
+<span class="ss">                The platform will be moved by dx pixels in the x-direction and dy pixels in the y-direction.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">()</span>
 </code></pre></div>
@@ -2262,33 +2461,15 @@
 <td>None</td>
 </tr>
 <tr>
-<td>_timing_config</td>
+<td>timing_config</td>
 <td>TimingConfig</td>
 <td>The timing configuration for the experiment.</td>
 <td>None</td>
 </tr>
 <tr>
-<td>_experiment_config</td>
+<td>experiment_config</td>
 <td>ExperimentConfig</td>
 <td>The experiment configuration.</td>
-<td>None</td>
-</tr>
-<tr>
-<td>_sim_controller</td>
-<td>SimController</td>
-<td>The simulation controller.</td>
-<td>None</td>
-</tr>
-<tr>
-<td>_motor_controller</td>
-<td>MotorController</td>
-<td>The motor controller.</td>
-<td>None</td>
-</tr>
-<tr>
-<td>_view</td>
-<td>ViewController</td>
-<td>The view controller.</td>
 <td>None</td>
 </tr>
 </tbody>
@@ -2315,15 +2496,9 @@
 
 <span class="ss">    Attributes:</span>
 
-<span class="ss">        _timing_config (TimingConfig): The timing configuration for the experiment.</span>
+<span class="ss">        timing_config (TimingConfig): The timing configuration for the experiment.</span>
 
-<span class="ss">        _experiment_config (ExperimentConfig): The experiment configuration.</span>
-
-<span class="ss">        _sim_controller (SimController): The simulation controller.</span>
-
-<span class="ss">        _motor_controller (MotorController): The motor controller.</span>
-
-<span class="ss">        _view (ViewController): The view controller.</span>
+<span class="ss">        experiment_config (ExperimentConfig): The experiment configuration.</span>
 
 <span class="ss">    &quot;&quot;&quot;</span>
 
@@ -2343,9 +2518,9 @@
 
 <span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_timing_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timing_config</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">timing_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timing_config</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_experiment_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">experiment_config</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">experiment_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">experiment_config</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_sim_controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim_controller</span>
 
@@ -2423,7 +2598,7 @@
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_view</span><span class="p">.</span><span class="k">index</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_timing_config</span><span class="p">.</span><span class="n">cycle_frame_num</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_view</span><span class="p">.</span><span class="k">index</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">timing_config</span><span class="p">.</span><span class="n">cycle_frame_num</span>
 
 <span class="w">    </span><span class="nv">@property</span>
 
@@ -2455,7 +2630,7 @@
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_view</span><span class="p">.</span><span class="k">index</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_timing_config</span><span class="p">.</span><span class="n">cycle_frame_num</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_view</span><span class="p">.</span><span class="k">index</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">timing_config</span><span class="p">.</span><span class="n">cycle_frame_num</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">camera_view</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
 
@@ -2495,7 +2670,7 @@
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="k">view</span><span class="p">.</span><span class="n">reset</span><span class="p">()</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="k">view</span><span class="p">.</span><span class="n">set_position</span><span class="p">(</span><span class="o">*</span><span class="n">self</span><span class="p">.</span><span class="n">_experiment_config</span><span class="p">.</span><span class="n">init_position</span><span class="p">)</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="k">view</span><span class="p">.</span><span class="n">set_position</span><span class="p">(</span><span class="o">*</span><span class="n">self</span><span class="p">.</span><span class="n">experiment_config</span><span class="p">.</span><span class="n">init_position</span><span class="p">)</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">run</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">visualize</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="p">,</span><span class="w"> </span><span class="nl">wait_key</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="p">)</span><span class="err">:</span>
 
@@ -2511,7 +2686,7 @@
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_timing_config</span>
+<span class="w">        </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">timing_config</span>
 
 <span class="w">        </span><span class="n">total_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_view</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="n">cycle_frame_num</span>
 
@@ -2730,7 +2905,7 @@
 
 <span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_timing_config</span>
+<span class="w">        </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">timing_config</span>
 
 <span class="w">        </span><span class="n">total_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_view</span><span class="p">)</span><span class="w"> </span><span class="c1">// config.cycle_frame_num</span>
 

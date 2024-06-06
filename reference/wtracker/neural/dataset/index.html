@@ -1258,18 +1258,6 @@
 
 <span class="sd">        config (DatasetConfig, optional): The configuration object for the dataset. Defaults to None.</span>
 
-<span class="sd">    Methods:</span>
-
-<span class="sd">        __len__(): Returns the length of the dataset.</span>
-
-<span class="sd">        __getitem__(idx): Returns the input and output data at the given index.</span>
-
-<span class="sd">        save(path): Saves the dataset to a file.</span>
-
-<span class="sd">        load(path): Loads a saved dataset from a file.</span>
-
-<span class="sd">        create_from_config(config, save_path): Creates a new dataset from a DatasetConfig configuration object.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">DatasetConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -1450,18 +1438,6 @@ and labels(y) will be created automatically.</p>
 <span class="ss">        y (np.ndarray): The output data as a numpy array.</span>
 
 <span class="ss">        config (DatasetConfig, optional): The configuration object for the dataset. Defaults to None.</span>
-
-<span class="ss">    Methods:</span>
-
-<span class="ss">        __len__(): Returns the length of the dataset.</span>
-
-<span class="ss">        __getitem__(idx): Returns the input and output data at the given index.</span>
-
-<span class="ss">        save(path): Saves the dataset to a file.</span>
-
-<span class="ss">        load(path): Loads a saved dataset from a file.</span>
-
-<span class="ss">        create_from_config(config, save_path): Creates a new dataset from a DatasetConfig configuration object.</span>
 
 <span class="ss">    &quot;&quot;&quot;</span>
 

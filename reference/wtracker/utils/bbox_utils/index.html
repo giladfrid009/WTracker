@@ -1576,7 +1576,7 @@
 
     <span class="nd">@staticmethod</span>
 
-    <span class="k">def</span> <span class="nf">round</span><span class="p">(</span><span class="n">bbox</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">round</span><span class="p">(</span><span class="n">bboxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">box_format</span><span class="p">:</span> <span class="n">BoxFormat</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
@@ -1584,7 +1584,9 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">            bbox (np.ndarray): The bounding box coordinates to convert.</span>
+<span class="sd">            bboxes (np.ndarray): The bounding box coordinates to convert.</span>
+
+<span class="sd">            box_format (BoxFormat): The format of the input bounding boxes.</span>
 
 <span class="sd">        Returns:</span>
 
@@ -1592,17 +1594,21 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span><span class="p">,</span> <span class="n">c4</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+        <span class="n">bboxes</span> <span class="o">=</span> <span class="n">BoxConverter</span><span class="o">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span> <span class="n">box_format</span><span class="p">,</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYXY</span><span class="p">)</span>
 
-        <span class="n">c1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">floor</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bboxes</span><span class="p">)</span>
 
-        <span class="n">c2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">floor</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">floor</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="n">c3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">ceil</span><span class="p">(</span><span class="n">c3</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">floor</span><span class="p">(</span><span class="n">y1</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="n">c4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">ceil</span><span class="p">(</span><span class="n">c4</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">x2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">ceil</span><span class="p">(</span><span class="n">x2</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">c3</span><span class="p">,</span> <span class="n">c4</span><span class="p">)</span>
+        <span class="n">y2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">ceil</span><span class="p">(</span><span class="n">y2</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">bboxes</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">BoxConverter</span><span class="o">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYXY</span><span class="p">,</span> <span class="n">box_format</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">BoxConverter</span><span class="p">:</span>
 
@@ -2791,7 +2797,7 @@
 
 <span class="w">    </span><span class="nv">@staticmethod</span>
 
-<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="nf">round</span><span class="p">(</span><span class="nl">bbox</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="nf">round</span><span class="p">(</span><span class="nl">bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="nl">box_format</span><span class="p">:</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
@@ -2799,7 +2805,9 @@
 
 <span class="ss">        Args:</span>
 
-<span class="ss">            bbox (np.ndarray): The bounding box coordinates to convert.</span>
+<span class="ss">            bboxes (np.ndarray): The bounding box coordinates to convert.</span>
+
+<span class="ss">            box_format (BoxFormat): The format of the input bounding boxes.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -2807,17 +2815,21 @@
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="n">c3</span><span class="p">,</span><span class="w"> </span><span class="n">c4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+<span class="w">        </span><span class="n">bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">box_format</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">c1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">floor</span><span class="p">(</span><span class="n">c1</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="n">y2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">bboxes</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">c2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">floor</span><span class="p">(</span><span class="n">c2</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">floor</span><span class="p">(</span><span class="n">x1</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">c3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">c3</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+<span class="w">        </span><span class="n">y1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">floor</span><span class="p">(</span><span class="n">y1</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">c4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">c4</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">x2</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">pack</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span><span class="w"> </span><span class="n">c2</span><span class="p">,</span><span class="w"> </span><span class="n">c3</span><span class="p">,</span><span class="w"> </span><span class="n">c4</span><span class="p">)</span>
+<span class="w">        </span><span class="n">y2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">y2</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">pack</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="n">y2</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">,</span><span class="w"> </span><span class="n">box_format</span><span class="p">)</span>
 </code></pre></div>
 
 </details>
@@ -3072,7 +3084,8 @@
 </details>
 <h4 id="round">round</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">round</span><span class="p">(</span>
-    <span class="n">bbox</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">bboxes</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">box_format</span><span class="p">:</span> <span class="n">wtracker</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">bbox_utils</span><span class="o">.</span><span class="n">BoxFormat</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
 </code></pre></div>
 
@@ -3089,9 +3102,15 @@
 </thead>
 <tbody>
 <tr>
-<td>bbox</td>
+<td>bboxes</td>
 <td>np.ndarray</td>
 <td>The bounding box coordinates to convert.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>box_format</td>
+<td>BoxFormat</td>
+<td>The format of the input bounding boxes.</td>
 <td>None</td>
 </tr>
 </tbody>
@@ -3115,7 +3134,7 @@
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="err">@</span><span class="nx">staticmethod</span>
 
-<span class="w">    </span><span class="nx">def</span><span class="w"> </span><span class="nx">round</span><span class="p">(</span><span class="nx">bbox</span><span class="p">:</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="nx">def</span><span class="w"> </span><span class="nx">round</span><span class="p">(</span><span class="nx">bboxes</span><span class="p">:</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">,</span><span class="w"> </span><span class="nx">box_format</span><span class="p">:</span><span class="w"> </span><span class="nx">BoxFormat</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">:</span>
 
 <span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
@@ -3123,7 +3142,9 @@
 
 <span class="s">        Args:</span>
 
-<span class="s">            bbox (np.ndarray): The bounding box coordinates to convert.</span>
+<span class="s">            bboxes (np.ndarray): The bounding box coordinates to convert.</span>
+
+<span class="s">            box_format (BoxFormat): The format of the input bounding boxes.</span>
 
 <span class="s">        Returns:</span>
 
@@ -3131,17 +3152,21 @@
 
 <span class="s">        &quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="nx">c1</span><span class="p">,</span><span class="w"> </span><span class="nx">c2</span><span class="p">,</span><span class="w"> </span><span class="nx">c3</span><span class="p">,</span><span class="w"> </span><span class="nx">c4</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">BoxUtils</span><span class="p">.</span><span class="nx">unpack</span><span class="p">(</span><span class="nx">bbox</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">bboxes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">BoxConverter</span><span class="p">.</span><span class="nx">change_format</span><span class="p">(</span><span class="nx">bboxes</span><span class="p">,</span><span class="w"> </span><span class="nx">box_format</span><span class="p">,</span><span class="w"> </span><span class="nx">BoxFormat</span><span class="p">.</span><span class="nx">XYXY</span><span class="p">)</span>
 
-<span class="w">        </span><span class="nx">c1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">c1</span><span class="p">).</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">copy</span><span class="p">=</span><span class="nx">False</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">x1</span><span class="p">,</span><span class="w"> </span><span class="nx">y1</span><span class="p">,</span><span class="w"> </span><span class="nx">x2</span><span class="p">,</span><span class="w"> </span><span class="nx">y2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">BoxUtils</span><span class="p">.</span><span class="nx">unpack</span><span class="p">(</span><span class="nx">bboxes</span><span class="p">)</span>
 
-<span class="w">        </span><span class="nx">c2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">c2</span><span class="p">).</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">copy</span><span class="p">=</span><span class="nx">False</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">x1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">x1</span><span class="p">).</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">copy</span><span class="p">=</span><span class="nx">False</span><span class="p">)</span>
 
-<span class="w">        </span><span class="nx">c3</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nx">c3</span><span class="p">).</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">copy</span><span class="p">=</span><span class="nx">False</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">y1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nx">y1</span><span class="p">).</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">copy</span><span class="p">=</span><span class="nx">False</span><span class="p">)</span>
 
-<span class="w">        </span><span class="nx">c4</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nx">c4</span><span class="p">).</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">copy</span><span class="p">=</span><span class="nx">False</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">x2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nx">x2</span><span class="p">).</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">copy</span><span class="p">=</span><span class="nx">False</span><span class="p">)</span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">BoxUtils</span><span class="p">.</span><span class="nx">pack</span><span class="p">(</span><span class="nx">c1</span><span class="p">,</span><span class="w"> </span><span class="nx">c2</span><span class="p">,</span><span class="w"> </span><span class="nx">c3</span><span class="p">,</span><span class="w"> </span><span class="nx">c4</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">y2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nx">y2</span><span class="p">).</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">,</span><span class="w"> </span><span class="nx">copy</span><span class="p">=</span><span class="nx">False</span><span class="p">)</span>
+
+<span class="w">        </span><span class="nx">bboxes</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">BoxUtils</span><span class="p">.</span><span class="nx">pack</span><span class="p">(</span><span class="nx">x1</span><span class="p">,</span><span class="w"> </span><span class="nx">y1</span><span class="p">,</span><span class="w"> </span><span class="nx">x2</span><span class="p">,</span><span class="w"> </span><span class="nx">y2</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">BoxConverter</span><span class="p">.</span><span class="nx">change_format</span><span class="p">(</span><span class="nx">bboxes</span><span class="p">,</span><span class="w"> </span><span class="nx">BoxFormat</span><span class="p">.</span><span class="nx">XYXY</span><span class="p">,</span><span class="w"> </span><span class="nx">box_format</span><span class="p">)</span>
 </code></pre></div>
 
 </details>

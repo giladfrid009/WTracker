@@ -955,6 +955,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro_1" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -1665,6 +1672,13 @@
   
     <nav class="md-nav" aria-label="WormPredictor">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#ancestors-in-mro_3" class="md-nav__link">
@@ -2875,6 +2889,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro_1" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -3587,6 +3608,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro_3" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -4016,15 +4044,15 @@
 
 <span class="sd">    A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class</span>
 
-<span class="sd">    so that it can be destinguished from other models that don&#39;t predict worm behavior (for example the layers/blocks that make this model).</span>
+<span class="sd">    so that it can be distinguished from other models that don&#39;t predict worm behavior (for example the layers/blocks that make this model).</span>
 
 <span class="sd">    This class also holds the IOConfig object that is used to determine the input and output shapes of the model, and the specific frames it expects as input and output.</span>
 
-<span class="sd">    attributes:</span>
+<span class="sd">    Attributes:</span>
 
-<span class="sd">    - model: The neural network model that predicts worm behavior.</span>
+<span class="sd">        model: The neural network model that predicts worm behavior.</span>
 
-<span class="sd">    - io_config: The IOConfig object of the model.</span>
+<span class="sd">        io_config: The IOConfig object of the model.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -4050,7 +4078,15 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="bp">self</span><span class="p">,</span> <span class="n">in_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">nonlin</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">],</span> <span class="n">batch_norm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="p">,</span>
+
+        <span class="n">in_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+
+        <span class="n">out_dim</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+
+        <span class="n">nonlin</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">],</span>
+
+        <span class="n">batch_norm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
@@ -4082,9 +4118,13 @@
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="sd">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -4095,6 +4135,22 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    A general-purpose MLP.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        in_dim: Input dimension.</span>
+
+<span class="sd">        dims: Hidden dimensions, including output dimension.</span>
+
+<span class="sd">        nonlins: Non-linearities to apply after each one of the hidden</span>
+
+<span class="sd">            dimensions.</span>
+
+<span class="sd">            Can be either a sequence of strings which are keys in the ACTIVATIONS</span>
+
+<span class="sd">            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).</span>
+
+<span class="sd">            Length should match &#39;dims&#39;.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -4111,24 +4167,6 @@
         <span class="n">batch_norm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 
     <span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        :param in_dim: Input dimension.</span>
-
-<span class="sd">        :param dims: Hidden dimensions, including output dimension.</span>
-
-<span class="sd">        :param nonlins: Non-linearities to apply after each one of the hidden</span>
-
-<span class="sd">            dimensions.</span>
-
-<span class="sd">            Can be either a sequence of strings which are keys in the ACTIVATIONS</span>
-
-<span class="sd">            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).</span>
-
-<span class="sd">            Length should match &#39;dims&#39;.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonlins</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
 
@@ -4164,9 +4202,13 @@
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="sd">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -4230,9 +4272,13 @@
 
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="sd">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -4278,7 +4324,15 @@
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">in_dim</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="nl">out_dim</span><span class="p">:</span><span class="w"> </span><span class="k">Sequence</span><span class="o">[</span><span class="n">int</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">nonlin</span><span class="p">:</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">str, nn.Module</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="nl">batch_norm</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span>
+<span class="w">        </span><span class="n">self</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">in_dim</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">out_dim</span><span class="p">:</span><span class="w"> </span><span class="k">Sequence</span><span class="o">[</span><span class="n">int</span><span class="o">]</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">nonlin</span><span class="p">:</span><span class="w"> </span><span class="ow">Union</span><span class="o">[</span><span class="n">str, nn.Module</span><span class="o">]</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">batch_norm</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">,</span>
 
 <span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span>
 
@@ -4310,9 +4364,13 @@
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
-<span class="ss">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="ss">        Args:</span>
 
-<span class="ss">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="ss">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
@@ -5078,9 +5136,13 @@ strings are acceptable.</p>
 
 <span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="s">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="s">        Args:</span>
 
-<span class="s">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="s">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="s">        Returns:</span>
+
+<span class="s">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="s">        &quot;&quot;&quot;</span>
 
@@ -8653,6 +8715,37 @@ live on XPU while being optimized.</p>
 </code></pre></div>
 
 <p>A general-purpose MLP.</p>
+<h4 id="attributes">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>in_dim</td>
+<td>None</td>
+<td>Input dimension.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>dims</td>
+<td>None</td>
+<td>Hidden dimensions, including output dimension.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>nonlins</td>
+<td>None</td>
+<td>Non-linearities to apply after each one of the hidden<br>dimensions.<br>Can be either a sequence of strings which are keys in the ACTIVATIONS<br>dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).<br>Length should match 'dims'.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">MlpBlock</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="k">Module</span><span class="p">)</span><span class="err">:</span>
@@ -8660,6 +8753,22 @@ live on XPU while being optimized.</p>
 <span class="w">    </span><span class="ss">&quot;&quot;&quot;</span>
 
 <span class="ss">    A general-purpose MLP.</span>
+
+<span class="ss">    Args:</span>
+
+<span class="ss">        in_dim: Input dimension.</span>
+
+<span class="ss">        dims: Hidden dimensions, including output dimension.</span>
+
+<span class="ss">        nonlins: Non-linearities to apply after each one of the hidden</span>
+
+<span class="ss">            dimensions.</span>
+
+<span class="ss">            Can be either a sequence of strings which are keys in the ACTIVATIONS</span>
+
+<span class="ss">            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).</span>
+
+<span class="ss">            Length should match &#39;dims&#39;.</span>
 
 <span class="ss">    &quot;&quot;&quot;</span>
 
@@ -8676,24 +8785,6 @@ live on XPU while being optimized.</p>
 <span class="w">        </span><span class="nl">batch_norm</span><span class="p">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">,</span>
 
 <span class="w">    </span><span class="p">)</span><span class="err">:</span>
-
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
-
-<span class="ss">        :param in_dim: Input dimension.</span>
-
-<span class="ss">        :param dims: Hidden dimensions, including output dimension.</span>
-
-<span class="ss">        :param nonlins: Non-linearities to apply after each one of the hidden</span>
-
-<span class="ss">            dimensions.</span>
-
-<span class="ss">            Can be either a sequence of strings which are keys in the ACTIVATIONS</span>
-
-<span class="ss">            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).</span>
-
-<span class="ss">            Length should match &#39;dims&#39;.</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">nonlins</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
 
@@ -8729,9 +8820,13 @@ live on XPU while being optimized.</p>
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
-<span class="ss">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="ss">        Args:</span>
 
-<span class="ss">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="ss">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
@@ -9497,9 +9592,13 @@ strings are acceptable.</p>
 
 <span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="s">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="s">        Args:</span>
 
-<span class="s">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="s">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="s">        Returns:</span>
+
+<span class="s">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="s">        &quot;&quot;&quot;</span>
 
@@ -13157,9 +13256,13 @@ parameters converted too when you call :meth:<code>to</code>, etc.</p>
 
 <span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
-<span class="ss">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="ss">        Args:</span>
 
-<span class="ss">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="ss">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
@@ -13933,9 +14036,13 @@ strings are acceptable.</p>
 
 <span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="s">        :param x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="s">        Args:</span>
 
-<span class="s">        :return: An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="s">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+
+<span class="s">        Returns:</span>
+
+<span class="s">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
 <span class="s">        &quot;&quot;&quot;</span>
 
@@ -17513,12 +17620,34 @@ live on XPU while being optimized.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<p>A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class </p>
-<p>so that it can be destinguished from other models that don't predict worm behavior (for example the layers/blocks that make this model). 
+<p>A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class</p>
+<p>so that it can be distinguished from other models that don't predict worm behavior (for example the layers/blocks that make this model).
 This class also holds the IOConfig object that is used to determine the input and output shapes of the model, and the specific frames it expects as input and output.</p>
-<p>attributes:
-- model: The neural network model that predicts worm behavior.
-- io_config: The IOConfig object of the model.</p>
+<h4 id="attributes_1">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>model</td>
+<td>None</td>
+<td>The neural network model that predicts worm behavior.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>io_config</td>
+<td>None</td>
+<td>The IOConfig object of the model.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="n">WormPredictor</span>(<span class="n">nn</span>.<span class="n">Module</span>):
@@ -17527,15 +17656,15 @@ This class also holds the IOConfig object that is used to determine the input an
 
 <span class="s">    A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class</span>
 
-<span class="s">    so that it can be destinguished from other models that don&#39;t predict worm behavior (for example the layers/blocks that make this model).</span>
+<span class="s">    so that it can be distinguished from other models that don&#39;t predict worm behavior (for example the layers/blocks that make this model).</span>
 
 <span class="s">    This class also holds the IOConfig object that is used to determine the input and output shapes of the model, and the specific frames it expects as input and output.</span>
 
-<span class="s">    attributes:</span>
+<span class="s">    Attributes:</span>
 
-<span class="s">    - model: The neural network model that predicts worm behavior.</span>
+<span class="s">        model: The neural network model that predicts worm behavior.</span>
 
-<span class="s">    - io_config: The IOConfig object of the model.</span>
+<span class="s">        io_config: The IOConfig object of the model.</span>
 
 <span class="s">    &quot;&quot;&quot;</span>
 

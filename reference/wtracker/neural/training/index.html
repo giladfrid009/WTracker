@@ -703,6 +703,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro_1" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -1330,6 +1337,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes_1" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ancestors-in-mro_1" class="md-nav__link">
     Ancestors (in MRO)
   </a>
@@ -1472,6 +1486,14 @@
 
 <span class="sd">    - Single batch (train_batch/test_batch)</span>
 
+<span class="sd">    Args:</span>
+
+<span class="sd">        model (nn.Module): The model to train.</span>
+
+<span class="sd">        device (Optional[torch.device], optional): The device to run training on (CPU or GPU). Defaults to None.</span>
+
+<span class="sd">        log (bool, optional): Whether to log training progress with tensorboard. Defaults to False.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -1485,16 +1507,6 @@
         <span class="n">log</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 
     <span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Initialize the trainer.</span>
-
-<span class="sd">        :param model: Instance of the model to train.</span>
-
-<span class="sd">        :param device: torch.device to run training on (CPU or GPU).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
 
@@ -1560,25 +1572,23 @@
 
 <span class="sd">        and calculates validation loss over a given validation set.</span>
 
-<span class="sd">        :param dl_train: Dataloader for the training set.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :param dl_test: Dataloader for the test set.</span>
+<span class="sd">            dl_train (DataLoader): Dataloader for the training set.</span>
 
-<span class="sd">        :param num_epochs: Number of epochs to train for.</span>
+<span class="sd">            dl_test (DataLoader): Dataloader for the test set.</span>
 
-<span class="sd">        :param checkpoints: Whether to save model to file every time the</span>
+<span class="sd">            num_epochs (int): Number of epochs to train for.</span>
 
-<span class="sd">            test set accuracy improves. Should be a string containing a</span>
+<span class="sd">            checkpoints (str, optional): Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension. Defaults to None.</span>
 
-<span class="sd">            filename without extension.</span>
+<span class="sd">            early_stopping (int, optional): Whether to stop training early if there is no test loss improvement for this number of epochs. Defaults to None.</span>
 
-<span class="sd">        :param early_stopping: Whether to stop training early if there is no</span>
+<span class="sd">            print_every (int, optional): Print progress every this number of epochs. Defaults to 1.</span>
 
-<span class="sd">            test loss improvement for this number of epochs.</span>
+<span class="sd">        Returns:</span>
 
-<span class="sd">        :param print_every: Print progress every this number of epochs.</span>
-
-<span class="sd">        :return: A FitResult object containing train and test losses per epoch.</span>
+<span class="sd">            FitResult: A FitResult object containing train and test losses per epoch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1664,7 +1674,9 @@
 
 <span class="sd">        as a relative path).</span>
 
-<span class="sd">        :param checkpoint_filename: File name or relative path to save to.</span>
+<span class="sd">        Args:</span>
+
+<span class="sd">            checkpoint_filename (str): File name or relative path to save to.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1682,11 +1694,15 @@
 
 <span class="sd">        Train once over a training set (single epoch).</span>
 
-<span class="sd">        :param dl_train: DataLoader for the training set.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :param kw: Keyword args supported by _foreach_batch.</span>
+<span class="sd">            dl_train (DataLoader): DataLoader for the training set.</span>
 
-<span class="sd">        :return: An EpochResult for the epoch.</span>
+<span class="sd">            kw: Keyword args supported by _foreach_batch.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            EpochResult: An EpochResult for the epoch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1700,11 +1716,15 @@
 
 <span class="sd">        Evaluate model once over a test set (single epoch).</span>
 
-<span class="sd">        :param dl_test: DataLoader for the test set.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :param kw: Keyword args supported by _foreach_batch.</span>
+<span class="sd">            dl_test (DataLoader): DataLoader for the test set.</span>
 
-<span class="sd">        :return: An EpochResult for the epoch.</span>
+<span class="sd">            kw: Keyword args supported by _foreach_batch.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            EpochResult: An EpochResult for the epoch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1722,15 +1742,19 @@
 
 <span class="sd">        preforms back-propagation and updates weights.</span>
 
-<span class="sd">        :param batch: A single batch of data  from a data loader (might</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">            be a tuple of data and labels or anything else depending on</span>
+<span class="sd">            batch: A single batch of data from a data loader (might</span>
 
-<span class="sd">            the underlying dataset.</span>
+<span class="sd">                be a tuple of data and labels or anything else depending on</span>
 
-<span class="sd">        :return: A BatchResult containing the value of the loss function and</span>
+<span class="sd">                the underlying dataset).</span>
 
-<span class="sd">            the number of correctly classified samples in the batch.</span>
+<span class="sd">        Returns:</span>
+
+<span class="sd">            BatchResult: A BatchResult containing the value of the loss function and</span>
+
+<span class="sd">                the number of correctly classified samples in the batch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1744,15 +1768,19 @@
 
 <span class="sd">        Runs a single batch forward through the model and calculates loss.</span>
 
-<span class="sd">        :param batch: A single batch of data  from a data loader (might</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">            be a tuple of data and labels or anything else depending on</span>
+<span class="sd">            batch: A single batch of data from a data loader (might</span>
 
-<span class="sd">            the underlying dataset.</span>
+<span class="sd">                be a tuple of data and labels or anything else depending on</span>
 
-<span class="sd">        :return: A BatchResult containing the value of the loss function and</span>
+<span class="sd">                the underlying dataset).</span>
 
-<span class="sd">            the number of correctly classified samples in the batch.</span>
+<span class="sd">        Returns:</span>
+
+<span class="sd">            BatchResult: A BatchResult containing the value of the loss function and</span>
+
+<span class="sd">                the number of correctly classified samples in the batch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -1879,16 +1907,6 @@
 <span class="sd">        loss_fn (nn.Module): The loss function used for training.</span>
 
 <span class="sd">        optimizer (Optimizer): The optimizer used for updating the model&#39;s parameters.</span>
-
-<span class="sd">    Methods:</span>
-
-<span class="sd">        train_batch(batch) -&gt; BatchResult:</span>
-
-<span class="sd">            Trains the model on a batch of data.</span>
-
-<span class="sd">        test_batch(batch) -&gt; BatchResult:</span>
-
-<span class="sd">            Tests the model on a batch of data.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2071,16 +2089,6 @@
 
 <span class="sd">        optimizer (Optimizer): The optimizer used for updating the model&#39;s parameters.</span>
 
-<span class="sd">    Methods:</span>
-
-<span class="sd">        train_batch(batch) -&gt; BatchResult:</span>
-
-<span class="sd">            Trains the model on a batch of data.</span>
-
-<span class="sd">        test_batch(batch) -&gt; BatchResult:</span>
-
-<span class="sd">            Tests the model on a batch of data.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span>
@@ -2204,39 +2212,39 @@
 <tbody>
 <tr>
 <td>dl_train</td>
-<td>None</td>
+<td>DataLoader</td>
 <td>Dataloader for the training set.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>dl_test</td>
-<td>None</td>
+<td>DataLoader</td>
 <td>Dataloader for the test set.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>num_epochs</td>
-<td>None</td>
+<td>int</td>
 <td>Number of epochs to train for.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>checkpoints</td>
-<td>None</td>
-<td>Whether to save model to file every time the<br>test set accuracy improves. Should be a string containing a<br>filename without extension.</td>
+<td>str</td>
+<td>Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension. Defaults to None.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>early_stopping</td>
-<td>None</td>
-<td>Whether to stop training early if there is no<br>test loss improvement for this number of epochs.</td>
+<td>int</td>
+<td>Whether to stop training early if there is no test loss improvement for this number of epochs. Defaults to None.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>print_every</td>
-<td>None</td>
-<td>Print progress every this number of epochs.</td>
-<td>None</td>
+<td>int</td>
+<td>Print progress every this number of epochs. Defaults to 1.</td>
+<td>1</td>
 </tr>
 </tbody>
 </table>
@@ -2250,7 +2258,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>FitResult</td>
 <td>A FitResult object containing train and test losses per epoch.</td>
 </tr>
 </tbody>
@@ -2283,25 +2291,23 @@
 
 <span class="sd">        and calculates validation loss over a given validation set.</span>
 
-<span class="sd">        :param dl_train: Dataloader for the training set.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :param dl_test: Dataloader for the test set.</span>
+<span class="sd">            dl_train (DataLoader): Dataloader for the training set.</span>
 
-<span class="sd">        :param num_epochs: Number of epochs to train for.</span>
+<span class="sd">            dl_test (DataLoader): Dataloader for the test set.</span>
 
-<span class="sd">        :param checkpoints: Whether to save model to file every time the</span>
+<span class="sd">            num_epochs (int): Number of epochs to train for.</span>
 
-<span class="sd">            test set accuracy improves. Should be a string containing a</span>
+<span class="sd">            checkpoints (str, optional): Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension. Defaults to None.</span>
 
-<span class="sd">            filename without extension.</span>
+<span class="sd">            early_stopping (int, optional): Whether to stop training early if there is no test loss improvement for this number of epochs. Defaults to None.</span>
 
-<span class="sd">        :param early_stopping: Whether to stop training early if there is no</span>
+<span class="sd">            print_every (int, optional): Print progress every this number of epochs. Defaults to 1.</span>
 
-<span class="sd">            test loss improvement for this number of epochs.</span>
+<span class="sd">        Returns:</span>
 
-<span class="sd">        :param print_every: Print progress every this number of epochs.</span>
-
-<span class="sd">        :return: A FitResult object containing train and test losses per epoch.</span>
+<span class="sd">            FitResult: A FitResult object containing train and test losses per epoch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -2423,7 +2429,7 @@
 <tbody>
 <tr>
 <td>checkpoint_filename</td>
-<td>None</td>
+<td>str</td>
 <td>File name or relative path to save to.</td>
 <td>None</td>
 </tr>
@@ -2439,7 +2445,9 @@
 
 <span class="ss">        as a relative path).</span>
 
-<span class="ss">        :param checkpoint_filename: File name or relative path to save to.</span>
+<span class="ss">        Args:</span>
+
+<span class="ss">            checkpoint_filename (str): File name or relative path to save to.</span>
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
@@ -2475,7 +2483,7 @@
 <tr>
 <td>batch</td>
 <td>None</td>
-<td>A single batch of data  from a data loader (might<br>be a tuple of data and labels or anything else depending on<br>the underlying dataset.</td>
+<td>A single batch of data from a data loader (might<br>be a tuple of data and labels or anything else depending on<br>the underlying dataset).</td>
 <td>None</td>
 </tr>
 </tbody>
@@ -2490,7 +2498,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>BatchResult</td>
 <td>A BatchResult containing the value of the loss function and<br>the number of correctly classified samples in the batch.</td>
 </tr>
 </tbody>
@@ -2541,7 +2549,7 @@
 <tbody>
 <tr>
 <td>dl_test</td>
-<td>None</td>
+<td>DataLoader</td>
 <td>DataLoader for the test set.</td>
 <td>None</td>
 </tr>
@@ -2563,7 +2571,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>EpochResult</td>
 <td>An EpochResult for the epoch.</td>
 </tr>
 </tbody>
@@ -2576,11 +2584,15 @@
 
         Evaluate model once over a test set (single epoch).
 
-        :param dl_test: DataLoader for the test set.
+        Args:
 
-        :param kw: Keyword args supported by _foreach_batch.
+            dl_test (DataLoader): DataLoader for the test set.
 
-        :return: An EpochResult for the epoch.
+            kw: Keyword args supported by _foreach_batch.
+
+        Returns:
+
+            EpochResult: An EpochResult for the epoch.
 
         &quot;&quot;&quot;
 
@@ -2613,7 +2625,7 @@
 <tr>
 <td>batch</td>
 <td>None</td>
-<td>A single batch of data  from a data loader (might<br>be a tuple of data and labels or anything else depending on<br>the underlying dataset.</td>
+<td>A single batch of data from a data loader (might<br>be a tuple of data and labels or anything else depending on<br>the underlying dataset).</td>
 <td>None</td>
 </tr>
 </tbody>
@@ -2628,7 +2640,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>BatchResult</td>
 <td>A BatchResult containing the value of the loss function and<br>the number of correctly classified samples in the batch.</td>
 </tr>
 </tbody>
@@ -2685,7 +2697,7 @@
 <tbody>
 <tr>
 <td>dl_train</td>
-<td>None</td>
+<td>DataLoader</td>
 <td>DataLoader for the training set.</td>
 <td>None</td>
 </tr>
@@ -2707,7 +2719,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>EpochResult</td>
 <td>An EpochResult for the epoch.</td>
 </tr>
 </tbody>
@@ -2720,11 +2732,15 @@
 
         Train once over a training set (single epoch).
 
-        :param dl_train: DataLoader for the training set.
+        Args:
 
-        :param kw: Keyword args supported by _foreach_batch.
+            dl_train (DataLoader): DataLoader for the training set.
 
-        :return: An EpochResult for the epoch.
+            kw: Keyword args supported by _foreach_batch.
+
+        Returns:
+
+            EpochResult: An EpochResult for the epoch.
 
         &quot;&quot;&quot;
 
@@ -2747,6 +2763,37 @@
 - Multiple epochs (fit)
 - Single epoch (train_epoch/test_epoch)
 - Single batch (train_batch/test_batch)</p>
+<h4 id="attributes_1">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>model</td>
+<td>nn.Module</td>
+<td>The model to train.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>device</td>
+<td>Optional[torch.device]</td>
+<td>The device to run training on (CPU or GPU). Defaults to None.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>log</td>
+<td>bool</td>
+<td>Whether to log training progress with tensorboard. Defaults to False.</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">Trainer</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
@@ -2763,6 +2810,14 @@
 
 <span class="sd">    - Single batch (train_batch/test_batch)</span>
 
+<span class="sd">    Args:</span>
+
+<span class="sd">        model (nn.Module): The model to train.</span>
+
+<span class="sd">        device (Optional[torch.device], optional): The device to run training on (CPU or GPU). Defaults to None.</span>
+
+<span class="sd">        log (bool, optional): Whether to log training progress with tensorboard. Defaults to False.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span>
@@ -2776,16 +2831,6 @@
 <span class="w">        </span><span class="nb">log</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">False</span><span class="p">,</span>
 
 <span class="w">    </span><span class="p">):</span>
-
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Initialize the trainer.</span>
-
-<span class="sd">        :param model: Instance of the model to train.</span>
-
-<span class="sd">        :param device: torch.device to run training on (CPU or GPU).</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span>
 
@@ -2851,25 +2896,23 @@
 
 <span class="sd">        and calculates validation loss over a given validation set.</span>
 
-<span class="sd">        :param dl_train: Dataloader for the training set.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :param dl_test: Dataloader for the test set.</span>
+<span class="sd">            dl_train (DataLoader): Dataloader for the training set.</span>
 
-<span class="sd">        :param num_epochs: Number of epochs to train for.</span>
+<span class="sd">            dl_test (DataLoader): Dataloader for the test set.</span>
 
-<span class="sd">        :param checkpoints: Whether to save model to file every time the</span>
+<span class="sd">            num_epochs (int): Number of epochs to train for.</span>
 
-<span class="sd">            test set accuracy improves. Should be a string containing a</span>
+<span class="sd">            checkpoints (str, optional): Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension. Defaults to None.</span>
 
-<span class="sd">            filename without extension.</span>
+<span class="sd">            early_stopping (int, optional): Whether to stop training early if there is no test loss improvement for this number of epochs. Defaults to None.</span>
 
-<span class="sd">        :param early_stopping: Whether to stop training early if there is no</span>
+<span class="sd">            print_every (int, optional): Print progress every this number of epochs. Defaults to 1.</span>
 
-<span class="sd">            test loss improvement for this number of epochs.</span>
+<span class="sd">        Returns:</span>
 
-<span class="sd">        :param print_every: Print progress every this number of epochs.</span>
-
-<span class="sd">        :return: A FitResult object containing train and test losses per epoch.</span>
+<span class="sd">            FitResult: A FitResult object containing train and test losses per epoch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -2955,7 +2998,9 @@
 
 <span class="sd">        as a relative path).</span>
 
-<span class="sd">        :param checkpoint_filename: File name or relative path to save to.</span>
+<span class="sd">        Args:</span>
+
+<span class="sd">            checkpoint_filename (str): File name or relative path to save to.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -2973,11 +3018,15 @@
 
 <span class="sd">        Train once over a training set (single epoch).</span>
 
-<span class="sd">        :param dl_train: DataLoader for the training set.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :param kw: Keyword args supported by _foreach_batch.</span>
+<span class="sd">            dl_train (DataLoader): DataLoader for the training set.</span>
 
-<span class="sd">        :return: An EpochResult for the epoch.</span>
+<span class="sd">            kw: Keyword args supported by _foreach_batch.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            EpochResult: An EpochResult for the epoch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -2991,11 +3040,15 @@
 
 <span class="sd">        Evaluate model once over a test set (single epoch).</span>
 
-<span class="sd">        :param dl_test: DataLoader for the test set.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :param kw: Keyword args supported by _foreach_batch.</span>
+<span class="sd">            dl_test (DataLoader): DataLoader for the test set.</span>
 
-<span class="sd">        :return: An EpochResult for the epoch.</span>
+<span class="sd">            kw: Keyword args supported by _foreach_batch.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            EpochResult: An EpochResult for the epoch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -3013,15 +3066,19 @@
 
 <span class="sd">        preforms back-propagation and updates weights.</span>
 
-<span class="sd">        :param batch: A single batch of data  from a data loader (might</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">            be a tuple of data and labels or anything else depending on</span>
+<span class="sd">            batch: A single batch of data from a data loader (might</span>
 
-<span class="sd">            the underlying dataset.</span>
+<span class="sd">                be a tuple of data and labels or anything else depending on</span>
 
-<span class="sd">        :return: A BatchResult containing the value of the loss function and</span>
+<span class="sd">                the underlying dataset).</span>
 
-<span class="sd">            the number of correctly classified samples in the batch.</span>
+<span class="sd">        Returns:</span>
+
+<span class="sd">            BatchResult: A BatchResult containing the value of the loss function and</span>
+
+<span class="sd">                the number of correctly classified samples in the batch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -3035,15 +3092,19 @@
 
 <span class="sd">        Runs a single batch forward through the model and calculates loss.</span>
 
-<span class="sd">        :param batch: A single batch of data  from a data loader (might</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">            be a tuple of data and labels or anything else depending on</span>
+<span class="sd">            batch: A single batch of data from a data loader (might</span>
 
-<span class="sd">            the underlying dataset.</span>
+<span class="sd">                be a tuple of data and labels or anything else depending on</span>
 
-<span class="sd">        :return: A BatchResult containing the value of the loss function and</span>
+<span class="sd">                the underlying dataset).</span>
 
-<span class="sd">            the number of correctly classified samples in the batch.</span>
+<span class="sd">        Returns:</span>
+
+<span class="sd">            BatchResult: A BatchResult containing the value of the loss function and</span>
+
+<span class="sd">                the number of correctly classified samples in the batch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -3187,39 +3248,39 @@
 <tbody>
 <tr>
 <td>dl_train</td>
-<td>None</td>
+<td>DataLoader</td>
 <td>Dataloader for the training set.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>dl_test</td>
-<td>None</td>
+<td>DataLoader</td>
 <td>Dataloader for the test set.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>num_epochs</td>
-<td>None</td>
+<td>int</td>
 <td>Number of epochs to train for.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>checkpoints</td>
-<td>None</td>
-<td>Whether to save model to file every time the<br>test set accuracy improves. Should be a string containing a<br>filename without extension.</td>
+<td>str</td>
+<td>Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension. Defaults to None.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>early_stopping</td>
-<td>None</td>
-<td>Whether to stop training early if there is no<br>test loss improvement for this number of epochs.</td>
+<td>int</td>
+<td>Whether to stop training early if there is no test loss improvement for this number of epochs. Defaults to None.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>print_every</td>
-<td>None</td>
-<td>Print progress every this number of epochs.</td>
-<td>None</td>
+<td>int</td>
+<td>Print progress every this number of epochs. Defaults to 1.</td>
+<td>1</td>
 </tr>
 </tbody>
 </table>
@@ -3233,7 +3294,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>FitResult</td>
 <td>A FitResult object containing train and test losses per epoch.</td>
 </tr>
 </tbody>
@@ -3266,25 +3327,23 @@
 
 <span class="sd">        and calculates validation loss over a given validation set.</span>
 
-<span class="sd">        :param dl_train: Dataloader for the training set.</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">        :param dl_test: Dataloader for the test set.</span>
+<span class="sd">            dl_train (DataLoader): Dataloader for the training set.</span>
 
-<span class="sd">        :param num_epochs: Number of epochs to train for.</span>
+<span class="sd">            dl_test (DataLoader): Dataloader for the test set.</span>
 
-<span class="sd">        :param checkpoints: Whether to save model to file every time the</span>
+<span class="sd">            num_epochs (int): Number of epochs to train for.</span>
 
-<span class="sd">            test set accuracy improves. Should be a string containing a</span>
+<span class="sd">            checkpoints (str, optional): Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension. Defaults to None.</span>
 
-<span class="sd">            filename without extension.</span>
+<span class="sd">            early_stopping (int, optional): Whether to stop training early if there is no test loss improvement for this number of epochs. Defaults to None.</span>
 
-<span class="sd">        :param early_stopping: Whether to stop training early if there is no</span>
+<span class="sd">            print_every (int, optional): Print progress every this number of epochs. Defaults to 1.</span>
 
-<span class="sd">            test loss improvement for this number of epochs.</span>
+<span class="sd">        Returns:</span>
 
-<span class="sd">        :param print_every: Print progress every this number of epochs.</span>
-
-<span class="sd">        :return: A FitResult object containing train and test losses per epoch.</span>
+<span class="sd">            FitResult: A FitResult object containing train and test losses per epoch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -3406,7 +3465,7 @@
 <tbody>
 <tr>
 <td>checkpoint_filename</td>
-<td>None</td>
+<td>str</td>
 <td>File name or relative path to save to.</td>
 <td>None</td>
 </tr>
@@ -3422,7 +3481,9 @@
 
 <span class="ss">        as a relative path).</span>
 
-<span class="ss">        :param checkpoint_filename: File name or relative path to save to.</span>
+<span class="ss">        Args:</span>
+
+<span class="ss">            checkpoint_filename (str): File name or relative path to save to.</span>
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
@@ -3458,7 +3519,7 @@
 <tr>
 <td>batch</td>
 <td>None</td>
-<td>A single batch of data  from a data loader (might<br>be a tuple of data and labels or anything else depending on<br>the underlying dataset.</td>
+<td>A single batch of data from a data loader (might<br>be a tuple of data and labels or anything else depending on<br>the underlying dataset).</td>
 <td>None</td>
 </tr>
 </tbody>
@@ -3473,7 +3534,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>BatchResult</td>
 <td>A BatchResult containing the value of the loss function and<br>the number of correctly classified samples in the batch.</td>
 </tr>
 </tbody>
@@ -3488,15 +3549,19 @@
 
 <span class="sd">        Runs a single batch forward through the model and calculates loss.</span>
 
-<span class="sd">        :param batch: A single batch of data  from a data loader (might</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">            be a tuple of data and labels or anything else depending on</span>
+<span class="sd">            batch: A single batch of data from a data loader (might</span>
 
-<span class="sd">            the underlying dataset.</span>
+<span class="sd">                be a tuple of data and labels or anything else depending on</span>
 
-<span class="sd">        :return: A BatchResult containing the value of the loss function and</span>
+<span class="sd">                the underlying dataset).</span>
 
-<span class="sd">            the number of correctly classified samples in the batch.</span>
+<span class="sd">        Returns:</span>
+
+<span class="sd">            BatchResult: A BatchResult containing the value of the loss function and</span>
+
+<span class="sd">                the number of correctly classified samples in the batch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -3526,7 +3591,7 @@
 <tbody>
 <tr>
 <td>dl_test</td>
-<td>None</td>
+<td>DataLoader</td>
 <td>DataLoader for the test set.</td>
 <td>None</td>
 </tr>
@@ -3548,7 +3613,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>EpochResult</td>
 <td>An EpochResult for the epoch.</td>
 </tr>
 </tbody>
@@ -3561,11 +3626,15 @@
 
         Evaluate model once over a test set (single epoch).
 
-        :param dl_test: DataLoader for the test set.
+        Args:
 
-        :param kw: Keyword args supported by _foreach_batch.
+            dl_test (DataLoader): DataLoader for the test set.
 
-        :return: An EpochResult for the epoch.
+            kw: Keyword args supported by _foreach_batch.
+
+        Returns:
+
+            EpochResult: An EpochResult for the epoch.
 
         &quot;&quot;&quot;
 
@@ -3598,7 +3667,7 @@
 <tr>
 <td>batch</td>
 <td>None</td>
-<td>A single batch of data  from a data loader (might<br>be a tuple of data and labels or anything else depending on<br>the underlying dataset.</td>
+<td>A single batch of data from a data loader (might<br>be a tuple of data and labels or anything else depending on<br>the underlying dataset).</td>
 <td>None</td>
 </tr>
 </tbody>
@@ -3613,7 +3682,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>BatchResult</td>
 <td>A BatchResult containing the value of the loss function and<br>the number of correctly classified samples in the batch.</td>
 </tr>
 </tbody>
@@ -3630,15 +3699,19 @@
 
 <span class="sd">        preforms back-propagation and updates weights.</span>
 
-<span class="sd">        :param batch: A single batch of data  from a data loader (might</span>
+<span class="sd">        Args:</span>
 
-<span class="sd">            be a tuple of data and labels or anything else depending on</span>
+<span class="sd">            batch: A single batch of data from a data loader (might</span>
 
-<span class="sd">            the underlying dataset.</span>
+<span class="sd">                be a tuple of data and labels or anything else depending on</span>
 
-<span class="sd">        :return: A BatchResult containing the value of the loss function and</span>
+<span class="sd">                the underlying dataset).</span>
 
-<span class="sd">            the number of correctly classified samples in the batch.</span>
+<span class="sd">        Returns:</span>
+
+<span class="sd">            BatchResult: A BatchResult containing the value of the loss function and</span>
+
+<span class="sd">                the number of correctly classified samples in the batch.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -3668,7 +3741,7 @@
 <tbody>
 <tr>
 <td>dl_train</td>
-<td>None</td>
+<td>DataLoader</td>
 <td>DataLoader for the training set.</td>
 <td>None</td>
 </tr>
@@ -3690,7 +3763,7 @@
 </thead>
 <tbody>
 <tr>
-<td>None</td>
+<td>EpochResult</td>
 <td>An EpochResult for the epoch.</td>
 </tr>
 </tbody>
@@ -3703,11 +3776,15 @@
 
         Train once over a training set (single epoch).
 
-        :param dl_train: DataLoader for the training set.
+        Args:
 
-        :param kw: Keyword args supported by _foreach_batch.
+            dl_train (DataLoader): DataLoader for the training set.
 
-        :return: An EpochResult for the epoch.
+            kw: Keyword args supported by _foreach_batch.
+
+        Returns:
+
+            EpochResult: An EpochResult for the epoch.
 
         &quot;&quot;&quot;
 

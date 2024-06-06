@@ -489,6 +489,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#methods" class="md-nav__link">
     Methods
   </a>
@@ -1164,6 +1171,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    Attributes
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#methods" class="md-nav__link">
     Methods
   </a>
@@ -1274,11 +1288,27 @@
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 
-<span class="kn">import</span> <span class="nn">itertools</span>
-
 <span class="kn">from</span> <span class="nn">wtracker.eval.data_analyzer</span> <span class="kn">import</span> <span class="n">DataAnalyzer</span>
 
 <span class="k">class</span> <span class="nc">Plotter</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    A class for plotting experiment log data.</span>
+
+<span class="sd">    The experiment data was previously analyzed by the DataAnalyzer class.</span>
+
+<span class="sd">    Supports analysis of multiple logs at once.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        data_list (list[DataAnalyzer]): A list of DataAnalyzer objects, each holding the data of a single experiment log.</span>
+
+<span class="sd">        plot_height (int, optional): The height of the plot. Defaults to 7.</span>
+
+<span class="sd">        palette (str, optional): The color palette to use for the plots. Defaults to &quot;viridis&quot;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 
@@ -1829,9 +1859,61 @@
 <span class="p">)</span>
 </code></pre></div>
 
+<p>A class for plotting experiment log data.</p>
+<p>The experiment data was previously analyzed by the DataAnalyzer class.
+Supports analysis of multiple logs at once.</p>
+<h4 id="attributes">Attributes</h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>data_list</td>
+<td>list[DataAnalyzer]</td>
+<td>A list of DataAnalyzer objects, each holding the data of a single experiment log.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>plot_height</td>
+<td>int</td>
+<td>The height of the plot. Defaults to 7.</td>
+<td>7</td>
+</tr>
+<tr>
+<td>palette</td>
+<td>str</td>
+<td>The color palette to use for the plots. Defaults to "viridis".</td>
+<td>"viridis"</td>
+</tr>
+</tbody>
+</table>
 <details class="example">
 <summary>View Source</summary>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">Plotter</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    A class for plotting experiment log data.</span>
+
+<span class="sd">    The experiment data was previously analyzed by the DataAnalyzer class.</span>
+
+<span class="sd">    Supports analysis of multiple logs at once.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        data_list (list[DataAnalyzer]): A list of DataAnalyzer objects, each holding the data of a single experiment log.</span>
+
+<span class="sd">        plot_height (int, optional): The height of the plot. Defaults to 7.</span>
+
+<span class="sd">        palette (str, optional): The color palette to use for the plots. Defaults to &quot;viridis&quot;.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span>
 
