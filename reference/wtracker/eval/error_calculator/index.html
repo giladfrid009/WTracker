@@ -1,0 +1,2536 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.5.4">
+    
+    
+      
+        <title>Error Calculator - Bio-Proj</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.80dcb947.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#4cae4f">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="green" data-md-color-accent="lightgreen">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#module-wtrackerevalerror_calculator" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="Bio-Proj" class="md-header__button md-logo" aria-label="Bio-Proj" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Bio-Proj
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Error Calculator
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/giladfrid009/Bio-Proj" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bio-Proj
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Bio-Proj" class="md-nav__button md-logo" aria-label="Bio-Proj" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Bio-Proj
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/giladfrid009/Bio-Proj" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bio-Proj
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Reference
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Reference" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Reference
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1" type="checkbox" id="__nav_2_1" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_1">
+          Wtracker
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Wtracker" data-md-level="2">
+        <label class="md-nav__title" for="__nav_2_1">
+          <span class="md-nav__icon md-icon"></span>
+          Wtracker
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_1" type="checkbox" id="__nav_2_1_1" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_1_1">
+          Dataset
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Dataset" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_1">
+          <span class="md-nav__icon md-icon"></span>
+          Dataset
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dataset/bg_extractor/" class="md-nav__link">
+        Bg Extractor
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dataset/box_calculator/" class="md-nav__link">
+        Box Calculator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dataset/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dataset/sample_extractor/" class="md-nav__link">
+        Sample Extractor
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_2" type="checkbox" id="__nav_2_1_2" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_1_2">
+          Eval
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Eval" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_2">
+          <span class="md-nav__icon md-icon"></span>
+          Eval
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_analyzer/" class="md-nav__link">
+        Data Analyzer
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Error Calculator
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Error Calculator
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#errorcalculator" class="md-nav__link">
+    ErrorCalculator
+  </a>
+  
+    <nav class="md-nav" aria-label="ErrorCalculator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_bbox_error" class="md-nav__link">
+    calculate_bbox_error
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_mse_error" class="md-nav__link">
+    calculate_mse_error
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_precise" class="md-nav__link">
+    calculate_precise
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_segmentation" class="md-nav__link">
+    calculate_segmentation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plotter/" class="md-nav__link">
+        Plotter
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vlc/" class="md-nav__link">
+        Vlc
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_3" type="checkbox" id="__nav_2_1_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_1_3">
+          Neural
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Neural" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_3">
+          <span class="md-nav__icon md-icon"></span>
+          Neural
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../neural/config/" class="md-nav__link">
+        Config
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../neural/dataset/" class="md-nav__link">
+        Dataset
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../neural/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../neural/mlp/" class="md-nav__link">
+        Mlp
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../neural/train_results/" class="md-nav__link">
+        Train Results
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../neural/training/" class="md-nav__link">
+        Training
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_4" type="checkbox" id="__nav_2_1_4" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_1_4">
+          Sim
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Sim" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_4">
+          <span class="md-nav__icon md-icon"></span>
+          Sim
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/config/" class="md-nav__link">
+        Config
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/motor_controllers/" class="md-nav__link">
+        Motor Controllers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/simulator/" class="md-nav__link">
+        Simulator
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/view_controller/" class="md-nav__link">
+        View Controller
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_4_6" type="checkbox" id="__nav_2_1_4_6" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_1_4_6">
+          Sim Controllers
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Sim Controllers" data-md-level="4">
+        <label class="md-nav__title" for="__nav_2_1_4_6">
+          <span class="md-nav__icon md-icon"></span>
+          Sim Controllers
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/sim_controllers/csv_controller/" class="md-nav__link">
+        Csv Controller
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/sim_controllers/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/sim_controllers/logging_controller/" class="md-nav__link">
+        Logging Controller
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/sim_controllers/mlp_controllers/" class="md-nav__link">
+        Mlp Controllers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/sim_controllers/optimal_controller/" class="md-nav__link">
+        Optimal Controller
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/sim_controllers/polyfit_controller/" class="md-nav__link">
+        Polyfit Controller
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sim/sim_controllers/yolo_controller/" class="md-nav__link">
+        Yolo Controller
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_1_5" type="checkbox" id="__nav_2_1_5" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_1_5">
+          Utils
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Utils" data-md-level="3">
+        <label class="md-nav__title" for="__nav_2_1_5">
+          <span class="md-nav__icon md-icon"></span>
+          Utils
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/bbox_utils/" class="md-nav__link">
+        Bbox Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/config_base/" class="md-nav__link">
+        Config Base
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/frame_reader/" class="md-nav__link">
+        Frame Reader
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/gui_utils/" class="md-nav__link">
+        Gui Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/" class="md-nav__link">
+        Index
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/io_utils/" class="md-nav__link">
+        Io Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/log_utils/" class="md-nav__link">
+        Log Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/path_utils/" class="md-nav__link">
+        Path Utils
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/threading_utils/" class="md-nav__link">
+        Threading Utils
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    Classes
+  </a>
+  
+    <nav class="md-nav" aria-label="Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#errorcalculator" class="md-nav__link">
+    ErrorCalculator
+  </a>
+  
+    <nav class="md-nav" aria-label="ErrorCalculator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-methods" class="md-nav__link">
+    Static methods
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_bbox_error" class="md-nav__link">
+    calculate_bbox_error
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_mse_error" class="md-nav__link">
+    calculate_mse_error
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_precise" class="md-nav__link">
+    calculate_precise
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_segmentation" class="md-nav__link">
+    calculate_segmentation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/giladfrid009/Bio-Proj/edit/main/reference/wtracker/eval/error_calculator.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+<h1 id="module-wtrackerevalerror_calculator">Module wtracker.eval.error_calculator</h1>
+<details class="example">
+<summary>View Source</summary>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Collection</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+
+<span class="kn">from</span> <span class="nn">tqdm.auto</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+
+<span class="kn">from</span> <span class="nn">wtracker.utils.frame_reader</span> <span class="kn">import</span> <span class="n">FrameReader</span>
+
+<span class="kn">from</span> <span class="nn">wtracker.utils.bbox_utils</span> <span class="kn">import</span> <span class="n">BoxUtils</span><span class="p">,</span> <span class="n">BoxConverter</span><span class="p">,</span> <span class="n">BoxFormat</span>
+
+<span class="k">class</span> <span class="nc">ErrorCalculator</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    The ErrorCalculator class provides methods to calculate different types of errors based on worm position and the microscope view.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: TEST IMPLEMENTATIONs</span>
+
+    <span class="n">probe_hook</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># takes mask and view for testing</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">calculate_segmentation</span><span class="p">(</span>
+
+        <span class="n">bbox</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+        <span class="n">image</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+        <span class="n">background</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+        <span class="n">diff_thresh</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Calculates the segmentation error between a view and background image.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            bbox (np.ndarray): The bounding box of the image, in the format (x, y, w, h).</span>
+
+<span class="sd">            image (np.ndarray): The image to calculate segmantation in.</span>
+
+<span class="sd">            background (np.ndarray): The background image.</span>
+
+<span class="sd">            diff_thresh (float): The difference threshold to distinguish foreground and background objects from.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            np.ndarray: The segmentation mask.</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">            ValueError: If the image is not grayscale or color.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">bg_view</span> <span class="o">=</span> <span class="n">background</span><span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+        <span class="kp">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">abs</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">-</span> <span class="n">bg_view</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+
+        <span class="c1"># if images are color, convert to grayscale</span>
+
+        <span class="c1"># conversion is correct if it&#39;s BGR</span>
+
+        <span class="k">if</span> <span class="kp">diff</span><span class="o">.</span><span class="kp">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="kp">diff</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+
+            <span class="kp">diff</span> <span class="o">=</span> <span class="mf">0.114</span> <span class="o">*</span> <span class="kp">diff</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.587</span> <span class="o">*</span> <span class="kp">diff</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.299</span> <span class="o">*</span> <span class="kp">diff</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="kp">diff</span><span class="o">.</span><span class="kp">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Image must be either a gray or a color image.&quot;</span><span class="p">)</span>
+
+        <span class="n">mask_wrm</span> <span class="o">=</span> <span class="kp">diff</span> <span class="o">&gt;</span> <span class="n">diff_thresh</span>
+
+        <span class="k">return</span> <span class="n">mask_wrm</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">calculate_precise</span><span class="p">(</span>
+
+        <span class="n">background</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+        <span class="n">worm_bboxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+        <span class="n">mic_bboxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+        <span class="n">frame_nums</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+
+        <span class="n">worm_reader</span><span class="p">:</span> <span class="n">FrameReader</span><span class="p">,</span>
+
+        <span class="n">diff_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Calculates the precise error for each frame in the given sequence.</span>
+
+<span class="sd">        This error is based on precise segmentation of the worm object from the frame, and</span>
+
+<span class="sd">        determining the exact proportion of worm&#39;s body outside the microscope view.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            background (np.ndarray): The background image.</span>
+
+<span class="sd">            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="sd">            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="sd">            frame_nums (Collection[int]): The frame numbers to calculate the error for.</span>
+
+<span class="sd">            worm_reader (FrameReader): A frame reader containing segmented worm images for each frame. These worm images should match the shape of the worm bounding boxes.</span>
+
+<span class="sd">                Frames passed in frame_nums are read from this reader by index.</span>
+
+<span class="sd">            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from. Defaults to 10.</span>
+
+<span class="sd">                A foreground object is detected if the pixel value difference with the background is greater than this threshold.</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            np.ndarray: Array of errors of shape (N,) representing the precise segmentation error for each frame.</span>
+
+<span class="sd">        Raises:</span>
+
+<span class="sd">            AssertionError: If the length of frame_nums, worm_bboxes, and mic_bboxes do not match.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">)</span> <span class="o">==</span> <span class="n">worm_bboxes</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">mic_bboxes</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">worm_bboxes</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="kp">round</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+        <span class="n">mic_bboxes</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="kp">round</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+        <span class="n">worm_bboxes</span> <span class="o">=</span> <span class="n">BoxConverter</span><span class="o">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">,</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYWH</span><span class="p">,</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYXY</span><span class="p">)</span>
+
+        <span class="n">mic_bboxes</span> <span class="o">=</span> <span class="n">BoxConverter</span><span class="o">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">,</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYWH</span><span class="p">,</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYXY</span><span class="p">)</span>
+
+        <span class="n">wrm_left</span><span class="p">,</span> <span class="n">wrm_top</span><span class="p">,</span> <span class="n">wrm_right</span><span class="p">,</span> <span class="n">wrm_bottom</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+        <span class="n">mic_left</span><span class="p">,</span> <span class="n">mic_top</span><span class="p">,</span> <span class="n">mic_right</span><span class="p">,</span> <span class="n">mic_bottom</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+        <span class="c1"># clip worm bounding boxes to the frame size</span>
+
+        <span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">background</span><span class="o">.</span><span class="kp">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">wrm_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">W</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">wrm_top</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">H</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">wrm_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">W</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">wrm_bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">H</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">worm_bboxes</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span> <span class="n">wrm_top</span><span class="p">,</span> <span class="n">wrm_right</span><span class="p">,</span> <span class="n">wrm_bottom</span><span class="p">)</span>
+
+        <span class="c1"># calculate intersection of worm and microscope bounding boxes</span>
+
+        <span class="n">int_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="n">mic_left</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">mic_right</span><span class="p">)</span>
+
+        <span class="n">int_top</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="n">mic_top</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">mic_bottom</span><span class="p">)</span>
+
+        <span class="n">int_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="n">mic_left</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">mic_right</span><span class="p">)</span>
+
+        <span class="n">int_bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="n">mic_top</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="n">mic_bottom</span><span class="p">)</span>
+
+        <span class="n">int_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">int_right</span> <span class="o">-</span> <span class="n">int_left</span><span class="p">)</span>
+
+        <span class="n">int_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">int_bottom</span> <span class="o">-</span> <span class="n">int_top</span><span class="p">)</span>
+
+        <span class="c1"># shift the intersection to the worm view coordinates</span>
+
+        <span class="n">int_left</span> <span class="o">-=</span> <span class="n">wrm_left</span>
+
+        <span class="n">int_top</span> <span class="o">-=</span> <span class="n">wrm_top</span>
+
+        <span class="n">int_bboxes</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">int_left</span><span class="p">,</span> <span class="n">int_top</span><span class="p">,</span> <span class="n">int_width</span><span class="p">,</span> <span class="n">int_height</span><span class="p">)</span>
+
+        <span class="n">int_bboxes</span> <span class="o">=</span> <span class="n">BoxConverter</span><span class="o">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">int_bboxes</span><span class="p">,</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYWH</span><span class="p">,</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYXY</span><span class="p">)</span>
+
+        <span class="n">errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">),</span> <span class="kp">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">frame_num</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Calculating Error&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="p">):</span>
+
+            <span class="n">wrm_bbox</span> <span class="o">=</span> <span class="n">worm_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="n">int_bbox</span> <span class="o">=</span> <span class="n">int_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="kp">isfinite</span><span class="p">(</span><span class="n">wrm_bbox</span><span class="p">)</span><span class="o">.</span><span class="kp">all</span><span class="p">()</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+
+                <span class="n">errors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">nan</span>
+
+                <span class="k">continue</span>
+
+            <span class="n">worm_view</span> <span class="o">=</span> <span class="n">worm_reader</span><span class="p">[</span><span class="n">frame_num</span><span class="p">]</span>
+
+            <span class="n">mask_wrm</span> <span class="o">=</span> <span class="n">ErrorCalculator</span><span class="o">.</span><span class="n">calculate_segmentation</span><span class="p">(</span>
+
+                <span class="n">bbox</span><span class="o">=</span><span class="n">wrm_bbox</span><span class="p">,</span>
+
+                <span class="n">image</span><span class="o">=</span><span class="n">worm_view</span><span class="p">,</span>
+
+                <span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span>
+
+                <span class="n">diff_thresh</span><span class="o">=</span><span class="n">diff_thresh</span><span class="p">,</span>
+
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">ErrorCalculator</span><span class="o">.</span><span class="n">probe_hook</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="n">ErrorCalculator</span><span class="o">.</span><span class="n">probe_hook</span><span class="p">(</span><span class="n">worm_view</span><span class="p">,</span> <span class="n">mask_wrm</span><span class="p">)</span>
+
+            <span class="n">mask_mic</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros_like</span><span class="p">(</span><span class="n">mask_wrm</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+            <span class="n">mask_mic</span><span class="p">[</span><span class="n">int_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="n">int_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">int_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">int_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">total</span> <span class="o">=</span> <span class="n">mask_wrm</span><span class="o">.</span><span class="kp">sum</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+                <span class="n">errors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+                <span class="k">continue</span>
+
+            <span class="n">intersection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">logical_and</span><span class="p">(</span><span class="n">mask_wrm</span><span class="p">,</span> <span class="n">mask_mic</span><span class="p">)</span><span class="o">.</span><span class="kp">sum</span><span class="p">()</span>
+
+            <span class="n">error</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">intersection</span> <span class="o">/</span> <span class="n">total</span>
+
+            <span class="n">errors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">error</span>
+
+        <span class="k">return</span> <span class="n">errors</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">calculate_bbox_error</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mic_bboxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Calculate the bounding box error between worm bounding boxes and microscope bounding boxes.</span>
+
+<span class="sd">        This error calculates the proportion of the worm bounding box that is outside the microscope bounding box.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="sd">            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            np.ndarray: Array of errors of shape (N,) representing the bounding box error for each pair of worm and microscope bounding boxes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">wrm_left</span><span class="p">,</span> <span class="n">wrm_top</span><span class="p">,</span> <span class="n">wrm_width</span><span class="p">,</span> <span class="n">wrm_height</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+        <span class="n">mic_left</span><span class="p">,</span> <span class="n">mic_top</span><span class="p">,</span> <span class="n">mic_width</span><span class="p">,</span> <span class="n">mic_height</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+        <span class="n">wrm_right</span><span class="p">,</span> <span class="n">wrm_bottom</span> <span class="o">=</span> <span class="n">wrm_left</span> <span class="o">+</span> <span class="n">wrm_width</span><span class="p">,</span> <span class="n">wrm_top</span> <span class="o">+</span> <span class="n">wrm_height</span>
+
+        <span class="n">mic_right</span><span class="p">,</span> <span class="n">mic_bottom</span> <span class="o">=</span> <span class="n">mic_left</span> <span class="o">+</span> <span class="n">mic_width</span><span class="p">,</span> <span class="n">mic_top</span> <span class="o">+</span> <span class="n">mic_height</span>
+
+        <span class="n">int_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">maximum</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span> <span class="n">mic_left</span><span class="p">)</span>
+
+        <span class="n">int_top</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">maximum</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span> <span class="n">mic_top</span><span class="p">)</span>
+
+        <span class="n">int_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">minimum</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span> <span class="n">mic_right</span><span class="p">)</span>
+
+        <span class="n">int_bottom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">minimum</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span> <span class="n">mic_bottom</span><span class="p">)</span>
+
+        <span class="n">int_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">int_right</span> <span class="o">-</span> <span class="n">int_left</span><span class="p">)</span>
+
+        <span class="n">int_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">int_bottom</span> <span class="o">-</span> <span class="n">int_top</span><span class="p">)</span>
+
+        <span class="n">intersection</span> <span class="o">=</span> <span class="n">int_width</span> <span class="o">*</span> <span class="n">int_height</span>
+
+        <span class="n">total</span> <span class="o">=</span> <span class="n">wrm_width</span> <span class="o">*</span> <span class="n">wrm_height</span>
+
+        <span class="n">errors</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">intersection</span> <span class="o">/</span> <span class="n">total</span>
+
+        <span class="n">errors</span><span class="p">[</span><span class="n">total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">return</span> <span class="n">errors</span>
+
+    <span class="nd">@staticmethod</span>
+
+    <span class="k">def</span> <span class="nf">calculate_mse_error</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">mic_bboxes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Calculates the Mean Squared Error (MSE) error between the centers of worm bounding boxes and microscope bounding boxes.</span>
+
+<span class="sd">        Args:</span>
+
+<span class="sd">            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="sd">            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="sd">        Returns:</span>
+
+<span class="sd">            np.ndarray: Array of errors of shape (N,) representing the MSE error for each pair of worm and microscope bounding boxes.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">worm_centers</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+        <span class="n">mic_centers</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+        <span class="n">errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">mean</span><span class="p">((</span><span class="n">worm_centers</span> <span class="o">-</span> <span class="n">mic_centers</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">errors</span>
+</code></pre></div>
+
+</details>
+<h2 id="classes">Classes</h2>
+<h3 id="errorcalculator">ErrorCalculator</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">ErrorCalculator</span><span class="p">(</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>The ErrorCalculator class provides methods to calculate different types of errors based on worm position and the microscope view.</p>
+<details class="example">
+<summary>View Source</summary>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">ErrorCalculator</span><span class="p">:</span>
+
+<span class="w">    </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">    The ErrorCalculator class provides methods to calculate different types of errors based on worm position and the microscope view.</span>
+
+<span class="ss">    &quot;&quot;&quot;</span>
+
+<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">TEST</span><span class="w"> </span><span class="n">IMPLEMENTATIONs</span>
+
+<span class="w">    </span><span class="nl">probe_hook</span><span class="p">:</span><span class="w"> </span><span class="n">Callable</span><span class="o">[</span><span class="n">[np.ndarray, np.ndarray</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">None</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">takes</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="k">view</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">testing</span>
+
+<span class="w">    </span><span class="nv">@staticmethod</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_segmentation</span><span class="p">(</span>
+
+<span class="w">        </span><span class="nl">bbox</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nc">image</span><span class="err">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">background</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="nc">float</span><span class="p">,</span>
+
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Calculates the segmentation error between a view and background image.</span>
+
+<span class="ss">        Args:</span>
+
+<span class="ss">            bbox (np.ndarray): The bounding box of the image, in the format (x, y, w, h).</span>
+
+<span class="ss">            image (np.ndarray): The image to calculate segmantation in.</span>
+
+<span class="ss">            background (np.ndarray): The background image.</span>
+
+<span class="ss">            diff_thresh (float): The difference threshold to distinguish foreground and background objects from.</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            np.ndarray: The segmentation mask.</span>
+
+<span class="ss">        Raises:</span>
+
+<span class="ss">            ValueError: If the image is not grayscale or color.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="nc">image</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">3</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">1</span><span class="o">]</span>
+
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="nc">image</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">2</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">0</span><span class="o">]</span>
+
+<span class="w">        </span><span class="n">bg_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span><span class="o">[</span><span class="n">bbox[1</span><span class="o">]</span><span class="w"> </span><span class="err">:</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">3</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="err">:</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">2</span><span class="o">]</span><span class="err">]</span>
+
+<span class="w">        </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="nc">image</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bg_view</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">))</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="nf">convert</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">grayscale</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">conversion</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">correct</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">it</span><span class="s1">&#39;s BGR</span>
+
+<span class="s1">        if diff.ndim == 3 and diff.shape[2] == 3:</span>
+
+<span class="s1">            diff = 0.114 * diff[:, :, 0] + 0.587 * diff[:, :, 1] + 0.299 * diff[:, :, 2]</span>
+
+<span class="s1">        if diff.ndim != 2:</span>
+
+<span class="s1">            raise ValueError(&quot;Image must be either a gray or a color image.&quot;)</span>
+
+<span class="s1">        mask_wrm = diff &gt; diff_thresh</span>
+
+<span class="s1">        return mask_wrm</span>
+
+<span class="s1">    @staticmethod</span>
+
+<span class="s1">    def calculate_precise(</span>
+
+<span class="s1">        background: np.ndarray,</span>
+
+<span class="s1">        worm_bboxes: np.ndarray,</span>
+
+<span class="s1">        mic_bboxes: np.ndarray,</span>
+
+<span class="s1">        frame_nums: Collection[int],</span>
+
+<span class="s1">        worm_reader: FrameReader,</span>
+
+<span class="s1">        diff_thresh: float = 10,</span>
+
+<span class="s1">    ) -&gt; np.ndarray:</span>
+
+<span class="s1">        &quot;&quot;&quot;</span>
+
+<span class="s1">        Calculates the precise error for each frame in the given sequence.</span>
+
+<span class="s1">        This error is based on precise segmentation of the worm object from the frame, and</span>
+
+<span class="s1">        determining the exact proportion of worm&#39;</span><span class="n">s</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">outside</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="k">view</span><span class="p">.</span>
+
+<span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
+
+<span class="w">            </span><span class="n">background</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="nc">image</span><span class="p">.</span>
+
+<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+
+<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+
+<span class="w">            </span><span class="n">frame_nums</span><span class="w"> </span><span class="p">(</span><span class="n">Collection</span><span class="o">[</span><span class="n">int</span><span class="o">]</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">numbers</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="p">.</span>
+
+<span class="w">            </span><span class="n">worm_reader</span><span class="w"> </span><span class="p">(</span><span class="n">FrameReader</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">containing</span><span class="w"> </span><span class="n">segmented</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="w"> </span><span class="n">These</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+
+<span class="w">                </span><span class="n">Frames</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frame_nums</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="k">read</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="k">index</span><span class="p">.</span>
+
+<span class="w">            </span><span class="n">diff_thresh</span><span class="w"> </span><span class="p">(</span><span class="nc">float</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="nf">difference</span><span class="w"> </span><span class="n">threshold</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">distinguish</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">objects</span><span class="w"> </span><span class="k">from</span><span class="p">.</span><span class="w"> </span><span class="n">Defaults</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="mf">10.</span>
+
+<span class="w">                </span><span class="n">A</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="k">object</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">detected</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">pixel</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="nf">difference</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">greater</span><span class="w"> </span><span class="k">than</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">threshold</span><span class="p">.</span>
+
+<span class="w">        </span><span class="k">Returns</span><span class="err">:</span>
+
+<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span><span class="w"> </span><span class="k">Array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">precise</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span>
+
+<span class="w">        </span><span class="nl">Raises</span><span class="p">:</span>
+
+<span class="w">            </span><span class="nl">AssertionError</span><span class="p">:</span><span class="w"> </span><span class="k">If</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">frame_nums</span><span class="p">,</span><span class="w"> </span><span class="n">worm_bboxes</span><span class="p">,</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">mic_bboxes</span><span class="w"> </span><span class="n">do</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">match</span><span class="p">.</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]</span>
+
+<span class="ss">        worm_bboxes = BoxUtils.round(worm_bboxes)</span>
+
+<span class="ss">        mic_bboxes = BoxUtils.round(mic_bboxes)</span>
+
+<span class="ss">        worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)</span>
+
+<span class="ss">        mic_bboxes = BoxConverter.change_format(mic_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)</span>
+
+<span class="ss">        wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bboxes)</span>
+
+<span class="ss">        mic_left, mic_top, mic_right, mic_bottom = BoxUtils.unpack(mic_bboxes)</span>
+
+<span class="ss">        # clip worm bounding boxes to the frame size</span>
+
+<span class="ss">        H, W = background.shape[:2]</span>
+
+<span class="ss">        wrm_left = np.clip(wrm_left, a_min=0, a_max=W - 1)</span>
+
+<span class="ss">        wrm_top = np.clip(wrm_top, a_min=0, a_max=H - 1)</span>
+
+<span class="ss">        wrm_right = np.clip(wrm_right, a_min=0, a_max=W - 1)</span>
+
+<span class="ss">        wrm_bottom = np.clip(wrm_bottom, a_min=0, a_max=H - 1)</span>
+
+<span class="ss">        worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)</span>
+
+<span class="ss">        # calculate intersection of worm and microscope bounding boxes</span>
+
+<span class="ss">        int_left = np.clip(wrm_left, a_min=mic_left, a_max=mic_right)</span>
+
+<span class="ss">        int_top = np.clip(wrm_top, a_min=mic_top, a_max=mic_bottom)</span>
+
+<span class="ss">        int_right = np.clip(wrm_right, a_min=mic_left, a_max=mic_right)</span>
+
+<span class="ss">        int_bottom = np.clip(wrm_bottom, a_min=mic_top, a_max=mic_bottom)</span>
+
+<span class="ss">        int_width = np.maximum(0, int_right - int_left)</span>
+
+<span class="ss">        int_height = np.maximum(0, int_bottom - int_top)</span>
+
+<span class="ss">        # shift the intersection to the worm view coordinates</span>
+
+<span class="ss">        int_left -= wrm_left</span>
+
+<span class="ss">        int_top -= wrm_top</span>
+
+<span class="ss">        int_bboxes = BoxUtils.pack(int_left, int_top, int_width, int_height)</span>
+
+<span class="ss">        int_bboxes = BoxConverter.change_format(int_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)</span>
+
+<span class="ss">        errors = np.zeros(len(frame_nums), dtype=float)</span>
+
+<span class="ss">        for i, frame_num in tqdm(enumerate(frame_nums), desc=&quot;</span><span class="n">Calculating</span><span class="w"> </span><span class="n">Error</span><span class="ss">&quot;, unit=&quot;</span><span class="n">fr</span><span class="ss">&quot;):</span>
+
+<span class="ss">            wrm_bbox = worm_bboxes[i]</span>
+
+<span class="ss">            int_bbox = int_bboxes[i]</span>
+
+<span class="ss">            if np.isfinite(wrm_bbox).all() == False:</span>
+
+<span class="ss">                errors[i] = np.nan</span>
+
+<span class="ss">                continue</span>
+
+<span class="ss">            worm_view = worm_reader[frame_num]</span>
+
+<span class="ss">            mask_wrm = ErrorCalculator.calculate_segmentation(</span>
+
+<span class="ss">                bbox=wrm_bbox,</span>
+
+<span class="ss">                image=worm_view,</span>
+
+<span class="ss">                background=background,</span>
+
+<span class="ss">                diff_thresh=diff_thresh,</span>
+
+<span class="ss">            )</span>
+
+<span class="ss">            if ErrorCalculator.probe_hook is not None:</span>
+
+<span class="ss">                ErrorCalculator.probe_hook(worm_view, mask_wrm)</span>
+
+<span class="ss">            mask_mic = np.zeros_like(mask_wrm, dtype=bool)</span>
+
+<span class="ss">            mask_mic[int_bbox[1] : int_bbox[3], int_bbox[0] : int_bbox[2]] = True</span>
+
+<span class="ss">            total = mask_wrm.sum()</span>
+
+<span class="ss">            if total == 0:</span>
+
+<span class="ss">                errors[i] = 0.0</span>
+
+<span class="ss">                continue</span>
+
+<span class="ss">            intersection = np.logical_and(mask_wrm, mask_mic).sum()</span>
+
+<span class="ss">            error = 1.0 - intersection / total</span>
+
+<span class="ss">            errors[i] = error</span>
+
+<span class="ss">        return errors</span>
+
+<span class="ss">    @staticmethod</span>
+
+<span class="ss">    def calculate_bbox_error(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -&gt; np.ndarray:</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">Calculate</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="ow">between</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+
+<span class="w">        </span><span class="n">This</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">proportion</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">outside</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="p">.</span>
+
+<span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
+
+<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+
+<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+
+<span class="w">        </span><span class="k">Returns</span><span class="err">:</span>
+
+<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span><span class="w"> </span><span class="k">Array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        wrm_left, wrm_top, wrm_width, wrm_height = BoxUtils.unpack(worm_bboxes)</span>
+
+<span class="ss">        mic_left, mic_top, mic_width, mic_height = BoxUtils.unpack(mic_bboxes)</span>
+
+<span class="ss">        wrm_right, wrm_bottom = wrm_left + wrm_width, wrm_top + wrm_height</span>
+
+<span class="ss">        mic_right, mic_bottom = mic_left + mic_width, mic_top + mic_height</span>
+
+<span class="ss">        int_left = np.maximum(wrm_left, mic_left)</span>
+
+<span class="ss">        int_top = np.maximum(wrm_top, mic_top)</span>
+
+<span class="ss">        int_right = np.minimum(wrm_right, mic_right)</span>
+
+<span class="ss">        int_bottom = np.minimum(wrm_bottom, mic_bottom)</span>
+
+<span class="ss">        int_width = np.maximum(0, int_right - int_left)</span>
+
+<span class="ss">        int_height = np.maximum(0, int_bottom - int_top)</span>
+
+<span class="ss">        intersection = int_width * int_height</span>
+
+<span class="ss">        total = wrm_width * wrm_height</span>
+
+<span class="ss">        errors = 1.0 - intersection / total</span>
+
+<span class="ss">        errors[total == 0] = 0.0</span>
+
+<span class="ss">        return errors</span>
+
+<span class="ss">    @staticmethod</span>
+
+<span class="ss">    def calculate_mse_error(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -&gt; np.ndarray:</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">Calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Mean</span><span class="w"> </span><span class="n">Squared</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="ow">between</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">centers</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+
+<span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
+
+<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+
+<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+
+<span class="w">        </span><span class="k">Returns</span><span class="err">:</span>
+
+<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span><span class="w"> </span><span class="k">Array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">MSE</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;</span><span class="err">&quot;</span>
+
+<span class="w">        </span><span class="n">worm_centers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">center</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mic_centers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">center</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">((</span><span class="n">worm_centers</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">mic_centers</span><span class="p">)</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">errors</span>
+</code></pre></div>
+
+</details>
+<hr />
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><code><span class="n">probe_hook</span>
+</code></pre></div>
+
+<h4 id="static-methods">Static methods</h4>
+<h4 id="calculate_bbox_error">calculate_bbox_error</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_bbox_error</span><span class="p">(</span>
+    <span class="n">worm_bboxes</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mic_bboxes</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+</code></pre></div>
+
+<p>Calculate the bounding box error between worm bounding boxes and microscope bounding boxes.</p>
+<p>This error calculates the proportion of the worm bounding box that is outside the microscope bounding box.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>worm_bboxes</td>
+<td>None</td>
+<td>A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</td>
+<td>None</td>
+</tr>
+<tr>
+<td>mic_bboxes</td>
+<td>None</td>
+<td>A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>np.ndarray</td>
+<td>Array of errors of shape (N,) representing the bounding box error for each pair of worm and microscope bounding boxes.</td>
+</tr>
+</tbody>
+</table>
+<details class="example">
+<summary>View Source</summary>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_bbox_error</span><span class="p">(</span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Calculate the bounding box error between worm bounding boxes and microscope bounding boxes.</span>
+
+<span class="ss">        This error calculates the proportion of the worm bounding box that is outside the microscope bounding box.</span>
+
+<span class="ss">        Args:</span>
+
+<span class="ss">            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="ss">            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            np.ndarray: Array of errors of shape (N,) representing the bounding box error for each pair of worm and microscope bounding boxes.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_width</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mic_left</span><span class="p">,</span><span class="w"> </span><span class="n">mic_top</span><span class="p">,</span><span class="w"> </span><span class="n">mic_width</span><span class="p">,</span><span class="w"> </span><span class="n">mic_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wrm_left</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">wrm_width</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_top</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">wrm_height</span>
+
+<span class="w">        </span><span class="n">mic_right</span><span class="p">,</span><span class="w"> </span><span class="n">mic_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mic_left</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mic_width</span><span class="p">,</span><span class="w"> </span><span class="n">mic_top</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mic_height</span>
+
+<span class="w">        </span><span class="n">int_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">mic_left</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">mic_top</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">mic_right</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span><span class="w"> </span><span class="n">mic_bottom</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">int_right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">int_left</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">int_bottom</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">int_top</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">intersection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">int_width</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">int_height</span>
+
+<span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wrm_width</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">wrm_height</span>
+
+<span class="w">        </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">intersection</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span>
+
+<span class="w">        </span><span class="n">errors</span><span class="o">[</span><span class="n">total == 0</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">errors</span>
+</code></pre></div>
+
+</details>
+<h4 id="calculate_mse_error">calculate_mse_error</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_mse_error</span><span class="p">(</span>
+    <span class="n">worm_bboxes</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mic_bboxes</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+</code></pre></div>
+
+<p>Calculates the Mean Squared Error (MSE) error between the centers of worm bounding boxes and microscope bounding boxes.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>worm_bboxes</td>
+<td>None</td>
+<td>A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</td>
+<td>None</td>
+</tr>
+<tr>
+<td>mic_bboxes</td>
+<td>None</td>
+<td>A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>np.ndarray</td>
+<td>Array of errors of shape (N,) representing the MSE error for each pair of worm and microscope bounding boxes.</td>
+</tr>
+</tbody>
+</table>
+<details class="example">
+<summary>View Source</summary>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_mse_error</span><span class="p">(</span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Calculates the Mean Squared Error (MSE) error between the centers of worm bounding boxes and microscope bounding boxes.</span>
+
+<span class="ss">        Args:</span>
+
+<span class="ss">            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="ss">            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            np.ndarray: Array of errors of shape (N,) representing the MSE error for each pair of worm and microscope bounding boxes.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">worm_centers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">center</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mic_centers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">center</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">((</span><span class="n">worm_centers</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">mic_centers</span><span class="p">)</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">errors</span>
+</code></pre></div>
+
+</details>
+<h4 id="calculate_precise">calculate_precise</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_precise</span><span class="p">(</span>
+    <span class="n">background</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">worm_bboxes</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">mic_bboxes</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">frame_nums</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">worm_reader</span><span class="p">:</span> <span class="n">wtracker</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">frame_reader</span><span class="o">.</span><span class="n">FrameReader</span><span class="p">,</span>
+    <span class="n">diff_thresh</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+</code></pre></div>
+
+<p>Calculates the precise error for each frame in the given sequence.</p>
+<p>This error is based on precise segmentation of the worm object from the frame, and
+determining the exact proportion of worm's body outside the microscope view.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>background</td>
+<td>np.ndarray</td>
+<td>The background image.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>worm_bboxes</td>
+<td>None</td>
+<td>A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</td>
+<td>None</td>
+</tr>
+<tr>
+<td>mic_bboxes</td>
+<td>None</td>
+<td>A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</td>
+<td>None</td>
+</tr>
+<tr>
+<td>frame_nums</td>
+<td>Collection[int]</td>
+<td>The frame numbers to calculate the error for.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>worm_reader</td>
+<td>FrameReader</td>
+<td>A frame reader containing segmented worm images for each frame. These worm images should match the shape of the worm bounding boxes.<br>Frames passed in frame_nums are read from this reader by index.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>diff_thresh</td>
+<td>float</td>
+<td>The difference threshold to distinguish foreground and background objects from. Defaults to 10.<br>A foreground object is detected if the pixel value difference with the background is greater than this threshold.</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>np.ndarray</td>
+<td>Array of errors of shape (N,) representing the precise segmentation error for each frame.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Raises:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AssertionError</td>
+<td>If the length of frame_nums, worm_bboxes, and mic_bboxes do not match.</td>
+</tr>
+</tbody>
+</table>
+<details class="example">
+<summary>View Source</summary>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">@staticmethod</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_precise</span><span class="p">(</span>
+
+<span class="w">        </span><span class="nl">background</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">frame_nums</span><span class="p">:</span><span class="w"> </span><span class="n">Collection</span><span class="o">[</span><span class="n">int</span><span class="o">]</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">worm_reader</span><span class="p">:</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nl">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="nc">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Calculates the precise error for each frame in the given sequence.</span>
+
+<span class="ss">        This error is based on precise segmentation of the worm object from the frame, and</span>
+
+<span class="ss">        determining the exact proportion of worm&#39;s body outside the microscope view.</span>
+
+<span class="ss">        Args:</span>
+
+<span class="ss">            background (np.ndarray): The background image.</span>
+
+<span class="ss">            worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="ss">            mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).</span>
+
+<span class="ss">            frame_nums (Collection[int]): The frame numbers to calculate the error for.</span>
+
+<span class="ss">            worm_reader (FrameReader): A frame reader containing segmented worm images for each frame. These worm images should match the shape of the worm bounding boxes.</span>
+
+<span class="ss">                Frames passed in frame_nums are read from this reader by index.</span>
+
+<span class="ss">            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from. Defaults to 10.</span>
+
+<span class="ss">                A foreground object is detected if the pixel value difference with the background is greater than this threshold.</span>
+
+<span class="ss">        Returns:</span>
+
+<span class="ss">            np.ndarray: Array of errors of shape (N,) representing the precise segmentation error for each frame.</span>
+
+<span class="ss">        Raises:</span>
+
+<span class="ss">            AssertionError: If the length of frame_nums, worm_bboxes, and mic_bboxes do not match.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">worm_bboxes</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mic_bboxes</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">0</span><span class="o">]</span>
+
+<span class="w">        </span><span class="n">worm_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="nf">round</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mic_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="nf">round</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">worm_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYWH</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mic_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYWH</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mic_left</span><span class="p">,</span><span class="w"> </span><span class="n">mic_top</span><span class="p">,</span><span class="w"> </span><span class="n">mic_right</span><span class="p">,</span><span class="w"> </span><span class="n">mic_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">clip</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="k">size</span>
+
+<span class="w">        </span><span class="n">H</span><span class="p">,</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">:2</span><span class="o">]</span>
+
+<span class="w">        </span><span class="n">wrm_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">W</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">wrm_top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">H</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">wrm_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">W</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">wrm_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">H</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">worm_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">pack</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_bottom</span><span class="p">)</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="k">intersection</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span>
+
+<span class="w">        </span><span class="n">int_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="n">mic_left</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">mic_right</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="n">mic_top</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">mic_bottom</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="n">mic_left</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">mic_right</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="n">mic_top</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">mic_bottom</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">int_right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">int_left</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">int_bottom</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">int_top</span><span class="p">)</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">shift</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">intersection</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="k">view</span><span class="w"> </span><span class="n">coordinates</span>
+
+<span class="w">        </span><span class="n">int_left</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">wrm_left</span>
+
+<span class="w">        </span><span class="n">int_top</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">wrm_top</span>
+
+<span class="w">        </span><span class="n">int_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">pack</span><span class="p">(</span><span class="n">int_left</span><span class="p">,</span><span class="w"> </span><span class="n">int_top</span><span class="p">,</span><span class="w"> </span><span class="n">int_width</span><span class="p">,</span><span class="w"> </span><span class="n">int_height</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">int_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYWH</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">),</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="nc">float</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">frame_num</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tqdm</span><span class="p">(</span><span class="n">enumerate</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">),</span><span class="w"> </span><span class="k">desc</span><span class="o">=</span><span class="ss">&quot;Calculating Error&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="ss">&quot;fr&quot;</span><span class="p">)</span><span class="err">:</span>
+
+<span class="w">            </span><span class="n">wrm_bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">worm_bboxes</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+
+<span class="w">            </span><span class="n">int_bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">int_bboxes</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">wrm_bbox</span><span class="p">).</span><span class="ow">all</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">False</span><span class="err">:</span>
+
+<span class="w">                </span><span class="n">errors</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">nan</span>
+
+<span class="w">                </span><span class="k">continue</span>
+
+<span class="w">            </span><span class="n">worm_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">worm_reader</span><span class="o">[</span><span class="n">frame_num</span><span class="o">]</span>
+
+<span class="w">            </span><span class="n">mask_wrm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ErrorCalculator</span><span class="p">.</span><span class="n">calculate_segmentation</span><span class="p">(</span>
+
+<span class="w">                </span><span class="n">bbox</span><span class="o">=</span><span class="n">wrm_bbox</span><span class="p">,</span>
+
+<span class="w">                </span><span class="nc">image</span><span class="o">=</span><span class="n">worm_view</span><span class="p">,</span>
+
+<span class="w">                </span><span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span>
+
+<span class="w">                </span><span class="n">diff_thresh</span><span class="o">=</span><span class="n">diff_thresh</span><span class="p">,</span>
+
+<span class="w">            </span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">ErrorCalculator</span><span class="p">.</span><span class="n">probe_hook</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">None</span><span class="err">:</span>
+
+<span class="w">                </span><span class="n">ErrorCalculator</span><span class="p">.</span><span class="n">probe_hook</span><span class="p">(</span><span class="n">worm_view</span><span class="p">,</span><span class="w"> </span><span class="n">mask_wrm</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">mask_mic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mask_wrm</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="n">bool</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">mask_mic</span><span class="o">[</span><span class="n">int_bbox[1</span><span class="o">]</span><span class="w"> </span><span class="err">:</span><span class="w"> </span><span class="n">int_bbox</span><span class="o">[</span><span class="n">3</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">int_bbox</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="err">:</span><span class="w"> </span><span class="n">int_bbox</span><span class="o">[</span><span class="n">2</span><span class="o">]</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span>
+
+<span class="w">            </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mask_wrm</span><span class="p">.</span><span class="nf">sum</span><span class="p">()</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span>
+
+<span class="w">                </span><span class="n">errors</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+
+<span class="w">                </span><span class="k">continue</span>
+
+<span class="w">            </span><span class="k">intersection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">mask_wrm</span><span class="p">,</span><span class="w"> </span><span class="n">mask_mic</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span>
+
+<span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">intersection</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span>
+
+<span class="w">            </span><span class="n">errors</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">errors</span>
+</code></pre></div>
+
+</details>
+<h4 id="calculate_segmentation">calculate_segmentation</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_segmentation</span><span class="p">(</span>
+    <span class="n">bbox</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">background</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">diff_thresh</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+</code></pre></div>
+
+<p>Calculates the segmentation error between a view and background image.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bbox</td>
+<td>np.ndarray</td>
+<td>The bounding box of the image, in the format (x, y, w, h).</td>
+<td>None</td>
+</tr>
+<tr>
+<td>image</td>
+<td>np.ndarray</td>
+<td>The image to calculate segmantation in.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>background</td>
+<td>np.ndarray</td>
+<td>The background image.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>diff_thresh</td>
+<td>float</td>
+<td>The difference threshold to distinguish foreground and background objects from.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>np.ndarray</td>
+<td>The segmentation mask.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Raises:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ValueError</td>
+<td>If the image is not grayscale or color.</td>
+</tr>
+</tbody>
+</table>
+<details class="example">
+<summary>View Source</summary>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="err">@</span><span class="nx">staticmethod</span>
+
+<span class="w">    </span><span class="nx">def</span><span class="w"> </span><span class="nx">calculate_segmentation</span><span class="p">(</span>
+
+<span class="w">        </span><span class="nx">bbox</span><span class="p">:</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nx">image</span><span class="p">:</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nx">background</span><span class="p">:</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">,</span>
+
+<span class="w">        </span><span class="nx">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="nx">float</span><span class="p">,</span>
+
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">:</span>
+
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
+
+<span class="s">        Calculates the segmentation error between a view and background image.</span>
+
+<span class="s">        Args:</span>
+
+<span class="s">            bbox (np.ndarray): The bounding box of the image, in the format (x, y, w, h).</span>
+
+<span class="s">            image (np.ndarray): The image to calculate segmantation in.</span>
+
+<span class="s">            background (np.ndarray): The background image.</span>
+
+<span class="s">            diff_thresh (float): The difference threshold to distinguish foreground and background objects from.</span>
+
+<span class="s">        Returns:</span>
+
+<span class="s">            np.ndarray: The segmentation mask.</span>
+
+<span class="s">        Raises:</span>
+
+<span class="s">            ValueError: If the image is not grayscale or color.</span>
+
+<span class="s">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="nx">assert</span><span class="w"> </span><span class="nx">image</span><span class="p">.</span><span class="nx">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="w">        </span><span class="nx">assert</span><span class="w"> </span><span class="nx">image</span><span class="p">.</span><span class="nx">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="w">        </span><span class="nx">bg_view</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">background</span><span class="p">[</span><span class="nx">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+<span class="w">        </span><span class="nx">diff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">image</span><span class="p">.</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">bg_view</span><span class="p">.</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">))</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">images</span><span class="w"> </span><span class="nx">are</span><span class="w"> </span><span class="nx">color</span><span class="p">,</span><span class="w"> </span><span class="nx">convert</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">grayscale</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">conversion</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="nx">correct</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">it</span><span class="err">&#39;</span><span class="nx">s</span><span class="w"> </span><span class="nx">BGR</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">diff</span><span class="p">.</span><span class="nx">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="nx">diff</span><span class="p">.</span><span class="nx">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span>
+
+<span class="w">            </span><span class="nx">diff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="m m-Double">0.114</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">diff</span><span class="p">[:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m m-Double">0.587</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">diff</span><span class="p">[:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m m-Double">0.299</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">diff</span><span class="p">[:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">diff</span><span class="p">.</span><span class="nx">ndim</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
+
+<span class="w">            </span><span class="nx">raise</span><span class="w"> </span><span class="nx">ValueError</span><span class="p">(</span><span class="s">&quot;Image must be either a gray or a color image.&quot;</span><span class="p">)</span>
+
+<span class="w">        </span><span class="nx">mask_wrm</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">diff</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="nx">diff_thresh</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">mask_wrm</span>
+</code></pre></div>
+
+</details>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+    
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../data_analyzer/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Data Analyzer" rel="prev">
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Previous
+                </span>
+                Data Analyzer
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../" class="md-footer__link md-footer__link--next" aria-label="Next: Index" rel="next">
+            <div class="md-footer__title">
+              <div class="md-ellipsis">
+                <span class="md-footer__direction">
+                  Next
+                </span>
+                Index
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        <div class="md-footer-copyright">
+            
+            Powered by
+            <a href="http://timothycrosley.github.io/portray">portray.</a>
+            You too can
+            <a href="http://timothycrosley.github.io/portray">
+              portray</a>
+            your Python project well using automatic documentation.
+          </div>
+        
+      </div>
+    </div>
+  </footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": [], "search": "../../../../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.078830c0.min.js"></script>
+      
+    
+  </body>
+</html>
