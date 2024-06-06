@@ -10,10 +10,9 @@ class Plotter:
     Supports analysis of multiple logs at once.
 
     Args:
-        data_list (list[DataAnalyzer]): A list of DataAnalyzer objects, each holding the data of a single experiment log.
+        data_list (list[pd.DataFrame]): A list of dataframes, each holding the data of a single experiment log.
         plot_height (int, optional): The height of the plot. Defaults to 7.
         palette (str, optional): The color palette to use for the plots. Defaults to "viridis".
-
     """
 
     def __init__(

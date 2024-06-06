@@ -28,7 +28,7 @@ class DataAnalyzer:
         self._unit = "frame"
 
     def save(self, path: str) -> None:
-        self._orig_data.to_csv(path)
+        self._orig_data.to_csv(path, index=False)
 
     @staticmethod
     def load(time_config: TimingConfig, csv_path: str) -> DataAnalyzer:
