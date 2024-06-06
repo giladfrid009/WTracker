@@ -22,21 +22,12 @@ def run(base_path:str, background_path:str, exp_bounds=None, worm_folder_path:st
     time_config_path = base_path + "\\time_config.json"
     timing_config = TimingConfig.load_json(time_config_path)
 
-    
     pprint(timing_config)
     pprint(log_file)
 
-    data = DataAnalyzer(
-        time_config=timing_config,
-        log_path=log_file,
-        unit="sec",
-    )
-
-    data.run_analysis(
-        period=10,
-        imaging_only=False,
-        legal_bounds=exp_bounds,
-    )
+    analyzer = DataAnalyzer.load(timing_config, log_file)
+    analyzer.initialize(period=10)
+    analyzer.clean(imaging_only=False, bounds=exp_bounds, trim_cycles=True)
 
     # if background_path is None:
     #     background_path = UserPrompt.open_file(title="Select background images", file_types=[("Numpy files", "*.npy")])
@@ -61,10 +52,8 @@ def run(base_path:str, background_path:str, exp_bounds=None, worm_folder_path:st
     #     data_save_path = UserPrompt.save_file(title="Save data", filetypes=[("Pickle files", "*.pkl")])
 
     # data.save(base_path + "\\dataAnalyzer.pkl")
-    data.table.to_csv(base_path + "\\analysis.csv")
 
-
-
+    analyzer.save(base_path + "\\analysis.csv")
 
 
 if __name__ == "__main__":

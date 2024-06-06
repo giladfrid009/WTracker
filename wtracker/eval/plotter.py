@@ -4,24 +4,20 @@ import seaborn as sns
 from typing import Callable
 import itertools
 
-from wtracker.eval.data_analyzer import DataAnalyzer
-
-
 class Plotter:
     def __init__(
         self,
-        data_list: list[DataAnalyzer],
+        data_list: list[pd.DataFrame],
         plot_height: int = 7,
         palette: str = "viridis",
     ) -> None:
-        self._plot_height = plot_height
-        self._data_list = data_list
-        self._palette = palette
+        self.plot_height = plot_height
+        self.palette = palette
 
-        for i, data_obj in enumerate(data_list):
-            data_obj.table["log_num"] = i
+        for i, data in enumerate(data_list):
+            data["log_num"] = i
 
-        self._all_data = pd.concat([d.table for d in data_list], ignore_index=True)
+        self.data = pd.concat([d for d in data_list], ignore_index=True)
 
     # TODO: HERE WE DISPLAY THE ERROR PER FRAME, WE NEED TO DISPLAY ERROR PER CYCLE.
     # I.E. ARGMAX OF ERROR PER CYCLE
@@ -35,10 +31,8 @@ class Plotter:
             error_col = "bbox_error"
         elif error_kind == "dist":
             error_col = "worm_deviation"
-        elif error_kind == "mse":
-            error_col = "mse_error"
         elif error_kind == "precise":
-            if "precise_error" not in self._all_data.columns:
+            if "precise_error" not in self.data.columns:
                 raise ValueError("Precise error have not been calculated")
             error_col = "precise_error"
         else:
@@ -88,10 +82,8 @@ class Plotter:
             error_col = "bbox_error"
         elif error_kind == "dist":
             error_col = "worm_deviation"
-        elif error_kind == "mse":
-            error_col = "mse_error"
         elif error_kind == "precise":
-            if "precise_error" not in self._all_data.columns:
+            if "precise_error" not in self.data.columns:
                 raise ValueError("Precise error have not been calculated")
             error_col = "precise_error"
         else:
@@ -163,7 +155,7 @@ class Plotter:
         **kwargs,
     ) -> sns.JointGrid:
 
-        q = self._all_data["worm_deviation"].quantile(percentile)
+        q = self.data["worm_deviation"].quantile(percentile)
 
         if condition is not None:
             cond_func = lambda x: condition(x) & (x["worm_deviation"] < q)
@@ -201,7 +193,7 @@ class Plotter:
 
         assert kind in ["hist", "kde", "ecdf"]
 
-        data = self._all_data
+        data = self.data
         if transform is not None:
             data = transform(data)
 
@@ -215,8 +207,8 @@ class Plotter:
             hue=hue_col,
             col="log_num" if log_wise else None,
             kind=kind,
-            height=self._plot_height,
-            palette=self._palette,
+            height=self.plot_height,
+            palette=self.palette,
             **kwargs,
         )
 
@@ -251,7 +243,7 @@ class Plotter:
 
         assert kind in ["strip", "box", "violin", "boxen", "bar", "count"]
 
-        data = self._all_data
+        data = self.data
         if transform is not None:
             data = transform(data)
 
@@ -265,8 +257,8 @@ class Plotter:
             hue=hue_col,
             col="log_num" if log_wise else None,
             kind=kind,
-            height=self._plot_height,
-            palette=self._palette,
+            height=self.plot_height,
+            palette=self.palette,
             **kwargs,
         )
 
@@ -300,7 +292,7 @@ class Plotter:
 
         assert kind in ["scatter", "kde", "hist", "hex", "reg", "resid"]
 
-        data = self._all_data
+        data = self.data
 
         if transform is not None:
             data = transform(data)
@@ -314,9 +306,9 @@ class Plotter:
             y=y_col,
             hue=hue_col,
             kind=kind,
-            height=self._plot_height,
-            palette=self._palette,
-            marginal_kws=dict(palette=self._palette),
+            height=self.plot_height,
+            palette=self.palette,
+            marginal_kws=dict(palette=self.palette),
             **kwargs,
         )
 

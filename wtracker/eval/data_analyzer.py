@@ -9,144 +9,116 @@ from wtracker.utils.io_utils import pickle_save_object, pickle_load_object
 
 
 class DataAnalyzer:
+    """
+    A class for analyzing simulation log.
+
+    Args:
+        time_config (TimingConfig): The timing configuration.
+        log_path (pd.DataFrame): Dataframe containing the simulation log data.
+    """
+
     def __init__(
         self,
         time_config: TimingConfig,
-        log_path: str,
-        unit: str = "frame",
+        log_data: pd.DataFrame,
     ):
-        """
-        Initialize the DataAnalyzer class.
-
-        Args:
-            time_config (TimingConfig): The timing configuration.
-            log_path (str): The path to the log file on which to perform analysis on.
-            unit (str, optional): The unit of time. Can be "frame" or "sec". Defaults to "frame".
-                If "sec" is chosen, the time will be converted to seconds, and the distance metric is micrometer.
-                If "frame" is chosen, the time will be in frames, and the distance metric is pixels.
-        """
-
-        assert unit in ["frame", "sec"]
-
-        self.unit = unit
         self.time_config = time_config
-        self.log_path = log_path
-        self.table = pd.read_csv(log_path)
+        self.data = log_data.copy()
+        self._orig_data = log_data
+        self._unit = "frame"
 
     def save(self, path: str) -> None:
-        """
-        Save the DataAnalyzer object to a file.
-
-        Args:
-            path (str): The path to save the object.
-        """
-
-        pickle_save_object(self, path)
+        self._orig_data.to_csv(path)
 
     @staticmethod
-    def load(path: str) -> DataAnalyzer:
+    def load(time_config: TimingConfig, csv_path: str) -> DataAnalyzer:
+        data = pd.read_csv(csv_path)
+        return DataAnalyzer(time_config, data)
+
+    def initialize(self, period: int = 10):
         """
-        Load a DataAnalyzer object from a file.
+        Initializes the data analyzer.
+        It's essential to call this function if the class was created from a non-analyzed log data.
 
         Args:
-            path (str): The path to load the object from.
-
-        Returns:
-            DataAnalyzer: The loaded DataAnalyzer object.
+            period (int): The period for calculating speed in frames. The speed is calculated by measuring the
+                distance between current frame and period frames before.
         """
+        data = self._orig_data
 
-        return pickle_load_object(path)
-
-    def run_analysis(
-        self,
-        period: int = 10,
-        imaging_only: bool = True,
-        legal_bounds: tuple[float, float, float, float] = None,
-    ) -> None:
-        """
-        Runs the analysis on the data.
-
-        Args:
-            period (int): The period for calculating speed in frames.
-            imaging_only (bool): Flag indicating whether to include only imaging phases in the analysis.
-            legal_bounds (tuple[float, float, float, float]): The legal bounds for worm movement.
-
-        Returns:
-            None
-        """
-        data = self.table
         data["time"] = data["frame"]
         data["cycle_step"] = data["frame"] % self.time_config.cycle_frame_num
 
-        if self.unit == "sec":
-            data = self._convert_frames_to_secs(data)
-
-        data = self._calc_centers(data)
-        data = self._calc_speed(data, period)
-
-        if legal_bounds is not None:
-            if self.unit == "sec":
-                legal_bounds = tuple(x * self.time_config.mm_per_px * 1000 for x in legal_bounds)
-
-            data = self._remove_out_of_bounds(data, legal_bounds)
-
-        data = data[data["cycle"] != 0]
-        data = data[data["cycle"] != data["cycle"].max()]
-
-        if imaging_only:
-            data = data[data["phase"] == "imaging"]
-
-        data = self._calc_worm_deviation(data)
-        data = self._calc_errors(data)
+        data = DataAnalyzer._calc_centers(data)
+        data = DataAnalyzer._calc_speed(data, period)
+        data = DataAnalyzer._calc_worm_deviation(data)
+        data = DataAnalyzer._calc_errors(data)
         data = data.round(5)
 
-        self.table = data
+        self._orig_data = data
+        self.data = self._orig_data.copy()
 
-    def _convert_frames_to_secs(self, data: pd.DataFrame) -> pd.DataFrame:
-        frame_to_secs = self.time_config.ms_per_frame / 1000
-        px_to_micrometer = self.time_config.mm_per_px * 1000
-        data["time"] = data["time"] * frame_to_secs
-        data[["plt_x", "plt_y"]] = data[["plt_x", "plt_y"]] * px_to_micrometer
-        data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]] = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]] * px_to_micrometer
-        data[["mic_x", "mic_y", "mic_w", "mic_h"]] = data[["mic_x", "mic_y", "mic_w", "mic_h"]] * px_to_micrometer
-        data[["cam_x", "cam_y", "cam_w", "cam_h"]] = data[["cam_x", "cam_y", "cam_w", "cam_h"]] * px_to_micrometer
-        return data
-
-    def _calc_centers(self, data: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def _calc_centers(data: pd.DataFrame) -> pd.DataFrame:
         data["wrm_center_x"] = data["wrm_x"] + data["wrm_w"] / 2
         data["wrm_center_y"] = data["wrm_y"] + data["wrm_h"] / 2
         data["mic_center_x"] = data["mic_x"] + data["mic_w"] / 2
         data["mic_center_y"] = data["mic_y"] + data["mic_h"] / 2
         return data
 
-    def _calc_speed(self, data: pd.DataFrame, n: int) -> pd.DataFrame:
+    @staticmethod
+    def _calc_speed(data: pd.DataFrame, n: int) -> pd.DataFrame:
         diff = data["time"].diff(n).to_numpy()
         data["wrm_speed_x"] = data["wrm_center_x"].diff(n) / diff
         data["wrm_speed_y"] = data["wrm_center_y"].diff(n) / diff
         data["wrm_speed"] = np.sqrt(data["wrm_speed_x"] ** 2 + data["wrm_speed_y"] ** 2)
         return data
 
-    def _calc_worm_deviation(self, data: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def _calc_worm_deviation(data: pd.DataFrame) -> pd.DataFrame:
         data["worm_deviation_x"] = data["wrm_center_x"] - data["mic_center_x"]
         data["worm_deviation_y"] = data["wrm_center_y"] - data["mic_center_y"]
         data["worm_deviation"] = np.sqrt(data["worm_deviation_x"] ** 2 + data["worm_deviation_y"] ** 2)
         return data
 
-    def _remove_out_of_bounds(self, data: pd.DataFrame, bounds: tuple[float, float, float, float]) -> pd.DataFrame:
-        mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[2])
-        mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[3])
-        return data[mask]
-
-    def _calc_errors(self, data: pd.DataFrame) -> pd.DataFrame:
+    @staticmethod
+    def _calc_errors(data: pd.DataFrame) -> pd.DataFrame:
         wrm_bboxes = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
         mic_bboxes = data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
         bbox_error = ErrorCalculator.calculate_bbox_error(wrm_bboxes, mic_bboxes)
-        mse_error = ErrorCalculator.calculate_mse_error(wrm_bboxes, mic_bboxes)
         data["bbox_error"] = bbox_error
-        data["mse_error"] = mse_error
         data["precise_error"] = 1.0
-
         return data
+
+    def clean(
+        self,
+        trim_cycles: bool = False,
+        imaging_only: bool = False,
+        bounds: tuple[float, float, float, float] = None,
+    ) -> None:
+        """
+        Args:
+            trim_cycles (bool): whether to remove the first and the last cycles from the data.
+            imaging_only (bool): Flag indicating whether to include only imaging phases in the analysis.
+            legal_bounds (tuple[float, float, float, float]): The legal bounds for worm movement.
+        """
+        data = self.data
+
+        if imaging_only:
+            mask = data["phase"] == "imaging"
+            data = data[mask]
+
+        if bounds is not None:
+            mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[2])
+            mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[3])
+            data = data[mask]
+
+        if trim_cycles:
+            mask = data["cycle"] != 0
+            mask &= data["cycle"] != data["cycle"].max()
+            data = data[mask]
+
+        self.data = data
 
     def calc_precise_error(self, worm_reader: FrameReader, background: np.ndarray, diff_thresh=20) -> None:
         """
@@ -161,9 +133,9 @@ class DataAnalyzer:
             diff_thresh (int): Difference threshold to differentiate between the background and foreground.
                 A foreground object is detected if the pixel value difference with the background is greater than this threshold.
         """
-        frames = self.table["frame"].to_numpy().astype(int, copy=False)
-        wrm_bboxes = self.table[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
-        mic_bboxes = self.table[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
+        frames = self._orig_data["frame"].to_numpy().astype(int, copy=False)
+        wrm_bboxes = self._orig_data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
+        mic_bboxes = self._orig_data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
 
         errors = np.ones_like(frames, dtype=float)
         mask = np.isfinite(wrm_bboxes).all(axis=1)
@@ -171,10 +143,6 @@ class DataAnalyzer:
         wrm_bboxes = wrm_bboxes[mask]
         mic_bboxes = mic_bboxes[mask]
         frames = frames[mask]
-
-        if self.unit == "sec":
-            wrm_bboxes = wrm_bboxes * self.time_config.mm_per_px / 1000
-            mic_bboxes = mic_bboxes * self.time_config.mm_per_px / 1000
 
         results = ErrorCalculator.calculate_precise(
             background,
@@ -185,28 +153,72 @@ class DataAnalyzer:
             diff_thresh=diff_thresh,
         )
 
+        # set the error in the original data
         errors[mask] = results
-        self.table["precise_error"] = errors
+        self._orig_data["precise_error"] = errors
+
+        # copy relevant error entries into the work data
+        work_mask = np.isin(self._orig_data["frame"].values, self.data["frame"].values)
+        self.data["precise_error"] = errors[work_mask]
+
+    def reset_changes(self):
+        self.data = self._orig_data.copy()
 
     def column_names(self) -> list[str]:
         """
-        Returns a list of column names in the table holding the data.
+        Returns a list of all column names in the analyzed data.
 
         Returns:
             list[str]: A list of column names.
         """
-        return self.table.columns.to_list()
+        return self.data.columns.to_list()
 
-    def find_anomalies(
+    def change_unit(self, unit: str):
+        """
+        Args:
+            unit (str, optional): The new unit of time to convert into. Can be "frame" or "sec". Defaults to "frame".
+                If "sec" is chosen, the time will be converted to seconds, and the distance metric is micrometer.
+                If "frame" is chosen, the time will be in frames, and the distance metric is pixels.
+        """
+        assert unit in ["frame", "sec"]
+
+        if self._unit == unit:
+            return
+
+        data = self.data
+
+        if unit == "sec": # frame -> sec
+            dist_factor = self.time_config.mm_per_px * 1000
+            time_factor = self.time_config.ms_per_frame / 1000
+
+        if unit == "frame": # sec -> frame
+            dist_factor = self.time_config.px_per_mm / 1000
+            time_factor = self.time_config.frames_per_sec
+
+        data["time"] *= time_factor
+        data[["plt_x", "plt_y"]] *= dist_factor
+        data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]] *= dist_factor
+        data[["mic_x", "mic_y", "mic_w", "mic_h"]] *= dist_factor
+        data[["cam_x", "cam_y", "cam_w", "cam_h"]] *= dist_factor
+        data[["wrm_center_x", "wrm_center_y"]] *= dist_factor
+        data[["mic_center_x", "mic_center_y"]] *= dist_factor
+        data[["worm_deviation_x", "worm_deviation_y", "worm_deviation"]] *= dist_factor
+        data[["wrm_speed_x", "wrm_speed_y", "wrm_speed"]] *= dist_factor / time_factor
+
+        self._unit = unit
+        self.data = data
+
+    def calc_anomalies(
         self,
         no_preds: bool = True,
         min_bbox_error: float = np.inf,
         min_dist_error: float = np.inf,
         min_speed: float = np.inf,
         min_size: float = np.inf,
+        remnove_anomalies: bool = False,
     ) -> pd.DataFrame:
         """
-        Find anomalies in the data based on specified criteria.
+        Calculate anomalies in the data based on specified criteria.
 
         Args:
             no_preds (bool, optional): Flag indicating whether to consider instances with missing predictions. Defaults to True.
@@ -219,12 +231,14 @@ class DataAnalyzer:
             pd.DataFrame: DataFrame containing the anomalies found in the data.
         """
 
-        mask_speed = self.table["wrm_speed"] >= min_speed
-        mask_bbox_error = self.table["bbox_error"] >= min_bbox_error
-        mask_dist_error = self.table["worm_deviation"] >= min_dist_error
-        mask_worm_width = self.table["wrm_w"] >= min_size
-        mask_worm_height = self.table["wrm_h"] >= min_size
-        mask_no_preds = self.table[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1) & no_preds
+        data = self.data
+
+        mask_speed = data["wrm_speed"] >= min_speed
+        mask_bbox_error = data["bbox_error"] >= min_bbox_error
+        mask_dist_error = data["worm_deviation"] >= min_dist_error
+        mask_worm_width = data["wrm_w"] >= min_size
+        mask_worm_height = data["wrm_h"] >= min_size
+        mask_no_preds = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1) & no_preds
 
         mask = mask_speed | mask_bbox_error | mask_dist_error | mask_worm_width | mask_worm_height | mask_no_preds
 
@@ -235,7 +249,7 @@ class DataAnalyzer:
         mask_worm_height = mask_worm_height[mask]
         mask_no_preds = mask_no_preds[mask]
 
-        anomalies = self.table[mask].copy()
+        anomalies = data[mask].copy()
 
         anomalies["speed_anomaly"] = mask_speed
         anomalies["bbox_error_anomaly"] = mask_bbox_error
@@ -243,6 +257,10 @@ class DataAnalyzer:
         anomalies["width_anomaly"] = mask_worm_width
         anomalies["height_anomaly"] = mask_worm_height
         anomalies["no_pred_anomaly"] = mask_no_preds
+
+        if remnove_anomalies:
+            self.data = self.data[~mask]
+
         return anomalies
 
     def describe(self, columns: list[str] = None, num: int = 3, percentiles: list[float] = None) -> pd.DataFrame:
@@ -263,7 +281,7 @@ class DataAnalyzer:
         if percentiles is None:
             percentiles = np.linspace(start=0, stop=1.0, num=num + 2)[1:-1]
 
-        return self.table[columns].describe(percentiles)
+        return self.data[columns].describe(percentiles)
 
     def print_stats(self) -> None:
         """
@@ -277,11 +295,11 @@ class DataAnalyzer:
         Returns:
             None
         """
-        no_preds = self.table[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1).sum()
-        print(f"Total Count of No Pred Frames: {no_preds} ({round(100 * no_preds / len(self.table.index), 3)}%)")
+        no_preds = self.data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1).sum()
+        print(f"Total Count of No Pred Frames: {no_preds} ({round(100 * no_preds / len(self.data.index), 3)}%)")
 
-        num_cycles = self.table["cycle"].nunique()
+        num_cycles = self.data["cycle"].nunique()
         print(f"Total Num of Cycles: {num_cycles}")
 
-        non_perfect = (self.table["bbox_error"] > 1e-7).sum() / len(self.table.index)
+        non_perfect = (self.data["bbox_error"] > 1e-7).sum() / len(self.data.index)
         print(f"Non Perfect Predictions: {round(100 * non_perfect, 3)}%")
