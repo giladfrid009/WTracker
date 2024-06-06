@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import pickle
+import math
 
 from wtracker.utils.path_utils import join_paths, create_directory, create_parent_directory
 from wtracker.utils.frame_reader import FrameReader
@@ -58,13 +59,18 @@ class FrameSaver(TaskScheduler):
         H, W = img.shape[:2]
 
         x_min, y_min, x_max, y_max = x, y, x + w, y + h
-        x_min, y_min = np.floor(x_min, dtype=int), np.floor(y_min, dtype=int)
-        x_max, y_max = np.ceil(x_max, dtype=int), np.ceil(y_max, dtype=int)
+        x_min, y_min = math.floor(x_min), math.floor(y_min)
+        x_max, y_max = math.ceil(x_max), math.ceil(y_max)
 
         x_min = np.clip(x_min, a_min=0, a_max=W - 1)
         x_max = np.clip(x_max, a_min=0, a_max=W - 1)
         y_min = np.clip(y_min, a_min=0, a_max=H - 1)
         y_max = np.clip(y_max, a_min=0, a_max=H - 1)
+
+        x_min = int(x_min)
+        x_max = int(x_max)
+        y_min = int(y_min)
+        y_max = int(y_max)
 
         img = img[y_min:y_max, x_min:x_max]
         success = cv.imwrite(save_path, img)

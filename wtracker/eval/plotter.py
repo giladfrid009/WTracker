@@ -47,7 +47,7 @@ class Plotter:
         plot = self.create_jointplot(
             x_col="wrm_speed",
             y_col=error_col,
-            kind="hex",
+            kind="scatter",
             x_label="speed",
             y_label=f"{error_kind} Error",
             title=f"Speed vs {error_kind} Error",

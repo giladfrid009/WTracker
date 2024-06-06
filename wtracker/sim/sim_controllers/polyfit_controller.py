@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
+import numpy.polynomial.polynomial as poly
 
 from wtracker.sim.config import TimingConfig
 from wtracker.sim.simulator import Simulator
@@ -70,12 +71,12 @@ class PolyfitController(CsvController):
         if len(time) == 0:
             return 0, 0
 
-        try:
-            # predict future x and future y based on the fitted polynomial
-            coeffs = np.polyfit(time, positions, deg=config.degree, w=weights)
-            x_pred, y_pred = np.polyval(coeffs, timing.cycle_frame_num + timing.imaging_frame_num // 2)
-        except:
-            x_pred, y_pred = positions[-1, :]
+        # TODO: INVESTIAGATE POLY package in numpy and how to use it best
+        # investigate window parameter and Polynomial class
+
+        # predict future x and future y based on the fitted polynomial
+        coeffs = poly.polyfit(time, positions, deg=config.degree, w=weights)
+        x_pred, y_pred = poly.polyval(timing.cycle_frame_num + timing.imaging_frame_num // 2, coeffs)
 
         # calculate camera correction based on the speed of the worm and current worm position
         camera_mid = sim.view.camera_size[0] / 2, sim.view.camera_size[1] / 2
@@ -86,6 +87,7 @@ class PolyfitController(CsvController):
         return dx, dy
 
 
+# TODO: use numpy polynomial package instead of the np.polyfit and np.polyval
 class WeightEvaluator:
     def __init__(
         self,

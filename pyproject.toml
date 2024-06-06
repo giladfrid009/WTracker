@@ -42,5 +42,5 @@ Documentation = "https://readthedocs.org"
 Repository = "https://github.com/giladfrid009/Bio-Proj"
 
 [tool.portray]
-package = "."
-modules = ["sim", "dataset", "neural", "utils", "eval"]
+package = "wtracker"
+modules = ["wtracker.sim", "wtracker.dataset", "wtracker.neural", "wtracker.utils", "wtracker.eval"]
