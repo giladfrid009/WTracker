@@ -15,13 +15,6 @@ class SampleExtractor:
 
     Args:
         bbox_calculator (BoxCalculator): An instance of the BoxCalculator class.
-
-    Methods:
-        move_bboxes_into_bounds: Corrects the coordinates of the bonding boxes by moving them into the bounds of the frame.
-        create_specified_samples: Creates specified samples based on frame indices.
-        create_samples: Creates random samples based the provided count specified count.
-        create_all_samples: Creates samples for all frames.
-
     """
 
     def __init__(self, bbox_calculator: BoxCalculator):

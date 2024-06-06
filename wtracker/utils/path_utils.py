@@ -78,18 +78,8 @@ class Files:
         extension (str, optional): The file extension to filter the files. Defaults to "".
         scan_dirs (bool, optional): Whether to include directories in the results. Defaults to False.
         return_full_path (bool, optional): Whether to return the full path of the files. Defaults to True.
-        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files. Defaults to lambda name: name.
-
-    Methods:
-        __getitem__(index: int) -> os.DirEntry: Returns the file at the specified index.
-        __iter__() -> Files: Returns an iterator object.
-        __next__() -> str: Returns the next file name or path in the iteration.
-        __len__() -> int: Returns the number of files in the results list.
-        __contains__(key: str) -> bool: Checks if a file with the specified name exists in the results list.
-        get_filename() -> str: Returns the name of the current file.
-        get_path() -> str: Returns the path of the current file.
-        seek(pos: int) -> str: Moves the iterator to the specified position and returns the file name or path.
-        copy(dst_root: str) -> None: Copies the current file to the specified destination directory.
+        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files. 
+            Defaults to lambda name: name.
     """
 
     def __init__(

@@ -2,9 +2,20 @@ from __future__ import annotations
 import pandas as pd
 import seaborn as sns
 from typing import Callable
-import itertools
 
 class Plotter:
+    """
+    A class for plotting experiment log data.
+    The experiment data was previously analyzed by the DataAnalyzer class.
+    Supports analysis of multiple logs at once.
+
+    Args:
+        data_list (list[DataAnalyzer]): A list of DataAnalyzer objects, each holding the data of a single experiment log.
+        plot_height (int, optional): The height of the plot. Defaults to 7.
+        palette (str, optional): The color palette to use for the plots. Defaults to "viridis".
+
+    """
+
     def __init__(
         self,
         data_list: list[pd.DataFrame],

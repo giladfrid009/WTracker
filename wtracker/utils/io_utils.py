@@ -13,9 +13,12 @@ class FrameSaver(TaskScheduler):
     A class for saving images from a frame reader to a specified folder.
     This class utilizes a queue to save images in a separate thread, which allows for non-blocking image saving.
 
-    Methods:
-        save_image: Adds an image to the queue for saving.
-        close: Waits for all images to be saved and closes the image saver.
+    Args:
+        frame_reader (FrameReader): The frame reader object from which images will be saved.
+        root_path (str): The root folder path, relative to which all other paths are. Defaults to "".
+        maxsize (int, optional): The maximum size of the queue. Defaults to 0.
+        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
+        **tqdm_kwargs: Additional keyword arguments for tqdm.
     """
 
     def __init__(
@@ -26,14 +29,6 @@ class FrameSaver(TaskScheduler):
         tqdm: bool = True,
         **tqdm_kwargs,
     ):
-        """
-        Args:
-            frame_reader (FrameReader): The frame reader object from which images will be saved.
-            root_path (str): The root folder path, relative to which all other paths are. Defaults to "".
-            maxsize (int, optional): The maximum size of the queue. Defaults to 0.
-            tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
-            **tqdm_kwargs: Additional keyword arguments for tqdm.
-        """
         super().__init__(self._save_frame, maxsize, tqdm, **tqdm_kwargs)
         self._frame_reader = frame_reader
         self._root_path = root_path
@@ -85,9 +80,11 @@ class ImageSaver(TaskScheduler):
     """
     A class for saving images asynchronously using a task scheduler.
 
-    Methods:
-        schedule_save: Adds an image to the queue for saving.
-        close: Waits for all images to be saved and closes the image saver.
+    Args:
+        root_path (str): The root folder path, relative to which all other paths are. Defaults to "".
+        maxsize (int, optional): The maximum size of the queue. Defaults to 0.
+        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
+        **tqdm_kwargs: Additional keyword arguments for tqdm.
     """
 
     def __init__(
@@ -97,13 +94,6 @@ class ImageSaver(TaskScheduler):
         tqdm: bool = True,
         **tqdm_kwargs,
     ):
-        """
-        Args:
-            root_path (str): The root folder path, relative to which all other paths are. Defaults to "".
-            maxsize (int, optional): The maximum size of the queue. Defaults to 0.
-            tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
-            **tqdm_kwargs: Additional keyword arguments for tqdm.
-        """
         super().__init__(self._save_image, maxsize, tqdm, **tqdm_kwargs)
         self._root_path = root_path
         create_directory(root_path)

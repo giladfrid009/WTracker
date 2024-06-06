@@ -22,6 +22,11 @@ class Trainer(abc.ABC):
     - Multiple epochs (fit)
     - Single epoch (train_epoch/test_epoch)
     - Single batch (train_batch/test_batch)
+
+    Args:
+        model (nn.Module): The model to train.
+        device (Optional[torch.device], optional): The device to run training on (CPU or GPU). Defaults to None.
+        log (bool, optional): Whether to log training progress with tensorboard. Defaults to False.
     """
 
     def __init__(
@@ -30,11 +35,6 @@ class Trainer(abc.ABC):
         device: Optional[torch.device] = None,
         log: bool = False,
     ):
-        """
-        Initialize the trainer.
-        :param model: Instance of the model to train.
-        :param device: torch.device to run training on (CPU or GPU).
-        """
         self.model = model
         self.device = device
         self.logger = None if not log else SummaryWriter()
@@ -71,16 +71,17 @@ class Trainer(abc.ABC):
         """
         Trains the model for multiple epochs with a given training set,
         and calculates validation loss over a given validation set.
-        :param dl_train: Dataloader for the training set.
-        :param dl_test: Dataloader for the test set.
-        :param num_epochs: Number of epochs to train for.
-        :param checkpoints: Whether to save model to file every time the
-            test set accuracy improves. Should be a string containing a
-            filename without extension.
-        :param early_stopping: Whether to stop training early if there is no
-            test loss improvement for this number of epochs.
-        :param print_every: Print progress every this number of epochs.
-        :return: A FitResult object containing train and test losses per epoch.
+
+        Args:
+            dl_train (DataLoader): Dataloader for the training set.
+            dl_test (DataLoader): Dataloader for the test set.
+            num_epochs (int): Number of epochs to train for.
+            checkpoints (str, optional): Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension. Defaults to None.
+            early_stopping (int, optional): Whether to stop training early if there is no test loss improvement for this number of epochs. Defaults to None.
+            print_every (int, optional): Print progress every this number of epochs. Defaults to 1.
+
+        Returns:
+            FitResult: A FitResult object containing train and test losses per epoch.
         """
         actual_epoch_num = 0
         epochs_without_improvement = 0
@@ -132,7 +133,9 @@ class Trainer(abc.ABC):
         """
         Saves the model in it's current state to a file with the given name (treated
         as a relative path).
-        :param checkpoint_filename: File name or relative path to save to.
+
+        Args:
+            checkpoint_filename (str): File name or relative path to save to.
         """
         if self.logger is not None:
             checkpoint_filename = f"{self.logger.log_dir}/{checkpoint_filename}"
@@ -142,9 +145,13 @@ class Trainer(abc.ABC):
     def train_epoch(self, dl_train: DataLoader, **kw) -> EpochResult:
         """
         Train once over a training set (single epoch).
-        :param dl_train: DataLoader for the training set.
-        :param kw: Keyword args supported by _foreach_batch.
-        :return: An EpochResult for the epoch.
+
+        Args:
+            dl_train (DataLoader): DataLoader for the training set.
+            kw: Keyword args supported by _foreach_batch.
+
+        Returns:
+            EpochResult: An EpochResult for the epoch.
         """
         self.model.train(True)  # set train mode
         return self._foreach_batch(dl_train, self.train_batch, **kw)
@@ -152,9 +159,13 @@ class Trainer(abc.ABC):
     def test_epoch(self, dl_test: DataLoader, **kw) -> EpochResult:
         """
         Evaluate model once over a test set (single epoch).
-        :param dl_test: DataLoader for the test set.
-        :param kw: Keyword args supported by _foreach_batch.
-        :return: An EpochResult for the epoch.
+
+        Args:
+            dl_test (DataLoader): DataLoader for the test set.
+            kw: Keyword args supported by _foreach_batch.
+
+        Returns:
+            EpochResult: An EpochResult for the epoch.
         """
         self.model.train(False)  # set evaluation (test) mode
         return self._foreach_batch(dl_test, self.test_batch, **kw)
@@ -164,11 +175,15 @@ class Trainer(abc.ABC):
         """
         Runs a single batch forward through the model, calculates loss,
         preforms back-propagation and updates weights.
-        :param batch: A single batch of data  from a data loader (might
-            be a tuple of data and labels or anything else depending on
-            the underlying dataset.
-        :return: A BatchResult containing the value of the loss function and
-            the number of correctly classified samples in the batch.
+
+        Args:
+            batch: A single batch of data from a data loader (might
+                be a tuple of data and labels or anything else depending on
+                the underlying dataset).
+
+        Returns:
+            BatchResult: A BatchResult containing the value of the loss function and
+                the number of correctly classified samples in the batch.
         """
         raise NotImplementedError()
 
@@ -176,11 +191,15 @@ class Trainer(abc.ABC):
     def test_batch(self, batch) -> BatchResult:
         """
         Runs a single batch forward through the model and calculates loss.
-        :param batch: A single batch of data  from a data loader (might
-            be a tuple of data and labels or anything else depending on
-            the underlying dataset.
-        :return: A BatchResult containing the value of the loss function and
-            the number of correctly classified samples in the batch.
+
+        Args:
+            batch: A single batch of data from a data loader (might
+                be a tuple of data and labels or anything else depending on
+                the underlying dataset).
+
+        Returns:
+            BatchResult: A BatchResult containing the value of the loss function and
+                the number of correctly classified samples in the batch.
         """
         raise NotImplementedError()
 
@@ -259,14 +278,6 @@ class MLPTrainer(Trainer):
     Attributes:
         loss_fn (nn.Module): The loss function used for training.
         optimizer (Optimizer): The optimizer used for updating the model's parameters.
-
-    Methods:
-        train_batch(batch) -> BatchResult:
-            Trains the model on a batch of data.
-
-        test_batch(batch) -> BatchResult:
-            Tests the model on a batch of data.
-
     """
 
     def __init__(

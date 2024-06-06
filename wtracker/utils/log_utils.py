@@ -14,28 +14,9 @@ class CSVLogger:
     Attributes:
         path (str): The path to the CSV file.
         col_names (list[str]): The column names for the CSV file.
-
-    Methods:
-        __init__: Initializes the CSVLogger object.
-        __enter__: Allows the CSVLogger object to be used as a context manager.
-        __exit__: Closes the CSV file when exiting the context.
-        close: Closes the CSV file.
-        _to_dict: Converts an iterable of items to a dictionary using the column names as keys.
-        write: Writes a single row of data to the CSV file.
-        writerows: Writes multiple rows of data to the CSV file.
-        flush: Flushes any buffered data to the CSV file.
-
     """
 
     def __init__(self, path: str, col_names: list[str], mode: str = "w+"):
-        """
-        Initializes the CSVLogger object.
-
-        Args:
-            path (str): The path to the CSV file.
-            col_names (list[str]): The column names for the CSV file.
-            mode (str, optional): The file mode to open the CSV file in. Defaults to "w+".
-        """
         self.path = path
         self.col_names = col_names
         self._file = open(self.path, mode, newline="")
