@@ -14,7 +14,7 @@ class FrameReader:
     Args:
         root_folder (str): The root folder path where the frame files are located.
         frame_files (list[str]): A list of frame file names.
-        read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.
+        read_format (int, optional): The format in which the frames should be read.
 
     Attributes:
         root_folder (str): The root folder path where the frame files are located.
@@ -51,7 +51,7 @@ class FrameReader:
         Args:
             root_folder (str): The root folder where the frame files are located.
             name_format (str): The format of the frame file names.
-            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.
+            read_format (int, optional): The format in which the frames should be read.
 
         Returns:
             FrameReader: The created FrameReader object.
@@ -70,7 +70,7 @@ class FrameReader:
 
         Args:
             root_folder (str): The root folder containing the frame files.
-            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.
+            read_format (int, optional): The format in which the frames should be read.
 
         Returns:
             FrameReader: The created FrameReader object.
@@ -230,7 +230,7 @@ class FrameStream:
         Moves the current index forward by the specified number of steps.
 
         Args:
-            n (int): The number of steps to move forward. Defaults to 1.
+            n (int): The number of steps to move forward.
 
         Returns:
             bool: True if the index was successfully moved forward, False otherwise.
@@ -251,7 +251,7 @@ class DummyReader(FrameReader):
     Args:
         num_frames (int): The number of frames to generate.
         resolution (tuple[int, int]): The resolution of the frames, in format (h, w).
-        colored (bool, optional): Whether the frames are colored or grayscale. Defaults to True.
+        colored (bool, optional): Whether the frames are colored or grayscale.
     """
 
     def __init__(self, num_frames: int, resolution: tuple[int, int], colored: bool = True):

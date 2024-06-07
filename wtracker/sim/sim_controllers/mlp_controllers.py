@@ -19,7 +19,7 @@ class MLPController(CsvController):
         timing_config (TimingConfig): The timing configuration for the simulation.
         csv_path (str): The path to the CSV file containing the simulation data.
         model (WormPredictor): The WormPredictor model used for predicting worm movement.
-        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped. Defaults to 0.9.
+        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped.
     """
 
     def __init__(self, timing_config: TimingConfig, csv_path: str, model: WormPredictor, max_speed: float = 0.9):

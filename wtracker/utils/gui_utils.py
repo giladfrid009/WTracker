@@ -54,9 +54,9 @@ class UserPrompt:
         Opens a file dialog to select one or multiple files.
 
         Args:
-            title (str, optional): The title of the file dialog window. Defaults to None.
-            file_types (list[tuple[str, str]], optional): A list of file types to filter the displayed files. Each file type is represented as a tuple of the form (description, pattern). Defaults to None.
-            multiple (bool, optional): Whether to allow multiple file selection. Defaults to False.
+            title (str, optional): The title of the file dialog window.
+            file_types (list[tuple[str, str]], optional): A list of file types to filter the displayed files. Each file type is represented as a tuple of the form (description, pattern).
+            multiple (bool, optional): Whether to allow multiple file selection.
             **kwargs: Additional keyword arguments to be passed to the file dialog.
 
         Returns:
@@ -91,9 +91,9 @@ class UserPrompt:
         Opens a file dialog to save a file and returns the selected file path.
 
         Args:
-            title (str, optional): The title of the file dialog window. Defaults to None.
+            title (str, optional): The title of the file dialog window.
             file_types (list[tuple[str, str]], optional): A list of file types to filter the displayed files.
-                Each file type is represented as a tuple of the form (description, pattern). Defaults to None.
+                Each file type is represented as a tuple of the form (description, pattern).
             **kwargs: Additional keyword arguments to be passed to the file dialog.
 
         Returns:
@@ -120,7 +120,7 @@ class UserPrompt:
         Opens a dialog box to select a directory.
 
         Args:
-            title (str, optional): The title of the dialog box. Defaults to None.
+            title (str, optional): The title of the dialog box.
             **kwargs: Additional keyword arguments to be passed to the filedialog.askdirectory function.
 
         Returns:

@@ -9,7 +9,7 @@ class CSVLogger:
     Args:
         path (str): The path to the CSV file.
         col_names (list[str]): The column names for the CSV file.
-        mode (str, optional): The file mode to open the CSV file in. Defaults to "w+".
+        mode (str, optional): The file mode to open the CSV file in.
 
     Attributes:
         path (str): The path to the CSV file.

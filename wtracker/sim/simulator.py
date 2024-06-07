@@ -17,8 +17,8 @@ class Simulator:
         timing_config (TimingConfig): The timing configuration for the experiment.
         experiment_config (ExperimentConfig): The experiment configuration.
         sim_controller (SimController): The simulation controller.
-        reader (FrameReader, optional): The frame reader. Defaults to None.
-        motor_controller (MotorController, optional): The motor controller. Defaults to None.
+        reader (FrameReader, optional): The frame reader.
+        motor_controller (MotorController, optional): The motor controller.
 
     Attributes:
         timing_config (TimingConfig): The timing configuration for the experiment.
@@ -142,8 +142,8 @@ class Simulator:
         Run the simulation.
 
         Args:
-            visualize (bool, optional): Whether to visualize the simulation. Defaults to False.
-            wait_key (bool, optional): Whether to wait for a key press to advance the simulation during visualization. Defaults to False.
+            visualize (bool, optional): Whether to visualize the simulation.
+            wait_key (bool, optional): Whether to wait for a key press to advance the simulation during visualization.
 
         """
         config = self.timing_config

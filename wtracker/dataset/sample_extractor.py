@@ -73,10 +73,10 @@ class SampleExtractor:
             frame_indices (Collection[int]): The indices of the frames to extract samples from.
             target_size (tuple[int, int]): The target size of the samples in the format (width, height).
             save_folder (str): The folder path to save the samples.
-            name_format (str, optional): The format of the sample names. Defaults to "img_{:09d}.png".
-            num_workers (int, optional): The number of workers to use for parallel processing. Defaults to None.
+            name_format (str, optional): The format of the sample names.
+            num_workers (int, optional): The number of workers to use for parallel processing.
                 If None, the number of workers is determined automatically.
-            chunk_size (int, optional): The size of each processing chunk. Defaults to 50.
+            chunk_size (int, optional): The size of each processing chunk.
         """
 
         bboxes = self._bbox_calculator.calc_specified_boxes(
@@ -117,10 +117,10 @@ class SampleExtractor:
             count (int): The number of samples to create.
             target_size (tuple[int, int]): The target size of the samples in the format (width, height).
             save_folder (str): The folder path to save the samples.
-            name_format (str, optional): The format of the sample names. Defaults to "img_{:09d}.png".
-            num_workers (int, optional): The number of workers to use for parallel processing. Defaults to None.
+            name_format (str, optional): The format of the sample names.
+            num_workers (int, optional): The number of workers to use for parallel processing.
                 If None, the number of workers is determined automatically.
-            chunk_size (int, optional): The size of each processing chunk sent to each worker. Defaults to 50.
+            chunk_size (int, optional): The size of each processing chunk sent to each worker.
         """
 
         length = len(self._frame_reader)
@@ -143,10 +143,10 @@ class SampleExtractor:
         Args:
             target_size (tuple[int, int]): The target size of the samples in the format (width, height).
             save_folder (str): The folder path to save the samples.
-            name_format (str, optional): The format of the sample names. Defaults to "img_{:09d}.png".
-            num_workers (int, optional): The number of workers to use for parallel processing. Defaults to None.
+            name_format (str, optional): The format of the sample names.
+            num_workers (int, optional): The number of workers to use for parallel processing.
                 If None, the number of workers is determined automatically.
-            chunk_size (int, optional): The size of each processing chunk. Defaults to 50.
+            chunk_size (int, optional): The size of each processing chunk.
         """
 
         frame_indices = range(0, len(self._frame_reader))

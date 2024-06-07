@@ -15,9 +15,9 @@ class FrameSaver(TaskScheduler):
 
     Args:
         frame_reader (FrameReader): The frame reader object from which images will be saved.
-        root_path (str): The root folder path, relative to which all other paths are. Defaults to "".
-        maxsize (int, optional): The maximum size of the queue. Defaults to 100.
-        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
+        root_path (str): The root folder path, relative to which all other paths are.
+        maxsize (int, optional): The maximum size of the queue.
+        tqdm (bool, optional): Whether to use tqdm for progress tracking.
         **tqdm_kwargs: Additional keyword arguments for tqdm.
     """
 
@@ -81,9 +81,9 @@ class ImageSaver(TaskScheduler):
     A class for saving images asynchronously using a task scheduler.
 
     Args:
-        root_path (str): The root folder path, relative to which all other paths are. Defaults to "".
-        maxsize (int, optional): The maximum size of the queue. Defaults to 100.
-        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
+        root_path (str): The root folder path, relative to which all other paths are.
+        maxsize (int, optional): The maximum size of the queue.
+        tqdm (bool, optional): Whether to use tqdm for progress tracking.
         **tqdm_kwargs: Additional keyword arguments for tqdm.
     """
 

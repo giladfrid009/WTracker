@@ -25,8 +25,8 @@ class Trainer(abc.ABC):
 
     Args:
         model (nn.Module): The model to train.
-        device (Optional[torch.device], optional): The device to run training on (CPU or GPU). Defaults to None.
-        log (bool, optional): Whether to log training progress with tensorboard. Defaults to False.
+        device (Optional[torch.device], optional): The device to run training on (CPU or GPU).
+        log (bool, optional): Whether to log training progress with tensorboard.
     """
 
     def __init__(
@@ -76,9 +76,9 @@ class Trainer(abc.ABC):
             dl_train (DataLoader): Dataloader for the training set.
             dl_test (DataLoader): Dataloader for the test set.
             num_epochs (int): Number of epochs to train for.
-            checkpoints (str, optional): Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension. Defaults to None.
-            early_stopping (int, optional): Whether to stop training early if there is no test loss improvement for this number of epochs. Defaults to None.
-            print_every (int, optional): Print progress every this number of epochs. Defaults to 1.
+            checkpoints (str, optional): Whether to save model to file every time the test set accuracy improves. Should be a string containing a filename without extension.
+            early_stopping (int, optional): Whether to stop training early if there is no test loss improvement for this number of epochs.
+            print_every (int, optional): Print progress every this number of epochs.
 
         Returns:
             FitResult: A FitResult object containing train and test losses per epoch.
@@ -272,8 +272,8 @@ class MLPTrainer(Trainer):
         model (nn.Module): The MLP model to be trained.
         loss_fn (nn.Module): The loss function used for training.
         optimizer (Optimizer): The optimizer used for updating the model's parameters.
-        device (Optional[torch.device], optional): The device on which the model and data should be loaded. Defaults to None.
-        log (bool, optional): Whether to log training progress with tensorboard. Defaults to False.
+        device (Optional[torch.device], optional): The device on which the model and data should be loaded.
+        log (bool, optional): Whether to log training progress with tensorboard.
 
     Attributes:
         loss_fn (nn.Module): The loss function used for training.

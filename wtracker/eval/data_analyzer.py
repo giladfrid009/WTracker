@@ -161,7 +161,7 @@ class DataAnalyzer:
         Changes the unit of time and distance in the data.
 
         Args:
-            unit (str, optional): The new unit of time to convert into. Can be "frame" or "sec". Defaults to "frame".
+            unit (str, optional): The new unit of time to convert into. Can be "frame" or "sec".
                 If "sec" is chosen, the time will be converted to seconds, and the distance metric is micrometer.
                 If "frame" is chosen, the time will be in frames, and the distance metric is pixels.
         """
@@ -213,9 +213,9 @@ class DataAnalyzer:
             background (np.ndarray): The background image of the entire experiment.
             diff_thresh (int): Difference threshold to differentiate between the background and foreground.
                 A foreground object is detected if the pixel value difference with the background is greater than this threshold.
-            num_workers (int, optional): The number of workers to use for parallel processing. Defaults to None.
+            num_workers (int, optional): The number of workers to use for parallel processing.
                 If None, the number of workers is determined automatically.
-            chunk_size (int, optional): The size of each processing chunk. Defaults to 2000.
+            chunk_size (int, optional): The size of each processing chunk.
         """
         frames = self._orig_data["frame"].to_numpy().astype(int, copy=False)
         wrm_bboxes = self._orig_data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
@@ -282,12 +282,12 @@ class DataAnalyzer:
         Calculate anomalies in the data based on specified criteria.
 
         Args:
-            no_preds (bool, optional): Flag indicating whether to consider instances with missing predictions. Defaults to True.
-            min_bbox_error (float, optional): Minimum bounding box error threshold to consider as anomaly. Defaults to np.inf.
-            min_dist_error (float, optional): Minimum distance error threshold to consider as anomaly. Defaults to np.inf.
-            min_speed (float, optional): Minimum speed threshold to consider as anomaly. Defaults to np.inf.
-            min_size (float, optional): Minimum size threshold to consider as anomaly. Defaults to np.inf.
-            remove_anomalies (bool, optional): Flag indicating whether to remove the anomalies from the data. Defaults to False.
+            no_preds (bool, optional): Flag indicating whether to consider instances with missing predictions.
+            min_bbox_error (float, optional): Minimum bounding box error threshold to consider as anomaly.
+            min_dist_error (float, optional): Minimum distance error threshold to consider as anomaly.
+            min_speed (float, optional): Minimum speed threshold to consider as anomaly.
+            min_size (float, optional): Minimum size threshold to consider as anomaly.
+            remove_anomalies (bool, optional): Flag indicating whether to remove the anomalies from the data.
 
         Returns:
             pd.DataFrame: DataFrame containing the anomalies found in the data.
@@ -322,9 +322,9 @@ class DataAnalyzer:
         Generate descriptive statistics of the specified columns in the table containing the data.
 
         Args:
-            columns (list[str], optional): List of column names to include in the analysis. If None, all columns will be included. Defaults to None.
-            num (int, optional): Number of evenly spaced percentiles to include in the analysis. Defaults to 3. If percentiles is not None, this parameter is ignored.
-            percentiles (list[float], optional): List of specific percentiles to include in the analysis. If None, evenly spaced percentiles will be used. Defaults to None.
+            columns (list[str], optional): List of column names to include in the analysis. If None, all columns will be included.
+            num (int, optional): Number of evenly spaced percentiles to include in the analysis. If percentiles is not None, this parameter is ignored.
+            percentiles (list[float], optional): List of specific percentiles to include in the analysis. If None, evenly spaced percentiles will be used.
 
         Returns:
             pd.DataFrame: A DataFrame containing the descriptive statistics of the specified columns.

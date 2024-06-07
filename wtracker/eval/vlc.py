@@ -185,9 +185,9 @@ class VLC:
         config (TimingConfig): The timing configuration of the system.
         log_path (str): The path to the log file.
         cam_type (str): The type of camera. This should match the prefix of the corresponding columns in the log file.
-        show_pred (bool, optional): Whether to show the prediction box. Defaults to True.
-        show_micro (bool, optional): Whether to show the microscope box. Defaults to False.
-        show_cam (bool, optional): Whether to show the camera box. Defaults to False.
+        show_pred (bool, optional): Whether to show the prediction box.
+        show_micro (bool, optional): Whether to show the microscope box.
+        show_cam (bool, optional): Whether to show the camera box.
     """
 
     def __init__(

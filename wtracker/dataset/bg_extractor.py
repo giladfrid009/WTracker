@@ -18,10 +18,10 @@ class BGExtractor:
 
         Args:
             num_probes (int): The number of probes to sample for background calculation.
-            sampling (str, optional): The sampling method for selecting probes. Can be "random" or "uniform". Defaults to "random".
+            sampling (str, optional): The sampling method for selecting probes. Can be "random" or "uniform".
                 "uniform" will select frames uniformly spaced from the FrameReader.
                 "random" will select frames randomly from the FrameReader.
-            method (str, optional): The method for calculating the background. Can be "median" or "mean". Defaults to "median".
+            method (str, optional): The method for calculating the background. Can be "median" or "mean".
                 The background is calculated by either taking the median or mean of the sampled frames.
 
         Returns:

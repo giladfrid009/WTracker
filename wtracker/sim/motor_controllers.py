@@ -37,7 +37,7 @@ class StepMotorController(MotorController):
 
     Args:
         timing_config (TimingConfig): The timing configuration of the simulation.
-        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move. Defaults to 0.5.
+        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move.
     """
 
     def __init__(self, timing_config: TimingConfig, move_after_ratio: float = 0.5):

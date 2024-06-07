@@ -18,7 +18,7 @@ class NumpyDataset(Dataset):
     Args:
         X (np.ndarray): The input data as a numpy array.
         y (np.ndarray): The output data as a numpy array.
-        config (DatasetConfig, optional): The configuration object for the dataset. Defaults to None.
+        config (DatasetConfig, optional): The configuration object for the dataset.
     """
 
     def __init__(self, X: np.ndarray, y: np.ndarray, config: DatasetConfig = None):

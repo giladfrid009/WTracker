@@ -75,11 +75,10 @@ class Files:
 
     Args:
         directory (str): The directory path to scan for files.
-        extension (str, optional): The file extension to filter the files. Defaults to "".
-        scan_dirs (bool, optional): Whether to include directories in the results. Defaults to False.
-        return_full_path (bool, optional): Whether to return the full path of the files. Defaults to True.
+        extension (str, optional): The file extension to filter the files.
+        scan_dirs (bool, optional): Whether to include directories in the results.
+        return_full_path (bool, optional): Whether to return the full path of the files.
         sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files. 
-            Defaults to lambda name: name.
     """
 
     def __init__(

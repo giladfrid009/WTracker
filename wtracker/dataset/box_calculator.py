@@ -15,8 +15,8 @@ class BoxCalculator:
 
     Args:
         frame_reader (FrameReader): The frame reader object holing the relevant frames.
-        bg_probes (int, optional): Number of probes to use for background extraction. Defaults to 500.
-        diff_thresh (int, optional): Threshold value for the detecting foreground objects. Defaults to 20.
+        bg_probes (int, optional): Number of probes to use for background extraction.
+        diff_thresh (int, optional): Threshold value for the detecting foreground objects.
             Pixels with difference value greater than this threshold are considered as foreground.
     """
 
@@ -116,8 +116,8 @@ class BoxCalculator:
         Args:
             frame_indices (Iterable[int]): The indices of the frames for which to calculate the bboxes.
             num_workers (int, optional): Number of workers for parallel processing.
-            If None is provided then number of workers is determined automatically. Defaults to None.
-            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.
+            If None is provided then number of workers is determined automatically.
+            chunk_size (int, optional): Size of each chunk for parallel processing.
 
         Returns:
             np.ndarray: The calculated boxes for the specified frames.
@@ -157,8 +157,8 @@ class BoxCalculator:
 
         Args:
             num_workers (int, optional): Number of workers for parallel processing.
-                If None is provided then number of workers is determined automatically. Defaults to None.
-            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.
+                If None is provided then number of workers is determined automatically.
+            chunk_size (int, optional): Size of each chunk for parallel processing.
 
         Returns:
             np.ndarray: Array of bounding boxes for all frames.

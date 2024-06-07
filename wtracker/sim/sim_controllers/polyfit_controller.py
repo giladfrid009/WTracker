@@ -180,7 +180,7 @@ class WeightEvaluator:
 
         Args:
             weights (np.ndarray): The weights used for the polynomial fit. Should have shape [N].
-            deg (int, optional): The degree of the polynomial fit. Defaults to 2.
+            deg (int, optional): The degree of the polynomial fit.
 
         Returns:
             float: The mean absolute error (MAE) of the polynomial fit.

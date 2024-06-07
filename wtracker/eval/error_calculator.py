@@ -81,7 +81,7 @@ class ErrorCalculator:
             frame_nums (Collection[int]): The frame numbers to calculate the error for.
             worm_reader (FrameReader): A frame reader containing segmented worm images for each frame. These worm images should match the shape of the worm bounding boxes.
                 Frames passed in frame_nums are read from this reader by index.
-            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from. Defaults to 10.
+            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from.
                 A foreground object is detected if the pixel value difference with the background is greater than this threshold.
 
         Returns:

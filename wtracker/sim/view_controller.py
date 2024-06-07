@@ -12,9 +12,9 @@ class ViewController(FrameStream):
 
     Args:
         frame_reader (FrameReader): The frame reader object.
-        camera_size (tuple[int, int], optional): The size of the camera frame. Defaults to (251, 251).
-        micro_size (tuple[int, int], optional): The size of the micro frame. Defaults to (45, 45).
-        init_position (tuple[int, int], optional): The initial position of the view. Defaults to (0, 0).
+        camera_size (tuple[int, int], optional): The size of the camera frame.
+        micro_size (tuple[int, int], optional): The size of the micro frame.
+        init_position (tuple[int, int], optional): The initial position of the view.
 
     Attributes:
         frame_reader (FrameReader): The frame reader object.

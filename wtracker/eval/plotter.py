@@ -12,8 +12,8 @@ class Plotter:
 
     Args:
         data_list (list[pd.DataFrame]): A list of dataframes, each holding the data of a single experiment log.
-        plot_height (int, optional): The height of the plot. Defaults to 7.
-        palette (str, optional): The color palette to use for the plots. Defaults to "viridis".
+        plot_height (int, optional): The height of the plot.
+        palette (str, optional): The color palette to use for the plots.
     """
 
     def __init__(

@@ -12,7 +12,7 @@ def adjust_num_workers(num_tasks: int, chunk_size: int, num_workers: int = None)
     Args:
         num_tasks (int): The number of tasks to be processed.
         chunk_size (int): The size of each processing chunk.
-        num_workers (int, optional): The number of workers to use for parallel processing. Defaults to None.
+        num_workers (int, optional): The number of workers to use for parallel processing.
             If None, the number of workers is determined automatically.
     """
     if num_workers is None:  # if None then choose automatically
@@ -84,8 +84,8 @@ class TaskScheduler:
 
     Args:
         task_func (Callable): The function to be executed by the worker thread.
-        maxsize (int, optional): The maximum number of items that can be in the queue. Defaults to 0.
-        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
+        maxsize (int, optional): The maximum number of items that can be in the queue.
+        tqdm (bool, optional): Whether to use tqdm for progress tracking.
         **tqdm_kwargs: Additional keyword arguments to be passed to the TqdmQueue constructor.
     """
 
