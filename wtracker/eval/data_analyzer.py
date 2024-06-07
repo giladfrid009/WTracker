@@ -29,11 +29,26 @@ class DataAnalyzer:
         self._orig_data = log_data
         self._unit = "frame"
 
+    @property
+    def unit(self) -> str:
+        return self.unit
+
     def save(self, path: str) -> None:
+        """
+        Save the full analyzed data to a csv file.
+        """
         self._orig_data.to_csv(path, index=False)
 
     @staticmethod
     def load(time_config: TimingConfig, csv_path: str) -> DataAnalyzer:
+        """
+        Create a DataAnalyzer object from a csv file containing experiment data,
+        regardless whether if it's analyzed or not.
+
+        Args:
+            time_config (TimingConfig): The timing configuration.
+            csv_path (str): Path to the csv file containing the experiment data.
+        """
         data = pd.read_csv(csv_path)
         return DataAnalyzer(time_config, data)
 
@@ -43,8 +58,8 @@ class DataAnalyzer:
         It's essential to call this function if the class was created from a non-analyzed log data.
 
         Args:
-            period (int): The period for calculating speed in frames. The speed is calculated by measuring the
-                distance between current frame and period frames before.
+            period (int): The period for calculating speed in frames.
+                The speed is calculated by measuring the distance between current frame and period frames before.
         """
         data = self._orig_data
 
@@ -99,6 +114,8 @@ class DataAnalyzer:
         bounds: tuple[float, float, float, float] = None,
     ) -> None:
         """
+        Clean the data by the provided parameters.
+
         Args:
             trim_cycles (bool): whether to remove the first and the last cycles from the data.
             imaging_only (bool): Flag indicating whether to include only imaging phases in the analysis.
@@ -120,6 +137,60 @@ class DataAnalyzer:
             mask &= data["cycle"] != data["cycle"].max()
             data = data[mask]
 
+        self.data = data
+
+    def reset_changes(self):
+        """
+        Reset the data to its original state.
+        Note, that this method will not reset the unit of time and distance.
+        """
+        self.data = self._orig_data.copy()
+        self._unit = "frame"
+
+    def column_names(self) -> list[str]:
+        """
+        Returns a list of all column names in the analyzed data.
+
+        Returns:
+            list[str]: A list of column names.
+        """
+        return self.data.columns.to_list()
+
+    def change_unit(self, unit: str):
+        """
+        Changes the unit of time and distance in the data.
+
+        Args:
+            unit (str, optional): The new unit of time to convert into. Can be "frame" or "sec". Defaults to "frame".
+                If "sec" is chosen, the time will be converted to seconds, and the distance metric is micrometer.
+                If "frame" is chosen, the time will be in frames, and the distance metric is pixels.
+        """
+        assert unit in ["frame", "sec"]
+
+        if self._unit == unit:
+            return
+
+        data = self.data
+
+        if unit == "sec":  # frame -> sec
+            dist_factor = self.time_config.mm_per_px * 1000
+            time_factor = self.time_config.ms_per_frame / 1000
+
+        if unit == "frame":  # sec -> frame
+            dist_factor = self.time_config.px_per_mm / 1000
+            time_factor = self.time_config.frames_per_sec
+
+        data["time"] *= time_factor
+        data[["plt_x", "plt_y"]] *= dist_factor
+        data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]] *= dist_factor
+        data[["mic_x", "mic_y", "mic_w", "mic_h"]] *= dist_factor
+        data[["cam_x", "cam_y", "cam_w", "cam_h"]] *= dist_factor
+        data[["wrm_center_x", "wrm_center_y"]] *= dist_factor
+        data[["mic_center_x", "mic_center_y"]] *= dist_factor
+        data[["worm_deviation_x", "worm_deviation_y", "worm_deviation"]] *= dist_factor
+        data[["wrm_speed_x", "wrm_speed_y", "wrm_speed"]] *= dist_factor / time_factor
+
+        self._unit = unit
         self.data = data
 
     # TODO: TEST
@@ -195,55 +266,8 @@ class DataAnalyzer:
         self._orig_data["precise_error"] = errors
 
         # copy relevant error entries into the work data
-        idx = self.data["frame"].to_numpy(dtype=int)
+        idx = self.data["frame"].to_numpy(dtype=int, copy=False)
         self.data["precise_error"] = errors[idx]
-
-    def reset_changes(self):
-        self.data = self._orig_data.copy()
-
-    def column_names(self) -> list[str]:
-        """
-        Returns a list of all column names in the analyzed data.
-
-        Returns:
-            list[str]: A list of column names.
-        """
-        return self.data.columns.to_list()
-
-    def change_unit(self, unit: str):
-        """
-        Args:
-            unit (str, optional): The new unit of time to convert into. Can be "frame" or "sec". Defaults to "frame".
-                If "sec" is chosen, the time will be converted to seconds, and the distance metric is micrometer.
-                If "frame" is chosen, the time will be in frames, and the distance metric is pixels.
-        """
-        assert unit in ["frame", "sec"]
-
-        if self._unit == unit:
-            return
-
-        data = self.data
-
-        if unit == "sec":  # frame -> sec
-            dist_factor = self.time_config.mm_per_px * 1000
-            time_factor = self.time_config.ms_per_frame / 1000
-
-        if unit == "frame":  # sec -> frame
-            dist_factor = self.time_config.px_per_mm / 1000
-            time_factor = self.time_config.frames_per_sec
-
-        data["time"] *= time_factor
-        data[["plt_x", "plt_y"]] *= dist_factor
-        data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]] *= dist_factor
-        data[["mic_x", "mic_y", "mic_w", "mic_h"]] *= dist_factor
-        data[["cam_x", "cam_y", "cam_w", "cam_h"]] *= dist_factor
-        data[["wrm_center_x", "wrm_center_y"]] *= dist_factor
-        data[["mic_center_x", "mic_center_y"]] *= dist_factor
-        data[["worm_deviation_x", "worm_deviation_y", "worm_deviation"]] *= dist_factor
-        data[["wrm_speed_x", "wrm_speed_y", "wrm_speed"]] *= dist_factor / time_factor
-
-        self._unit = unit
-        self.data = data
 
     def calc_anomalies(
         self,
@@ -252,7 +276,7 @@ class DataAnalyzer:
         min_dist_error: float = np.inf,
         min_speed: float = np.inf,
         min_size: float = np.inf,
-        remnove_anomalies: bool = False,
+        remove_anomalies: bool = False,
     ) -> pd.DataFrame:
         """
         Calculate anomalies in the data based on specified criteria.
@@ -263,6 +287,7 @@ class DataAnalyzer:
             min_dist_error (float, optional): Minimum distance error threshold to consider as anomaly. Defaults to np.inf.
             min_speed (float, optional): Minimum speed threshold to consider as anomaly. Defaults to np.inf.
             min_size (float, optional): Minimum size threshold to consider as anomaly. Defaults to np.inf.
+            remove_anomalies (bool, optional): Flag indicating whether to remove the anomalies from the data. Defaults to False.
 
         Returns:
             pd.DataFrame: DataFrame containing the anomalies found in the data.
@@ -279,23 +304,15 @@ class DataAnalyzer:
 
         mask = mask_speed | mask_bbox_error | mask_dist_error | mask_worm_width | mask_worm_height | mask_no_preds
 
-        mask_speed = mask_speed[mask]
-        mask_bbox_error = mask_bbox_error[mask]
-        mask_dist_error = mask_dist_error[mask]
-        mask_worm_width = mask_worm_width[mask]
-        mask_worm_height = mask_worm_height[mask]
-        mask_no_preds = mask_no_preds[mask]
-
         anomalies = data[mask].copy()
+        anomalies["speed_anomaly"] = mask_speed[mask]
+        anomalies["bbox_error_anomaly"] = mask_bbox_error[mask]
+        anomalies["dist_error_anomaly"] = mask_dist_error[mask]
+        anomalies["width_anomaly"] = mask_worm_width[mask]
+        anomalies["height_anomaly"] = mask_worm_height[mask]
+        anomalies["no_pred_anomaly"] = mask_no_preds[mask]
 
-        anomalies["speed_anomaly"] = mask_speed
-        anomalies["bbox_error_anomaly"] = mask_bbox_error
-        anomalies["dist_error_anomaly"] = mask_dist_error
-        anomalies["width_anomaly"] = mask_worm_width
-        anomalies["height_anomaly"] = mask_worm_height
-        anomalies["no_pred_anomaly"] = mask_no_preds
-
-        if remnove_anomalies:
+        if remove_anomalies:
             self.data = self.data[~mask]
 
         return anomalies
@@ -328,9 +345,6 @@ class DataAnalyzer:
         - Total Count of No Pred Frames: The number of frames where the predictions are missing.
         - Total Num of Cycles: The number of unique cycles in the data.
         - Non Perfect Predictions: The percentage of predictions that are not perfect.
-
-        Returns:
-            None
         """
         no_preds = self.data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1).sum()
         print(f"Total Count of No Pred Frames: {no_preds} ({round(100 * no_preds / len(self.data.index), 3)}%)")
