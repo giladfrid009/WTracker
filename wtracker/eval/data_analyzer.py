@@ -195,8 +195,8 @@ class DataAnalyzer:
         self._orig_data["precise_error"] = errors
 
         # copy relevant error entries into the work data
-        work_mask = np.isin(self._orig_data["frame"].values, self.data["frame"].values)
-        self.data["precise_error"] = errors[work_mask]
+        idx = self.data["frame"].to_numpy(dtype=int)
+        self.data["precise_error"] = errors[idx]
 
     def reset_changes(self):
         self.data = self._orig_data.copy()
