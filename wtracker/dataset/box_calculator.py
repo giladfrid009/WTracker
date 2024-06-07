@@ -3,10 +3,10 @@ import numpy as np
 from typing import Collection
 from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
-import multiprocessing
 
 from wtracker.utils.frame_reader import FrameReader
 from wtracker.dataset.bg_extractor import BGExtractor
+from wtracker.utils.threading_utils import adjust_num_workers
 
 
 class BoxCalculator:
@@ -104,19 +104,6 @@ class BoxCalculator:
         largest_bbox = np.asanyarray(largest_bbox, dtype=int)
         return largest_bbox
 
-    def _adjust_num_workers(self, num_tasks: int, chunk_size: int, num_workers: int) -> int:
-        if num_workers is None:  # if None then choose automatically
-            num_workers = min(multiprocessing.cpu_count() / 2, num_tasks / (2 * chunk_size))
-            num_workers = round(num_workers)
-
-        num_workers = min(num_workers, num_tasks // chunk_size)  # no point having workers without tasks
-        num_workers = min(num_workers, multiprocessing.cpu_count())  # no point having more workers than cpus
-
-        if num_workers < 0:  # make sure value is valid
-            num_workers = 0
-
-        return num_workers
-
     def calc_specified_boxes(
         self,
         frame_indices: Collection[int],
@@ -138,7 +125,7 @@ class BoxCalculator:
 
         self.get_background()
 
-        num_workers = self._adjust_num_workers(len(frame_indices), chunk_size, num_workers)
+        num_workers = adjust_num_workers(len(frame_indices), chunk_size, num_workers)
 
         if num_workers > 0:
             bbox_list = concurrent.process_map(

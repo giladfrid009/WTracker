@@ -1,7 +1,31 @@
 import queue
 import threading
+import multiprocessing
 from typing import Callable
 from tqdm.auto import tqdm
+
+
+def adjust_num_workers(num_tasks: int, chunk_size: int, num_workers: int = None) -> int:
+    """
+    Adjust the number of workers based on the number of tasks and chunk size.
+
+    Args:
+        num_tasks (int): The number of tasks to be processed.
+        chunk_size (int): The size of each processing chunk.
+        num_workers (int, optional): The number of workers to use for parallel processing. Defaults to None.
+            If None, the number of workers is determined automatically.
+    """
+    if num_workers is None:  # if None then choose automatically
+        num_workers = min(multiprocessing.cpu_count() / 2, num_tasks / (2 * chunk_size))
+        num_workers = round(num_workers)
+
+    num_workers = min(num_workers, num_tasks // chunk_size)  # no point having workers without tasks
+    num_workers = min(num_workers, multiprocessing.cpu_count())  # no point having more workers than cpus
+
+    if num_workers < 0:  # make sure value is valid
+        num_workers = 0
+
+    return num_workers
 
 
 class TqdmQueue(queue.Queue):
@@ -64,6 +88,7 @@ class TaskScheduler:
         tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.
         **tqdm_kwargs: Additional keyword arguments to be passed to the TqdmQueue constructor.
     """
+
     def __init__(
         self,
         task_func: Callable,
