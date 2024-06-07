@@ -22,8 +22,6 @@ class CsvController(SimController):
     def on_camera_frame(self, sim: Simulator):
         self._camera_bboxes.append(sim.view.camera_position)
 
-    # TODO: if relative = True then this function works only if frame number if within the last cycle.
-    # maybe fix that.
     def predict(self, frame_nums: Collection[int], relative: bool = True) -> np.ndarray:
         assert len(frame_nums) > 0
 
@@ -37,7 +35,10 @@ class CsvController(SimController):
 
         if not relative:
             return worm_bboxes
-        
+
+        # TODO: if relative == True then it works only if frame number if within the last cycle.
+        # maybe fix that.
+
         cam_bboxes = [self._camera_bboxes[n % self.timing_config.cycle_frame_num] for n in frame_nums]
         cam_bboxes = np.asanyarray(cam_bboxes, dtype=float)
 

@@ -71,9 +71,6 @@ class PolyfitController(CsvController):
         if len(time) == 0:
             return 0, 0
 
-        # TODO: INVESTIGATE POLY package in numpy and how to use it best
-        # investigate window parameter and Polynomial class
-
         # predict future x and future y based on the fitted polynomial
         coeffs = poly.polyfit(time, positions, deg=config.degree, w=weights)
         x_pred, y_pred = poly.polyval(timing.cycle_frame_num + timing.imaging_frame_num // 2, coeffs)

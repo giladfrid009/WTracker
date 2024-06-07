@@ -38,10 +38,13 @@ class ErrorCalculator:
         Raises:
             ValueError: If the image is not grayscale or color.
         """
-        assert image.shape[0] == bbox[3] - bbox[1]
-        assert image.shape[1] == bbox[2] - bbox[0]
 
-        bg_view = background[bbox[1] : bbox[3], bbox[0] : bbox[2]]
+        x1, y1, x2, y2 = bbox
+
+        assert image.shape[0] == y2 - y1
+        assert image.shape[1] == x2 - x1
+
+        bg_view = background[y1 : y2, x1 : x2]
 
         diff = np.abs(image.astype(int) - bg_view.astype(int))
 

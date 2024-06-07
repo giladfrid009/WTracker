@@ -161,8 +161,6 @@ class DataAnalyzer:
         mic_bboxes_list = np.split(mic_bboxes, chunk_size, axis=0)
         frames_list = np.split(frames, chunk_size)
 
-        args = zip(wrm_bboxes_list, mic_bboxes_list, frames_list)
-
         num_workers = adjust_num_workers(len(wrm_bboxes_list), chunk_size, num_workers)
 
         func = partial(
@@ -171,6 +169,8 @@ class DataAnalyzer:
             worm_reader=worm_reader,
             diff_thresh=diff_thresh,
         )
+
+        args = zip(wrm_bboxes_list, mic_bboxes_list, frames_list)
 
         results = concurrent.thread_map(
             func,

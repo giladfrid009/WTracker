@@ -7,7 +7,6 @@ import cv2 as cv
 from wtracker.utils.path_utils import join_paths
 
 
-# TODO: (ROADMAP) GIVEN ACCESSING ELEMENT AT INDX i, Pre-load the next element in advance.
 class FrameReader:
     """
     An class for reading frames from a directory of frame files.
