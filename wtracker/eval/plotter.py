@@ -70,7 +70,7 @@ class Plotter:
 
         data = self.data
         if cycle_wise:
-            data = self.data.groupby(["log_num", "cycle_step"])[error_col].max().reset_index()
+            data = self.data.groupby(["log_num", "cycle"])[error_col].max().reset_index()
 
         plot = self.create_distplot(
             x_col=error_col,
@@ -91,6 +91,7 @@ class Plotter:
         error_kind: str = "bbox",
         cycle_wise: bool = False,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        kind="hist",
         **kwargs,
     ) -> sns.JointGrid:
         if error_kind == "bbox":
@@ -105,7 +106,7 @@ class Plotter:
         data = self.data
         if cycle_wise:
             data = (
-                self.data.groupby(["log_num", "cycle_step"])[[error_col, "wrm_speed"]]
+                self.data.groupby(["log_num", "cycle"])[[error_col, "wrm_speed"]]
                 .aggregate({error_col: "max", "wrm_speed": "mean"})
                 .reset_index()
             )
@@ -113,7 +114,7 @@ class Plotter:
         plot = self.create_jointplot(
             x_col="wrm_speed",
             y_col=error_col,
-            kind="scatter",
+            kind=kind,
             x_label="speed",
             y_label=f"{error_kind} Error",
             title=f"Speed vs {error_kind} Error",
@@ -175,6 +176,7 @@ class Plotter:
         percentile: float = 0.999,
         log_wise: bool = False,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        kind="hist",
         **kwargs,
     ) -> sns.JointGrid:
 
@@ -190,8 +192,8 @@ class Plotter:
             y_col="worm_deviation",
             x_label="cycle step",
             y_label="distance",
-            kind="violin",
             title="Distance between worm and microscope centers as function of cycle step",
+            kind=kind,
             log_wise=log_wise,
             condition=cond_func,
             **kwargs,

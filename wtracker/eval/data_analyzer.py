@@ -32,6 +32,12 @@ class DataAnalyzer:
     @property
     def unit(self) -> str:
         return self.unit
+    
+    def remove_cycle(self, cycles:int|list[int]):
+        if isinstance(cycles, int):
+            cycles = [cycles]
+        mask = self.data["cycle"].isin(cycles)
+        self.data = self.data[~mask]
 
     def save(self, path: str) -> None:
         """
@@ -130,7 +136,13 @@ class DataAnalyzer:
         if bounds is not None:
             mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[2])
             mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[3])
-            data = data[mask]
+
+            # if there are no prediction for a frame, look at microscope bbox
+            mask2 = (data["mic_x"] >= bounds[0]) & (data["mic_x"] + data["mic_w"] <= bounds[2])
+            mask2 &= (data["mic_y"] >= bounds[1]) & (data["mic_y"] + data["mic_h"] <= bounds[3])
+            mask2 &= data["wrm_x"].isna()
+
+            data = data[mask | mask2]
 
         if trim_cycles:
             mask = data["cycle"] != 0
@@ -300,7 +312,9 @@ class DataAnalyzer:
         mask_dist_error = data["worm_deviation"] >= min_dist_error
         mask_worm_width = data["wrm_w"] >= min_size
         mask_worm_height = data["wrm_h"] >= min_size
-        mask_no_preds = data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1) & no_preds
+
+        mask_no_preds = np.isfinite(data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()).all(axis=1) == False
+        mask_no_preds = no_preds & mask_no_preds
 
         mask = mask_speed | mask_bbox_error | mask_dist_error | mask_worm_width | mask_worm_height | mask_no_preds
 
@@ -346,6 +360,9 @@ class DataAnalyzer:
         - Total Num of Cycles: The number of unique cycles in the data.
         - Non Perfect Predictions: The percentage of predictions that are not perfect.
         """
+        num_removed = len(self._orig_data.index) - len(self.data.index)
+        print(f"Total Count Removed Frames: {num_removed} ({round(100 * num_removed / len(self._orig_data.index), 3)}%)")
+
         no_preds = self.data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1).sum()
         print(f"Total Count of No Pred Frames: {no_preds} ({round(100 * no_preds / len(self.data.index), 3)}%)")
 

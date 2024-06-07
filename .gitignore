@@ -16,6 +16,7 @@ logs/*.csv
 runs/*
 *.zip
 data
+workflows/runs
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
