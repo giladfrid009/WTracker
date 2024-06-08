@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2024-06-03T22:47:33.156Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0" etag="jPY85D8MaZAGNOkkpgkk" version="24.4.13" type="device">
+<mxfile host="app.diagrams.net" modified="2024-06-08T15:13:45.331Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0" etag="erHM6K6S103DISLLXebi" version="24.5.2" type="device">
   <diagram name="Page-1" id="aB-AKYa4uGkAp5nFMPeD">
-    <mxGraphModel dx="2220" dy="1176" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1794" dy="823" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -40,7 +40,7 @@
         <mxCell id="WDajsYb6U0dOoKer0U97-53" value="YOLO Dataset" style="rhombus;whiteSpace=wrap;html=1;fillColor=#33FF99;" parent="1" vertex="1">
           <mxGeometry x="70" y="530" width="100" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="_KZC26SDWzeLGglr0-F0-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="WDajsYb6U0dOoKer0U97-54" target="WDajsYb6U0dOoKer0U97-56">
+        <mxCell id="_KZC26SDWzeLGglr0-F0-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="WDajsYb6U0dOoKer0U97-54" target="WDajsYb6U0dOoKer0U97-56" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="WDajsYb6U0dOoKer0U97-54" value="yolo_training.ipynb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99CCFF;" parent="1" vertex="1">
@@ -54,10 +54,10 @@
         <mxCell id="WDajsYb6U0dOoKer0U97-56" value="Trained &lt;br&gt;YOLO Model" style="rhombus;whiteSpace=wrap;html=1;fillColor=#33FF99;" parent="1" vertex="1">
           <mxGeometry x="210" y="145" width="100" height="90" as="geometry" />
         </mxCell>
-        <mxCell id="_KZC26SDWzeLGglr0-F0-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="WDajsYb6U0dOoKer0U97-59" target="_KZC26SDWzeLGglr0-F0-2">
+        <mxCell id="_KZC26SDWzeLGglr0-F0-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="WDajsYb6U0dOoKer0U97-59" target="_KZC26SDWzeLGglr0-F0-2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="_KZC26SDWzeLGglr0-F0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="WDajsYb6U0dOoKer0U97-59" target="WDajsYb6U0dOoKer0U97-62">
+        <mxCell id="_KZC26SDWzeLGglr0-F0-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="WDajsYb6U0dOoKer0U97-59" target="WDajsYb6U0dOoKer0U97-62" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="WDajsYb6U0dOoKer0U97-59" value="initialize_experiment.ipynb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99CCFF;" parent="1" vertex="1">
@@ -139,10 +139,10 @@
         <mxCell id="WDajsYb6U0dOoKer0U97-117" value="visualize.ipynb" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99CCFF;" parent="1" vertex="1">
           <mxGeometry x="250" y="1020" width="160" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="_KZC26SDWzeLGglr0-F0-2" value="Background + Worm Images" style="rhombus;whiteSpace=wrap;html=1;fillColor=#33FF99;" vertex="1" parent="1">
+        <mxCell id="_KZC26SDWzeLGglr0-F0-2" value="Background + Worm Images" style="rhombus;whiteSpace=wrap;html=1;fillColor=#33FF99;" parent="1" vertex="1">
           <mxGeometry x="720" y="170" width="110" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="_KZC26SDWzeLGglr0-F0-8" value="" style="html=1;labelBackgroundColor=#ffffff;startArrow=none;startFill=0;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="_KZC26SDWzeLGglr0-F0-2" target="WDajsYb6U0dOoKer0U97-81">
+        <mxCell id="_KZC26SDWzeLGglr0-F0-8" value="" style="html=1;labelBackgroundColor=#ffffff;startArrow=none;startFill=0;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="_KZC26SDWzeLGglr0-F0-2" target="WDajsYb6U0dOoKer0U97-81" edge="1">
           <mxGeometry width="60" height="60" relative="1" as="geometry">
             <mxPoint x="790" y="290" as="sourcePoint" />
             <mxPoint x="830" y="360" as="targetPoint" />
@@ -151,12 +151,12 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="_KZC26SDWzeLGglr0-F0-13" value="Optional, used to &lt;br&gt;calculate precise error &lt;br&gt;based on worm images" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1" vertex="1" connectable="0" parent="_KZC26SDWzeLGglr0-F0-8">
+        <mxCell id="_KZC26SDWzeLGglr0-F0-13" value="Optional, used to calculate&amp;nbsp;&lt;br&gt;segmentation error&amp;nbsp;&lt;br&gt;based on worm images" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1" parent="_KZC26SDWzeLGglr0-F0-8" vertex="1" connectable="0">
           <mxGeometry x="0.4195" y="-1" relative="1" as="geometry">
             <mxPoint x="1" y="8" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="_KZC26SDWzeLGglr0-F0-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.125;entryY=0.004;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="WDajsYb6U0dOoKer0U97-62" target="WDajsYb6U0dOoKer0U97-64">
+        <mxCell id="_KZC26SDWzeLGglr0-F0-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.125;entryY=0.004;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="WDajsYb6U0dOoKer0U97-62" target="WDajsYb6U0dOoKer0U97-64" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="370" y="220" />

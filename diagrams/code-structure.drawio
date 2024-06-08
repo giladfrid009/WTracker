@@ -1,0 +1,76 @@
+<mxfile host="app.diagrams.net" modified="2024-06-07T17:54:29.576Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0" etag="YhFHcIYJFmWLCoEw7vVq" version="24.4.13" type="device">
+  <diagram name="Page-1" id="Lyk_rjeu5k1NAtBlUiXE">
+    <mxGraphModel dx="604" dy="619" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="9H91HMbjQ0deD9CUch-b-24" value="Package wtracker" style="swimlane;" parent="1" vertex="1">
+          <mxGeometry x="60" y="40" width="680" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="9H91HMbjQ0deD9CUch-b-25" value="module sim" style="swimlane;" parent="9H91HMbjQ0deD9CUch-b-24" vertex="1">
+          <mxGeometry x="20" y="40" width="200" height="315" as="geometry" />
+        </mxCell>
+        <mxCell id="9H91HMbjQ0deD9CUch-b-26" value="sub-module sim_controllers" style="swimlane;fontStyle=1" parent="9H91HMbjQ0deD9CUch-b-25" vertex="1">
+          <mxGeometry x="10" y="155" width="180" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="9H91HMbjQ0deD9CUch-b-28" value="file optimal_controller" style="whiteSpace=wrap;html=1;" parent="9H91HMbjQ0deD9CUch-b-26" vertex="1">
+          <mxGeometry x="10" y="110" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="9H91HMbjQ0deD9CUch-b-31" value="file mlp_controller" style="whiteSpace=wrap;html=1;" parent="9H91HMbjQ0deD9CUch-b-26" vertex="1">
+          <mxGeometry x="10" y="71" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="9H91HMbjQ0deD9CUch-b-32" value="file polyfit_controller" style="whiteSpace=wrap;html=1;" parent="9H91HMbjQ0deD9CUch-b-26" vertex="1">
+          <mxGeometry x="10" y="33" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-1" value="file config" style="whiteSpace=wrap;html=1;" vertex="1" parent="9H91HMbjQ0deD9CUch-b-25">
+          <mxGeometry x="20" y="35" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-2" value="file motor_controllers" style="whiteSpace=wrap;html=1;" vertex="1" parent="9H91HMbjQ0deD9CUch-b-25">
+          <mxGeometry x="20" y="75" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-3" value="file simulator" style="whiteSpace=wrap;html=1;" vertex="1" parent="9H91HMbjQ0deD9CUch-b-25">
+          <mxGeometry x="20" y="115" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-4" value="module eval" style="swimlane;" vertex="1" parent="9H91HMbjQ0deD9CUch-b-24">
+          <mxGeometry x="240" y="40" width="200" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-9" value="file vlc" style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-4">
+          <mxGeometry x="20" y="35" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-10" value="file data_analyzer" style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-4">
+          <mxGeometry x="20" y="75" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-11" value="file plotter" style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-4">
+          <mxGeometry x="20" y="115" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-12" value="module dataset" style="swimlane;" vertex="1" parent="9H91HMbjQ0deD9CUch-b-24">
+          <mxGeometry x="240" y="235" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-13" value="file box_calculator" style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-12">
+          <mxGeometry x="20" y="35" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-14" value="file sample_extractor" style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-12">
+          <mxGeometry x="20" y="75" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-16" value="module neural" style="swimlane;" vertex="1" parent="9H91HMbjQ0deD9CUch-b-24">
+          <mxGeometry x="460" y="40" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-17" value="file mlp" style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-16">
+          <mxGeometry x="20" y="30" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-20" value="..." style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-16">
+          <mxGeometry x="20" y="75" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-21" value="module utils " style="swimlane;" vertex="1" parent="9H91HMbjQ0deD9CUch-b-24">
+          <mxGeometry x="460" y="235" width="200" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-22" value="file frame_reader" style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-21">
+          <mxGeometry x="20" y="30" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Biaw4eSBIgUF1mlKVxbE-23" value="..." style="whiteSpace=wrap;html=1;" vertex="1" parent="Biaw4eSBIgUF1mlKVxbE-21">
+          <mxGeometry x="20" y="75" width="160" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
