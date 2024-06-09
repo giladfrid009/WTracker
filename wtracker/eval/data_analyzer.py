@@ -32,12 +32,6 @@ class DataAnalyzer:
     @property
     def unit(self) -> str:
         return self.unit
-    
-    def remove_cycle(self, cycles:int|list[int]):
-        if isinstance(cycles, int):
-            cycles = [cycles]
-        mask = self.data["cycle"].isin(cycles)
-        self.data = self.data[~mask]
 
     def save(self, path: str) -> None:
         """
@@ -113,6 +107,18 @@ class DataAnalyzer:
         data["precise_error"] = 1.0
         return data
 
+    def remove_cycle(self, cycles: int | list[int]):
+        """
+        Remove the specified cycles from the data.
+
+        Args:
+            cycles (int | list[int]): The cycle(s) to remove from the data.
+        """
+        if isinstance(cycles, int):
+            cycles = [cycles]
+        mask = self.data["cycle"].isin(cycles)
+        self.data = self.data[~mask]
+
     def clean(
         self,
         trim_cycles: bool = False,
@@ -133,6 +139,7 @@ class DataAnalyzer:
             mask = data["phase"] == "imaging"
             data = data[mask]
 
+        # TODO: make impl more clean.
         if bounds is not None:
             mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[2])
             mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[3])
@@ -205,7 +212,7 @@ class DataAnalyzer:
         self._unit = unit
         self.data = data
 
-    # TODO: TEST
+    # TODO: TEST and FIX
     def calc_precise_error(
         self,
         worm_reader: FrameReader,
@@ -356,15 +363,16 @@ class DataAnalyzer:
         Prints various statistics related to the data.
 
         This method calculates and prints the following statistics:
+        - Count of Removed Frames: The number of frames that were removed from the original data.
         - Total Count of No Pred Frames: The number of frames where the predictions are missing.
         - Total Num of Cycles: The number of unique cycles in the data.
         - Non Perfect Predictions: The percentage of predictions that are not perfect.
         """
         num_removed = len(self._orig_data.index) - len(self.data.index)
-        print(f"Total Count Removed Frames: {num_removed} ({round(100 * num_removed / len(self._orig_data.index), 3)}%)")
+        print(f"Count of Removed Frames: {num_removed} ({round(100 * num_removed / len(self._orig_data.index), 3)}%)")
 
         no_preds = self.data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].isna().any(axis=1).sum()
-        print(f"Total Count of No Pred Frames: {no_preds} ({round(100 * no_preds / len(self.data.index), 3)}%)")
+        print(f"Count of No-Pred Frames: {no_preds} ({round(100 * no_preds / len(self.data.index), 3)}%)")
 
         num_cycles = self.data["cycle"].nunique()
         print(f"Total Num of Cycles: {num_cycles}")
