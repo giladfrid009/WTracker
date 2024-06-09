@@ -25,8 +25,8 @@ Download the project [repository](https://github.com/giladfrid009/Bio-Proj) (by 
 
 **Step 2** - verify that mamba is installed correctly:  
 >  1. Navigate to the folder into which the library was download.    
-	2. Open terminal/command prompt.  
-	3. Enter - 'mamba -h'.  
+2. Open terminal/command prompt.  
+3. Enter - 'mamba -h'.  
     if no error is encountered then mamba is installed correctly.
 
 **Step 3** - create a new environment:  
