@@ -1,15 +1,14 @@
 # worms
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## Description
 
-This library provides tools for simulating worm movement, training predictors, and analyzing the results. It includes support for YOLO-based prediction and various simulation controllers.
+This library provides tools for orm detection and movement prediction, training predictors, and analyzing the results. It includes support for YOLO-based prediction and various simulation controllers.
+Documentation can be found [here](https://giladfrid009.github.io/Bio-Proj/).
 
 ## Features
 
-- Worm movement simulation
-- YOLO-based prediction
+- Real-time Worm detection and movement prediction
 - Logging and analysis tools
 - CSV, logging, and YOLO controllers
 
@@ -25,8 +24,8 @@ Download the project [repository](https://github.com/giladfrid009/Bio-Proj) (by 
     \* if unsure, use this [link](https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe) to download mamba.
 
 **Step 2** - verify that mamba is installed correctly:  
-   1. Navigate to the folder into which the library was download.
- > 2. Open terminal/command prompt.  
+>1. Navigate to the folder into which the library was download.
+ 2. Open terminal/command prompt.  
  3. Enter - 'mamba -h'.  
     if no error is encountered then mamba is installed correctly.
 
@@ -77,7 +76,7 @@ Refer to the variouse '\.ipynb' files for usage for each workflow.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+AGPL-3.0 License: This OSI-approved open-source license is ideal for students and enthusiasts, promoting open collaboration and knowledge sharing. See the LICENSE file for more details.
 
 ## Contact
 
