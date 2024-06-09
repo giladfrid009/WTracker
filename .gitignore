@@ -17,6 +17,8 @@ runs/*
 *.zip
 data
 workflows/runs
+docs/temp.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
