@@ -17,7 +17,6 @@ runs/*
 *.zip
 data
 workflows/runs
-docs/temp.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -157,7 +156,7 @@ venv.bak/
 .ropeproject
 
 # mkdocs documentation
-#docs
+docs
 
 # mypy
 .mypy_cache/
