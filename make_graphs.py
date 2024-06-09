@@ -101,10 +101,9 @@ for conf_name in tqdm(config_names):
 
         pltr = Plotter([an.data for an in all_analyzers], plot_height=7, palette=None)
         
-        plot = pltr.plot_deviation(
-            percentile=0.995,
+        plot = pltr.plot_cycle_error(
             log_wise=False,
-            kind="boxen",
+            plot_kind="boxen",
             k_depth="proportion",
             outlier_prop=0.02,
             saturation=0.5,
@@ -119,7 +118,7 @@ for conf_name in tqdm(config_names):
             x_label="cycle step",
             y_label="distance",
             title="Distance between worm and microscope centers as function of cycle step",
-            kind="hist",
+            plot_kind="hist",
             #condition=cond,
         )
         save_fig(plot.figure, path=join_paths(save_dir, "deviation_hist"))

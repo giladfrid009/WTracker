@@ -30,78 +30,144 @@ class Plotter:
 
         self.data = pd.concat([d for d in data_list], ignore_index=True)
 
+    def _get_error_column(self, error_kind: str) -> str:
+        if error_kind == "bbox":
+            return "bbox_error"
+        elif error_kind == "dist":
+            return "worm_deviation"
+        elif error_kind == "precise":
+            return "precise_error"
+        else:
+            raise ValueError(f"Invalid error kind: {error_kind}")
+
     def plot_speed(
         self,
         log_wise: bool = False,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        plot_kind: str = "hist",
         **kwargs,
     ) -> sns.FacetGrid:
+        """
+        Plot the speed distribution of the worm.
 
-        plot = self.create_distplot(
+        Args:
+            log_wise (bool, optional): Whether to plot each log separately.
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            plot_kind (str, optional): The kind of plot to create. Can be "hist", "kde", or "ecdf".
+            **kwargs: Additional keyword arguments to pass the `Plotter.create_distplot` function.
+        """
+
+        return self.create_distplot(
             x_col="wrm_speed",
-            kind="hist",
             x_label="speed",
             title="Worm Speed Distribution",
+            plot_kind=plot_kind,
             log_wise=log_wise,
             condition=condition,
             kde=True,
             **kwargs,
         )
 
-        return plot
-
-    # TODO: TEST cycle_wise
     def plot_error(
         self,
         error_kind: str = "bbox",
         log_wise: bool = False,
         cycle_wise: bool = False,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        plot_kind: str = "hist",
         **kwargs,
     ) -> sns.FacetGrid:
-        if error_kind == "bbox":
-            error_col = "bbox_error"
-        elif error_kind == "dist":
-            error_col = "worm_deviation"
-        elif error_kind == "precise":
-            error_col = "precise_error"
-        else:
-            raise ValueError(f"Invalid error kind: {error_kind}")
+        """
+        Plot the error distribution.
+
+        Args:
+            error_kind (str, optional): The kind of error to plot. Can be "bbox", "dist", or "precise".
+            log_wise (bool, optional): Whether to plot each log separately.
+            cycle_wise (bool, optional): Whether to plot each cycle separately.
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            plot_kind (str, optional): The kind of plot to create. Can be "hist", "kde", or "ecdf".
+            **kwargs: Additional keyword arguments to pass the `Plotter.create_distplot` function.
+
+        Returns:
+            sns.FacetGrid: The plot object.
+        """
+
+        error_col = self._get_error_column(error_kind)
 
         data = self.data
         if cycle_wise:
             data = self.data.groupby(["log_num", "cycle"])[error_col].max().reset_index()
 
-        plot = self.create_distplot(
+        return self.create_distplot(
             x_col=error_col,
-            kind="hist",
-            x_label="error",
+            x_label=f"{error_kind} error",
             title=f"{error_kind} Error Distribution",
+            plot_kind=plot_kind,
             log_wise=log_wise,
             condition=condition,
-            kde=True,
             data=data,
             **kwargs,
         )
-        return plot
 
-    # TODO: TEST cycle_wise
+    def plot_cycle_error(
+        self,
+        error_kind: str = "bbox",
+        log_wise: bool = False,
+        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        plot_kind: str = "boxen",
+        **kwargs,
+    ) -> sns.JointGrid:
+        """
+        Plot the error as a function of the cycle step.
+
+        Args:
+            error_kind (str, optional): The kind of error to plot. Can be "bbox", "dist", or "precise".
+            log_wise (bool, optional): Whether to plot each log separately.
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            plot_kind (str, optional): The kind of plot to create. Can be "strip", "box", "violin", "boxen", "bar", or "count".
+            **kwargs: Additional keyword arguments to pass the `Plotter.create_catplot` function.
+
+        Returns:
+            sns.JointGrid: The plot object.
+        """
+
+        error_col = self._get_error_column(error_kind)
+
+        return self.create_catplot(
+            x_col="cycle_step",
+            y_col=error_col,
+            x_label="cycle step",
+            y_label=f"{error_kind} error",
+            title=f"{error_kind} error as function of cycle step",
+            plot_kind=plot_kind,
+            log_wise=log_wise,
+            condition=condition,
+            **kwargs,
+        )
+
     def plot_speed_vs_error(
         self,
         error_kind: str = "bbox",
         cycle_wise: bool = False,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
-        kind="hist",
+        kind: str = "hist",
         **kwargs,
     ) -> sns.JointGrid:
-        if error_kind == "bbox":
-            error_col = "bbox_error"
-        elif error_kind == "dist":
-            error_col = "worm_deviation"
-        elif error_kind == "precise":
-            error_col = "precise_error"
-        else:
-            raise ValueError(f"Invalid error kind: {error_kind}")
+        """
+        Plot the speed of the worm vs the error.
+
+        Args:
+            error_kind (str, optional): The kind of error to plot. Can be "bbox", "dist", or "precise".
+            cycle_wise (bool, optional): Whether to plot each cycle separately.
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            kind (str, optional): The kind of plot to create. Can be "scatter", "kde", "hist", "hex", "reg", or "resid".
+            **kwargs: Additional keyword arguments to pass the `Plotter.create_jointplot` function.
+
+        Returns:
+            sns.JointGrid: The plot object.
+        """
+
+        error_col = self._get_error_column(error_kind)
 
         data = self.data
         if cycle_wise:
@@ -111,19 +177,17 @@ class Plotter:
                 .reset_index()
             )
 
-        plot = self.create_jointplot(
+        return self.create_jointplot(
             x_col="wrm_speed",
             y_col=error_col,
-            kind=kind,
+            plot_kind=kind,
             x_label="speed",
-            y_label=f"{error_kind} Error",
+            y_label=f"{error_kind} error",
             title=f"Speed vs {error_kind} Error",
             condition=condition,
             data=data,
             **kwargs,
         )
-
-        return plot
 
     def plot_trajectory(
         self,
@@ -131,6 +195,17 @@ class Plotter:
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
         **kwargs,
     ) -> sns.JointGrid:
+        """
+        Plot the trajectory of the worm.
+
+        Args:
+            hue_col (str, optional): The column to use for coloring the plot.
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            **kwargs: Additional keyword arguments to pass the `Plotter.create_jointplot` function.
+
+        Returns:
+            sns.JointGrid: The plot object.
+        """
 
         plot = self.create_jointplot(
             x_col="wrm_center_x",
@@ -139,7 +214,7 @@ class Plotter:
             y_label="Y",
             title="Worm Trajectory",
             hue_col=hue_col,
-            kind="scatter",
+            plot_kind="scatter",
             alpha=1,
             linewidth=0,
             condition=condition,
@@ -155,51 +230,31 @@ class Plotter:
     def plot_head_size(
         self,
         condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
+        plot_kind: str = "hist",
         **kwargs,
     ) -> sns.JointGrid:
+        """
+        Plot the size of the worm head.
 
-        plot = self.create_jointplot(
+        Args:
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            plot_kind (str, optional): The kind of plot to create. Can be "scatter", "kde", "hist", "hex", "reg", or "resid".
+            **kwargs: Additional keyword arguments to pass the `Plotter.create_jointplot` function.
+
+        Returns:
+            sns.JointGrid: The plot object.
+        """
+
+        return self.create_jointplot(
             x_col="wrm_w",
             y_col="wrm_h",
             x_label="width",
             y_label="height",
             title="Worm Head Size",
-            kind="hist",
+            plot_kind=plot_kind,
             condition=condition,
             **kwargs,
         )
-
-        return plot
-
-    def plot_deviation(
-        self,
-        percentile: float = 0.999,
-        log_wise: bool = False,
-        condition: Callable[[pd.DataFrame], pd.DataFrame] = None,
-        kind="hist",
-        **kwargs,
-    ) -> sns.JointGrid:
-
-        q = self.data["worm_deviation"].quantile(percentile)
-
-        if condition is not None:
-            cond_func = lambda x: condition(x) & (x["worm_deviation"] < q)
-        else:
-            cond_func = lambda x: x["worm_deviation"] < q
-
-        plot = self.create_catplot(
-            x_col="cycle_step",
-            y_col="worm_deviation",
-            x_label="cycle step",
-            y_label="distance",
-            title="Distance between worm and microscope centers as function of cycle step",
-            kind=kind,
-            log_wise=log_wise,
-            condition=cond_func,
-            **kwargs,
-        )
-
-        return plot
 
     def create_distplot(
         self,
@@ -207,7 +262,7 @@ class Plotter:
         y_col: str = None,
         hue_col: str = None,
         log_wise: bool = False,
-        kind: str = "hist",
+        plot_kind: str = "hist",
         x_label: str = "",
         y_label: str = "",
         title: str | None = None,
@@ -216,8 +271,28 @@ class Plotter:
         data: pd.DataFrame = None,
         **kwargs,
     ) -> sns.FacetGrid:
+        """
+        Create a distribution plot from the data.
 
-        assert kind in ["hist", "kde", "ecdf"]
+        Args:
+            x_col (str): The column to plot on the x-axis.
+            y_col (str, optional): The column to plot on the y-axis.
+            hue_col (str, optional): The column to use for coloring the plot.
+            log_wise (bool, optional): Whether to plot each log separately.
+            plot_kind (str, optional): The kind of plot to create. Can be "hist", "kde", or "ecdf".
+            x_label (str, optional): The x-axis label.
+            y_label (str, optional): The y-axis label.
+            title (str, optional): The title of the plot.
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            transform (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to transform the data.
+            data (pd.DataFrame, optional): Custom data to plot from. If None, the data passed to the constructor of the class is used.
+            **kwargs: Additional keyword arguments to pass to the `seaborn.displot` function.
+
+        Returns:
+            sns.FacetGrid: The plot object.
+        """
+
+        assert plot_kind in ["hist", "kde", "ecdf"]
 
         if data is None:
             data = self.data
@@ -228,15 +303,17 @@ class Plotter:
         if condition is not None:
             data = data[condition(data)]
 
+        palette = self.palette if hue_col is not None else None
+
         plot = sns.displot(
             data=data.dropna(),
             x=x_col,
             y=y_col,
             hue=hue_col,
             col="log_num" if log_wise else None,
-            kind=kind,
+            kind=plot_kind,
             height=self.plot_height,
-            palette=self.palette,
+            palette=palette,
             **kwargs,
         )
 
@@ -260,7 +337,7 @@ class Plotter:
         y_col: str = None,
         hue_col: str = None,
         log_wise: bool = False,
-        kind: str = "strip",
+        plot_kind: str = "strip",
         x_label: str = "",
         y_label: str = "",
         title: str | None = None,
@@ -269,8 +346,28 @@ class Plotter:
         data: pd.DataFrame = None,
         **kwargs,
     ) -> sns.FacetGrid:
+        """
+        Create a categorical plot from the data.
 
-        assert kind in ["strip", "box", "violin", "boxen", "bar", "count"]
+        Args:
+            x_col (str): The column to plot on the x-axis.
+            y_col (str, optional): The column to plot on the y-axis.
+            hue_col (str, optional): The column to use for coloring the plot.
+            log_wise (bool, optional): Whether to plot each log separately.
+            plot_kind (str, optional): The kind of plot to create. Can be "strip", "box", "violin", "boxen", "bar", or "count".
+            x_label (str, optional): The x-axis label.
+            y_label (str, optional): The y-axis label.
+            title (str, optional): The title of the plot.
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            transform (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to transform the data.
+            data (pd.DataFrame, optional): Custom data to plot from. If None, the data passed to the constructor of the class is used.
+            **kwargs: Additional keyword arguments to pass to the `seaborn.catplot` function.
+
+        Returns:
+            sns.FacetGrid: The plot object.
+        """
+
+        assert plot_kind in ["strip", "box", "violin", "boxen", "bar", "count"]
 
         if data is None:
             data = self.data
@@ -281,15 +378,17 @@ class Plotter:
         if condition is not None:
             data = data[condition(data)]
 
+        palette = self.palette if hue_col is not None else None
+
         plot = sns.catplot(
             data=data.dropna(),
             x=x_col,
             y=y_col,
             hue=hue_col,
             col="log_num" if log_wise else None,
-            kind=kind,
+            kind=plot_kind,
             height=self.plot_height,
-            palette=self.palette,
+            palette=palette,
             **kwargs,
         )
 
@@ -312,7 +411,7 @@ class Plotter:
         x_col: str,
         y_col: str,
         hue_col: str = None,
-        kind: str = "scatter",
+        plot_kind: str = "scatter",
         x_label: str = "",
         y_label: str = "",
         title: str = "",
@@ -321,8 +420,27 @@ class Plotter:
         data: pd.DataFrame = None,
         **kwargs,
     ) -> sns.JointGrid:
+        """
+        Create a joint plot from the data.
 
-        assert kind in ["scatter", "kde", "hist", "hex", "reg", "resid"]
+        Args:
+            x_col (str): The column to plot on the x-axis.
+            y_col (str): The column to plot on the y-axis.
+            hue_col (str, optional): The column to use for coloring the plot.
+            plot_kind (str, optional): The kind of plot to create. Can be "scatter", "kde", "hist", "hex", "reg", or "resid".
+            x_label (str, optional): The x-axis label.
+            y_label (str, optional): The y-axis label.
+            title (str, optional): The title of the plot.
+            condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
+            transform (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to transform the data.
+            data (pd.DataFrame, optional): Custom data to plot from. If None, the data passed to the constructor of the class is used.
+            **kwargs: Additional keyword arguments to pass to the `seaborn.jointplot` function.
+
+        Returns:
+            sns.JointGrid: The plot object.
+        """
+
+        assert plot_kind in ["scatter", "kde", "hist", "hex", "reg", "resid"]
 
         if data is None:
             data = self.data
@@ -333,15 +451,17 @@ class Plotter:
         if condition is not None:
             data = data[condition(data)]
 
+        palette = self.palette if hue_col is not None else None
+
         plot = sns.jointplot(
             data=data.dropna(),
             x=x_col,
             y=y_col,
             hue=hue_col,
-            kind=kind,
+            kind=plot_kind,
             height=self.plot_height,
-            palette=self.palette,
-            marginal_kws=dict(palette=self.palette),
+            palette=palette,
+            marginal_kws=dict(palette=palette),
             **kwargs,
         )
 
