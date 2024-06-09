@@ -49,7 +49,7 @@ Install 'Miniforge' from this [link](https://github.com/conda-forge/miniforge), 
 3. Wait till the installation is complate. That might take a while.    
 
 **Step 6** - Install the rest of the libraries:  
-	Enter the command - 'mamba env update -f requirements.yaml -n bio-proj'   
+  Enter the command - 'mamba env update -f requirements.yaml -n bio-proj'   
 
 
 ### Install the Development Environment
@@ -61,7 +61,7 @@ You can download and install VS Code from [here](https://code.visualstudio.com/d
 To set up VS Code for the project you need to install several extensions. 
 Follow this [link](https://code.visualstudio.com/docs/editor/extension-marketplace) to learn how to install extensions. 
 The extensions needed are:
-> - [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
+- [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
 - [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 - [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
 
