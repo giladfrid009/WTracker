@@ -1234,11 +1234,11 @@
 
 <span class="kn">from</span> <span class="nn">tqdm.contrib</span> <span class="kn">import</span> <span class="n">concurrent</span>
 
-<span class="kn">import</span> <span class="nn">multiprocessing</span>
-
 <span class="kn">from</span> <span class="nn">wtracker.utils.frame_reader</span> <span class="kn">import</span> <span class="n">FrameReader</span>
 
 <span class="kn">from</span> <span class="nn">wtracker.dataset.bg_extractor</span> <span class="kn">import</span> <span class="n">BGExtractor</span>
+
+<span class="kn">from</span> <span class="nn">wtracker.utils.threading_utils</span> <span class="kn">import</span> <span class="n">adjust_num_workers</span>
 
 <span class="k">class</span> <span class="nc">BoxCalculator</span><span class="p">:</span>
 
@@ -1250,9 +1250,9 @@
 
 <span class="sd">        frame_reader (FrameReader): The frame reader object holing the relevant frames.</span>
 
-<span class="sd">        bg_probes (int, optional): Number of probes to use for background extraction. Defaults to 500.</span>
+<span class="sd">        bg_probes (int, optional): Number of probes to use for background extraction.</span>
 
-<span class="sd">        diff_thresh (int, optional): Threshold value for the detecting foreground objects. Defaults to 20.</span>
+<span class="sd">        diff_thresh (int, optional): Threshold value for the detecting foreground objects.</span>
 
 <span class="sd">            Pixels with difference value greater than this threshold are considered as foreground.</span>
 
@@ -1390,24 +1390,6 @@
 
         <span class="k">return</span> <span class="n">largest_bbox</span>
 
-    <span class="k">def</span> <span class="nf">_adjust_num_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_tasks</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-
-        <span class="k">if</span> <span class="n">num_workers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># if None then choose automatically</span>
-
-            <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">num_tasks</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">chunk_size</span><span class="p">))</span>
-
-            <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)</span>
-
-        <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">num_tasks</span> <span class="o">//</span> <span class="n">chunk_size</span><span class="p">)</span>  <span class="c1"># no point having workers without tasks</span>
-
-        <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>  <span class="c1"># no point having more workers than cpus</span>
-
-        <span class="k">if</span> <span class="n">num_workers</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># make sure value is valid</span>
-
-            <span class="n">num_workers</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="k">return</span> <span class="n">num_workers</span>
-
     <span class="k">def</span> <span class="nf">calc_specified_boxes</span><span class="p">(</span>
 
         <span class="bp">self</span><span class="p">,</span>
@@ -1430,9 +1412,9 @@
 
 <span class="sd">            num_workers (int, optional): Number of workers for parallel processing.</span>
 
-<span class="sd">            If None is provided then number of workers is determined automatically. Defaults to None.</span>
+<span class="sd">            If None is provided then number of workers is determined automatically.</span>
 
-<span class="sd">            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.</span>
+<span class="sd">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
 
 <span class="sd">        Returns:</span>
 
@@ -1442,7 +1424,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">get_background</span><span class="p">()</span>
 
-        <span class="n">num_workers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adjust_num_workers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">)</span>
+        <span class="n">num_workers</span> <span class="o">=</span> <span class="n">adjust_num_workers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
@@ -1494,9 +1476,9 @@
 
 <span class="sd">            num_workers (int, optional): Number of workers for parallel processing.</span>
 
-<span class="sd">                If None is provided then number of workers is determined automatically. Defaults to None.</span>
+<span class="sd">                If None is provided then number of workers is determined automatically.</span>
 
-<span class="sd">            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.</span>
+<span class="sd">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
 
 <span class="sd">        Returns:</span>
 
@@ -1540,14 +1522,14 @@
 <tr>
 <td>bg_probes</td>
 <td>int</td>
-<td>Number of probes to use for background extraction. Defaults to 500.</td>
-<td>500</td>
+<td>Number of probes to use for background extraction.</td>
+<td>None</td>
 </tr>
 <tr>
 <td>diff_thresh</td>
 <td>int</td>
-<td>Threshold value for the detecting foreground objects. Defaults to 20.<br>Pixels with difference value greater than this threshold are considered as foreground.</td>
-<td>20</td>
+<td>Threshold value for the detecting foreground objects.<br>Pixels with difference value greater than this threshold are considered as foreground.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -1563,9 +1545,9 @@
 
 <span class="ss">        frame_reader (FrameReader): The frame reader object holing the relevant frames.</span>
 
-<span class="ss">        bg_probes (int, optional): Number of probes to use for background extraction. Defaults to 500.</span>
+<span class="ss">        bg_probes (int, optional): Number of probes to use for background extraction.</span>
 
-<span class="ss">        diff_thresh (int, optional): Threshold value for the detecting foreground objects. Defaults to 20.</span>
+<span class="ss">        diff_thresh (int, optional): Threshold value for the detecting foreground objects.</span>
 
 <span class="ss">            Pixels with difference value greater than this threshold are considered as foreground.</span>
 
@@ -1703,24 +1685,6 @@
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">largest_bbox</span>
 
-<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_adjust_num_workers</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">num_tasks</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="nl">chunk_size</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="p">,</span><span class="w"> </span><span class="nl">num_workers</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nc">int</span><span class="err">:</span>
-
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">num_workers</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="nf">choose</span><span class="w"> </span><span class="n">automatically</span>
-
-<span class="w">            </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="n">multiprocessing</span><span class="p">.</span><span class="n">cpu_count</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">num_tasks</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">))</span>
-
-<span class="w">            </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">round</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)</span>
-
-<span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="n">num_workers</span><span class="p">,</span><span class="w"> </span><span class="n">num_tasks</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">)</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="k">no</span><span class="w"> </span><span class="n">point</span><span class="w"> </span><span class="k">having</span><span class="w"> </span><span class="n">workers</span><span class="w"> </span><span class="k">without</span><span class="w"> </span><span class="n">tasks</span>
-
-<span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="n">num_workers</span><span class="p">,</span><span class="w"> </span><span class="n">multiprocessing</span><span class="p">.</span><span class="n">cpu_count</span><span class="p">())</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="k">no</span><span class="w"> </span><span class="n">point</span><span class="w"> </span><span class="k">having</span><span class="w"> </span><span class="n">more</span><span class="w"> </span><span class="n">workers</span><span class="w"> </span><span class="k">than</span><span class="w"> </span><span class="n">cpus</span>
-
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">num_workers</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="n">sure</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">valid</span>
-
-<span class="w">            </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">num_workers</span>
-
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calc_specified_boxes</span><span class="p">(</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">,</span>
@@ -1743,9 +1707,9 @@
 
 <span class="ss">            num_workers (int, optional): Number of workers for parallel processing.</span>
 
-<span class="ss">            If None is provided then number of workers is determined automatically. Defaults to None.</span>
+<span class="ss">            If None is provided then number of workers is determined automatically.</span>
 
-<span class="ss">            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.</span>
+<span class="ss">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -1755,7 +1719,7 @@
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">get_background</span><span class="p">()</span>
 
-<span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_adjust_num_workers</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">,</span><span class="w"> </span><span class="n">num_workers</span><span class="p">)</span>
+<span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adjust_num_workers</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">,</span><span class="w"> </span><span class="n">num_workers</span><span class="p">)</span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">num_workers</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span>
 
@@ -1807,9 +1771,9 @@
 
 <span class="ss">            num_workers (int, optional): Number of workers for parallel processing.</span>
 
-<span class="ss">                If None is provided then number of workers is determined automatically. Defaults to None.</span>
+<span class="ss">                If None is provided then number of workers is determined automatically.</span>
 
-<span class="ss">            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.</span>
+<span class="ss">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -1893,14 +1857,14 @@
 <tr>
 <td>num_workers</td>
 <td>int</td>
-<td>Number of workers for parallel processing.<br>If None is provided then number of workers is determined automatically. Defaults to None.</td>
+<td>Number of workers for parallel processing.<br>If None is provided then number of workers is determined automatically.</td>
 <td>None</td>
 </tr>
 <tr>
 <td>chunk_size</td>
 <td>int</td>
-<td>Size of each chunk for parallel processing. Defaults to 50.</td>
-<td>50</td>
+<td>Size of each chunk for parallel processing.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -1939,9 +1903,9 @@
 
 <span class="s">            num_workers (int, optional): Number of workers for parallel processing.</span>
 
-<span class="s">                If None is provided then number of workers is determined automatically. Defaults to None.</span>
+<span class="s">                If None is provided then number of workers is determined automatically.</span>
 
-<span class="s">            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.</span>
+<span class="s">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
 
 <span class="s">        Returns:</span>
 
@@ -1968,8 +1932,8 @@
 <p>Args:
     frame_indices (Iterable[int]): The indices of the frames for which to calculate the bboxes.
     num_workers (int, optional): Number of workers for parallel processing.
-    If None is provided then number of workers is determined automatically. Defaults to None.
-    chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.</p>
+    If None is provided then number of workers is determined automatically.
+    chunk_size (int, optional): Size of each chunk for parallel processing.</p>
 <p>Returns:
     np.ndarray: The calculated boxes for the specified frames.</p>
 <details class="example">
@@ -1996,9 +1960,9 @@
 
 <span class="ss">            num_workers (int, optional): Number of workers for parallel processing.</span>
 
-<span class="ss">            If None is provided then number of workers is determined automatically. Defaults to None.</span>
+<span class="ss">            If None is provided then number of workers is determined automatically.</span>
 
-<span class="ss">            chunk_size (int, optional): Size of each chunk for parallel processing. Defaults to 50.</span>
+<span class="ss">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -2008,7 +1972,7 @@
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">get_background</span><span class="p">()</span>
 
-<span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_adjust_num_workers</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">,</span><span class="w"> </span><span class="n">num_workers</span><span class="p">)</span>
+<span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adjust_num_workers</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">,</span><span class="w"> </span><span class="n">num_workers</span><span class="p">)</span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">num_workers</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span>
 

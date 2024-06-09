@@ -1430,14 +1430,6 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">        Args:</span>
-
-<span class="sd">            timing_config (TimingConfig): The timing configuration of the simulation.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span> <span class="o">=</span> <span class="n">timing_config</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">movement_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">moving_frame_num</span>
@@ -1466,7 +1458,7 @@
 
 <span class="sd">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
 
-<span class="sd">        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move. Defaults to 0.5.</span>
+<span class="sd">        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1605,14 +1597,6 @@
 <span class="ss">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">timing_config</span><span class="p">:</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">)</span><span class="err">:</span>
-
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
-
-<span class="ss">        Args:</span>
-
-<span class="ss">            timing_config (TimingConfig): The timing configuration of the simulation.</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">timing_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timing_config</span>
 
@@ -1843,8 +1827,8 @@
 <tr>
 <td>move_after_ratio</td>
 <td>float</td>
-<td>The ratio of movement steps after which the motor should move. Defaults to 0.5.</td>
-<td>0.5</td>
+<td>The ratio of movement steps after which the motor should move.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -1862,7 +1846,7 @@
 
 <span class="s">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
 
-<span class="s">        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move. Defaults to 0.5.</span>
+<span class="s">        move_after_ratio (float, optional): The ratio of movement steps after which the motor should move.</span>
 
 <span class="s">    &quot;&quot;&quot;</span>
 

@@ -1562,29 +1562,13 @@
 
     <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">mic_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mic_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mic_folder_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mic_file_name</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mic_folder_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mic_file_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cam_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_folder_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_file_name</span><span class="p">)</span>
 
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">err_folder_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_file_name</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">cam_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_folder_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_file_name</span>
-
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">err_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">err_folder_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cam_file_name</span>
-
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">wrm_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrm_folder_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrm_file_name</span>
-
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrm_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrm_folder_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrm_file_name</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">bbox_file_path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox_file_name</span><span class="p">)</span>
 
@@ -1748,17 +1732,9 @@
 
             <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;plt_x&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;plt_y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_platform_positions</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
-            <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;cam_x&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;cam_y&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;cam_w&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;cam_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;cam_x&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;cam_y&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;cam_w&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;cam_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_camera_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-
-            <span class="p">)</span>
-
-            <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;mic_x&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;mic_y&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;mic_w&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;mic_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-
-                <span class="bp">self</span><span class="o">.</span><span class="n">_micro_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-
-            <span class="p">)</span>
+            <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;mic_x&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;mic_y&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;mic_w&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;mic_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_micro_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
             <span class="n">frame_number</span> <span class="o">=</span> <span class="n">frame_offset</span> <span class="o">+</span> <span class="n">i</span>
 
@@ -1828,11 +1804,7 @@
 
             <span class="c1"># log current cycle</span>
 
-            <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;wrm_x&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;wrm_y&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;wrm_w&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;wrm_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-
-                <span class="n">worm_bbox</span>
-
-            <span class="p">)</span>
+            <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;wrm_x&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;wrm_y&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;wrm_w&quot;</span><span class="p">],</span> <span class="n">csv_row</span><span class="p">[</span><span class="s2">&quot;wrm_h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">worm_bbox</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_bbox_logger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">csv_row</span><span class="p">)</span>
 
@@ -1972,29 +1944,13 @@
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__post_init__</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="err">:</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">mic_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">mic_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">mic_folder_name</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">mic_file_name</span><span class="p">)</span>
 
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">mic_folder_name</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">mic_file_name</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">cam_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">cam_folder_name</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">cam_file_name</span><span class="p">)</span>
 
-<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">err_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">err_folder_name</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">cam_file_name</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">cam_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span>
-
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">cam_folder_name</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">cam_file_name</span>
-
-<span class="w">        </span><span class="p">)</span>
-
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">err_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span>
-
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">err_folder_name</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">cam_file_name</span>
-
-<span class="w">        </span><span class="p">)</span>
-
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">wrm_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span>
-
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">wrm_folder_name</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">wrm_file_name</span>
-
-<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">wrm_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">wrm_folder_name</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">wrm_file_name</span><span class="p">)</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">bbox_file_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">bbox_file_name</span><span class="p">)</span>
 
@@ -2529,17 +2485,9 @@
 
 <span class="w">            </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;plt_x&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;plt_y&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_platform_positions</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
 
-<span class="w">            </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;cam_x&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;cam_y&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;cam_w&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;cam_h&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span>
+<span class="w">            </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;cam_x&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;cam_y&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;cam_w&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;cam_h&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_camera_bboxes</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
 
-<span class="w">                </span><span class="n">self</span><span class="p">.</span><span class="n">_camera_bboxes</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
-
-<span class="w">            </span><span class="p">)</span>
-
-<span class="w">            </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;mic_x&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;mic_y&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;mic_w&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;mic_h&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span>
-
-<span class="w">                </span><span class="n">self</span><span class="p">.</span><span class="n">_micro_bboxes</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
-
-<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;mic_x&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;mic_y&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;mic_w&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;mic_h&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_micro_bboxes</span><span class="o">[</span><span class="n">i</span><span class="o">]</span>
 
 <span class="w">            </span><span class="n">frame_number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame_offset</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span>
 
@@ -2609,11 +2557,7 @@
 
 <span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nf">log</span><span class="w"> </span><span class="k">current</span><span class="w"> </span><span class="k">cycle</span>
 
-<span class="w">            </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;wrm_x&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;wrm_y&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;wrm_w&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;wrm_h&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span>
-
-<span class="w">                </span><span class="n">worm_bbox</span>
-
-<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;wrm_x&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;wrm_y&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;wrm_w&quot;</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">csv_row</span><span class="o">[</span><span class="n">&quot;wrm_h&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">worm_bbox</span>
 
 <span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_bbox_logger</span><span class="p">.</span><span class="k">write</span><span class="p">(</span><span class="n">csv_row</span><span class="p">)</span>
 

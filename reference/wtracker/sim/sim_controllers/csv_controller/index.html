@@ -1400,10 +1400,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_camera_bboxes</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">camera_position</span><span class="p">)</span>
 
-    <span class="c1"># TODO: if relative = True then this function works only if frame number if within the last cycle.</span>
-
-    <span class="c1"># maybe fix that.</span>
-
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_nums</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">relative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
@@ -1419,6 +1415,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">relative</span><span class="p">:</span>
 
             <span class="k">return</span> <span class="n">worm_bboxes</span>
+
+        <span class="c1"># TODO: if relative == True then it works only if frame number if within the last cycle.</span>
+
+        <span class="c1"># maybe fix that.</span>
 
         <span class="n">cam_bboxes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_bboxes</span><span class="p">[</span><span class="n">n</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frame_nums</span><span class="p">]</span>
 
@@ -1518,10 +1518,6 @@
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_camera_bboxes</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">sim</span><span class="p">.</span><span class="k">view</span><span class="p">.</span><span class="n">camera_position</span><span class="p">)</span>
 
-<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">relative</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">works</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">within</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">last</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span>
-
-<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="n">maybe</span><span class="w"> </span><span class="n">fix</span><span class="w"> </span><span class="n">that</span><span class="p">.</span>
-
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">frame_nums</span><span class="p">:</span><span class="w"> </span><span class="n">Collection</span><span class="o">[</span><span class="n">int</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">relative</span><span class="err">:</span><span class="w"> </span><span class="n">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
 
 <span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span>
@@ -1537,6 +1533,10 @@
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">relative</span><span class="err">:</span>
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">worm_bboxes</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">relative</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">True</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">works</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">within</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">last</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">maybe</span><span class="w"> </span><span class="n">fix</span><span class="w"> </span><span class="n">that</span><span class="p">.</span>
 
 <span class="w">        </span><span class="n">cam_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">self._camera_bboxes[n % self.timing_config.cycle_frame_num</span><span class="o">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frame_nums</span><span class="err">]</span>
 
@@ -1848,6 +1848,10 @@
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">relative</span><span class="err">:</span>
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">worm_bboxes</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">relative</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">True</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">works</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">within</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">last</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">maybe</span><span class="w"> </span><span class="n">fix</span><span class="w"> </span><span class="n">that</span><span class="p">.</span>
 
 <span class="w">        </span><span class="n">cam_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">self._camera_bboxes[n % self.timing_config.cycle_frame_num</span><span class="o">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frame_nums</span><span class="err">]</span>
 

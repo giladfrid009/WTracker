@@ -1258,7 +1258,7 @@
 
 <span class="sd">            bbox (np.ndarray): The bounding box of the image, in the format (x, y, x, y).</span>
 
-<span class="sd">            image (np.ndarray): The image to calculate segmantation in.</span>
+<span class="sd">            image (np.ndarray): The image to calculate segmentation from.</span>
 
 <span class="sd">            background (np.ndarray): The background image.</span>
 
@@ -1274,11 +1274,13 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">bbox</span>
 
-        <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span>
 
-        <span class="n">bg_view</span> <span class="o">=</span> <span class="n">background</span><span class="p">[</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="k">assert</span> <span class="n">image</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span>
+
+        <span class="n">bg_view</span> <span class="o">=</span> <span class="n">background</span><span class="p">[</span><span class="n">y1</span> <span class="p">:</span> <span class="n">y2</span><span class="p">,</span> <span class="n">x1</span> <span class="p">:</span> <span class="n">x2</span><span class="p">]</span>
 
         <span class="kp">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">abs</span><span class="p">(</span><span class="n">image</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="o">-</span> <span class="n">bg_view</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
 
@@ -1338,7 +1340,7 @@
 
 <span class="sd">                Frames passed in frame_nums are read from this reader by index.</span>
 
-<span class="sd">            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from. Defaults to 10.</span>
+<span class="sd">            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from.</span>
 
 <span class="sd">                A foreground object is detected if the pixel value difference with the background is greater than this threshold.</span>
 
@@ -1550,309 +1552,311 @@
 <p>The ErrorCalculator class provides methods to calculate different types of errors based on worm position and the microscope view.</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nl">ErrorCalculator</span><span class="p">:</span>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="n">ErrorCalculator</span><span class="o">:</span>
 
-<span class="w">    </span><span class="ss">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="ss">    The ErrorCalculator class provides methods to calculate different types of errors based on worm position and the microscope view.</span>
+<span class="w">    </span><span class="n">The</span><span class="w"> </span><span class="n">ErrorCalculator</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="n">provides</span><span class="w"> </span><span class="n">methods</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">different</span><span class="w"> </span><span class="n">types</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">based</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">view</span><span class="p">.</span>
 
-<span class="ss">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">TEST</span><span class="w"> </span><span class="n">IMPLEMENTATIONs</span>
+<span class="w">    </span><span class="cp"># TODO: TEST IMPLEMENTATIONs</span>
 
-<span class="w">    </span><span class="nl">probe_hook</span><span class="p">:</span><span class="w"> </span><span class="n">Callable</span><span class="o">[</span><span class="n">[np.ndarray, np.ndarray</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">None</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">takes</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="k">view</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">testing</span>
+<span class="w">    </span><span class="nl">probe_hook</span><span class="p">:</span><span class="w"> </span><span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">],</span><span class="w"> </span><span class="n">None</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">takes</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">testing</span>
 
-<span class="w">    </span><span class="nv">@staticmethod</span>
+<span class="w">    </span><span class="p">@</span><span class="n">staticmethod</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_segmentation</span><span class="p">(</span>
 
 <span class="w">        </span><span class="nl">bbox</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-<span class="w">        </span><span class="nc">image</span><span class="err">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">image</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
 <span class="w">        </span><span class="nl">background</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-<span class="w">        </span><span class="nl">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="nc">float</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="kt">float</span><span class="p">,</span>
 
-<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span>
 
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="ss">        Calculates the segmentation error between a view and background image.</span>
-
-<span class="ss">        Args:</span>
-
-<span class="ss">            bbox (np.ndarray): The bounding box of the image, in the format (x, y, x, y).</span>
-
-<span class="ss">            image (np.ndarray): The image to calculate segmantation in.</span>
-
-<span class="ss">            background (np.ndarray): The background image.</span>
-
-<span class="ss">            diff_thresh (float): The difference threshold to distinguish foreground and background objects from.</span>
-
-<span class="ss">        Returns:</span>
-
-<span class="ss">            np.ndarray: The segmentation mask.</span>
-
-<span class="ss">        Raises:</span>
-
-<span class="ss">            ValueError: If the image is not grayscale or color.</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
-
-<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="nc">image</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">3</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">1</span><span class="o">]</span>
-
-<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="nc">image</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">2</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">0</span><span class="o">]</span>
-
-<span class="w">        </span><span class="n">bg_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span><span class="o">[</span><span class="n">bbox[1</span><span class="o">]</span><span class="w"> </span><span class="err">:</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">3</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="err">:</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">2</span><span class="o">]</span><span class="err">]</span>
-
-<span class="w">        </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="nc">image</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bg_view</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nc">int</span><span class="p">))</span>
-
-<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="n">color</span><span class="p">,</span><span class="w"> </span><span class="nf">convert</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">grayscale</span>
-
-<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">conversion</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">correct</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">it</span><span class="s1">&#39;s BGR</span>
-
-<span class="s1">        if diff.ndim == 3 and diff.shape[2] == 3:</span>
-
-<span class="s1">            diff = 0.114 * diff[:, :, 0] + 0.587 * diff[:, :, 1] + 0.299 * diff[:, :, 2]</span>
-
-<span class="s1">        if diff.ndim != 2:</span>
-
-<span class="s1">            raise ValueError(&quot;Image must be either a gray or a color image.&quot;)</span>
-
-<span class="s1">        mask_wrm = diff &gt; diff_thresh</span>
-
-<span class="s1">        return mask_wrm</span>
-
-<span class="s1">    @staticmethod</span>
-
-<span class="s1">    def calculate_precise(</span>
-
-<span class="s1">        background: np.ndarray,</span>
-
-<span class="s1">        worm_bboxes: np.ndarray,</span>
-
-<span class="s1">        mic_bboxes: np.ndarray,</span>
-
-<span class="s1">        frame_nums: Collection[int],</span>
-
-<span class="s1">        worm_reader: FrameReader,</span>
-
-<span class="s1">        diff_thresh: float = 10,</span>
-
-<span class="s1">    ) -&gt; np.ndarray:</span>
-
-<span class="s1">        &quot;&quot;&quot;</span>
-
-<span class="s1">        Calculates the precise error for each frame in the given sequence.</span>
-
-<span class="s1">        This error is based on precise segmentation of the worm object from the frame, and</span>
-
-<span class="s1">        determining the exact proportion of worm&#39;</span><span class="n">s</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">outside</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="k">view</span><span class="p">.</span>
+<span class="w">        </span><span class="n">Calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">between</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">image</span><span class="p">.</span>
 
 <span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
 
-<span class="w">            </span><span class="n">background</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="nc">image</span><span class="p">.</span>
+<span class="w">            </span><span class="n">bbox</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">).</span>
 
-<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+<span class="w">            </span><span class="n">image</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">from</span><span class="p">.</span>
 
-<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+<span class="w">            </span><span class="n">background</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">image</span><span class="p">.</span>
 
-<span class="w">            </span><span class="n">frame_nums</span><span class="w"> </span><span class="p">(</span><span class="n">Collection</span><span class="o">[</span><span class="n">int</span><span class="o">]</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">numbers</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="p">.</span>
+<span class="w">            </span><span class="n">diff_thresh</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">difference</span><span class="w"> </span><span class="n">threshold</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">distinguish</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">objects</span><span class="w"> </span><span class="n">from</span><span class="p">.</span>
 
-<span class="w">            </span><span class="n">worm_reader</span><span class="w"> </span><span class="p">(</span><span class="n">FrameReader</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">containing</span><span class="w"> </span><span class="n">segmented</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="w"> </span><span class="n">These</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+<span class="w">        </span><span class="nl">Returns</span><span class="p">:</span>
 
-<span class="w">                </span><span class="n">Frames</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frame_nums</span><span class="w"> </span><span class="k">are</span><span class="w"> </span><span class="k">read</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="k">index</span><span class="p">.</span>
-
-<span class="w">            </span><span class="n">diff_thresh</span><span class="w"> </span><span class="p">(</span><span class="nc">float</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="err">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="nf">difference</span><span class="w"> </span><span class="n">threshold</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">distinguish</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">objects</span><span class="w"> </span><span class="k">from</span><span class="p">.</span><span class="w"> </span><span class="n">Defaults</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="mf">10.</span>
-
-<span class="w">                </span><span class="n">A</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="k">object</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">detected</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">pixel</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="nf">difference</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">greater</span><span class="w"> </span><span class="k">than</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">threshold</span><span class="p">.</span>
-
-<span class="w">        </span><span class="k">Returns</span><span class="err">:</span>
-
-<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span><span class="w"> </span><span class="k">Array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">precise</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span>
+<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">mask</span><span class="p">.</span>
 
 <span class="w">        </span><span class="nl">Raises</span><span class="p">:</span>
 
-<span class="w">            </span><span class="nl">AssertionError</span><span class="p">:</span><span class="w"> </span><span class="k">If</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">frame_nums</span><span class="p">,</span><span class="w"> </span><span class="n">worm_bboxes</span><span class="p">,</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">mic_bboxes</span><span class="w"> </span><span class="n">do</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">match</span><span class="p">.</span>
+<span class="w">            </span><span class="nl">ValueError</span><span class="p">:</span><span class="w"> </span><span class="n">If</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">grayscale</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">color</span><span class="p">.</span>
 
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="ss">        assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]</span>
+<span class="w">        </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="n">y2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbox</span>
 
-<span class="ss">        worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)</span>
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y1</span>
 
-<span class="ss">        mic_bboxes = BoxConverter.change_format(mic_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)</span>
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">x2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">x1</span>
 
-<span class="ss">        worm_bboxes = BoxUtils.round(worm_bboxes, BoxFormat.XYXY)</span>
+<span class="w">        </span><span class="n">bg_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span><span class="p">[</span><span class="n">y1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="n">x1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">x2</span><span class="p">]</span>
 
-<span class="ss">        mic_bboxes = BoxUtils.round(mic_bboxes, BoxFormat.XYXY)</span>
+<span class="w">        </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">abs</span><span class="p">(</span><span class="n">image</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bg_view</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="kt">int</span><span class="p">))</span>
 
-<span class="ss">        wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bboxes)</span>
+<span class="w">        </span><span class="cp"># if images are color, convert to grayscale</span>
 
-<span class="ss">        mic_left, mic_top, mic_right, mic_bottom = BoxUtils.unpack(mic_bboxes)</span>
+<span class="w">        </span><span class="cp"># conversion is correct if it&#39;s BGR</span>
 
-<span class="ss">        # clip worm bounding boxes to the frame size</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">diff</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">diff</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="o">:</span>
 
-<span class="ss">        H, W = background.shape[:2]</span>
+<span class="w">            </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.114</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">diff</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.587</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">diff</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.299</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">diff</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span>
 
-<span class="ss">        wrm_left = np.clip(wrm_left, a_min=0, a_max=W - 1)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">diff</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="o">:</span>
 
-<span class="ss">        wrm_top = np.clip(wrm_top, a_min=0, a_max=H - 1)</span>
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="s">&quot;Image must be either a gray or a color image.&quot;</span><span class="p">)</span>
 
-<span class="ss">        wrm_right = np.clip(wrm_right, a_min=0, a_max=W - 1)</span>
+<span class="w">        </span><span class="n">mask_wrm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">diff_thresh</span>
 
-<span class="ss">        wrm_bottom = np.clip(wrm_bottom, a_min=0, a_max=H - 1)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">mask_wrm</span>
 
-<span class="ss">        worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)</span>
+<span class="w">    </span><span class="p">@</span><span class="n">staticmethod</span>
 
-<span class="ss">        # calculate intersection of worm and microscope bounding boxes</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_precise</span><span class="p">(</span>
 
-<span class="ss">        int_left = np.clip(wrm_left, a_min=mic_left, a_max=mic_right)</span>
+<span class="w">        </span><span class="nl">background</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-<span class="ss">        int_top = np.clip(wrm_top, a_min=mic_top, a_max=mic_bottom)</span>
+<span class="w">        </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-<span class="ss">        int_right = np.clip(wrm_right, a_min=mic_left, a_max=mic_right)</span>
+<span class="w">        </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-<span class="ss">        int_bottom = np.clip(wrm_bottom, a_min=mic_top, a_max=mic_bottom)</span>
+<span class="w">        </span><span class="nl">frame_nums</span><span class="p">:</span><span class="w"> </span><span class="n">Collection</span><span class="p">[</span><span class="kt">int</span><span class="p">],</span>
 
-<span class="ss">        int_width = np.maximum(0, int_right - int_left)</span>
+<span class="w">        </span><span class="nl">worm_reader</span><span class="p">:</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">,</span>
 
-<span class="ss">        int_height = np.maximum(0, int_bottom - int_top)</span>
+<span class="w">        </span><span class="nl">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
 
-<span class="ss">        # shift the intersection to the worm view coordinates</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span>
 
-<span class="ss">        int_left -= wrm_left</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="ss">        int_top -= wrm_top</span>
+<span class="w">        </span><span class="n">Calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">precise</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">given</span><span class="w"> </span><span class="n">sequence</span><span class="p">.</span>
 
-<span class="ss">        int_bboxes = BoxUtils.pack(int_left, int_top, int_width, int_height)</span>
+<span class="w">        </span><span class="n">This</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">based</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">precise</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">and</span>
 
-<span class="ss">        int_bboxes = BoxConverter.change_format(int_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)</span>
-
-<span class="ss">        errors = np.zeros(len(frame_nums), dtype=float)</span>
-
-<span class="ss">        for i, frame_num in tqdm(enumerate(frame_nums), total=len(frame_nums), desc=&quot;</span><span class="n">Calculating</span><span class="w"> </span><span class="n">Error</span><span class="ss">&quot;, unit=&quot;</span><span class="n">fr</span><span class="ss">&quot;):</span>
-
-<span class="ss">            wrm_bbox = worm_bboxes[i]</span>
-
-<span class="ss">            int_bbox = int_bboxes[i]</span>
-
-<span class="ss">            if np.isfinite(wrm_bbox).all() == False:</span>
-
-<span class="ss">                errors[i] = 1</span>
-
-<span class="ss">                continue</span>
-
-<span class="ss">            worm_view = worm_reader[frame_num]</span>
-
-<span class="ss">            mask_wrm = ErrorCalculator.calculate_segmentation(</span>
-
-<span class="ss">                bbox=wrm_bbox,</span>
-
-<span class="ss">                image=worm_view,</span>
-
-<span class="ss">                background=background,</span>
-
-<span class="ss">                diff_thresh=diff_thresh,</span>
-
-<span class="ss">            )</span>
-
-<span class="ss">            if ErrorCalculator.probe_hook is not None:</span>
-
-<span class="ss">                ErrorCalculator.probe_hook(worm_view, mask_wrm)</span>
-
-<span class="ss">            mask_mic = np.zeros_like(mask_wrm, dtype=bool)</span>
-
-<span class="ss">            mask_mic[int_bbox[1] : int_bbox[3], int_bbox[0] : int_bbox[2]] = True</span>
-
-<span class="ss">            total = mask_wrm.sum()</span>
-
-<span class="ss">            if total == 0:</span>
-
-<span class="ss">                errors[i] = 0.0</span>
-
-<span class="ss">                continue</span>
-
-<span class="ss">            intersection = np.logical_and(mask_wrm, mask_mic).sum()</span>
-
-<span class="ss">            error = 1.0 - intersection / total</span>
-
-<span class="ss">            errors[i] = error</span>
-
-<span class="ss">        return errors</span>
-
-<span class="ss">    @staticmethod</span>
-
-<span class="ss">    def calculate_bbox_error(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -&gt; np.ndarray:</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
-
-<span class="w">        </span><span class="n">Calculate</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="ow">between</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
-
-<span class="w">        </span><span class="n">This</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">proportion</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">outside</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="p">.</span>
+<span class="w">        </span><span class="n">determining</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">exact</span><span class="w"> </span><span class="n">proportion</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">worm</span><span class="err">&#39;</span><span class="n">s</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="n">outside</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">view</span><span class="p">.</span>
 
 <span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
 
-<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+<span class="w">            </span><span class="n">background</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">image</span><span class="p">.</span>
 
-<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
 
-<span class="w">        </span><span class="k">Returns</span><span class="err">:</span>
+<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
 
-<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span><span class="w"> </span><span class="k">Array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+<span class="w">            </span><span class="n">frame_nums</span><span class="w"> </span><span class="p">(</span><span class="n">Collection</span><span class="p">[</span><span class="kt">int</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">numbers</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="p">.</span>
 
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+<span class="w">            </span><span class="n">worm_reader</span><span class="w"> </span><span class="p">(</span><span class="n">FrameReader</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">containing</span><span class="w"> </span><span class="n">segmented</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="w"> </span><span class="n">These</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">match</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
 
-<span class="ss">        wrm_left, wrm_top, wrm_width, wrm_height = BoxUtils.unpack(worm_bboxes)</span>
+<span class="w">                </span><span class="n">Frames</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">frame_nums</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">index</span><span class="p">.</span>
 
-<span class="ss">        mic_left, mic_top, mic_width, mic_height = BoxUtils.unpack(mic_bboxes)</span>
+<span class="w">            </span><span class="n">diff_thresh</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">difference</span><span class="w"> </span><span class="n">threshold</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">distinguish</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">objects</span><span class="w"> </span><span class="n">from</span><span class="p">.</span>
 
-<span class="ss">        wrm_right, wrm_bottom = wrm_left + wrm_width, wrm_top + wrm_height</span>
+<span class="w">                </span><span class="n">A</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">detected</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">pixel</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="n">difference</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">greater</span><span class="w"> </span><span class="n">than</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="n">threshold</span><span class="p">.</span>
 
-<span class="ss">        mic_right, mic_bottom = mic_left + mic_width, mic_top + mic_height</span>
+<span class="w">        </span><span class="nl">Returns</span><span class="p">:</span>
 
-<span class="ss">        int_left = np.maximum(wrm_left, mic_left)</span>
+<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span><span class="w"> </span><span class="n">Array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">precise</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span>
 
-<span class="ss">        int_top = np.maximum(wrm_top, mic_top)</span>
+<span class="w">        </span><span class="nl">Raises</span><span class="p">:</span>
 
-<span class="ss">        int_right = np.minimum(wrm_right, mic_right)</span>
+<span class="w">            </span><span class="nl">AssertionError</span><span class="p">:</span><span class="w"> </span><span class="n">If</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">frame_nums</span><span class="p">,</span><span class="w"> </span><span class="n">worm_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">mic_bboxes</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">match</span><span class="p">.</span>
 
-<span class="ss">        int_bottom = np.minimum(wrm_bottom, mic_bottom)</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="ss">        int_width = np.maximum(0, int_right - int_left)</span>
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">worm_bboxes</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mic_bboxes</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="ss">        int_height = np.maximum(0, int_bottom - int_top)</span>
+<span class="w">        </span><span class="n">worm_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYWH</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
 
-<span class="ss">        intersection = int_width * int_height</span>
+<span class="w">        </span><span class="n">mic_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYWH</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
 
-<span class="ss">        total = wrm_width * wrm_height</span>
+<span class="w">        </span><span class="n">worm_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">round</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
 
-<span class="ss">        errors = 1.0 - intersection / total</span>
+<span class="w">        </span><span class="n">mic_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">round</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
 
-<span class="ss">        errors[total == 0] = 0.0</span>
+<span class="w">        </span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
 
-<span class="ss">        return errors</span>
+<span class="w">        </span><span class="n">mic_left</span><span class="p">,</span><span class="w"> </span><span class="n">mic_top</span><span class="p">,</span><span class="w"> </span><span class="n">mic_right</span><span class="p">,</span><span class="w"> </span><span class="n">mic_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
 
-<span class="ss">    @staticmethod</span>
+<span class="w">        </span><span class="cp"># clip worm bounding boxes to the frame size</span>
 
-<span class="ss">    def calculate_mse_error(worm_bboxes: np.ndarray, mic_bboxes: np.ndarray) -&gt; np.ndarray:</span>
+<span class="w">        </span><span class="n">H</span><span class="p">,</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="o">:</span><span class="mi">2</span><span class="p">]</span>
 
-<span class="ss">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">wrm_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">W</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">Calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Mean</span><span class="w"> </span><span class="n">Squared</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="ow">between</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">centers</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+<span class="w">        </span><span class="n">wrm_top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">H</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">wrm_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">W</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">wrm_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">H</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">worm_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">pack</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_bottom</span><span class="p">)</span>
+
+<span class="w">        </span><span class="cp"># calculate intersection of worm and microscope bounding boxes</span>
+
+<span class="w">        </span><span class="n">int_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="n">mic_left</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">mic_right</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="n">mic_top</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">mic_bottom</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="n">mic_left</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">mic_right</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span><span class="w"> </span><span class="n">a_min</span><span class="o">=</span><span class="n">mic_top</span><span class="p">,</span><span class="w"> </span><span class="n">a_max</span><span class="o">=</span><span class="n">mic_bottom</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">int_right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">int_left</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">int_bottom</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">int_top</span><span class="p">)</span>
+
+<span class="w">        </span><span class="cp"># shift the intersection to the worm view coordinates</span>
+
+<span class="w">        </span><span class="n">int_left</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">wrm_left</span>
+
+<span class="w">        </span><span class="n">int_top</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">wrm_top</span>
+
+<span class="w">        </span><span class="n">int_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">pack</span><span class="p">(</span><span class="n">int_left</span><span class="p">,</span><span class="w"> </span><span class="n">int_top</span><span class="p">,</span><span class="w"> </span><span class="n">int_width</span><span class="p">,</span><span class="w"> </span><span class="n">int_height</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">.</span><span class="n">change_format</span><span class="p">(</span><span class="n">int_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYWH</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span><span class="p">.</span><span class="n">XYXY</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">),</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="kt">float</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">frame_num</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">tqdm</span><span class="p">(</span><span class="n">enumerate</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">),</span><span class="w"> </span><span class="n">total</span><span class="o">=</span><span class="n">len</span><span class="p">(</span><span class="n">frame_nums</span><span class="p">),</span><span class="w"> </span><span class="n">desc</span><span class="o">=</span><span class="s">&quot;Calculating Error&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="s">&quot;fr&quot;</span><span class="p">)</span><span class="o">:</span>
+
+<span class="w">            </span><span class="n">wrm_bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">worm_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+<span class="w">            </span><span class="n">int_bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">int_bboxes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">wrm_bbox</span><span class="p">).</span><span class="n">all</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">False</span><span class="o">:</span>
+
+<span class="w">                </span><span class="n">errors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+
+<span class="w">                </span><span class="k">continue</span>
+
+<span class="w">            </span><span class="n">worm_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">worm_reader</span><span class="p">[</span><span class="n">frame_num</span><span class="p">]</span>
+
+<span class="w">            </span><span class="n">mask_wrm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ErrorCalculator</span><span class="p">.</span><span class="n">calculate_segmentation</span><span class="p">(</span>
+
+<span class="w">                </span><span class="n">bbox</span><span class="o">=</span><span class="n">wrm_bbox</span><span class="p">,</span>
+
+<span class="w">                </span><span class="n">image</span><span class="o">=</span><span class="n">worm_view</span><span class="p">,</span>
+
+<span class="w">                </span><span class="n">background</span><span class="o">=</span><span class="n">background</span><span class="p">,</span>
+
+<span class="w">                </span><span class="n">diff_thresh</span><span class="o">=</span><span class="n">diff_thresh</span><span class="p">,</span>
+
+<span class="w">            </span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">ErrorCalculator</span><span class="p">.</span><span class="n">probe_hook</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">None</span><span class="o">:</span>
+
+<span class="w">                </span><span class="n">ErrorCalculator</span><span class="p">.</span><span class="n">probe_hook</span><span class="p">(</span><span class="n">worm_view</span><span class="p">,</span><span class="w"> </span><span class="n">mask_wrm</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">mask_mic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">mask_wrm</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="kt">bool</span><span class="p">)</span>
+
+<span class="w">            </span><span class="n">mask_mic</span><span class="p">[</span><span class="n">int_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">int_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="n">int_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">int_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">True</span>
+
+<span class="w">            </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mask_wrm</span><span class="p">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="o">:</span>
+
+<span class="w">                </span><span class="n">errors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+
+<span class="w">                </span><span class="k">continue</span>
+
+<span class="w">            </span><span class="n">intersection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">mask_wrm</span><span class="p">,</span><span class="w"> </span><span class="n">mask_mic</span><span class="p">).</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="w">            </span><span class="n">error</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">intersection</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span>
+
+<span class="w">            </span><span class="n">errors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">errors</span>
+
+<span class="w">    </span><span class="p">@</span><span class="n">staticmethod</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_bbox_error</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="o">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="n">mic_bboxes</span><span class="o">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span>
+
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">Calculate</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">between</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+
+<span class="w">        </span><span class="n">This</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">proportion</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">outside</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="p">.</span>
 
 <span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
 
-<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
 
-<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="k">array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="nf">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
 
-<span class="w">        </span><span class="k">Returns</span><span class="err">:</span>
+<span class="w">        </span><span class="nl">Returns</span><span class="p">:</span>
 
-<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span><span class="w"> </span><span class="k">Array</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">MSE</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span><span class="w"> </span><span class="n">Array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
 
-<span class="w">        </span><span class="ss">&quot;&quot;</span><span class="err">&quot;</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_width</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mic_left</span><span class="p">,</span><span class="w"> </span><span class="n">mic_top</span><span class="p">,</span><span class="w"> </span><span class="n">mic_width</span><span class="p">,</span><span class="w"> </span><span class="n">mic_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">mic_bboxes</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wrm_left</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">wrm_width</span><span class="p">,</span><span class="w"> </span><span class="n">wrm_top</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">wrm_height</span>
+
+<span class="w">        </span><span class="n">mic_right</span><span class="p">,</span><span class="w"> </span><span class="n">mic_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mic_left</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mic_width</span><span class="p">,</span><span class="w"> </span><span class="n">mic_top</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mic_height</span>
+
+<span class="w">        </span><span class="n">int_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">wrm_left</span><span class="p">,</span><span class="w"> </span><span class="n">mic_left</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_top</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">wrm_top</span><span class="p">,</span><span class="w"> </span><span class="n">mic_top</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">wrm_right</span><span class="p">,</span><span class="w"> </span><span class="n">mic_right</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_bottom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">wrm_bottom</span><span class="p">,</span><span class="w"> </span><span class="n">mic_bottom</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">int_right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">int_left</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">int_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">int_bottom</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">int_top</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">intersection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">int_width</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">int_height</span>
+
+<span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wrm_width</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">wrm_height</span>
+
+<span class="w">        </span><span class="n">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">intersection</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span>
+
+<span class="w">        </span><span class="n">errors</span><span class="p">[</span><span class="n">total</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">errors</span>
+
+<span class="w">    </span><span class="p">@</span><span class="n">staticmethod</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_mse_error</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="o">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="n">mic_bboxes</span><span class="o">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span>
+
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">Calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">Mean</span><span class="w"> </span><span class="n">Squared</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">between</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">centers</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+
+<span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
+
+<span class="w">            </span><span class="nl">worm_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">worms</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+
+<span class="w">            </span><span class="nl">mic_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">microscope</span><span class="p">.</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="w"> </span><span class="n">should</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
+
+<span class="w">        </span><span class="nl">Returns</span><span class="p">:</span>
+
+<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span><span class="w"> </span><span class="n">Array</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">errors</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">shape</span><span class="w"> </span><span class="p">(</span><span class="n">N</span><span class="p">,)</span><span class="w"> </span><span class="n">representing</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">MSE</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="n">pair</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">worm</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">microscope</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">boxes</span><span class="p">.</span>
+
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
 <span class="w">        </span><span class="n">worm_centers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">.</span><span class="n">center</span><span class="p">(</span><span class="n">worm_bboxes</span><span class="p">)</span>
 
@@ -2113,8 +2117,8 @@ determining the exact proportion of worm's body outside the microscope view.</p>
 <tr>
 <td>diff_thresh</td>
 <td>float</td>
-<td>The difference threshold to distinguish foreground and background objects from. Defaults to 10.<br>A foreground object is detected if the pixel value difference with the background is greater than this threshold.</td>
-<td>10</td>
+<td>The difference threshold to distinguish foreground and background objects from.<br>A foreground object is detected if the pixel value difference with the background is greater than this threshold.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -2190,7 +2194,7 @@ determining the exact proportion of worm's body outside the microscope view.</p>
 
 <span class="ss">                Frames passed in frame_nums are read from this reader by index.</span>
 
-<span class="ss">            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from. Defaults to 10.</span>
+<span class="ss">            diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from.</span>
 
 <span class="ss">                A foreground object is detected if the pixel value difference with the background is greater than this threshold.</span>
 
@@ -2340,7 +2344,7 @@ determining the exact proportion of worm's body outside the microscope view.</p>
 <tr>
 <td>image</td>
 <td>np.ndarray</td>
-<td>The image to calculate segmantation in.</td>
+<td>The image to calculate segmentation from.</td>
 <td>None</td>
 </tr>
 <tr>
@@ -2389,67 +2393,69 @@ determining the exact proportion of worm's body outside the microscope view.</p>
 </table>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="err">@</span><span class="nx">staticmethod</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="p">@</span><span class="n">staticmethod</span>
 
-<span class="w">    </span><span class="nx">def</span><span class="w"> </span><span class="nx">calculate_segmentation</span><span class="p">(</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">calculate_segmentation</span><span class="p">(</span>
 
-<span class="w">        </span><span class="nx">bbox</span><span class="p">:</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">bbox</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-<span class="w">        </span><span class="nx">image</span><span class="p">:</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">image</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-<span class="w">        </span><span class="nx">background</span><span class="p">:</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">background</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-<span class="w">        </span><span class="nx">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="nx">float</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="kt">float</span><span class="p">,</span>
 
-<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span>
 
 <span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="s">        Calculates the segmentation error between a view and background image.</span>
+<span class="w">        </span><span class="n">Calculates</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">between</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">image</span><span class="p">.</span>
 
-<span class="s">        Args:</span>
+<span class="w">        </span><span class="nl">Args</span><span class="p">:</span>
 
-<span class="s">            bbox (np.ndarray): The bounding box of the image, in the format (x, y, x, y).</span>
+<span class="w">            </span><span class="n">bbox</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">bounding</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">image</span><span class="p">,</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">).</span>
 
-<span class="s">            image (np.ndarray): The image to calculate segmantation in.</span>
+<span class="w">            </span><span class="n">image</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">from</span><span class="p">.</span>
 
-<span class="s">            background (np.ndarray): The background image.</span>
+<span class="w">            </span><span class="n">background</span><span class="w"> </span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">image</span><span class="p">.</span>
 
-<span class="s">            diff_thresh (float): The difference threshold to distinguish foreground and background objects from.</span>
+<span class="w">            </span><span class="n">diff_thresh</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">difference</span><span class="w"> </span><span class="n">threshold</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">distinguish</span><span class="w"> </span><span class="n">foreground</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="n">objects</span><span class="w"> </span><span class="n">from</span><span class="p">.</span>
 
-<span class="s">        Returns:</span>
+<span class="w">        </span><span class="nl">Returns</span><span class="p">:</span>
 
-<span class="s">            np.ndarray: The segmentation mask.</span>
+<span class="w">            </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">segmentation</span><span class="w"> </span><span class="n">mask</span><span class="p">.</span>
 
-<span class="s">        Raises:</span>
+<span class="w">        </span><span class="nl">Raises</span><span class="p">:</span>
 
-<span class="s">            ValueError: If the image is not grayscale or color.</span>
+<span class="w">            </span><span class="nl">ValueError</span><span class="p">:</span><span class="w"> </span><span class="n">If</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">image</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="n">grayscale</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">color</span><span class="p">.</span>
 
-<span class="s">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="nx">assert</span><span class="w"> </span><span class="nx">image</span><span class="p">.</span><span class="nx">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">        </span><span class="n">x1</span><span class="p">,</span><span class="w"> </span><span class="n">y1</span><span class="p">,</span><span class="w"> </span><span class="n">x2</span><span class="p">,</span><span class="w"> </span><span class="n">y2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbox</span>
 
-<span class="w">        </span><span class="nx">assert</span><span class="w"> </span><span class="nx">image</span><span class="p">.</span><span class="nx">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">y2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y1</span>
 
-<span class="w">        </span><span class="nx">bg_view</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">background</span><span class="p">[</span><span class="nx">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="nx">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">image</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">x2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">x1</span>
 
-<span class="w">        </span><span class="nx">diff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">np</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">image</span><span class="p">.</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">bg_view</span><span class="p">.</span><span class="nx">astype</span><span class="p">(</span><span class="nx">int</span><span class="p">))</span>
+<span class="w">        </span><span class="n">bg_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span><span class="p">[</span><span class="n">y1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">y2</span><span class="p">,</span><span class="w"> </span><span class="n">x1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">x2</span><span class="p">]</span>
 
-<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">images</span><span class="w"> </span><span class="nx">are</span><span class="w"> </span><span class="nx">color</span><span class="p">,</span><span class="w"> </span><span class="nx">convert</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">grayscale</span>
+<span class="w">        </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">abs</span><span class="p">(</span><span class="n">image</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">bg_view</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="kt">int</span><span class="p">))</span>
 
-<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">conversion</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="nx">correct</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nx">it</span><span class="err">&#39;</span><span class="nx">s</span><span class="w"> </span><span class="nx">BGR</span>
+<span class="w">        </span><span class="cp"># if images are color, convert to grayscale</span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">diff</span><span class="p">.</span><span class="nx">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="nx">diff</span><span class="p">.</span><span class="nx">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span>
+<span class="w">        </span><span class="cp"># conversion is correct if it&#39;s BGR</span>
 
-<span class="w">            </span><span class="nx">diff</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="m m-Double">0.114</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">diff</span><span class="p">[:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m m-Double">0.587</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">diff</span><span class="p">[:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m m-Double">0.299</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">diff</span><span class="p">[:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">diff</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="n">and</span><span class="w"> </span><span class="n">diff</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="o">:</span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nx">diff</span><span class="p">.</span><span class="nx">ndim</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
+<span class="w">            </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.114</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">diff</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.587</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">diff</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.299</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">diff</span><span class="p">[</span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="o">:</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]</span>
 
-<span class="w">            </span><span class="nx">raise</span><span class="w"> </span><span class="nx">ValueError</span><span class="p">(</span><span class="s">&quot;Image must be either a gray or a color image.&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">diff</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="o">:</span>
 
-<span class="w">        </span><span class="nx">mask_wrm</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">diff</span><span class="w"> </span><span class="p">&gt;</span><span class="w"> </span><span class="nx">diff_thresh</span>
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="s">&quot;Image must be either a gray or a color image.&quot;</span><span class="p">)</span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">mask_wrm</span>
+<span class="w">        </span><span class="n">mask_wrm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">diff_thresh</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">mask_wrm</span>
 </code></pre></div>
 
 </details>

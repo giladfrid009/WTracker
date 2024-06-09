@@ -1204,13 +1204,12 @@
 
 
 <h1 id="worms">worms</h1>
-<p><a href="https://opensource.org/licenses/MIT"><img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a></p>
 <h2 id="description">Description</h2>
-<p>This library provides tools for simulating worm movement, training predictors, and analyzing the results. It includes support for YOLO-based prediction and various simulation controllers.</p>
+<p>This library provides tools for worm detection and movement prediction, training predictors, and analyzing the results. It includes support for YOLO-based prediction and various simulation controllers.
+Documentation can be found <a href="https://giladfrid009.github.io/Bio-Proj/">here</a>.</p>
 <h2 id="features">Features</h2>
 <ul>
-<li>Worm movement simulation</li>
-<li>YOLO-based prediction</li>
+<li>Real-time Worm detection and movement prediction</li>
 <li>Logging and analysis tools</li>
 <li>CSV, logging, and YOLO controllers</li>
 </ul>
@@ -1218,75 +1217,47 @@
 <h3 id="download-the-repository">Download the Repository</h3>
 <p>Download the project <a href="https://github.com/giladfrid009/Bio-Proj">repository</a> (by clicking on code -&gt; download zip) and extract the files in the desired location.</p>
 <h3 id="environment-installation">Environment Installation</h3>
-<p><strong>Step 1</strong>- Install mamba:</p>
-<blockquote>
-<p>Install 'Miniforge' from this <a href="https://github.com/conda-forge/miniforge">link</a>, make sure to download the right version (that match the OS and CPU of the computer).<br />
+<p><strong>Step 1</strong>- Install mamba:
+Install 'Miniforge' from this <a href="https://github.com/conda-forge/miniforge">link</a>, make sure to download the right version (that match the OS and CPU of the computer).<br />
     If asked during installation: add to PATH.<br />
     * if unsure, use this <a href="https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe">link</a> to download mamba.</p>
-</blockquote>
 <p><strong>Step 2</strong> - verify that mamba is installed correctly:<br />
-   1. Navigate to the folder into which the library was download.</p>
-<blockquote>
-<ol>
-<li>Open terminal/command prompt.  </li>
-<li>Enter - 'mamba -h'.<br />
-    if no error is encountered then mamba is installed correctly.</li>
-</ol>
-</blockquote>
-<p><strong>Step 3</strong> - create a new environment:  </p>
-<blockquote>
-<ol>
-<li>Enter the following command - "mamba create -n bio-proj python=3.12".  </li>
-<li>Enter the command - 'mamba init'.<br />
-    * You can choose another name (not only 'bio-proj'). If you do , you will need to change the name field in the 'requirements.yaml' file as well.  </li>
-</ol>
-</blockquote>
-<p><strong>Step 4</strong> - Activate the environment:  </p>
-<blockquote>
-<ol>
-<li>Enter the command - 'mamba activate bio-proj'.  <ul>
-<li>If you used another name for the environment, replace 'bio-proj' with the name you have chosen.   </li>
-</ul>
-</li>
-</ol>
-</blockquote>
-<p><strong>Step 5</strong> - Installing Pytorch:  </p>
-<blockquote>
-<ol>
-<li>Head to the pytorch website <a href="https://pytorch.org/get-started/locally/">here</a>, there you will find a table to select your configuration, select the following:  <ol>
-<li>PyTorch Build = stable  </li>
-<li>OS - the operating system of the computer [Windows/Linux]  </li>
-<li>Package - the package manager [conda]  </li>
-<li>Language - the programming language [Python]  </li>
-<li>Compute Platform - if the computer has GPU select the newest version of CUDA [12.1 was tested], otherwise select CPU.  </li>
-</ol>
-</li>
-<li>Copy the command below the table and enter it in the terminal/command prompt  </li>
-<li>Wait till the installation is complate. That might take a while.</li>
-</ol>
-</blockquote>
-<p><strong>Step 6</strong> - Install the rest of the libraries:  </p>
-<blockquote>
-<p>Enter the command - 'mamba env update -f requirements.yaml -n bio-proj'   </p>
-</blockquote>
+1. Navigate to the folder into which the library was download.  <br />
+2. Open terminal/command prompt.<br />
+3. Enter - 'mamba -h'.<br />
+    if no error is encountered then mamba is installed correctly.</p>
+<p><strong>Step 3</strong> - create a new environment:<br />
+1. Enter the following command - "mamba create -n bio-proj python=3.12".  <br />
+2. Enter the command - 'mamba init'.<br />
+    * You can choose another name (not only 'bio-proj'). If you do , you will need to change the name field in the 'requirements.yaml' file as well.  </p>
+<p><strong>Step 4</strong> - Activate the environment:<br />
+1. Enter the command - 'mamba activate bio-proj'.<br />
+    * If you used another name for the environment, replace 'bio-proj' with the name you have chosen.   </p>
+<p><strong>Step 5</strong> - Installing Pytorch:<br />
+1. Head to the pytorch website <a href="https://pytorch.org/get-started/locally/">here</a>, there you will find a table to select your configuration, select the following:  <br />
+    1. PyTorch Build = stable <br />
+    2. OS - the operating system of the computer [Windows/Linux]<br />
+    3. Package - the package manager [conda]<br />
+    4. Language - the programming language [Python]<br />
+    5. Compute Platform - if the computer has GPU select the newest version of CUDA [12.1 was tested], otherwise select CPU.  <br />
+2. Copy the command below the table and enter it in the terminal/command prompt <br />
+3. Wait till the installation is complate. That might take a while.    </p>
+<p><strong>Step 6</strong> - Install the rest of the libraries:<br />
+  Enter the command - 'mamba env update -f requirements.yaml -n bio-proj'   </p>
 <h3 id="install-the-development-environment">Install the Development Environment</h3>
 <p>To run the project we recommend 'Visual Studio Code' (also referred as VS Code), a free IDE. Basic usage videos and documentation can be found <a href="https://code.visualstudio.com/docs/getstarted/introvideos">here</a>.</p>
 <p>You can download and install VS Code from <a href="https://code.visualstudio.com/download">here</a>.</p>
 <p>To set up VS Code for the project you need to install several extensions. 
 Follow this <a href="https://code.visualstudio.com/docs/editor/extension-marketplace">link</a> to learn how to install extensions. 
-The extensions needed are:</p>
-<blockquote>
-<ul>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter">Jupyter</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=ms-python.python">Python</a></li>
-<li><a href="https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance">Pylance</a></li>
-</ul>
-</blockquote>
+The extensions needed are:
+- <a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter">Jupyter</a>
+- <a href="https://marketplace.visualstudio.com/items?itemName=ms-python.python">Python</a>
+- <a href="https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance">Pylance</a></p>
 <p>* Some extensions may be already installed by default.</p>
 <h2 id="usage">Usage</h2>
 <p>Refer to the variouse '.ipynb' files for usage for each workflow.</p>
 <h2 id="license">License</h2>
-<p>This project is licensed under the <a href="LICENSE">MIT License</a>.</p>
+<p>AGPL-3.0 License: This OSI-approved open-source license is ideal for students and enthusiasts, promoting open collaboration and knowledge sharing. See the LICENSE file for more details.</p>
 <h2 id="contact">Contact</h2>
 <p>Please open an issue in the GitHub repository if you have any questions or feedback.</p>
 

@@ -1400,7 +1400,7 @@
 
 <span class="sd">        model (WormPredictor): The WormPredictor model used for predicting worm movement.</span>
 
-<span class="sd">        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped. Defaults to 0.9.</span>
+<span class="sd">        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1523,8 +1523,8 @@
 <tr>
 <td>max_speed</td>
 <td>float</td>
-<td>max speed of the worm in mm/s, predictions above this will be clipped. Defaults to 0.9.</td>
-<td>0.9</td>
+<td>max speed of the worm in mm/s, predictions above this will be clipped.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -1544,7 +1544,7 @@
 
 <span class="s">        model (WormPredictor): The WormPredictor model used for predicting worm movement.</span>
 
-<span class="s">        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped. Defaults to 0.9.</span>
+<span class="s">        max_speed (float): max speed of the worm in mm/s, predictions above this will be clipped.</span>
 
 <span class="s">    &quot;&quot;&quot;</span>
 
@@ -1881,6 +1881,10 @@
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">relative</span><span class="err">:</span>
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">worm_bboxes</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">relative</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">True</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">works</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">within</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">last</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">maybe</span><span class="w"> </span><span class="n">fix</span><span class="w"> </span><span class="n">that</span><span class="p">.</span>
 
 <span class="w">        </span><span class="n">cam_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">self._camera_bboxes[n % self.timing_config.cycle_frame_num</span><span class="o">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frame_nums</span><span class="err">]</span>
 

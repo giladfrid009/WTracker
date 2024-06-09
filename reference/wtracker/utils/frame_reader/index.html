@@ -1540,8 +1540,6 @@
 
 <span class="kn">from</span> <span class="nn">wtracker.utils.path_utils</span> <span class="kn">import</span> <span class="n">join_paths</span>
 
-<span class="c1"># TODO: (ROADMAP) GIVEN ACCESSING ELEMENT AT INDX i, Pre-load the next element in advance.</span>
-
 <span class="k">class</span> <span class="nc">FrameReader</span><span class="p">:</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1554,7 +1552,7 @@
 
 <span class="sd">        frame_files (list[str]): A list of frame file names.</span>
 
-<span class="sd">        read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="sd">        read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="sd">    Attributes:</span>
 
@@ -1616,7 +1614,7 @@
 
 <span class="sd">            name_format (str): The format of the frame file names.</span>
 
-<span class="sd">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="sd">            read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="sd">        Returns:</span>
 
@@ -1648,7 +1646,7 @@
 
 <span class="sd">            root_folder (str): The root folder containing the frame files.</span>
 
-<span class="sd">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="sd">            read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="sd">        Returns:</span>
 
@@ -1894,7 +1892,7 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">            n (int): The number of steps to move forward. Defaults to 1.</span>
+<span class="sd">            n (int): The number of steps to move forward.</span>
 
 <span class="sd">        Returns:</span>
 
@@ -1924,9 +1922,9 @@
 
 <span class="sd">        num_frames (int): The number of frames to generate.</span>
 
-<span class="sd">        resolution (tuple[int, int]): The resolution of the frames.</span>
+<span class="sd">        resolution (tuple[int, int]): The resolution of the frames, in format (h, w).</span>
 
-<span class="sd">        colored (bool, optional): Whether the frames are colored or grayscale. Defaults to True.</span>
+<span class="sd">        colored (bool, optional): Whether the frames are colored or grayscale.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1988,14 +1986,14 @@
 <tr>
 <td>resolution</td>
 <td>tuple[int, int]</td>
-<td>The resolution of the frames.</td>
+<td>The resolution of the frames, in format (h, w).</td>
 <td>None</td>
 </tr>
 <tr>
 <td>colored</td>
 <td>bool</td>
-<td>Whether the frames are colored or grayscale. Defaults to True.</td>
-<td>True</td>
+<td>Whether the frames are colored or grayscale.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -2011,9 +2009,9 @@
 
 <span class="s">        num_frames (int): The number of frames to generate.</span>
 
-<span class="s">        resolution (tuple[int, int]): The resolution of the frames.</span>
+<span class="s">        resolution (tuple[int, int]): The resolution of the frames, in format (h, w).</span>
 
-<span class="s">        colored (bool, optional): Whether the frames are colored or grayscale. Defaults to True.</span>
+<span class="s">        colored (bool, optional): Whether the frames are colored or grayscale.</span>
 
 <span class="s">    &quot;&quot;&quot;</span>
 
@@ -2079,8 +2077,8 @@
 <tr>
 <td>read_format</td>
 <td>int</td>
-<td>The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</td>
-<td>cv.IMREAD_GRAYSCALE</td>
+<td>The format in which the frames should be read.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -2113,7 +2111,7 @@
 
 <span class="ss">            root_folder (str): The root folder containing the frame files.</span>
 
-<span class="ss">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="ss">            read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -2168,8 +2166,8 @@
 <tr>
 <td>read_format</td>
 <td>int</td>
-<td>The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</td>
-<td>cv.IMREAD_GRAYSCALE</td>
+<td>The format in which the frames should be read.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -2204,7 +2202,7 @@
 
 <span class="ss">            name_format (str): The format of the frame file names.</span>
 
-<span class="ss">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="ss">            read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -2323,8 +2321,8 @@
 <tr>
 <td>read_format</td>
 <td>int</td>
-<td>The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</td>
-<td>cv.IMREAD_GRAYSCALE</td>
+<td>The format in which the frames should be read.</td>
+<td>None</td>
 </tr>
 <tr>
 <td>root_folder</td>
@@ -2372,7 +2370,7 @@
 
 <span class="ss">        frame_files (list[str]): A list of frame file names.</span>
 
-<span class="ss">        read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="ss">        read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="ss">    Attributes:</span>
 
@@ -2434,7 +2432,7 @@
 
 <span class="ss">            name_format (str): The format of the frame file names.</span>
 
-<span class="ss">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="ss">            read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -2466,7 +2464,7 @@
 
 <span class="ss">            root_folder (str): The root folder containing the frame files.</span>
 
-<span class="ss">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="ss">            read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -2634,8 +2632,8 @@
 <tr>
 <td>read_format</td>
 <td>int</td>
-<td>The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</td>
-<td>cv.IMREAD_GRAYSCALE</td>
+<td>The format in which the frames should be read.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -2668,7 +2666,7 @@
 
 <span class="ss">            root_folder (str): The root folder containing the frame files.</span>
 
-<span class="ss">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="ss">            read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -2723,8 +2721,8 @@
 <tr>
 <td>read_format</td>
 <td>int</td>
-<td>The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</td>
-<td>cv.IMREAD_GRAYSCALE</td>
+<td>The format in which the frames should be read.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -2759,7 +2757,7 @@
 
 <span class="ss">            name_format (str): The format of the frame file names.</span>
 
-<span class="ss">            read_format (int, optional): The format in which the frames should be read. Defaults to cv.IMREAD_GRAYSCALE.</span>
+<span class="ss">            read_format (int, optional): The format in which the frames should be read.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -2986,7 +2984,7 @@
 
 <span class="ss">        Args:</span>
 
-<span class="ss">            n (int): The number of steps to move forward. Defaults to 1.</span>
+<span class="ss">            n (int): The number of steps to move forward.</span>
 
 <span class="ss">        Returns:</span>
 
@@ -3055,8 +3053,8 @@
 <tr>
 <td>n</td>
 <td>int</td>
-<td>The number of steps to move forward. Defaults to 1.</td>
-<td>1</td>
+<td>The number of steps to move forward.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -3085,7 +3083,7 @@
 
 <span class="s">        Args:</span>
 
-<span class="s">            n (int): The number of steps to move forward. Defaults to 1.</span>
+<span class="s">            n (int): The number of steps to move forward.</span>
 
 <span class="s">        Returns:</span>
 

@@ -1658,10 +1658,6 @@
 
             <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
 
-        <span class="c1"># TODO: INVESTIAGATE POLY package in numpy and how to use it best</span>
-
-        <span class="c1"># investigate window parameter and Polynomial class</span>
-
         <span class="c1"># predict future x and future y based on the fitted polynomial</span>
 
         <span class="n">coeffs</span> <span class="o">=</span> <span class="kp">poly</span><span class="o">.</span><span class="kp">polyfit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">deg</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
@@ -1677,8 +1673,6 @@
         <span class="n">dy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">-</span> <span class="n">camera_mid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span>
-
-<span class="c1"># TODO: use numpy polynomial package instead of the np.polyfit and np.polyval</span>
 
 <span class="k">class</span> <span class="nc">WeightEvaluator</span><span class="p">:</span>
 
@@ -1784,9 +1778,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">y_input</span> <span class="o">=</span> <span class="n">input_pos</span><span class="o">.</span><span class="kp">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">x_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">asanyarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_offset</span><span class="p">])</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">y_target</span> <span class="o">=</span> <span class="n">dst_pos</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eval_offset</span><span class="p">)</span>
 
         <span class="c1"># print stats</span>
 
@@ -1808,7 +1802,7 @@
 
 <span class="sd">        Args:</span>
 
-<span class="sd">            coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at decreasing order. Should have shape [deg+1, N].</span>
+<span class="sd">            coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at increasing order. Should have shape [deg+1, N].</span>
 
 <span class="sd">            x (np.ndarray): Values at which to evaluate the polynomial. Should have shape [N].</span>
 
@@ -1820,7 +1814,7 @@
 
         <span class="n">coeffs</span> <span class="o">=</span> <span class="n">coeffs</span><span class="o">.</span><span class="kp">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">van</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">vander</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">coeffs</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">increasing</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">van</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">vander</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">coeffs</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">increasing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">van</span> <span class="o">*</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
@@ -1834,19 +1828,17 @@
 
 <span class="sd">            weights (np.ndarray): The weights used for the polynomial fit. Should have shape [N].</span>
 
-<span class="sd">            deg (int, optional): The degree of the polynomial fit. Defaults to 2.</span>
+<span class="sd">            deg (int, optional): The degree of the polynomial fit.</span>
 
 <span class="sd">        Returns:</span>
 
-<span class="sd">            float: The mean squared error (MSE) of the polynomial fit.</span>
+<span class="sd">            float: The mean absolute error (MAE) of the polynomial fit.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_input</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_input</span><span class="p">,</span> <span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+        <span class="n">coeffs</span> <span class="o">=</span> <span class="kp">poly</span><span class="o">.</span><span class="kp">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_input</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_input</span><span class="p">,</span> <span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
-        <span class="n">x_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_target</span><span class="p">,</span> <span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">coeffs</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],))</span>
-
-        <span class="n">y_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="n">x_target</span><span class="p">)</span>
+        <span class="n">y_hat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_target</span><span class="p">)</span>
 
         <span class="n">mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="kp">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_target</span> <span class="o">-</span> <span class="n">y_hat</span><span class="p">))</span>
 
@@ -2279,10 +2271,6 @@
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
 
-<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">INVESTIAGATE</span><span class="w"> </span><span class="n">POLY</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">how</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">use</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">best</span>
-
-<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">investigate</span><span class="w"> </span><span class="k">window</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">Polynomial</span><span class="w"> </span><span class="k">class</span>
-
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">predict</span><span class="w"> </span><span class="n">future</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">future</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">based</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">fitted</span><span class="w"> </span><span class="n">polynomial</span>
 
 <span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poly</span><span class="p">.</span><span class="n">polyfit</span><span class="p">(</span><span class="nc">time</span><span class="p">,</span><span class="w"> </span><span class="n">positions</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">=</span><span class="n">config</span><span class="p">.</span><span class="n">degree</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
@@ -2559,6 +2547,10 @@
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">worm_bboxes</span>
 
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">relative</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">True</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">works</span><span class="w"> </span><span class="k">only</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="k">within</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">last</span><span class="w"> </span><span class="k">cycle</span><span class="p">.</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">maybe</span><span class="w"> </span><span class="n">fix</span><span class="w"> </span><span class="n">that</span><span class="p">.</span>
+
 <span class="w">        </span><span class="n">cam_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">self._camera_bboxes[n % self.timing_config.cycle_frame_num</span><span class="o">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frame_nums</span><span class="err">]</span>
 
 <span class="w">        </span><span class="n">cam_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">cam_bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="nc">float</span><span class="p">)</span>
@@ -2627,10 +2619,6 @@
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="nc">time</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span>
 
 <span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
-
-<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">INVESTIAGATE</span><span class="w"> </span><span class="n">POLY</span><span class="w"> </span><span class="n">package</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">numpy</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">how</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">use</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">best</span>
-
-<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">investigate</span><span class="w"> </span><span class="k">window</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">Polynomial</span><span class="w"> </span><span class="k">class</span>
 
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">predict</span><span class="w"> </span><span class="n">future</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">future</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">based</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">fitted</span><span class="w"> </span><span class="n">polynomial</span>
 
@@ -2767,9 +2755,9 @@
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input_pos</span><span class="p">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">).</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">x_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="o">[</span><span class="n">self.eval_offset</span><span class="o">]</span><span class="p">)</span>
-
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dst_pos</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">x_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">y_target</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">eval_offset</span><span class="p">)</span>
 
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="n">stats</span>
 
@@ -2791,7 +2779,7 @@
 
 <span class="ss">        Args:</span>
 
-<span class="ss">            coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at decreasing order. Should have shape [deg+1, N].</span>
+<span class="ss">            coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at increasing order. Should have shape [deg+1, N].</span>
 
 <span class="ss">            x (np.ndarray): Values at which to evaluate the polynomial. Should have shape [N].</span>
 
@@ -2803,7 +2791,7 @@
 
 <span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">coeffs</span><span class="p">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">van</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">vander</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="n">coeffs</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">increasing</span><span class="o">=</span><span class="k">False</span><span class="p">)</span>
+<span class="w">        </span><span class="n">van</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">vander</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="n">coeffs</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">increasing</span><span class="o">=</span><span class="k">True</span><span class="p">)</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">van</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">coeffs</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
@@ -2817,19 +2805,17 @@
 
 <span class="ss">            weights (np.ndarray): The weights used for the polynomial fit. Should have shape [N].</span>
 
-<span class="ss">            deg (int, optional): The degree of the polynomial fit. Defaults to 2.</span>
+<span class="ss">            deg (int, optional): The degree of the polynomial fit.</span>
 
 <span class="ss">        Returns:</span>
 
-<span class="ss">            float: The mean squared error (MSE) of the polynomial fit.</span>
+<span class="ss">            float: The mean absolute error (MAE) of the polynomial fit.</span>
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">x_input</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">y_input</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poly</span><span class="p">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">x_input</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">y_input</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">x_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">x_target</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">coeffs</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="p">,))</span>
-
-<span class="w">        </span><span class="n">y_hat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span><span class="w"> </span><span class="n">x_target</span><span class="p">)</span>
+<span class="w">        </span><span class="n">y_hat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">x_target</span><span class="p">)</span>
 
 <span class="w">        </span><span class="n">mae</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">y_target</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_hat</span><span class="p">))</span>
 
@@ -2868,8 +2854,8 @@
 <tr>
 <td>deg</td>
 <td>int</td>
-<td>The degree of the polynomial fit. Defaults to 2.</td>
-<td>2</td>
+<td>The degree of the polynomial fit.</td>
+<td>None</td>
 </tr>
 </tbody>
 </table>
@@ -2884,7 +2870,7 @@
 <tbody>
 <tr>
 <td>float</td>
-<td>The mean squared error (MSE) of the polynomial fit.</td>
+<td>The mean absolute error (MAE) of the polynomial fit.</td>
 </tr>
 </tbody>
 </table>
@@ -2900,19 +2886,17 @@
 
 <span class="ss">            weights (np.ndarray): The weights used for the polynomial fit. Should have shape [N].</span>
 
-<span class="ss">            deg (int, optional): The degree of the polynomial fit. Defaults to 2.</span>
+<span class="ss">            deg (int, optional): The degree of the polynomial fit.</span>
 
 <span class="ss">        Returns:</span>
 
-<span class="ss">            float: The mean squared error (MSE) of the polynomial fit.</span>
+<span class="ss">            float: The mean absolute error (MAE) of the polynomial fit.</span>
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">x_input</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">y_input</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poly</span><span class="p">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">x_input</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">y_input</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">x_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">x_target</span><span class="p">,</span><span class="w"> </span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">coeffs</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="p">,))</span>
-
-<span class="w">        </span><span class="n">y_hat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span><span class="w"> </span><span class="n">x_target</span><span class="p">)</span>
+<span class="w">        </span><span class="n">y_hat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">x_target</span><span class="p">)</span>
 
 <span class="w">        </span><span class="n">mae</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">y_target</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_hat</span><span class="p">))</span>
 

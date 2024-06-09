@@ -997,6 +997,26 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adjust_num_workers" class="md-nav__link">
+    adjust_num_workers
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#classes" class="md-nav__link">
     Classes
   </a>
@@ -1217,6 +1237,26 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adjust_num_workers" class="md-nav__link">
+    adjust_num_workers
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#classes" class="md-nav__link">
     Classes
   </a>
@@ -1408,9 +1448,45 @@
 
 <span class="kn">import</span> <span class="nn">threading</span>
 
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
 
 <span class="kn">from</span> <span class="nn">tqdm.auto</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="k">def</span> <span class="nf">adjust_num_workers</span><span class="p">(</span><span class="n">num_tasks</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Adjust the number of workers based on the number of tasks and chunk size.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        num_tasks (int): The number of tasks to be processed.</span>
+
+<span class="sd">        chunk_size (int): The size of each processing chunk.</span>
+
+<span class="sd">        num_workers (int, optional): The number of workers to use for parallel processing.</span>
+
+<span class="sd">            If None, the number of workers is determined automatically.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">num_workers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># if None then choose automatically</span>
+
+        <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">num_tasks</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">chunk_size</span><span class="p">))</span>
+
+        <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">num_workers</span><span class="p">)</span>
+
+    <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">num_tasks</span> <span class="o">//</span> <span class="n">chunk_size</span><span class="p">)</span>  <span class="c1"># no point having workers without tasks</span>
+
+    <span class="n">num_workers</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())</span>  <span class="c1"># no point having more workers than cpus</span>
+
+    <span class="k">if</span> <span class="n">num_workers</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># make sure value is valid</span>
+
+        <span class="n">num_workers</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">num_workers</span>
 
 <span class="k">class</span> <span class="nc">TqdmQueue</span><span class="p">(</span><span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">):</span>
 
@@ -1504,9 +1580,9 @@
 
 <span class="sd">        task_func (Callable): The function to be executed by the worker thread.</span>
 
-<span class="sd">        maxsize (int, optional): The maximum number of items that can be in the queue. Defaults to 0.</span>
+<span class="sd">        maxsize (int, optional): The maximum number of items that can be in the queue.</span>
 
-<span class="sd">        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
+<span class="sd">        tqdm (bool, optional): Whether to use tqdm for progress tracking.</span>
 
 <span class="sd">        **tqdm_kwargs: Additional keyword arguments to be passed to the TqdmQueue constructor.</span>
 
@@ -1598,6 +1674,85 @@
 </code></pre></div>
 
 </details>
+<h2 id="functions">Functions</h2>
+<h3 id="adjust_num_workers">adjust_num_workers</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">adjust_num_workers</span><span class="p">(</span>
+    <span class="n">num_tasks</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span>
+</code></pre></div>
+
+<p>Adjust the number of workers based on the number of tasks and chunk size.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>num_tasks</td>
+<td>int</td>
+<td>The number of tasks to be processed.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>chunk_size</td>
+<td>int</td>
+<td>The size of each processing chunk.</td>
+<td>None</td>
+</tr>
+<tr>
+<td>num_workers</td>
+<td>int</td>
+<td>The number of workers to use for parallel processing.<br>If None, the number of workers is determined automatically.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<details class="example">
+<summary>View Source</summary>
+<div class="codehilite"><pre><span></span><code>def adjust_num_workers(num_tasks: int, chunk_size: int, num_workers: int = None) -&gt; int:
+
+    &quot;&quot;&quot;
+
+    Adjust the number of workers based on the number of tasks and chunk size.
+
+    Args:
+
+        num_tasks (int): The number of tasks to be processed.
+
+        chunk_size (int): The size of each processing chunk.
+
+        num_workers (int, optional): The number of workers to use for parallel processing.
+
+            If None, the number of workers is determined automatically.
+
+    &quot;&quot;&quot;
+
+    if num_workers is None:  # if None then choose automatically
+
+        num_workers = min(multiprocessing.cpu_count() / 2, num_tasks / (2 * chunk_size))
+
+        num_workers = round(num_workers)
+
+    num_workers = min(num_workers, num_tasks // chunk_size)  # no point having workers without tasks
+
+    num_workers = min(num_workers, multiprocessing.cpu_count())  # no point having more workers than cpus
+
+    if num_workers &lt; 0:  # make sure value is valid
+
+        num_workers = 0
+
+    return num_workers
+</code></pre></div>
+
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="taskscheduler">TaskScheduler</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">TaskScheduler</span><span class="p">(</span>
@@ -1629,14 +1784,14 @@
 <tr>
 <td>maxsize</td>
 <td>int</td>
-<td>The maximum number of items that can be in the queue. Defaults to 0.</td>
-<td>0</td>
+<td>The maximum number of items that can be in the queue.</td>
+<td>None</td>
 </tr>
 <tr>
 <td>tqdm</td>
 <td>bool</td>
-<td>Whether to use tqdm for progress tracking. Defaults to True.</td>
-<td>True</td>
+<td>Whether to use tqdm for progress tracking.</td>
+<td>None</td>
 </tr>
 <tr>
 <td>**tqdm_kwargs</td>
@@ -1658,9 +1813,9 @@
 
 <span class="sd">        task_func (Callable): The function to be executed by the worker thread.</span>
 
-<span class="sd">        maxsize (int, optional): The maximum number of items that can be in the queue. Defaults to 0.</span>
+<span class="sd">        maxsize (int, optional): The maximum number of items that can be in the queue.</span>
 
-<span class="sd">        tqdm (bool, optional): Whether to use tqdm for progress tracking. Defaults to True.</span>
+<span class="sd">        tqdm (bool, optional): Whether to use tqdm for progress tracking.</span>
 
 <span class="sd">        **tqdm_kwargs: Additional keyword arguments to be passed to the TqdmQueue constructor.</span>
 
