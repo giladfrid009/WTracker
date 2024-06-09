@@ -131,6 +131,6 @@ class UserPrompt:
             return filedialog.askdirectory(
                 parent=root,
                 title=title,
-                mustexist=True,
+                mustexist=False,
                 **kwargs,
             )
