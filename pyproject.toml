@@ -27,7 +27,7 @@ authors = [
 ]
 
 description = "wormsss"
-readme = "docs/README.md"
+readme = "README.md"
 
 [project.optional-dependencies]
 gui = ["PyQt5"]
