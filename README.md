@@ -3,7 +3,7 @@
 
 ## Description
 
-This library provides tools for orm detection and movement prediction, training predictors, and analyzing the results. It includes support for YOLO-based prediction and various simulation controllers.
+This library provides tools for worm detection and movement prediction, training predictors, and analyzing the results. It includes support for YOLO-based prediction and various simulation controllers.
 Documentation can be found [here](https://giladfrid009.github.io/Bio-Proj/).
 
 ## Features
