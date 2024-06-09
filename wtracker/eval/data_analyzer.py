@@ -31,7 +31,7 @@ class DataAnalyzer:
 
     @property
     def unit(self) -> str:
-        return self.unit
+        return self._unit
 
     def save(self, path: str) -> None:
         """
