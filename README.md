@@ -24,9 +24,9 @@ Download the project [repository](https://github.com/giladfrid009/Bio-Proj) (by 
     \* if unsure, use this [link](https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Windows-x86_64.exe) to download mamba.
 
 **Step 2** - verify that mamba is installed correctly:  
->    1. Navigate to the folder into which the library was download.    
-    2. Open terminal/command prompt.  
-    3. Enter - 'mamba -h'.  
+>  1. Navigate to the folder into which the library was download.    
+  2. Open terminal/command prompt.  
+  3. Enter - 'mamba -h'.  
     if no error is encountered then mamba is installed correctly.
 
 **Step 3** - create a new environment:  
@@ -44,9 +44,9 @@ Download the project [repository](https://github.com/giladfrid009/Bio-Proj) (by 
 	2. OS - the operating system of the computer \[Windows/Linux\]  
 	3. Package - the package manager \[conda\]  
 	4. Language - the programming language \[Python\]  
-	5. Compute Platform - if the computer has GPU select the newest version of CUDA \[12.1 was tested\], otherwise select CPU.  
-  2. Copy the command below the table and enter it in the terminal/command prompt   
-  3. Wait till the installation is complate. That might take a while.    
+	5. Compute Platform - if the computer has GPU select the newest version of CUDA \[12.1 was tested\], otherwise select CPU.    
+    2. Copy the command below the table and enter it in the terminal/command prompt   
+    3. Wait till the installation is complate. That might take a while.    
 
 **Step 6** - Install the rest of the libraries:  
 >	Enter the command - 'mamba env update -f requirements.yaml -n bio-proj'   
