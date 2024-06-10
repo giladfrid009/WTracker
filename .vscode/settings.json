@@ -12,5 +12,6 @@
     ],
     "python.analysis.typeCheckingMode": "off",
     "python.analysis.autoImportCompletions": false,
-    "python.analysis.inlayHints.functionReturnTypes": true
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "git.ignoreLimitWarning": true
 }

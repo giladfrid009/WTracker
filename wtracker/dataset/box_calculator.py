@@ -11,11 +11,13 @@ from wtracker.utils.threading_utils import adjust_num_workers
 
 class BoxCalculator:
     """
-    A class for calculating bounding boxes for a sequence of frames.
+    A class for calculating bounding boxes around an object for a sequence of frames.
+    The bounding boxes are calculated by comparing the frames to a background image.
+    The largest contour in the difference image between the frame and the background is used to calculate the bounding box.
 
     Args:
         frame_reader (FrameReader): The frame reader object holing the relevant frames.
-        bg_probes (int, optional): Number of probes to use for background extraction.
+        background (np.ndarray): The background image of the frames in the `frame_reader` argument.
         diff_thresh (int, optional): Threshold value for the detecting foreground objects.
             Pixels with difference value greater than this threshold are considered as foreground.
     """
@@ -23,17 +25,17 @@ class BoxCalculator:
     def __init__(
         self,
         frame_reader: FrameReader,
-        bg_probes: int = 500,
+        background: np.ndarray,
         diff_thresh: int = 20,
     ) -> None:
-        assert bg_probes > 0 and diff_thresh > 0
+        assert diff_thresh > 0, "Difference threshold must be greater than 0."
+        assert frame_reader.frame_shape == background.shape, "Background shape must match frame shape."
 
         self._frame_reader = frame_reader
-        self._bg_probes = bg_probes
+        self._background = background
         self._diff_thresh = diff_thresh
 
         self._all_bboxes = np.full((len(frame_reader), 4), -1, dtype=int)
-        self._background = None
 
     def all_bboxes(self) -> np.ndarray:
         """
@@ -64,27 +66,13 @@ class BoxCalculator:
             self._all_bboxes[frame_idx] = bbox
         return bbox
 
-    def get_background(self) -> np.ndarray:
-        """
-        Returns the background image extracted from the frame reader frames.
-
-        Returns:
-            np.ndarray: The background array.
-        """
-
-        if self._background is None:
-            self._background = self._calc_background()
-        return self._background
-
-    def _calc_background(self) -> np.ndarray:
-        bg_calc = BGExtractor(self._frame_reader)
-        return bg_calc.calc_background(self._bg_probes, sampling="random", method="median")
-
+    # TODO: I DONT THINK IT WORKS ON BGR IMAGES.
+    # PROBABLY NEED TO CHECK WHETHER IMAGES ARE GRAYSCALE OR NOT, AND CONVERT TO GRAYSCALE IF NEEDED.
+    # SIMILAR TO WHAT WE'RE DOING IN THE ErrorCalculator.calc_precise_error
     def _calc_bounding_box(self, frame_idx: int) -> np.ndarray:
         # get mask according to the threshold value
         frame = self._frame_reader[frame_idx]
-        background = self.get_background()
-        diff = cv.absdiff(frame, background)
+        diff = cv.absdiff(frame, self._background)
         _, mask = cv.threshold(diff, self._diff_thresh, 255, cv.THRESH_BINARY)
 
         # apply morphological ops to the mask
@@ -122,9 +110,6 @@ class BoxCalculator:
         Returns:
             np.ndarray: The calculated boxes for the specified frames.
         """
-
-        self.get_background()
-
         num_workers = adjust_num_workers(len(frame_indices), chunk_size, num_workers)
 
         if num_workers > 0:

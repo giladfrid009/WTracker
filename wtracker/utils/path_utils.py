@@ -5,6 +5,19 @@ from typing import Callable, Union
 import shutil
 
 
+def absolute_path(file_path: str) -> str:
+    """
+    Get the absolute path of a file.
+
+    Args:
+        file_path (str): The path of the file.
+
+    Returns:
+        str: The absolute path of the file.
+    """
+    return Path(file_path).resolve().as_posix()
+
+
 def join_paths(*path_segments: str):
     """
     Join multiple path segments into a single path.
@@ -78,7 +91,7 @@ class Files:
         extension (str, optional): The file extension to filter the files.
         scan_dirs (bool, optional): Whether to include directories in the results.
         return_full_path (bool, optional): Whether to return the full path of the files.
-        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files. 
+        sorting_key (Callable[[str], Union[int, str]], optional): A function to determine the sorting order of the files.
     """
 
     def __init__(

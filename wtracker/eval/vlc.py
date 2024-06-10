@@ -219,12 +219,6 @@ class VLC:
         """
         Initializes the VLC player by setting up hotkeys, opening the streamer,
         creating a window, and updating the trackbar.
-
-        Parameters:
-            None
-
-        Returns:
-            None
         """
         self._init_hotkeys()
         self._create_window()
@@ -356,12 +350,6 @@ class VLC:
         This method continuously runs the VLC player until the `exit` flag is set to True (by self.close() (called by an hotkey)).
         It checks the `play` flag to determine if the player should continue playing or pause.
         The `delay` variable is used to control the delay between each iteration of the loop and is set to 0 to pause.
-
-        Args:
-            None
-
-        Returns:
-            None
         """
         with self as vlc:
             while not self.exit:

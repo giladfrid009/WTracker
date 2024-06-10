@@ -17,6 +17,8 @@ runs/*
 *.zip
 data
 workflows/runs
+yolo/runs
+yolo/dataset
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

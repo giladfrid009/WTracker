@@ -7,12 +7,15 @@ from wtracker.utils.frame_reader import FrameReader
 class BGExtractor:
     """
     A class for extracting the background from a given sequence of frames, provided by a FrameReader.
+
+    Args:
+        reader (FrameReader): The FrameReader object holding the frames to extract the background from.
     """
 
     def __init__(self, reader: FrameReader):
         self.reader = reader
 
-    def calc_background(self, num_probes: int, sampling: str = "random", method: str = "median") -> np.ndarray:
+    def calc_background(self, num_probes: int, sampling: str = "uniform", method: str = "median") -> np.ndarray:
         """
         Calculate the background of the dataset.
 
@@ -23,6 +26,7 @@ class BGExtractor:
                 "random" will select frames randomly from the FrameReader.
             method (str, optional): The method for calculating the background. Can be "median" or "mean".
                 The background is calculated by either taking the median or mean of the sampled frames.
+                Calculating the mean is substantially faster, but produces worse results.
 
         Returns:
             np.ndarray: The calculated background as a numpy array.
