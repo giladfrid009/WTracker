@@ -92,7 +92,11 @@ class WeightEvaluator:
         csv_paths (list[str]): The paths to the csv files with the worm data.
         timing_config (TimingConfig): The timing configuration of the simulation.
         input_time_offsets (np.ndarray): The time offsets for the input positions.
-        pred_time_offset (int): The time offset for the target position.
+            These offsets are calculated from the beginning of the current cycle.
+            The begging of the current cycle is considered as time 0.
+        pred_time_offset (int): The time offset for the target position from the beginning of the current cycle.
+            This time offset is calculated from the beginning of the current cycle.
+            The begging of the current cycle is considered as time 0.
         min_speed (float, optional): The minimum speed of the worm for a cycle to be considered.
     """
 
