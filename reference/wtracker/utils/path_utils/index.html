@@ -1006,6 +1006,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#absolute_path" class="md-nav__link">
+    absolute_path
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#bulk_rename" class="md-nav__link">
     bulk_rename
   </a>
@@ -1184,6 +1191,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#absolute_path" class="md-nav__link">
+    absolute_path
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#bulk_rename" class="md-nav__link">
     bulk_rename
   </a>
@@ -1316,6 +1330,24 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="k">def</span> <span class="nf">absolute_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Get the absolute path of a file.</span>
+
+<span class="sd">    Args:</span>
+
+<span class="sd">        file_path (str): The path of the file.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        str: The absolute path of the file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
 
 <span class="k">def</span> <span class="nf">join_paths</span><span class="p">(</span><span class="o">*</span><span class="n">path_segments</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 
@@ -1654,6 +1686,69 @@
 
 </details>
 <h2 id="functions">Functions</h2>
+<h3 id="absolute_path">absolute_path</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">absolute_path</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;str&#39;</span>
+</code></pre></div>
+
+<p>Get the absolute path of a file.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>file_path</td>
+<td>str</td>
+<td>The path of the file.</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>str</td>
+<td>The absolute path of the file.</td>
+</tr>
+</tbody>
+</table>
+<details class="example">
+<summary>View Source</summary>
+<div class="codehilite"><pre><span></span><code><span class="n">def</span><span class="w"> </span><span class="n">absolute_path</span><span class="p">(</span><span class="n">file_path</span><span class="o">:</span><span class="w"> </span><span class="n">str</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">str</span><span class="o">:</span>
+
+<span class="w">    </span><span class="s">&quot;&quot;&quot;</span>
+
+<span class="s">    Get the absolute path of a file.</span>
+
+<span class="s">    Args:</span>
+
+<span class="s">        file_path (str): The path of the file.</span>
+
+<span class="s">    Returns:</span>
+
+<span class="s">        str: The absolute path of the file.</span>
+
+<span class="s">    &quot;&quot;&quot;</span>
+
+<span class="w">    </span><span class="kr">return</span><span class="w"> </span><span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">).</span><span class="n">resolve</span><span class="p">().</span><span class="n">as_posix</span><span class="p">()</span>
+</code></pre></div>
+
+</details>
 <h3 id="bulk_rename">bulk_rename</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">bulk_rename</span><span class="p">(</span>
     <span class="n">dir_path</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span><span class="p">,</span>
@@ -1940,7 +2035,7 @@
     <span class="n">extension</span><span class="p">:</span> <span class="s1">&#39;str&#39;</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
     <span class="n">scan_dirs</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">return_full_path</span><span class="p">:</span> <span class="s1">&#39;bool&#39;</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">sorting_key</span><span class="p">:</span> <span class="s1">&#39;Callable[[str], Union[int, str]]&#39;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">Files</span><span class="o">.&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7fe754341c60</span><span class="o">&gt;</span>
+    <span class="n">sorting_key</span><span class="p">:</span> <span class="s1">&#39;Callable[[str], Union[int, str]]&#39;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">Files</span><span class="o">.&lt;</span><span class="k">lambda</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7feddc891cf0</span><span class="o">&gt;</span>
 <span class="p">)</span>
 </code></pre></div>
 

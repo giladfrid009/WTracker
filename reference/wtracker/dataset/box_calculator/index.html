@@ -422,13 +422,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#get_background" class="md-nav__link">
-    get_background
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#get_bbox" class="md-nav__link">
     get_bbox
   </a>
@@ -1193,13 +1186,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#get_background" class="md-nav__link">
-    get_background
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#get_bbox" class="md-nav__link">
     get_bbox
   </a>
@@ -1259,13 +1245,17 @@
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 
-<span class="sd">    A class for calculating bounding boxes for a sequence of frames.</span>
+<span class="sd">    A class for calculating bounding boxes around an object for a sequence of frames.</span>
+
+<span class="sd">    The bounding boxes are calculated by comparing the frames to a background image.</span>
+
+<span class="sd">    The largest contour in the difference image between the frame and the background is used to calculate the bounding box.</span>
 
 <span class="sd">    Args:</span>
 
 <span class="sd">        frame_reader (FrameReader): The frame reader object holing the relevant frames.</span>
 
-<span class="sd">        bg_probes (int, optional): Number of probes to use for background extraction.</span>
+<span class="sd">        background (np.ndarray): The background image of the frames in the `frame_reader` argument.</span>
 
 <span class="sd">        diff_thresh (int, optional): Threshold value for the detecting foreground objects.</span>
 
@@ -1279,23 +1269,23 @@
 
         <span class="n">frame_reader</span><span class="p">:</span> <span class="n">FrameReader</span><span class="p">,</span>
 
-        <span class="n">bg_probes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+        <span class="n">background</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 
         <span class="n">diff_thresh</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
 
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
-        <span class="k">assert</span> <span class="n">bg_probes</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">diff_thresh</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">diff_thresh</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Difference threshold must be greater than 0.&quot;</span>
+
+        <span class="k">assert</span> <span class="n">frame_reader</span><span class="o">.</span><span class="n">frame_shape</span> <span class="o">==</span> <span class="n">background</span><span class="o">.</span><span class="kp">shape</span><span class="p">,</span> <span class="s2">&quot;Background shape must match frame shape.&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span> <span class="o">=</span> <span class="n">frame_reader</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_bg_probes</span> <span class="o">=</span> <span class="n">bg_probes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_background</span> <span class="o">=</span> <span class="n">background</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_diff_thresh</span> <span class="o">=</span> <span class="n">diff_thresh</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_reader</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_background</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">all_bboxes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
@@ -1343,29 +1333,11 @@
 
         <span class="k">return</span> <span class="n">bbox</span>
 
-    <span class="k">def</span> <span class="nf">get_background</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="c1"># TODO: I DONT THINK IT WORKS ON BGR IMAGES.</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="c1"># PROBABLY NEED TO CHECK WHETHER IMAGES ARE GRAYSCALE OR NOT, AND CONVERT TO GRAYSCALE IF NEEDED.</span>
 
-<span class="sd">        Returns the background image extracted from the frame reader frames.</span>
-
-<span class="sd">        Returns:</span>
-
-<span class="sd">            np.ndarray: The background array.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_background</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_background</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background</span>
-
-    <span class="k">def</span> <span class="nf">_calc_background</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-
-        <span class="n">bg_calc</span> <span class="o">=</span> <span class="n">BGExtractor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">bg_calc</span><span class="o">.</span><span class="n">calc_background</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_bg_probes</span><span class="p">,</span> <span class="n">sampling</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">)</span>
+    <span class="c1"># SIMILAR TO WHAT WE&#39;RE DOING IN THE ErrorCalculator.calc_precise_error</span>
 
     <span class="k">def</span> <span class="nf">_calc_bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
@@ -1373,9 +1345,7 @@
 
         <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span>
 
-        <span class="n">background</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_background</span><span class="p">()</span>
-
-        <span class="kp">diff</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">background</span><span class="p">)</span>
+        <span class="kp">diff</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background</span><span class="p">)</span>
 
         <span class="n">_</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="kp">diff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diff_thresh</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
 
@@ -1436,8 +1406,6 @@
 <span class="sd">            np.ndarray: The calculated boxes for the specified frames.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">get_background</span><span class="p">()</span>
 
         <span class="n">num_workers</span> <span class="o">=</span> <span class="n">adjust_num_workers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">)</span>
 
@@ -1511,12 +1479,14 @@
 <h3 id="boxcalculator">BoxCalculator</h3>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span> <span class="nc">BoxCalculator</span><span class="p">(</span>
     <span class="n">frame_reader</span><span class="p">:</span> <span class="n">wtracker</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">frame_reader</span><span class="o">.</span><span class="n">FrameReader</span><span class="p">,</span>
-    <span class="n">bg_probes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+    <span class="n">background</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">diff_thresh</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="p">)</span>
 </code></pre></div>
 
-<p>A class for calculating bounding boxes for a sequence of frames.</p>
+<p>A class for calculating bounding boxes around an object for a sequence of frames.</p>
+<p>The bounding boxes are calculated by comparing the frames to a background image.
+The largest contour in the difference image between the frame and the background is used to calculate the bounding box.</p>
 <h4 id="attributes">Attributes</h4>
 <table>
 <thead>
@@ -1535,9 +1505,9 @@
 <td>None</td>
 </tr>
 <tr>
-<td>bg_probes</td>
-<td>int</td>
-<td>Number of probes to use for background extraction.</td>
+<td>background</td>
+<td>np.ndarray</td>
+<td>The background image of the frames in the <code>frame_reader</code> argument.</td>
 <td>None</td>
 </tr>
 <tr>
@@ -1554,13 +1524,17 @@
 
 <span class="w">    </span><span class="ss">&quot;&quot;&quot;</span>
 
-<span class="ss">    A class for calculating bounding boxes for a sequence of frames.</span>
+<span class="ss">    A class for calculating bounding boxes around an object for a sequence of frames.</span>
+
+<span class="ss">    The bounding boxes are calculated by comparing the frames to a background image.</span>
+
+<span class="ss">    The largest contour in the difference image between the frame and the background is used to calculate the bounding box.</span>
 
 <span class="ss">    Args:</span>
 
 <span class="ss">        frame_reader (FrameReader): The frame reader object holing the relevant frames.</span>
 
-<span class="ss">        bg_probes (int, optional): Number of probes to use for background extraction.</span>
+<span class="ss">        background (np.ndarray): The background image of the frames in the `frame_reader` argument.</span>
 
 <span class="ss">        diff_thresh (int, optional): Threshold value for the detecting foreground objects.</span>
 
@@ -1574,23 +1548,23 @@
 
 <span class="w">        </span><span class="nl">frame_reader</span><span class="p">:</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">,</span>
 
-<span class="w">        </span><span class="nl">bg_probes</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">500</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">background</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span>
 
 <span class="w">        </span><span class="nl">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
 
 <span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="err">:</span>
 
-<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">bg_probes</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">diff_thresh</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">diff_thresh</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;Difference threshold must be greater than 0.&quot;</span>
+
+<span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">frame_reader</span><span class="p">.</span><span class="n">frame_shape</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">background</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;Background shape must match frame shape.&quot;</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame_reader</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_bg_probes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bg_probes</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_diff_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff_thresh</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_all_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="k">full</span><span class="p">((</span><span class="nf">len</span><span class="p">(</span><span class="n">frame_reader</span><span class="p">),</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="nc">int</span><span class="p">)</span>
-
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">all_bboxes</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
 
@@ -1630,37 +1604,19 @@
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="err">:</span>
 
-<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">bbox</span><span class="w"> </span><span class="n">since</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">wasn</span><span class="err">&#39;</span><span class="n">t</span><span class="w"> </span><span class="n">calculated</span><span class="w"> </span><span class="k">before</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">bbox</span><span class="w"> </span><span class="n">since</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">wasn</span><span class="s1">&#39;t calculated before</span>
 
-<span class="w">            </span><span class="n">bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_calc_bounding_box</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span>
+<span class="s1">            bbox = self._calc_bounding_box(frame_idx)</span>
 
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_all_bboxes</span><span class="o">[</span><span class="n">frame_idx</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbox</span>
+<span class="s1">            self._all_bboxes[frame_idx] = bbox</span>
 
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bbox</span>
+<span class="s1">        return bbox</span>
 
-<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_background</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
+<span class="s1">    # TODO: I DONT THINK IT WORKS ON BGR IMAGES.</span>
 
-<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+<span class="s1">    # PROBABLY NEED TO CHECK WHETHER IMAGES ARE GRAYSCALE OR NOT, AND CONVERT TO GRAYSCALE IF NEEDED.</span>
 
-<span class="ss">        Returns the background image extracted from the frame reader frames.</span>
-
-<span class="ss">        Returns:</span>
-
-<span class="ss">            np.ndarray: The background array.</span>
-
-<span class="ss">        &quot;&quot;&quot;</span>
-
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_background</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span>
-
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_calc_background</span><span class="p">()</span>
-
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_background</span>
-
-<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_calc_background</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
-
-<span class="w">        </span><span class="n">bg_calc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BGExtractor</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="p">)</span>
-
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bg_calc</span><span class="p">.</span><span class="n">calc_background</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_bg_probes</span><span class="p">,</span><span class="w"> </span><span class="n">sampling</span><span class="o">=</span><span class="ss">&quot;random&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">method</span><span class="o">=</span><span class="ss">&quot;median&quot;</span><span class="p">)</span>
+<span class="s1">    # SIMILAR TO WHAT WE&#39;</span><span class="n">RE</span><span class="w"> </span><span class="n">DOING</span><span class="w"> </span><span class="ow">IN</span><span class="w"> </span><span class="n">THE</span><span class="w"> </span><span class="n">ErrorCalculator</span><span class="p">.</span><span class="n">calc_precise_error</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_calc_bounding_box</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">frame_idx</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
 
@@ -1668,9 +1624,7 @@
 
 <span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="o">[</span><span class="n">frame_idx</span><span class="o">]</span>
 
-<span class="w">        </span><span class="n">background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_background</span><span class="p">()</span>
-
-<span class="w">        </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">background</span><span class="p">)</span>
+<span class="w">        </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_background</span><span class="p">)</span>
 
 <span class="w">        </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_diff_thresh</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
 
@@ -1731,8 +1685,6 @@
 <span class="ss">            np.ndarray: The calculated boxes for the specified frames.</span>
 
 <span class="ss">        &quot;&quot;&quot;</span>
-
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">get_background</span><span class="p">()</span>
 
 <span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adjust_num_workers</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">,</span><span class="w"> </span><span class="n">num_workers</span><span class="p">)</span>
 
@@ -1985,8 +1937,6 @@
 
 <span class="ss">        &quot;&quot;&quot;</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">get_background</span><span class="p">()</span>
-
 <span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adjust_num_workers</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">,</span><span class="w"> </span><span class="n">num_workers</span><span class="p">)</span>
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">num_workers</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span>
@@ -2020,50 +1970,6 @@
 <span class="w">        </span><span class="n">bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_all_bboxes</span><span class="o">[</span><span class="n">frame_indices, :</span><span class="o">]</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bboxes</span>
-</code></pre></div>
-
-</details>
-<h4 id="get_background">get_background</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_background</span><span class="p">(</span>
-    <span class="bp">self</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
-</code></pre></div>
-
-<p>Returns the background image extracted from the frame reader frames.</p>
-<p><strong>Returns:</strong></p>
-<table>
-<thead>
-<tr>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>np.ndarray</td>
-<td>The background array.</td>
-</tr>
-</tbody>
-</table>
-<details class="example">
-<summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_background</span><span class="p">(</span><span class="kr">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="o">:</span>
-
-<span class="w">        </span><span class="s">&quot;&quot;&quot;</span>
-
-<span class="s">        Returns the background image extracted from the frame reader frames.</span>
-
-<span class="s">        Returns:</span>
-
-<span class="s">            np.ndarray: The background array.</span>
-
-<span class="s">        &quot;&quot;&quot;</span>
-
-<span class="w">        </span><span class="nf">if</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">_background</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="n">None</span><span class="o">:</span>
-
-<span class="w">            </span><span class="kr">self</span><span class="p">.</span><span class="n">_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">_calc_background</span><span class="p">()</span>
-
-<span class="w">        </span><span class="kr">return</span><span class="w"> </span><span class="kr">self</span><span class="p">.</span><span class="n">_background</span>
 </code></pre></div>
 
 </details>
