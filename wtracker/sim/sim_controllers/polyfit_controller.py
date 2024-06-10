@@ -84,15 +84,13 @@ class PolyfitController(CsvController):
         return dx, dy
 
 
-# TODO: ACCEPT MULTIPLE CSVS
 class WeightEvaluator:
     """
     Class for evaluating the mean absolute error (MAE) of a polynomial fit with given weights.
 
     Args:
-        csv_path (str): The path to the csv file with the worm data.
+        csv_paths (list[str]): The paths to the csv files with the worm data.
         timing_config (TimingConfig): The timing configuration of the simulation.
-        cycle_start_times (np.ndarray): The start times of the cycles.
         input_time_offsets (np.ndarray): The time offsets for the input positions.
         pred_time_offset (int): The time offset for the target position.
         min_speed (float, optional): The minimum speed of the worm for a cycle to be considered.
@@ -100,53 +98,57 @@ class WeightEvaluator:
 
     def __init__(
         self,
-        csv_path: str,
+        csv_paths: list[str],
         timing_config: TimingConfig,
-        cycle_start_times: np.ndarray,
         input_time_offsets: np.ndarray,
         pred_time_offset: int,
         min_speed: float = 0,
     ):
+        self.csv_paths = csv_paths
         self.timing_config = timing_config
         self.pred_time_offset = pred_time_offset
         self.min_speed = min_speed
-
-        bboxes = pd.read_csv(csv_path, usecols=["wrm_x", "wrm_y", "wrm_w", "wrm_h"]).to_numpy(dtype=float)
-
-        self.positions = np.empty((len(bboxes), 2), dtype=float)
-        self.positions[:, 0] = bboxes[:, 0] + bboxes[:, 2] / 2
-        self.positions[:, 1] = bboxes[:, 1] + bboxes[:, 3] / 2
-
         self.input_time_offsets = np.sort(input_time_offsets)
-        self.cycle_start_times = cycle_start_times
 
-        # TODO: CALCULATE AUTOMATICALLY THE cycle_start_times TO BE ALL THE CYCLES
-        # OR AT LEAST THE DEFAULT VALUE OF CYCLE_START_TIMES SHOULD BE None and that's when all the cycles are used
+        self._construct_dataset()
 
-        self._initialize()
+    def _construct_dataset(self) -> None:
+        input_positions = []
+        target_positions = []
 
-    def _initialize(self):
+        for path in self.csv_paths:
+            bboxes = pd.read_csv(path, usecols=["wrm_x", "wrm_y", "wrm_w", "wrm_h"]).to_numpy(dtype=float)
+            input_pos, target_pos = self._extract_positions(bboxes, self.timing_config.cycle_frame_num)
+            input_positions.append(input_pos)
+            target_positions.append(target_pos)
+
+        self.y_input = np.concatenate(input_positions, axis=1)
+        self.y_target = np.concatenate(target_positions, axis=0)
+        self.x_input = self.input_time_offsets.reshape(-1)
+        self.x_target = np.full_like(self.y_target, self.pred_time_offset)
+
+    def _extract_positions(self, raw_bboxes: pd.DataFrame, cycle_length: int) -> tuple[np.ndarray, np.ndarray]:
         N = self.input_time_offsets.shape[0]
 
-        # x are times, y are positions
+        cycle_starts = np.arange(0, raw_bboxes.shape[0], cycle_length, dtype=int)
+        centers = BoxUtils.center(raw_bboxes)
 
+        # x are times, y are positions
         # create input and target arrays for the times
-        x_input = np.repeat(self.cycle_start_times, repeats=N) + np.tile(
-            self.input_time_offsets, reps=self.cycle_start_times.shape[0]
-        )
+        x_input = np.repeat(cycle_starts, repeats=N) + np.tile(self.input_time_offsets, reps=cycle_starts.shape[0])
         x_input = x_input.reshape(-1, N)
-        x_target = self.cycle_start_times + self.pred_time_offset
+        x_target = cycle_starts + self.pred_time_offset
 
         # remove input and target cycles with invalid time
         # i.e. when input time is negative or target time is out of bounds
-        mask = (x_input >= 0).all(axis=1) & (x_target < len(self.positions))
+        mask = (x_input >= 0).all(axis=1) & (x_target < len(centers))
         x_input = x_input[mask, :]
         x_target = x_target[mask]
 
         # get input and target positions for each cycle
-        y_input = self.positions[x_input.flatten(), :]
+        y_input = centers[x_input.flatten(), :]
         y_input = y_input.reshape(-1, N, 2)
-        y_target = self.positions[x_target.flatten(), :]
+        y_target = centers[x_target.flatten(), :]
         y_target = y_target.reshape(-1, 2)
 
         # remove all cycles with invalid positions
@@ -163,18 +165,10 @@ class WeightEvaluator:
         y_input = y_input[speed_mask, :, :]
         y_target = y_target[speed_mask, :]
 
-        # set attributes
-        self.x_input = self.input_time_offsets.reshape(N)
-        self.y_input = y_input.swapaxes(0, 1).reshape(N, -1)
-        self.y_target = y_target.reshape(-1)
-        self.x_target = np.full_like(self.y_target, self.pred_time_offset)
-
-        # print stats
-        init_num_cycles = len(self.cycle_start_times)
-        final_num_cycles = len(self.y_target) // 2
-        removed_percent = round((init_num_cycles - final_num_cycles) / init_num_cycles * 100, 1)
-        print(f"Number of evaluation cycles: {final_num_cycles}")
-        print(f"Number of cycles removed: {init_num_cycles - final_num_cycles} ({removed_percent} %)")
+        # reshape target arrays
+        y_input = y_input.swapaxes(0, 1).reshape(N, -1)
+        y_target = y_target.reshape(-1)
+        return y_input, y_target
 
     def _polyval(self, coeffs: np.ndarray, x: np.ndarray) -> np.ndarray:
         """
