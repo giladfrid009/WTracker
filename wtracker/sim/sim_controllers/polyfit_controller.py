@@ -84,18 +84,20 @@ class PolyfitController(CsvController):
         return dx, dy
 
 
+# TODO: ADD DOCS
+# TODO: ACCEPT MULTIPLE CSVS
 class WeightEvaluator:
     def __init__(
         self,
         csv_path: str,
         timing_config: TimingConfig,
-        input_offsets: np.ndarray,
-        start_times: np.ndarray,
-        eval_offset: int,
+        cycle_start_times: np.ndarray,
+        input_time_offsets: np.ndarray,
+        pred_time_offset: int,
         min_speed: float = 0,
     ):
         self.timing_config = timing_config
-        self.eval_offset = eval_offset
+        self.pred_time_offset = pred_time_offset
         self.min_speed = min_speed
 
         bboxes = pd.read_csv(csv_path, usecols=["wrm_x", "wrm_y", "wrm_w", "wrm_h"]).to_numpy(dtype=float)
@@ -104,56 +106,58 @@ class WeightEvaluator:
         self.positions[:, 0] = bboxes[:, 0] + bboxes[:, 2] / 2
         self.positions[:, 1] = bboxes[:, 1] + bboxes[:, 3] / 2
 
-        self.input_offsets = np.sort(input_offsets)
-        self.start_times = start_times
+        self.input_time_offsets = np.sort(input_time_offsets)
+        self.cycle_start_times = cycle_start_times
 
         self._initialize()
 
     def _initialize(self):
-        N = self.input_offsets.shape[0]
+        N = self.input_time_offsets.shape[0]
 
-        # remove cycles with invalid time
-        start_times = self.start_times + self.input_offsets[0]
-        eval_times = self.start_times + self.eval_offset
-        time_mask = (start_times >= 0) & (eval_times < len(self.positions))
-        start_times = self.start_times[time_mask]
+        # x are times, y are positions
 
-        # create data arrays
-        input_times = np.repeat(start_times, repeats=N) + np.tile(self.input_offsets, reps=start_times.shape[0])
-        dst_times = start_times + self.eval_offset
-        input_pos = self.positions[input_times, :]
-        dst_pos = self.positions[dst_times, :]
+        # create input and target arrays for the times
+        x_input = np.repeat(self.cycle_start_times, repeats=N) + np.tile(
+            self.input_time_offsets, reps=self.cycle_start_times.shape[0]
+        )
+        x_input = x_input.reshape(-1, N)
+        x_target = self.cycle_start_times + self.pred_time_offset
 
-        # remove invalid positions according to dst
-        dst_mask = np.all(np.isfinite(dst_pos), axis=-1)
-        mask = np.repeat(dst_mask, repeats=N, axis=0)
-        input_pos = input_pos[mask, :]
-        dst_pos = dst_pos[dst_mask, :]
+        # remove input and target cycles with invalid time
+        # i.e. when input time is negative or target time is out of bounds
+        mask = (x_input >= 0).all(axis=1) & (x_target < len(self.positions))
+        x_input = x_input[mask, :]
+        x_target = x_target[mask]
 
-        # remove invalid positions according to input
-        input_mask = np.isfinite(input_pos).reshape(-1, N, 2)
-        input_mask = np.all(np.all(input_mask, axis=-1), axis=-1)
+        # get input and target positions for each cycle
+        y_input = self.positions[x_input.flatten(), :]
+        y_input = y_input.reshape(-1, N, 2)
+        y_target = self.positions[x_target.flatten(), :]
+        y_target = y_target.reshape(-1, 2)
 
-        input_pos = input_pos.reshape(-1, N, 2)
-        input_pos = input_pos[input_mask, :, :]
-        dst_pos = dst_pos[input_mask, :]
+        # remove all cycles with invalid positions
+        input_mask = np.isfinite(y_input).all(axis=(1, 2))
+        target_mask = np.isfinite(y_target).all(axis=1)
+        mask = input_mask & target_mask
+        y_input = y_input[mask, :, :]
+        y_target = y_target[mask, :]
 
-        # calculate average speed of each cycle
-        dist = np.sqrt((dst_pos[:, 0] - input_pos[:, 0, 0]) ** 2 + (dst_pos[:, 1] - input_pos[:, 0, 1]) ** 2)
-        time = self.eval_offset - self.input_offsets[0]
+        # remove cycles with average speed below threshold
+        dist = np.sqrt((y_target[:, 1] - y_input[:, 0, 1]) ** 2 + (y_target[:, 0] - y_input[:, 0, 0]) ** 2)
+        time = self.pred_time_offset - self.input_time_offsets[0]
         speed_mask = dist / time >= self.min_speed
-        input_pos = input_pos[speed_mask, :, :]
-        dst_pos = dst_pos[speed_mask, :]
+        y_input = y_input[speed_mask, :, :]
+        y_target = y_target[speed_mask, :]
 
         # set attributes
-        self.x_input = self.input_offsets.reshape(N)
-        self.y_input = input_pos.swapaxes(0, 1).reshape(N, -1)
-        self.y_target = dst_pos.reshape(-1)
-        self.x_target = np.full_like(self.y_target, self.eval_offset)
+        self.x_input = self.input_time_offsets.reshape(N)
+        self.y_input = y_input.swapaxes(0, 1).reshape(N, -1)
+        self.y_target = y_target.reshape(-1)
+        self.x_target = np.full_like(self.y_target, self.pred_time_offset)
 
         # print stats
-        init_num_cycles = len(self.start_times)
-        final_num_cycles = len(dst_pos)
+        init_num_cycles = len(self.cycle_start_times)
+        final_num_cycles = len(self.y_target) // 2
         removed_percent = round((init_num_cycles - final_num_cycles) / init_num_cycles * 100, 1)
         print(f"Number of evaluation cycles: {final_num_cycles}")
         print(f"Number of cycles removed: {init_num_cycles - final_num_cycles} ({removed_percent} %)")
@@ -186,6 +190,6 @@ class WeightEvaluator:
             float: The mean absolute error (MAE) of the polynomial fit.
         """
         coeffs = poly.polyfit(self.x_input, self.y_input, deg=deg, w=weights)
-        y_hat = self._polyval(coeffs, self.x_target)
-        mae = np.mean(np.abs(self.y_target - y_hat))
+        y_pred = self._polyval(coeffs, self.x_target)
+        mae = np.mean(np.abs(self.y_target - y_pred))
         return mae
