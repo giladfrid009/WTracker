@@ -84,9 +84,20 @@ class PolyfitController(CsvController):
         return dx, dy
 
 
-# TODO: ADD DOCS
 # TODO: ACCEPT MULTIPLE CSVS
 class WeightEvaluator:
+    """
+    Class for evaluating the mean absolute error (MAE) of a polynomial fit with given weights.
+
+    Args:
+        csv_path (str): The path to the csv file with the worm data.
+        timing_config (TimingConfig): The timing configuration of the simulation.
+        cycle_start_times (np.ndarray): The start times of the cycles.
+        input_time_offsets (np.ndarray): The time offsets for the input positions.
+        pred_time_offset (int): The time offset for the target position.
+        min_speed (float, optional): The minimum speed of the worm for a cycle to be considered.
+    """
+
     def __init__(
         self,
         csv_path: str,
@@ -108,6 +119,9 @@ class WeightEvaluator:
 
         self.input_time_offsets = np.sort(input_time_offsets)
         self.cycle_start_times = cycle_start_times
+
+        # TODO: CALCULATE AUTOMATICALLY THE cycle_start_times TO BE ALL THE CYCLES
+        # OR AT LEAST THE DEFAULT VALUE OF CYCLE_START_TIMES SHOULD BE None and that's when all the cycles are used
 
         self._initialize()
 
@@ -165,6 +179,7 @@ class WeightEvaluator:
     def _polyval(self, coeffs: np.ndarray, x: np.ndarray) -> np.ndarray:
         """
         Evaluate a polynomial at given values.
+        This implementation is way faster than np.polyval for multiple polynomials.
 
         Args:
             coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at increasing order. Should have shape [deg+1, N].
