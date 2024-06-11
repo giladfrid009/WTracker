@@ -139,17 +139,18 @@ class DataAnalyzer:
             mask = data["phase"] == "imaging"
             data = data[mask]
 
-        # TODO: make impl more clean.
         if bounds is not None:
-            mask = (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[2])
-            mask &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[3])
+            has_pred = np.isfinite(data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()).all(axis=1)
 
-            # if there are no prediction for a frame, look at microscope bbox
-            mask2 = (data["mic_x"] >= bounds[0]) & (data["mic_x"] + data["mic_w"] <= bounds[2])
-            mask2 &= (data["mic_y"] >= bounds[1]) & (data["mic_y"] + data["mic_h"] <= bounds[3])
-            mask2 &= data["wrm_x"].isna()
+            mask_wrm = has_pred  # if there is a prediction for a frame then look at worm bbox
+            mask_wrm &= (data["wrm_x"] >= bounds[0]) & (data["wrm_x"] + data["wrm_w"] <= bounds[2])
+            mask_wrm &= (data["wrm_y"] >= bounds[1]) & (data["wrm_y"] + data["wrm_h"] <= bounds[3])
 
-            data = data[mask | mask2]
+            mask_mic = ~has_pred  # if there is no prediction for a frame then look at micro bbox
+            mask_mic &= (data["mic_x"] >= bounds[0]) & (data["mic_x"] + data["mic_w"] <= bounds[2])
+            mask_mic &= (data["mic_y"] >= bounds[1]) & (data["mic_y"] + data["mic_h"] <= bounds[3])
+
+            data = data[mask_wrm | mask_mic]
 
         if trim_cycles:
             mask = data["cycle"] != 0
