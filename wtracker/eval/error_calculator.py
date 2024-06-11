@@ -49,9 +49,8 @@ class ErrorCalculator:
         diff = np.abs(image.astype(int) - bg_view.astype(int))
 
         # if images are color, convert to grayscale
-        # conversion is correct if it's BGR
         if diff.ndim == 3 and diff.shape[2] == 3:
-            diff = 0.114 * diff[:, :, 0] + 0.587 * diff[:, :, 1] + 0.299 * diff[:, :, 2]
+            diff = cv.cvtColor(diff, cv.COLOR_BGR2GRAY)
 
         if diff.ndim != 2:
             raise ValueError("Image must be either a gray or a color image.")

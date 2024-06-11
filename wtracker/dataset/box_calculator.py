@@ -5,7 +5,6 @@ from tqdm.auto import tqdm
 from tqdm.contrib import concurrent
 
 from wtracker.utils.frame_reader import FrameReader
-from wtracker.dataset.bg_extractor import BGExtractor
 from wtracker.utils.threading_utils import adjust_num_workers
 
 
@@ -30,6 +29,13 @@ class BoxCalculator:
     ) -> None:
         assert diff_thresh > 0, "Difference threshold must be greater than 0."
         assert frame_reader.frame_shape == background.shape, "Background shape must match frame shape."
+
+        # convert background to grayscale if needed
+        if background.ndim == 3 and background.shape[2] == 3:
+            background = cv.cvtColor(background, cv.COLOR_BGR2GRAY)
+
+        if background.ndim != 2:
+            raise ValueError("background must be either a gray or a color image.")
 
         self._frame_reader = frame_reader
         self._background = background
@@ -66,12 +72,14 @@ class BoxCalculator:
             self._all_bboxes[frame_idx] = bbox
         return bbox
 
-    # TODO: I DONT THINK IT WORKS ON BGR IMAGES.
-    # PROBABLY NEED TO CHECK WHETHER IMAGES ARE GRAYSCALE OR NOT, AND CONVERT TO GRAYSCALE IF NEEDED.
-    # SIMILAR TO WHAT WE'RE DOING IN THE ErrorCalculator.calc_precise_error
     def _calc_bounding_box(self, frame_idx: int) -> np.ndarray:
         # get mask according to the threshold value
         frame = self._frame_reader[frame_idx]
+
+        # convert to grayscale if needed
+        if frame.ndim == 3 and frame.shape[2] == 3:
+            frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
         diff = cv.absdiff(frame, self._background)
         _, mask = cv.threshold(diff, self._diff_thresh, 255, cv.THRESH_BINARY)
 

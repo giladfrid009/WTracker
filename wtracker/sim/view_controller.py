@@ -202,7 +202,7 @@ class ViewController(FrameStream):
         x_mic, y_mic, w_mic, h_mic = self._calc_view_bbox(*self.micro_size)
 
         world = self.read()
-        if len(self._frame_reader.frame_shape) == 2 or self._frame_reader.frame_shape[2] == 1:
+        if len(self._frame_reader.frame_shape) == 2:
             world = cv.cvtColor(world, cv.COLOR_GRAY2BGR)
 
         cv.rectangle(world, (x_cam, y_cam), (x_cam + w_cam, y_cam + h_cam), (0, 0, 255), line_width)

@@ -65,7 +65,7 @@ class YoloController(SimController):
         assert len(frames) > 0
 
         # convert grayscale images to BGR because YOLO expects 3-channel images
-        if frames[0].ndim == 2 or frames[0].shape[-1] == 1:
+        if frames[0].ndim == 2:
             frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
 
         # predict bounding boxes and format results
