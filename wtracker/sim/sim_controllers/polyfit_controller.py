@@ -98,6 +98,7 @@ class WeightEvaluator:
             This time offset is calculated from the beginning of the current cycle.
             The begging of the current cycle is considered as time 0.
         min_speed (float, optional): The minimum speed of the worm for a cycle to be considered.
+        max_speed (float, optional): The maximum speed of the worm for a cycle to be considered.
     """
 
     def __init__(
@@ -107,11 +108,13 @@ class WeightEvaluator:
         input_time_offsets: np.ndarray,
         pred_time_offset: int,
         min_speed: float = 0,
+        max_speed: float = np.inf,
     ):
         self.csv_paths = csv_paths
         self.timing_config = timing_config
         self.pred_time_offset = pred_time_offset
         self.min_speed = min_speed
+        self.max_speed = max_speed
         self.input_time_offsets = np.sort(input_time_offsets)
 
         self._construct_dataset()
@@ -120,15 +123,23 @@ class WeightEvaluator:
         input_positions = []
         target_positions = []
 
-        for path in self.csv_paths:
+        for i, path in enumerate(self.csv_paths):
             bboxes = pd.read_csv(path, usecols=["wrm_x", "wrm_y", "wrm_w", "wrm_h"]).to_numpy(dtype=float)
             input_pos, target_pos = self._extract_positions(bboxes, self.timing_config.cycle_frame_num)
             input_positions.append(input_pos)
             target_positions.append(target_pos)
 
+            # print stats
+            init_num_cycles = len(bboxes) // self.timing_config.cycle_frame_num
+            final_num_cycles = len(target_pos) // 2
+            removed_percent = round((init_num_cycles - final_num_cycles) / init_num_cycles * 100, 1)
+            print(f"Log {i} :: Number of evaluation cycles: {final_num_cycles}")
+            print(f"Log {i} :: Number of cycles removed: {init_num_cycles - final_num_cycles} ({removed_percent} %)")
+
         self.y_input = np.concatenate(input_positions, axis=1)
-        self.y_target = np.concatenate(target_positions, axis=0)
         self.x_input = self.input_time_offsets.reshape(-1)
+
+        self.y_target = np.concatenate(target_positions, axis=0)
         self.x_target = np.full_like(self.y_target, self.pred_time_offset)
 
     def _extract_positions(self, raw_bboxes: pd.DataFrame, cycle_length: int) -> tuple[np.ndarray, np.ndarray]:
@@ -163,9 +174,11 @@ class WeightEvaluator:
         y_target = y_target[mask, :]
 
         # remove cycles with average speed below threshold
-        dist = np.sqrt((y_target[:, 1] - y_input[:, 0, 1]) ** 2 + (y_target[:, 0] - y_input[:, 0, 0]) ** 2)
+        # dist = np.sqrt((y_target[:, 1] - y_input[:, 0, 1]) ** 2 + (y_target[:, 0] - y_input[:, 0, 0]) ** 2)
+        dist = np.linalg.norm(y_target - y_input[:, 0, :], axis=1)
         time = self.pred_time_offset - self.input_time_offsets[0]
-        speed_mask = dist / time >= self.min_speed
+        speed = dist / time
+        speed_mask = (speed >= self.min_speed) & (speed <= self.max_speed)
         y_input = y_input[speed_mask, :, :]
         y_target = y_target[speed_mask, :]
 
