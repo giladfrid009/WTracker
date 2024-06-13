@@ -74,31 +74,6 @@ class BoxUtils:
         return np.concatenate((c1, c2, c3, c4), axis=-1)
 
     @staticmethod
-    def sanitize(bboxes: np.ndarray, box_format: BoxFormat, image_shape: tuple[int, int]) -> np.ndarray:
-        """
-        Sanitizes the bounding boxes by removing invalid boxes that are outside the image boundaries.
-
-        Args:
-            bboxes (np.ndarray): The input bounding boxes.
-            box_format (BoxFormat): The format of the input bounding boxes.
-            image_shape (tuple[int, int]): The shape of the image (w, h).
-
-        Returns:
-            np.ndarray: The sanitized bounding boxes.
-        """
-        max_height = image_shape[0] - 1
-        max_width = image_shape[1] - 1
-
-        bboxes = BoxConverter.change_format(bboxes, box_format, BoxFormat.XYWH)
-        x, y, w, h = BoxUtils.unpack(bboxes)
-
-        good_mask = (x >= 0) & (y >= 0) & (w > 0) & (h > 0)
-        good_mask = good_mask & (x + w <= max_width) & (y + h <= max_height)
-        bboxes = bboxes[good_mask]
-
-        return BoxConverter.change_format(bboxes, BoxFormat.XYWH, box_format)
-
-    @staticmethod
     def center(bboxes: np.ndarray, box_format: BoxFormat = BoxFormat.XYWH) -> np.ndarray:
         """
         Calculate the center of the bounding boxes.
@@ -132,10 +107,10 @@ class BoxUtils:
         bboxes = BoxConverter.change_format(bboxes, box_format, BoxFormat.XYXY)
 
         x1, y1, x2, y2 = BoxUtils.unpack(bboxes)
-        x1 = np.floor(x1).astype(int, copy=False)
-        y1 = np.floor(y1).astype(int, copy=False)
-        x2 = np.ceil(x2).astype(int, copy=False)
-        y2 = np.ceil(y2).astype(int, copy=False)
+        x1 = np.floor(x1).astype(np.int32, copy=False)
+        y1 = np.floor(y1).astype(np.int32, copy=False)
+        x2 = np.ceil(x2).astype(np.int32, copy=False)
+        y2 = np.ceil(y2).astype(np.int32, copy=False)
         bboxes = BoxUtils.pack(x1, y1, x2, y2)
 
         return BoxConverter.change_format(bboxes, BoxFormat.XYXY, box_format)
@@ -172,7 +147,7 @@ class BoxConverter:
             raise Exception("unsupported bbox format conversion.")
 
     @staticmethod
-    def to_xyxy(bbox: np.ndarray, src_format: BoxFormat):
+    def to_xyxy(bbox: np.ndarray, src_format: BoxFormat) -> np.ndarray:
         """
         Converts the bounding box coordinates to the XYXY format.
 
@@ -204,7 +179,7 @@ class BoxConverter:
             raise Exception("unsupported bbox format conversion.")
 
     @staticmethod
-    def to_xywh(bbox: np.ndarray, src_format: BoxFormat):
+    def to_xywh(bbox: np.ndarray, src_format: BoxFormat) -> np.ndarray:
         """
         Converts the bounding box coordinates to the XYWH format.
 
@@ -234,7 +209,7 @@ class BoxConverter:
             raise Exception("unsupported bbox format conversion.")
 
     @staticmethod
-    def to_yolo(bbox: np.ndarray, src_format: BoxFormat):
+    def to_yolo(bbox: np.ndarray, src_format: BoxFormat) -> np.ndarray:
         """
         Converts the bounding box coordinates to the YOLO format.
 

@@ -57,10 +57,10 @@ class FrameSaver(TaskScheduler):
         x_min, y_min = math.floor(x_min), math.floor(y_min)
         x_max, y_max = math.ceil(x_max), math.ceil(y_max)
 
-        x_min = np.clip(x_min, a_min=0, a_max=W - 1)
-        x_max = np.clip(x_max, a_min=0, a_max=W - 1)
-        y_min = np.clip(y_min, a_min=0, a_max=H - 1)
-        y_max = np.clip(y_max, a_min=0, a_max=H - 1)
+        x_min = np.clip(x_min, a_min=0, a_max=W)
+        x_max = np.clip(x_max, a_min=0, a_max=W)
+        y_min = np.clip(y_min, a_min=0, a_max=H)
+        y_max = np.clip(y_max, a_min=0, a_max=H)
 
         x_min = int(x_min)
         x_max = int(x_max)

@@ -1,8 +1,6 @@
 from __future__ import annotations
 import pandas as pd
 import numpy as np
-from tqdm.contrib import concurrent
-from functools import partial
 
 from wtracker.sim.config import TimingConfig
 from wtracker.eval.error_calculator import ErrorCalculator
@@ -213,14 +211,11 @@ class DataAnalyzer:
         self._unit = unit
         self.data = data
 
-    # TODO: TEST and FIX
     def calc_precise_error(
         self,
         worm_reader: FrameReader,
         background: np.ndarray,
         diff_thresh=20,
-        num_workers: int = None,
-        chunk_size: int = 2000,
     ) -> None:
         """
         Calculate the precise error between the worm and the microscope view.
@@ -233,56 +228,20 @@ class DataAnalyzer:
             background (np.ndarray): The background image of the entire experiment.
             diff_thresh (int): Difference threshold to differentiate between the background and foreground.
                 A foreground object is detected if the pixel value difference with the background is greater than this threshold.
-            num_workers (int, optional): The number of workers to use for parallel processing.
-                If None, the number of workers is determined automatically.
-            chunk_size (int, optional): The size of each processing chunk.
         """
-        frames = self._orig_data["frame"].to_numpy().astype(int, copy=False)
+        frames = self._orig_data["frame"].to_numpy().astype(np.int32, copy=False)
         wrm_bboxes = self._orig_data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
         mic_bboxes = self._orig_data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
 
-        errors = np.ones_like(frames, dtype=float)
-        mask = np.isfinite(wrm_bboxes).all(axis=1)
-
-        wrm_bboxes = wrm_bboxes[mask]
-        mic_bboxes = mic_bboxes[mask]
-        frames = frames[mask]
-
-        wrm_bboxes_list = np.split(wrm_bboxes, chunk_size, axis=0)
-        mic_bboxes_list = np.split(mic_bboxes, chunk_size, axis=0)
-        frames_list = np.split(frames, chunk_size)
-
-        num_workers = adjust_num_workers(len(wrm_bboxes_list), chunk_size, num_workers)
-
-        func = partial(
-            ErrorCalculator.calculate_precise,
+        errors = ErrorCalculator.calculate_precise(
             background=background,
-            worm_reader=worm_reader,
-            diff_thresh=diff_thresh,
-        )
-
-        args = zip(wrm_bboxes_list, mic_bboxes_list, frames_list)
-
-        results = concurrent.thread_map(
-            func,
-            args,
-            max_workers=num_workers,
-            chunksize=chunk_size,
-            desc="Extracting bboxes",
-            unit="fr",
-        )
-
-        """ results = ErrorCalculator.calculate_precise(
-            background,
-            wrm_bboxes,
-            mic_bboxes,
-            worm_reader=worm_reader,
+            worm_bboxes=wrm_bboxes,
+            mic_bboxes=mic_bboxes,
             frame_nums=frames,
+            worm_reader=worm_reader,
             diff_thresh=diff_thresh,
-        ) """
+        )
 
-        # set the error in the original data
-        errors[mask] = np.concatenate(results)
         self._orig_data["precise_error"] = errors
 
         # copy relevant error entries into the work data

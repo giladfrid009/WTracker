@@ -13,7 +13,7 @@ class ErrorCalculator:
     The ErrorCalculator class provides methods to calculate different types of errors based on worm position and the microscope view.
     """
 
-    # TODO: TEST IMPLEMENTATIONs
+    # TODO: Kinda a weird solution, but it works for now. Maybe find a better way to do this.
     probe_hook: Callable[[np.ndarray, np.ndarray], None] = None  # takes mask and view for testing
 
     @staticmethod
@@ -44,9 +44,8 @@ class ErrorCalculator:
         assert image.shape[0] == y2 - y1
         assert image.shape[1] == x2 - x1
 
-        bg_view = background[y1 : y2, x1 : x2]
-
-        diff = np.abs(image.astype(int) - bg_view.astype(int))
+        bg_view = background[y1:y2, x1:x2]
+        diff = np.abs(image.astype(np.int32) - bg_view.astype(np.int32)).astype(np.uint8)
 
         # if images are color, convert to grayscale
         if diff.ndim == 3 and diff.shape[2] == 3:
@@ -64,7 +63,7 @@ class ErrorCalculator:
         background: np.ndarray,
         worm_bboxes: np.ndarray,
         mic_bboxes: np.ndarray,
-        frame_nums: Collection[int],
+        frame_nums: np.ndarray,
         worm_reader: FrameReader,
         diff_thresh: float = 10,
     ) -> np.ndarray:
@@ -77,7 +76,7 @@ class ErrorCalculator:
             background (np.ndarray): The background image.
             worm_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of worms. The bounding boxes should be in the format (x, y, w, h).
             mic_bboxes: A numpy array of shape (N, 4) representing the bounding boxes of the microscope. The bounding boxes should be in the format (x, y, w, h).
-            frame_nums (Collection[int]): The frame numbers to calculate the error for.
+            frame_nums (np.ndarray): An array of frame numbers to calculate the error for.
             worm_reader (FrameReader): A frame reader containing segmented worm images for each frame. These worm images should match the shape of the worm bounding boxes.
                 Frames passed in frame_nums are read from this reader by index.
             diff_thresh (float, optional): The difference threshold to distinguish foreground and background objects from.
@@ -90,7 +89,18 @@ class ErrorCalculator:
             AssertionError: If the length of frame_nums, worm_bboxes, and mic_bboxes do not match.
 
         """
+        assert frame_nums.ndim == 1
         assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]
+
+        errors = np.zeros(len(frame_nums), dtype=float)
+
+        has_preds = np.isfinite(worm_bboxes).all(axis=1)
+        errors[~has_preds] = 1.0
+
+        # filter out frames with no predictions
+        worm_bboxes = worm_bboxes[has_preds]
+        mic_bboxes = mic_bboxes[has_preds]
+        frame_nums = frame_nums[has_preds]
 
         worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
         mic_bboxes = BoxConverter.change_format(mic_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
@@ -103,10 +113,10 @@ class ErrorCalculator:
 
         # clip worm bounding boxes to the frame size
         H, W = background.shape[:2]
-        wrm_left = np.clip(wrm_left, a_min=0, a_max=W - 1)
-        wrm_top = np.clip(wrm_top, a_min=0, a_max=H - 1)
-        wrm_right = np.clip(wrm_right, a_min=0, a_max=W - 1)
-        wrm_bottom = np.clip(wrm_bottom, a_min=0, a_max=H - 1)
+        wrm_left = np.clip(wrm_left, a_min=0, a_max=W)
+        wrm_top = np.clip(wrm_top, a_min=0, a_max=H)
+        wrm_right = np.clip(wrm_right, a_min=0, a_max=W)
+        wrm_bottom = np.clip(wrm_bottom, a_min=0, a_max=H)
 
         worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)
 
@@ -126,15 +136,9 @@ class ErrorCalculator:
         int_bboxes = BoxUtils.pack(int_left, int_top, int_width, int_height)
         int_bboxes = BoxConverter.change_format(int_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
 
-        errors = np.zeros(len(frame_nums), dtype=float)
-
         for i, frame_num in tqdm(enumerate(frame_nums), total=len(frame_nums), desc="Calculating Error", unit="fr"):
             wrm_bbox = worm_bboxes[i]
             int_bbox = int_bboxes[i]
-
-            if np.isfinite(wrm_bbox).all() == False:
-                errors[i] = 1
-                continue
 
             worm_view = worm_reader[frame_num]
 
