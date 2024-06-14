@@ -15,11 +15,11 @@ def adjust_num_workers(num_tasks: int, chunk_size: int, num_workers: int = None)
         num_workers (int, optional): The number of workers to use for parallel processing.
             If None, the number of workers is determined automatically.
     """
-    use_multiprocessing = num_workers > 0
-
     if num_workers is None:  # if None then choose automatically
         num_workers = min(multiprocessing.cpu_count() / 2, num_tasks / (2 * chunk_size))
         num_workers = round(num_workers)
+
+    use_multiprocessing = num_workers > 0
 
     num_workers = min(num_workers, num_tasks // chunk_size)  # no point having workers without tasks
     num_workers = min(num_workers, multiprocessing.cpu_count())  # no point having more workers than cpus
