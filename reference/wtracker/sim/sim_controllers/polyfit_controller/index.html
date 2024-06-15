@@ -1573,337 +1573,359 @@
 <h1 id="module-wtrackersimsim_controllerspolyfit_controller">Module wtracker.sim.sim_controllers.polyfit_controller</h1>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">dataclass</span>
 
-<span class="kn">import</span> <span class="nn">numpy.polynomial.polynomial</span> <span class="k">as</span> <span class="nn">poly</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.polynomial.polynomial</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">poly</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.sim.config</span> <span class="kn">import</span> <span class="n">TimingConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.sim.config</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">TimingConfig</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.sim.simulator</span> <span class="kn">import</span> <span class="n">Simulator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.sim.simulator</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">Simulator</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.sim.sim_controllers.csv_controller</span> <span class="kn">import</span> <span class="n">CsvController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.sim.sim_controllers.csv_controller</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">CsvController</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.bbox_utils</span> <span class="kn">import</span> <span class="n">BoxUtils</span><span class="p">,</span> <span class="n">BoxConverter</span><span class="p">,</span> <span class="n">BoxFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.bbox_utils</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">,</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.config_base</span> <span class="kn">import</span> <span class="n">ConfigBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.config_base</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">ConfigBase</span>
 
 <span class="nd">@dataclass</span>
 
-<span class="k">class</span> <span class="nc">PolyfitConfig</span><span class="p">(</span><span class="n">ConfigBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PolyfitConfig</span><span class="p">(</span><span class="n">ConfigBase</span><span class="p">):</span>
 
-    <span class="n">degree</span><span class="p">:</span> <span class="nb">int</span>
+<span class="w">    </span><span class="n">degree</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The degree of the polynomial, which will be fitted to the worm movement.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;The degree of the polynomial, which will be fitted to the worm movement.&quot;&quot;&quot;</span>
 
-    <span class="n">sample_times</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+<span class="w">    </span><span class="n">sample_times</span><span class="p">:</span><span class="w"> </span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Times at which the worm position is be sampled for the polynomial fit.</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;Times at which the worm position is be sampled for the polynomial fit.</span>
 
-<span class="sd">    Time 0 denotes the beginning of the current cycle. Negative values are allowed.&quot;&quot;&quot;</span>
+<span class="s2">    Time 0 denotes the beginning of the current cycle. Negative values are allowed.&quot;&quot;&quot;</span>
 
-    <span class="n">weights</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="n">weights</span><span class="p">:</span><span class="w"> </span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">None</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Weights for each position sample for the polynomial fit. If None, all weights are set to 1.0.</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;Weights for each position sample for the polynomial fit. If None, all weights are set to 1.0.</span>
 
-<span class="sd">    If the weights are not uniform, weighted polynomial fit is performed,</span>
+<span class="s2">    If the weights are not uniform, weighted polynomial fit is performed,</span>
 
-<span class="sd">    where the residuals of samples with higher weights are more important for the fitting.&quot;&quot;&quot;</span>
+<span class="s2">    where the residuals of samples with higher weights are more important for the fitting.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_times</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_times</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">sample_times</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_times</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_times</span><span class="p">]</span>
+<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1.0</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">sample_times</span><span class="p">]</span>
 
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_times</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_times</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">PolyfitController</span><span class="p">(</span><span class="n">CsvController</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PolyfitController</span><span class="p">(</span><span class="n">CsvController</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">,</span>
+<span class="w">        </span><span class="n">timing_config</span><span class="p">:</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">,</span>
 
-        <span class="n">polyfit_config</span><span class="p">:</span> <span class="n">PolyfitConfig</span><span class="p">,</span>
+<span class="w">        </span><span class="n">polyfit_config</span><span class="p">:</span><span class="w"> </span><span class="n">PolyfitConfig</span><span class="p">,</span>
 
-        <span class="n">csv_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="w">        </span><span class="n">csv_path</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span><span class="p">,</span>
 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            timing_config (TimingConfig): The timing configuration of the simulation.</span>
+<span class="s2">            timing_config (TimingConfig): The timing configuration of the simulation.</span>
 
-<span class="sd">            csv_path (str): The path to the csv file with the worm data.</span>
+<span class="s2">            csv_path (str): The path to the csv file with the worm data.</span>
 
-<span class="sd">            polyfit_config (PolyfitConfig): The configuration for the polynomial fit.</span>
+<span class="s2">            polyfit_config (PolyfitConfig): The configuration for the polynomial fit.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">timing_config</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">timing_config</span><span class="p">,</span><span class="w"> </span><span class="n">csv_path</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">polyfit_config</span> <span class="o">=</span> <span class="n">polyfit_config</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">polyfit_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">polyfit_config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">asanyarray</span><span class="p">(</span><span class="n">polyfit_config</span><span class="o">.</span><span class="n">sample_times</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_sample_times</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">polyfit_config</span><span class="o">.</span><span class="n">sample_times</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">asanyarray</span><span class="p">(</span><span class="n">polyfit_config</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">polyfit_config</span><span class="o">.</span><span class="n">weights</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-        <span class="n">timing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span>
+<span class="w">        </span><span class="n">timing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span>
 
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polyfit_config</span>
+<span class="w">        </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">polyfit_config</span>
 
-        <span class="n">bboxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">cycle_number</span> <span class="o">*</span> <span class="n">timing</span><span class="o">.</span><span class="n">cycle_frame_num</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_times</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">        </span><span class="n">bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">cycle_number</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">timing</span><span class="o">.</span><span class="n">cycle_frame_num</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_sample_times</span><span class="p">,</span><span class="w"> </span><span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="c1"># make all bboxes relative to current camera view</span>
+<span class="w">        </span><span class="c1"># make all bboxes relative to current camera view</span>
 
-        <span class="n">camera_bbox</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">camera_position</span>
+<span class="w">        </span><span class="n">camera_bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">camera_position</span>
 
-        <span class="n">bboxes</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">camera_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="n">bboxes</span><span class="p">[:,</span><span class="w"> </span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">camera_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">bboxes</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">camera_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">        </span><span class="n">bboxes</span><span class="p">[:,</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-=</span><span class="w"> </span><span class="n">camera_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">bboxes</span><span class="p">)</span>
+<span class="w">        </span><span class="n">positions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">bboxes</span><span class="p">)</span>
 
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">isfinite</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span><span class="o">.</span><span class="kp">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_times</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="w">        </span><span class="n">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_sample_times</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
 
-        <span class="n">positions</span> <span class="o">=</span> <span class="n">positions</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="w">        </span><span class="n">positions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">positions</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
 
-        <span class="n">weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="w">        </span><span class="n">weights</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">time</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
 
-            <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
 
-        <span class="c1"># predict future x and future y based on the fitted polynomial</span>
+<span class="w">        </span><span class="c1"># predict future x and future y based on the fitted polynomial</span>
 
-        <span class="n">coeffs</span> <span class="o">=</span> <span class="kp">poly</span><span class="o">.</span><span class="kp">polyfit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">deg</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poly</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="n">positions</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">degree</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
 
-        <span class="n">x_pred</span><span class="p">,</span> <span class="n">y_pred</span> <span class="o">=</span> <span class="kp">poly</span><span class="o">.</span><span class="kp">polyval</span><span class="p">(</span><span class="n">timing</span><span class="o">.</span><span class="n">cycle_frame_num</span> <span class="o">+</span> <span class="n">timing</span><span class="o">.</span><span class="n">imaging_frame_num</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x_pred</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poly</span><span class="o">.</span><span class="n">polyval</span><span class="p">(</span><span class="n">timing</span><span class="o">.</span><span class="n">cycle_frame_num</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">timing</span><span class="o">.</span><span class="n">imaging_frame_num</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">coeffs</span><span class="p">)</span>
 
-        <span class="c1"># calculate camera correction based on the speed of the worm and current worm position</span>
+<span class="w">        </span><span class="c1"># calculate camera correction based on the speed of the worm and current worm position</span>
 
-        <span class="n">camera_mid</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">camera_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="n">dx</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">x_pred</span> <span class="o">-</span> <span class="n">camera_mid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="w">        </span><span class="n">dx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">x_pred</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">camera_mid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="n">dy</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">y_pred</span> <span class="o">-</span> <span class="n">camera_mid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">        </span><span class="n">dy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">y_pred</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">camera_mid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">dy</span>
 
-<span class="k">class</span> <span class="nc">WeightEvaluator</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WeightEvaluator</span><span class="p">:</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    Class for evaluating the mean absolute error (MAE) of a polynomial fit with given weights.</span>
+<span class="s2">    Class for evaluating the mean absolute error (MAE) of a polynomial fit with given weights.</span>
 
-<span class="sd">    Args:</span>
+<span class="s2">    Args:</span>
 
-<span class="sd">        csv_paths (list[str]): The paths to the csv files with the worm data.</span>
+<span class="s2">        csv_paths (list[str]): The paths to the csv files with the worm data.</span>
 
-<span class="sd">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
+<span class="s2">        timing_config (TimingConfig): The timing configuration of the simulation.</span>
 
-<span class="sd">        input_time_offsets (np.ndarray): The time offsets for the input positions.</span>
+<span class="s2">        input_time_offsets (np.ndarray): The time offsets for the input positions.</span>
 
-<span class="sd">            These offsets are calculated from the beginning of the current cycle.</span>
+<span class="s2">            These offsets are calculated from the beginning of the current cycle.</span>
 
-<span class="sd">            The begging of the current cycle is considered as time 0.</span>
+<span class="s2">            The begging of the current cycle is considered as time 0.</span>
 
-<span class="sd">        pred_time_offset (int): The time offset for the target position from the beginning of the current cycle.</span>
+<span class="s2">        pred_time_offset (int): The time offset for the target position from the beginning of the current cycle.</span>
 
-<span class="sd">            This time offset is calculated from the beginning of the current cycle.</span>
+<span class="s2">            This time offset is calculated from the beginning of the current cycle.</span>
 
-<span class="sd">            The begging of the current cycle is considered as time 0.</span>
+<span class="s2">            The begging of the current cycle is considered as time 0.</span>
 
-<span class="sd">        min_speed (float, optional): The minimum speed of the worm for a cycle to be considered.</span>
+<span class="s2">        min_speed (float, optional): The minimum speed of the worm for a cycle to be considered.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">        max_speed (float, optional): The maximum speed of the worm for a cycle to be considered.</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="n">csv_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">,</span>
+<span class="w">        </span><span class="n">csv_paths</span><span class="p">:</span><span class="w"> </span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 
-        <span class="n">input_time_offsets</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="w">        </span><span class="n">timing_config</span><span class="p">:</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">,</span>
 
-        <span class="n">pred_time_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="w">        </span><span class="n">input_time_offsets</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-        <span class="n">min_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="n">pred_time_offset</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span>
 
-    <span class="p">):</span>
+<span class="w">        </span><span class="n">min_speed</span><span class="p">:</span><span class="w"> </span><span class="nb">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">csv_paths</span> <span class="o">=</span> <span class="n">csv_paths</span>
+<span class="w">        </span><span class="n">max_speed</span><span class="p">:</span><span class="w"> </span><span class="nb">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span> <span class="o">=</span> <span class="n">timing_config</span>
+<span class="w">    </span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">pred_time_offset</span> <span class="o">=</span> <span class="n">pred_time_offset</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">csv_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">csv_paths</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_speed</span> <span class="o">=</span> <span class="n">min_speed</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timing_config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">sort</span><span class="p">(</span><span class="n">input_time_offsets</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">pred_time_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pred_time_offset</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_construct_dataset</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">min_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min_speed</span>
 
-    <span class="k">def</span> <span class="nf">_construct_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">max_speed</span>
 
-        <span class="n">input_positions</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">input_time_offsets</span><span class="p">)</span>
 
-        <span class="n">target_positions</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_construct_dataset</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">csv_paths</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_construct_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-            <span class="n">bboxes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;wrm_x&quot;</span><span class="p">,</span> <span class="s2">&quot;wrm_y&quot;</span><span class="p">,</span> <span class="s2">&quot;wrm_w&quot;</span><span class="p">,</span> <span class="s2">&quot;wrm_h&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="kp">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+<span class="w">        </span><span class="n">input_positions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
 
-            <span class="n">input_pos</span><span class="p">,</span> <span class="n">target_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_positions</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span><span class="p">)</span>
+<span class="w">        </span><span class="n">target_positions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
 
-            <span class="n">input_positions</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">input_pos</span><span class="p">)</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">csv_paths</span><span class="p">):</span>
 
-            <span class="n">target_positions</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span>
+<span class="w">            </span><span class="n">bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;wrm_x&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;wrm_y&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;wrm_w&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;wrm_h&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">y_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">concatenate</span><span class="p">(</span><span class="n">input_positions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="n">input_pos</span><span class="p">,</span><span class="w"> </span><span class="n">target_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_extract_positions</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">y_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">concatenate</span><span class="p">(</span><span class="n">target_positions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">            </span><span class="n">input_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">input_pos</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">x_input</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="n">target_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">x_target</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_time_offset</span><span class="p">)</span>
+<span class="w">            </span><span class="c1"># print stats</span>
 
-    <span class="k">def</span> <span class="nf">_extract_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_bboxes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cycle_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">            </span><span class="n">init_num_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">bboxes</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
 
-        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">            </span><span class="n">final_num_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="n">cycle_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">raw_bboxes</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cycle_length</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="w">            </span><span class="n">removed_percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">round</span><span class="p">((</span><span class="n">init_num_cycles</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">final_num_cycles</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">init_num_cycles</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">centers</span> <span class="o">=</span> <span class="n">BoxUtils</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">raw_bboxes</span><span class="p">)</span>
+<span class="w">            </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> :: Number of evaluation cycles: </span><span class="si">{</span><span class="n">final_num_cycles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># x are times, y are positions</span>
+<span class="w">            </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> :: Number of cycles removed: </span><span class="si">{</span><span class="n">init_num_cycles</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">final_num_cycles</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">removed_percent</span><span class="si">}</span><span class="s2"> %)&quot;</span><span class="p">)</span>
 
-        <span class="c1"># create input and target arrays for the times</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">input_positions</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">x_input</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">repeat</span><span class="p">(</span><span class="n">cycle_starts</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="kp">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="n">cycle_starts</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">x_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">x_input</span> <span class="o">=</span> <span class="n">x_input</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">target_positions</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">x_target</span> <span class="o">=</span> <span class="n">cycle_starts</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_time_offset</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">x_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_target</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">pred_time_offset</span><span class="p">)</span>
 
-        <span class="c1"># remove input and target cycles with invalid time</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_extract_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">raw_bboxes</span><span class="p">:</span><span class="w"> </span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span><span class="w"> </span><span class="n">cycle_length</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 
-        <span class="c1"># i.e. when input time is negative or target time is out of bounds</span>
+<span class="w">        </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_input</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="kp">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x_target</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">))</span>
+<span class="w">        </span><span class="n">cycle_starts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">raw_bboxes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">cycle_length</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
-        <span class="n">x_input</span> <span class="o">=</span> <span class="n">x_input</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:]</span>
+<span class="w">        </span><span class="n">centers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxUtils</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="n">raw_bboxes</span><span class="p">)</span>
 
-        <span class="n">x_target</span> <span class="o">=</span> <span class="n">x_target</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="w">        </span><span class="c1"># x are times, y are positions</span>
 
-        <span class="c1"># get input and target positions for each cycle</span>
+<span class="w">        </span><span class="c1"># create input and target arrays for the times</span>
 
-        <span class="n">y_input</span> <span class="o">=</span> <span class="n">centers</span><span class="p">[</span><span class="n">x_input</span><span class="o">.</span><span class="kp">flatten</span><span class="p">(),</span> <span class="p">:]</span>
+<span class="w">        </span><span class="n">x_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">cycle_starts</span><span class="p">,</span><span class="w"> </span><span class="n">repeats</span><span class="o">=</span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="p">,</span><span class="w"> </span><span class="n">reps</span><span class="o">=</span><span class="n">cycle_starts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="n">y_input</span> <span class="o">=</span> <span class="n">y_input</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_input</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">)</span>
 
-        <span class="n">y_target</span> <span class="o">=</span> <span class="n">centers</span><span class="p">[</span><span class="n">x_target</span><span class="o">.</span><span class="kp">flatten</span><span class="p">(),</span> <span class="p">:]</span>
+<span class="w">        </span><span class="n">x_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cycle_starts</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">pred_time_offset</span>
 
-        <span class="n">y_target</span> <span class="o">=</span> <span class="n">y_target</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="w">        </span><span class="c1"># remove input and target cycles with invalid time</span>
 
-        <span class="c1"># remove all cycles with invalid positions</span>
+<span class="w">        </span><span class="c1"># i.e. when input time is negative or target time is out of bounds</span>
 
-        <span class="n">input_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">isfinite</span><span class="p">(</span><span class="n">y_input</span><span class="p">)</span><span class="o">.</span><span class="kp">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="w">        </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">x_input</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">x_target</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">centers</span><span class="p">))</span>
 
-        <span class="n">target_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">isfinite</span><span class="p">(</span><span class="n">y_target</span><span class="p">)</span><span class="o">.</span><span class="kp">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_input</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="p">:]</span>
 
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">input_mask</span> <span class="o">&amp;</span> <span class="n">target_mask</span>
+<span class="w">        </span><span class="n">x_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_target</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
 
-        <span class="n">y_input</span> <span class="o">=</span> <span class="n">y_input</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+<span class="w">        </span><span class="c1"># get input and target positions for each cycle</span>
 
-        <span class="n">y_target</span> <span class="o">=</span> <span class="n">y_target</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="p">:]</span>
+<span class="w">        </span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">centers</span><span class="p">[</span><span class="n">x_input</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="w"> </span><span class="p">:]</span>
 
-        <span class="c1"># remove cycles with average speed below threshold</span>
+<span class="w">        </span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_input</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">sqrt</span><span class="p">((</span><span class="n">y_target</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_input</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y_target</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_input</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="w">        </span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">centers</span><span class="p">[</span><span class="n">x_target</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span><span class="w"> </span><span class="p">:]</span>
 
-        <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_time_offset</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_target</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="n">speed_mask</span> <span class="o">=</span> <span class="n">dist</span> <span class="o">/</span> <span class="n">time</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_speed</span>
+<span class="w">        </span><span class="c1"># remove all cycles with invalid positions</span>
 
-        <span class="n">y_input</span> <span class="o">=</span> <span class="n">y_input</span><span class="p">[</span><span class="n">speed_mask</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+<span class="w">        </span><span class="n">input_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_input</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span>
 
-        <span class="n">y_target</span> <span class="o">=</span> <span class="n">y_target</span><span class="p">[</span><span class="n">speed_mask</span><span class="p">,</span> <span class="p">:]</span>
+<span class="w">        </span><span class="n">target_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_target</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="c1"># reshape target arrays</span>
+<span class="w">        </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">input_mask</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">target_mask</span>
 
-        <span class="n">y_input</span> <span class="o">=</span> <span class="n">y_input</span><span class="o">.</span><span class="kp">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_input</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="p">:]</span>
 
-        <span class="n">y_target</span> <span class="o">=</span> <span class="n">y_target</span><span class="o">.</span><span class="kp">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_target</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="p">:]</span>
 
-        <span class="k">return</span> <span class="n">y_input</span><span class="p">,</span> <span class="n">y_target</span>
+<span class="w">        </span><span class="c1"># remove cycles with average speed below threshold</span>
 
-    <span class="k">def</span> <span class="nf">_polyval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeffs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># dist = np.sqrt((y_target[:, 1] - y_input[:, 0, 1]) ** 2 + (y_target[:, 0] - y_input[:, 0, 0]) ** 2)</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">dist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y_target</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_input</span><span class="p">[:,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">:],</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="sd">        Evaluate a polynomial at given values.</span>
+<span class="w">        </span><span class="n">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">pred_time_offset</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">input_time_offsets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="sd">        This implementation is way faster than np.polyval for multiple polynomials.</span>
+<span class="w">        </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dist</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">time</span>
 
-<span class="sd">        Args:</span>
+<span class="w">        </span><span class="n">speed_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">speed</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">min_speed</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">speed</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">max_speed</span><span class="p">)</span>
 
-<span class="sd">            coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at increasing order. Should have shape [deg+1, N].</span>
+<span class="w">        </span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_input</span><span class="p">[</span><span class="n">speed_mask</span><span class="p">,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="p">:]</span>
 
-<span class="sd">            x (np.ndarray): Values at which to evaluate the polynomial. Should have shape [N].</span>
+<span class="w">        </span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_target</span><span class="p">[</span><span class="n">speed_mask</span><span class="p">,</span><span class="w"> </span><span class="p">:]</span>
 
-<span class="sd">        Returns:</span>
+<span class="w">        </span><span class="c1"># reshape target arrays</span>
 
-<span class="sd">            np.ndarray: The result of evaluating the polynomial at the given values. Shape is [N].</span>
+<span class="w">        </span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_input</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_target</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">coeffs</span> <span class="o">=</span> <span class="n">coeffs</span><span class="o">.</span><span class="kp">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">y_input</span><span class="p">,</span><span class="w"> </span><span class="n">y_target</span>
 
-        <span class="n">van</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">vander</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">coeffs</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">increasing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_polyval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">coeffs</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">van</span> <span class="o">*</span> <span class="n">coeffs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">deg</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="s2">        Evaluate a polynomial at given values.</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="s2">        This implementation is way faster than np.polyval for multiple polynomials.</span>
 
-<span class="sd">        Evaluate the mean absolute error (MAE) of the polynomial fit.</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">            coeffs (np.ndarray): Coefficients of the polynomial. Coefficients at increasing order. Should have shape [deg+1, N].</span>
 
-<span class="sd">            weights (np.ndarray): The weights used for the polynomial fit. Should have shape [N].</span>
+<span class="s2">            x (np.ndarray): Values at which to evaluate the polynomial. Should have shape [N].</span>
 
-<span class="sd">            deg (int, optional): The degree of the polynomial fit.</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">            np.ndarray: The result of evaluating the polynomial at the given values. Shape is [N].</span>
 
-<span class="sd">            float: The mean absolute error (MAE) of the polynomial fit.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">coeffs</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">coeffs</span> <span class="o">=</span> <span class="kp">poly</span><span class="o">.</span><span class="kp">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_input</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_input</span><span class="p">,</span> <span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="w">        </span><span class="n">van</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">vander</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">=</span><span class="n">coeffs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">increasing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_target</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">van</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">coeffs</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="kp">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_target</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">))</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">weights</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">float</span><span class="p">:</span>
 
-        <span class="k">return</span> <span class="n">mae</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">        Evaluate the mean absolute error (MAE) of the polynomial fit.</span>
+
+<span class="s2">        Args:</span>
+
+<span class="s2">            weights (np.ndarray): The weights used for the polynomial fit. Should have shape [N].</span>
+
+<span class="s2">            deg (int, optional): The degree of the polynomial fit.</span>
+
+<span class="s2">        Returns:</span>
+
+<span class="s2">            float: The mean absolute error (MAE) of the polynomial fit.</span>
+
+<span class="s2">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">coeffs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">poly</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x_input</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">y_input</span><span class="p">,</span><span class="w"> </span><span class="n">deg</span><span class="o">=</span><span class="n">deg</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">y_pred</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_polyval</span><span class="p">(</span><span class="n">coeffs</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">x_target</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">mae</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_target</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_pred</span><span class="p">))</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">mae</span>
 </code></pre></div>
 
 </details>
@@ -2705,7 +2727,8 @@
     <span class="n">timing_config</span><span class="p">:</span> <span class="n">wtracker</span><span class="o">.</span><span class="n">sim</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">TimingConfig</span><span class="p">,</span>
     <span class="n">input_time_offsets</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">pred_time_offset</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">min_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">min_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">max_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">inf</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -2751,6 +2774,12 @@
 <td>The minimum speed of the worm for a cycle to be considered.</td>
 <td>None</td>
 </tr>
+<tr>
+<td>max_speed</td>
+<td>float</td>
+<td>The maximum speed of the worm for a cycle to be considered.</td>
+<td>None</td>
+</tr>
 </tbody>
 </table>
 <details class="example">
@@ -2781,6 +2810,8 @@
 
 <span class="ss">        min_speed (float, optional): The minimum speed of the worm for a cycle to be considered.</span>
 
+<span class="ss">        max_speed (float, optional): The maximum speed of the worm for a cycle to be considered.</span>
+
 <span class="ss">    &quot;&quot;&quot;</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span>
@@ -2797,6 +2828,8 @@
 
 <span class="w">        </span><span class="nl">min_speed</span><span class="p">:</span><span class="w"> </span><span class="nc">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
 
+<span class="w">        </span><span class="nl">max_speed</span><span class="p">:</span><span class="w"> </span><span class="nc">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">inf</span><span class="p">,</span>
+
 <span class="w">    </span><span class="p">)</span><span class="err">:</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">csv_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">csv_paths</span>
@@ -2806,6 +2839,8 @@
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">pred_time_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pred_time_offset</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">min_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">min_speed</span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">max_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">max_speed</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">input_time_offsets</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">sort</span><span class="p">(</span><span class="n">input_time_offsets</span><span class="p">)</span>
 
@@ -2817,7 +2852,7 @@
 
 <span class="w">        </span><span class="n">target_positions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">[]</span>
 
-<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="k">path</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">csv_paths</span><span class="p">:</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="k">path</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">enumerate</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">csv_paths</span><span class="p">)</span><span class="err">:</span>
 
 <span class="w">            </span><span class="n">bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="k">path</span><span class="p">,</span><span class="w"> </span><span class="n">usecols</span><span class="o">=[</span><span class="n">&quot;wrm_x&quot;, &quot;wrm_y&quot;, &quot;wrm_w&quot;, &quot;wrm_h&quot;</span><span class="o">]</span><span class="p">).</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nc">float</span><span class="p">)</span>
 
@@ -2827,11 +2862,23 @@
 
 <span class="w">            </span><span class="n">target_positions</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span>
 
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="k">print</span><span class="w"> </span><span class="n">stats</span>
+
+<span class="w">            </span><span class="n">init_num_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">bboxes</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">timing_config</span><span class="p">.</span><span class="n">cycle_frame_num</span>
+
+<span class="w">            </span><span class="n">final_num_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span>
+
+<span class="w">            </span><span class="n">removed_percent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">round</span><span class="p">((</span><span class="n">init_num_cycles</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">final_num_cycles</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">init_num_cycles</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;Log {i} :: Number of evaluation cycles: {final_num_cycles}&quot;</span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="ss">&quot;Log {i} :: Number of cycles removed: {init_num_cycles - final_num_cycles} ({removed_percent} %)&quot;</span><span class="p">)</span>
+
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">input_positions</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">target_positions</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">x_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">input_time_offsets</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">y_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">target_positions</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">x_target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">y_target</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">pred_time_offset</span><span class="p">)</span>
 
@@ -2887,11 +2934,15 @@
 
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">remove</span><span class="w"> </span><span class="n">cycles</span><span class="w"> </span><span class="k">with</span><span class="w"> </span><span class="n">average</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="n">below</span><span class="w"> </span><span class="n">threshold</span>
 
-<span class="w">        </span><span class="n">dist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">((</span><span class="n">y_target</span><span class="o">[</span><span class="n">:, 1</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_input</span><span class="o">[</span><span class="n">:, 0, 1</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">y_target</span><span class="o">[</span><span class="n">:, 0</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_input</span><span class="o">[</span><span class="n">:, 0, 0</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">dist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">((</span><span class="n">y_target</span><span class="o">[</span><span class="n">:, 1</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_input</span><span class="o">[</span><span class="n">:, 0, 1</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">y_target</span><span class="o">[</span><span class="n">:, 0</span><span class="o">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_input</span><span class="o">[</span><span class="n">:, 0, 0</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+
+<span class="w">        </span><span class="n">dist</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">linalg</span><span class="p">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y_target</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y_input</span><span class="o">[</span><span class="n">:, 0, :</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 <span class="w">        </span><span class="nc">time</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">pred_time_offset</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">input_time_offsets</span><span class="o">[</span><span class="n">0</span><span class="o">]</span>
 
-<span class="w">        </span><span class="n">speed_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dist</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nc">time</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">min_speed</span>
+<span class="w">        </span><span class="n">speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dist</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nc">time</span>
+
+<span class="w">        </span><span class="n">speed_mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">speed</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">min_speed</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">speed</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">max_speed</span><span class="p">)</span>
 
 <span class="w">        </span><span class="n">y_input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_input</span><span class="o">[</span><span class="n">speed_mask, :, :</span><span class="o">]</span>
 

@@ -1519,169 +1519,169 @@
 <h1 id="module-wtrackersimsim_controllersyolo_controller">Module wtracker.sim.sim_controllers.yolo_controller</h1>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Any</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">Collection</span><span class="p">,</span><span class="w"> </span><span class="n">Any</span>
 
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">dataclass</span><span class="p">,</span><span class="w"> </span><span class="n">field</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cv</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">deque</span>
 
-<span class="kn">from</span> <span class="nn">ultralytics</span> <span class="kn">import</span> <span class="n">YOLO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ultralytics</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">YOLO</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.sim.simulator</span> <span class="kn">import</span> <span class="n">Simulator</span><span class="p">,</span> <span class="n">SimController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.sim.simulator</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">Simulator</span><span class="p">,</span><span class="w"> </span><span class="n">SimController</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.sim.config</span> <span class="kn">import</span> <span class="n">TimingConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.sim.config</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">TimingConfig</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.config_base</span> <span class="kn">import</span> <span class="n">ConfigBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.config_base</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">ConfigBase</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.bbox_utils</span> <span class="kn">import</span> <span class="n">BoxUtils</span><span class="p">,</span> <span class="n">BoxConverter</span><span class="p">,</span> <span class="n">BoxFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.bbox_utils</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">BoxUtils</span><span class="p">,</span><span class="w"> </span><span class="n">BoxConverter</span><span class="p">,</span><span class="w"> </span><span class="n">BoxFormat</span>
 
 <span class="nd">@dataclass</span>
 
-<span class="k">class</span> <span class="nc">YoloConfig</span><span class="p">(</span><span class="n">ConfigBase</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YoloConfig</span><span class="p">(</span><span class="n">ConfigBase</span><span class="p">):</span>
 
-    <span class="n">model_path</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="n">model_path</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The path to the pretrained YOLO weights file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;The path to the pretrained YOLO weights file.&quot;&quot;&quot;</span>
 
-    <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span>
+<span class="w">    </span><span class="n">device</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;cpu&quot;</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inference device for YOLO. Can be either &#39;cpu&#39; or &#39;cuda&#39;.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;Inference device for YOLO. Can be either &#39;cpu&#39; or &#39;cuda&#39;.&quot;&quot;&quot;</span>
 
-    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="w">    </span><span class="n">verbose</span><span class="p">:</span><span class="w"> </span><span class="nb">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">False</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Whether to print verbose output during YOLO inference.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;Whether to print verbose output during YOLO inference.&quot;&quot;&quot;</span>
 
-    <span class="n">pred_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+<span class="w">    </span><span class="n">pred_kwargs</span><span class="p">:</span><span class="w"> </span><span class="nb">dict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">field</span><span class="p">(</span>
 
-        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+<span class="w">        </span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 
-            <span class="s2">&quot;imgsz&quot;</span><span class="p">:</span> <span class="mi">384</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;imgsz&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">384</span><span class="p">,</span>
 
-            <span class="s2">&quot;conf&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;conf&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
 
-        <span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
 
-    <span class="p">)</span>
+<span class="w">    </span><span class="p">)</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Additional keyword arguments for the YOLO prediction method.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;Additional keyword arguments for the YOLO prediction method.&quot;&quot;&quot;</span>
 
-    <span class="n">model</span><span class="p">:</span> <span class="n">YOLO</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">YOLO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="w"> </span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="w"> </span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The YOLO model object.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;The YOLO model object.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">Any</span><span class="p">]:</span>
 
-        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="kp">copy</span><span class="p">()</span>
+<span class="w">        </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        <span class="k">del</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span>  <span class="c1"># we dont want to serialize the model</span>
+<span class="w">        </span><span class="k">del</span><span class="w"> </span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="w">  </span><span class="c1"># we dont want to serialize the model</span>
 
-        <span class="k">return</span> <span class="n">state</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">state</span>
 
-    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">YOLO</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">YOLO</span><span class="p">:</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">YOLO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">task</span><span class="o">=</span><span class="s2">&quot;detect&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">YOLO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span><span class="w"> </span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;detect&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">model</span>
 
-<span class="k">class</span> <span class="nc">YoloController</span><span class="p">(</span><span class="n">SimController</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">YoloController</span><span class="p">(</span><span class="n">SimController</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">,</span> <span class="n">yolo_config</span><span class="p">:</span> <span class="n">YoloConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">timing_config</span><span class="p">:</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">,</span><span class="w"> </span><span class="n">yolo_config</span><span class="p">:</span><span class="w"> </span><span class="n">YoloConfig</span><span class="p">):</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">timing_config</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">timing_config</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">yolo_config</span> <span class="o">=</span> <span class="n">yolo_config</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">yolo_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yolo_config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">yolo_config</span><span class="o">.</span><span class="n">load_model</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">yolo_config</span><span class="o">.</span><span class="n">load_model</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">on_sim_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_sim_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">on_camera_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_camera_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">camera_view</span><span class="p">())</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">camera_view</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">on_cycle_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_cycle_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frames</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">frames</span><span class="p">:</span><span class="w"> </span><span class="n">Collection</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span>
 
-        <span class="c1"># convert grayscale images to BGR because YOLO expects 3-channel images</span>
+<span class="w">        </span><span class="c1"># convert grayscale images to BGR because YOLO expects 3-channel images</span>
 
-        <span class="k">if</span> <span class="n">frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="kp">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">frames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
 
-            <span class="n">frames</span> <span class="o">=</span> <span class="p">[</span><span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">]</span>
+<span class="w">            </span><span class="n">frames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frames</span><span class="p">]</span>
 
-        <span class="c1"># predict bounding boxes and format results</span>
+<span class="w">        </span><span class="c1"># predict bounding boxes and format results</span>
 
-        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
 
-            <span class="kp">source</span><span class="o">=</span><span class="n">frames</span><span class="p">,</span>
+<span class="w">            </span><span class="n">source</span><span class="o">=</span><span class="n">frames</span><span class="p">,</span>
 
-            <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yolo_config</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+<span class="w">            </span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yolo_config</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
 
-            <span class="n">max_det</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="w">            </span><span class="n">max_det</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 
-            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yolo_config</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+<span class="w">            </span><span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">yolo_config</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
 
-            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">yolo_config</span><span class="o">.</span><span class="n">pred_kwargs</span><span class="p">,</span>
+<span class="w">            </span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">yolo_config</span><span class="o">.</span><span class="n">pred_kwargs</span><span class="p">,</span>
 
-        <span class="p">)</span>
+<span class="w">        </span><span class="p">)</span>
 
-        <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+<span class="w">        </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">res</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">results</span><span class="p">]</span>
 
-        <span class="n">bboxes</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">        </span><span class="n">bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">res</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">results</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">xyxy</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">xyxy</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
 
-                <span class="n">bboxes</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">([</span><span class="mi">4</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="kp">nan</span><span class="p">))</span>
+<span class="w">                </span><span class="n">bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">([</span><span class="mi">4</span><span class="p">],</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
 
-            <span class="k">else</span><span class="p">:</span>
+<span class="w">            </span><span class="k">else</span><span class="p">:</span>
 
-                <span class="n">bbox</span> <span class="o">=</span> <span class="n">BoxConverter</span><span class="o">.</span><span class="n">to_xywh</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">xyxy</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYXY</span><span class="p">)</span>
+<span class="w">                </span><span class="n">bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BoxConverter</span><span class="o">.</span><span class="n">to_xywh</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">boxes</span><span class="o">.</span><span class="n">xyxy</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">BoxFormat</span><span class="o">.</span><span class="n">XYXY</span><span class="p">)</span>
 
-                <span class="n">bboxes</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+<span class="w">                </span><span class="n">bboxes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">bboxes</span><span class="p">,</span><span class="w"> </span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">begin_movement_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">begin_movement_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">pred_frame_num</span><span class="p">]</span>
+<span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="p">[</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">pred_frame_num</span><span class="p">]</span>
 
-        <span class="n">bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">frame</span><span class="p">])</span>
+<span class="w">        </span><span class="n">bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">([</span><span class="n">frame</span><span class="p">])</span>
 
-        <span class="n">bbox</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="n">bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="kp">isfinite</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span><span class="o">.</span><span class="kp">all</span><span class="p">():</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
 
-            <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span>
 
-        <span class="n">bbox_mid</span> <span class="o">=</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">bbox_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="n">camera_mid</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">camera_mid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">bbox_mid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">camera_mid</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">round</span><span class="p">(</span><span class="n">bbox_mid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">camera_mid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">bbox_mid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">camera_mid</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="w"> </span><span class="nb">round</span><span class="p">(</span><span class="n">bbox_mid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">camera_mid</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">_cycle_predict_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_cycle_predict_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_frames</span><span class="p">)</span>
 </code></pre></div>
 
 </details>
@@ -2118,7 +2118,7 @@
 
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nf">convert</span><span class="w"> </span><span class="n">grayscale</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">BGR</span><span class="w"> </span><span class="n">because</span><span class="w"> </span><span class="n">YOLO</span><span class="w"> </span><span class="n">expects</span><span class="w"> </span><span class="mi">3</span><span class="o">-</span><span class="n">channel</span><span class="w"> </span><span class="n">images</span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">frames</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">frames</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">-1</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="err">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">frames</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="err">:</span>
 
 <span class="w">            </span><span class="n">frames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames</span><span class="o">]</span>
 
@@ -2424,7 +2424,7 @@
 
         # convert grayscale images to BGR because YOLO expects 3-channel images
 
-        if frames[0].ndim == 2 or frames[0].shape[-1] == 1:
+        if frames[0].ndim == 2:
 
             frames = [cv.cvtColor(frame, cv.COLOR_GRAY2BGR) for frame in frames]
 

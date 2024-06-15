@@ -4005,31 +4005,31 @@
 <h1 id="module-wtrackerneuralmlp">Module wtracker.neural.mlp</h1>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">nn</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">,</span><span class="w"> </span><span class="n">nn</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">Union</span><span class="p">,</span><span class="w"> </span><span class="n">Sequence</span>
 
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">defaultdict</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.neural.config</span> <span class="kn">import</span> <span class="n">IOConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.neural.config</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">IOConfig</span>
 
-<span class="n">ACTIVATIONS</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">ACTIVATIONS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 
-    <span class="s2">&quot;relu&quot;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;relu&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">,</span>
 
-    <span class="s2">&quot;tanh&quot;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Tanh</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tanh&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Tanh</span><span class="p">,</span>
 
-    <span class="s2">&quot;sigmoid&quot;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;sigmoid&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">,</span>
 
-    <span class="s2">&quot;softmax&quot;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;softmax&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Softmax</span><span class="p">,</span>
 
-    <span class="s2">&quot;logsoftmax&quot;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">LogSoftmax</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;logsoftmax&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">LogSoftmax</span><span class="p">,</span>
 
-    <span class="s2">&quot;lrelu&quot;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;lrelu&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">LeakyReLU</span><span class="p">,</span>
 
-    <span class="s2">&quot;none&quot;</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;none&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">,</span>
 
-    <span class="kc">None</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">,</span>
+<span class="w">    </span><span class="kc">None</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">,</span>
 
 <span class="p">}</span>
 
@@ -4037,275 +4037,275 @@
 
 <span class="c1"># activation_cls(**ACTIVATION_DEFAULT_KWARGS[name])</span>
 
-<span class="n">ACTIVATION_DEFAULT_KWARGS</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span>
+<span class="n">ACTIVATION_DEFAULT_KWARGS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">defaultdict</span><span class="p">(</span>
 
-    <span class="nb">dict</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">dict</span><span class="p">,</span>
 
-    <span class="p">{</span>
+<span class="w">    </span><span class="p">{</span>
 
-        <span class="c1">###</span>
+<span class="w">        </span><span class="c1">###</span>
 
-        <span class="s2">&quot;softmax&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="w">        </span><span class="s2">&quot;softmax&quot;</span><span class="p">:</span><span class="w"> </span><span class="nb">dict</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
 
-        <span class="s2">&quot;logsoftmax&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="w">        </span><span class="s2">&quot;logsoftmax&quot;</span><span class="p">:</span><span class="w"> </span><span class="nb">dict</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
 
-    <span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
 
 <span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">WormPredictor</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WormPredictor</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class</span>
+<span class="s2">    A class that represents neural network models that predict worm behavior. After a model is created from several layers or blocks, it is wrapped in this class</span>
 
-<span class="sd">    so that it can be distinguished from other models that don&#39;t predict worm behavior (for example the layers/blocks that make this model).</span>
+<span class="s2">    so that it can be distinguished from other models that don&#39;t predict worm behavior (for example the layers/blocks that make this model).</span>
 
-<span class="sd">    This class also holds the IOConfig object that is used to determine the input and output shapes of the model, and the specific frames it expects as input and output.</span>
+<span class="s2">    This class also holds the IOConfig object that is used to determine the input and output shapes of the model, and the specific frames it expects as input and output.</span>
 
-<span class="sd">    Attributes:</span>
+<span class="s2">    Attributes:</span>
 
-<span class="sd">        model: The neural network model that predicts worm behavior.</span>
+<span class="s2">        model: The neural network model that predicts worm behavior.</span>
 
-<span class="sd">        io_config: The IOConfig object of the model.</span>
+<span class="s2">        io_config: The IOConfig object of the model.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">io_config</span><span class="p">:</span> <span class="n">IOConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span><span class="w"> </span><span class="n">io_config</span><span class="p">:</span><span class="w"> </span><span class="n">IOConfig</span><span class="p">):</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">io_config</span><span class="p">:</span> <span class="n">IOConfig</span> <span class="o">=</span> <span class="n">io_config</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">io_config</span><span class="p">:</span><span class="w"> </span><span class="n">IOConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">io_config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span> <span class="o">=</span> <span class="n">model</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">:</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">MLPLayer</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MLPLayer</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    A single layer perceptron, that can hold a bach-norm and activation layers as well.</span>
+<span class="s2">    A single layer perceptron, that can hold a bach-norm and activation layers as well.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="n">in_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="w">        </span><span class="n">in_dim</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span>
 
-        <span class="n">out_dim</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="w">        </span><span class="n">out_dim</span><span class="p">:</span><span class="w"> </span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 
-        <span class="n">nonlin</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">],</span>
+<span class="w">        </span><span class="n">nonlin</span><span class="p">:</span><span class="w"> </span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">],</span>
 
-        <span class="n">batch_norm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="w">        </span><span class="n">batch_norm</span><span class="p">:</span><span class="w"> </span><span class="nb">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">True</span><span class="p">,</span>
 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">        </span><span class="n">layers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
 
-        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">))</span>
+<span class="w">        </span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span><span class="w"> </span><span class="n">out_dim</span><span class="p">))</span>
 
-        <span class="n">in_dim</span> <span class="o">=</span> <span class="n">out_dim</span>
+<span class="w">        </span><span class="n">in_dim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">out_dim</span>
 
-        <span class="k">if</span> <span class="n">batch_norm</span> <span class="ow">and</span> <span class="n">nonlin</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">batch_norm</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">nonlin</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">None</span><span class="p">]:</span>
 
-            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="n">out_dim</span><span class="p">))</span>
+<span class="w">            </span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="n">out_dim</span><span class="p">))</span>
 
-        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_activation</span><span class="p">(</span><span class="n">nonlin</span><span class="p">))</span>
+<span class="w">        </span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_make_activation</span><span class="p">(</span><span class="n">nonlin</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_layer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_make_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_make_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">act</span><span class="p">:</span><span class="w"> </span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">act</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">act</span><span class="p">,</span><span class="w"> </span><span class="nb">str</span><span class="p">):</span>
 
-            <span class="k">return</span> <span class="n">ACTIVATIONS</span><span class="p">[</span><span class="n">act</span><span class="p">](</span><span class="o">**</span><span class="n">ACTIVATION_DEFAULT_KWARGS</span><span class="p">[</span><span class="n">act</span><span class="p">])</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ACTIVATIONS</span><span class="p">[</span><span class="n">act</span><span class="p">](</span><span class="o">**</span><span class="n">ACTIVATION_DEFAULT_KWARGS</span><span class="p">[</span><span class="n">act</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">act</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">act</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="s2">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="s2">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_layer</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_layer</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 
-<span class="k">class</span> <span class="nc">MlpBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MlpBlock</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    A general-purpose MLP.</span>
+<span class="s2">    A general-purpose MLP.</span>
 
-<span class="sd">    Args:</span>
+<span class="s2">    Args:</span>
 
-<span class="sd">        in_dim: Input dimension.</span>
+<span class="s2">        in_dim: Input dimension.</span>
 
-<span class="sd">        dims: Hidden dimensions, including output dimension.</span>
+<span class="s2">        dims: Hidden dimensions, including output dimension.</span>
 
-<span class="sd">        nonlins: Non-linearities to apply after each one of the hidden</span>
+<span class="s2">        nonlins: Non-linearities to apply after each one of the hidden</span>
 
-<span class="sd">            dimensions.</span>
+<span class="s2">            dimensions.</span>
 
-<span class="sd">            Can be either a sequence of strings which are keys in the ACTIVATIONS</span>
+<span class="s2">            Can be either a sequence of strings which are keys in the ACTIVATIONS</span>
 
-<span class="sd">            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).</span>
+<span class="s2">            dict, or instances of nn.Module (e.g. an instance of nn.ReLU()).</span>
 
-<span class="sd">            Length should match &#39;dims&#39;.</span>
+<span class="s2">            Length should match &#39;dims&#39;.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="n">in_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="w">        </span><span class="n">in_dim</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span>
 
-        <span class="n">dims</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="w">        </span><span class="n">dims</span><span class="p">:</span><span class="w"> </span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 
-        <span class="n">nonlins</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]],</span>
+<span class="w">        </span><span class="n">nonlins</span><span class="p">:</span><span class="w"> </span><span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]],</span>
 
-        <span class="n">batch_norm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="w">        </span><span class="n">batch_norm</span><span class="p">:</span><span class="w"> </span><span class="nb">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">True</span><span class="p">,</span>
 
-    <span class="p">):</span>
+<span class="w">    </span><span class="p">):</span>
 
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonlins</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">nonlins</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">in_dim</span> <span class="o">=</span> <span class="n">in_dim</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">in_dim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">in_dim</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span> <span class="o">=</span> <span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">out_dim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dims</span> <span class="o">=</span> <span class="n">dims</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dims</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">nonlins</span> <span class="o">=</span> <span class="n">nonlins</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">nonlins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nonlins</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">        </span><span class="n">layers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">out_dim</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">):</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">out_dim</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">):</span>
 
-            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MLPLayer</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span> <span class="n">out_dim</span><span class="p">,</span> <span class="n">nonlins</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">batch_norm</span><span class="p">))</span>
+<span class="w">            </span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MLPLayer</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span><span class="w"> </span><span class="n">out_dim</span><span class="p">,</span><span class="w"> </span><span class="n">nonlins</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">batch_norm</span><span class="p">))</span>
 
-            <span class="n">in_dim</span> <span class="o">=</span> <span class="n">out_dim</span>
+<span class="w">            </span><span class="n">in_dim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">out_dim</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">sequence</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_make_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_make_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">act</span><span class="p">:</span><span class="w"> </span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">act</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">act</span><span class="p">,</span><span class="w"> </span><span class="nb">str</span><span class="p">):</span>
 
-            <span class="k">return</span> <span class="n">ACTIVATIONS</span><span class="p">[</span><span class="n">act</span><span class="p">](</span><span class="o">**</span><span class="n">ACTIVATION_DEFAULT_KWARGS</span><span class="p">[</span><span class="n">act</span><span class="p">])</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ACTIVATIONS</span><span class="p">[</span><span class="n">act</span><span class="p">](</span><span class="o">**</span><span class="n">ACTIVATION_DEFAULT_KWARGS</span><span class="p">[</span><span class="n">act</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">act</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">act</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="s2">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="s2">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">sequence</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 
-<span class="k">class</span> <span class="nc">RMLP</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RMLP</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="n">block_in_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="w">        </span><span class="n">block_in_dim</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span>
 
-        <span class="n">block_dims</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="w">        </span><span class="n">block_dims</span><span class="p">:</span><span class="w"> </span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 
-        <span class="n">block_nonlins</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]],</span>
+<span class="w">        </span><span class="n">block_nonlins</span><span class="p">:</span><span class="w"> </span><span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">]],</span>
 
-        <span class="n">n_blocks</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="w">        </span><span class="n">n_blocks</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span>
 
-        <span class="n">out_dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="w">        </span><span class="n">out_dim</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span>
 
-        <span class="n">in_dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># if in_dim is an int, then a first layer will be made</span>
+<span class="w">        </span><span class="n">in_dim</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">None</span><span class="p">,</span><span class="w">  </span><span class="c1"># if in_dim is an int, then a first layer will be made</span>
 
-        <span class="n">batch_norm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="w">        </span><span class="n">batch_norm</span><span class="p">:</span><span class="w"> </span><span class="nb">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">True</span><span class="p">,</span>
 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="c1"># Create first layer if in_dim is not None</span>
+<span class="w">        </span><span class="c1"># Create first layer if in_dim is not None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">in_dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">in_dim</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">MLPLayer</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span> <span class="n">block_in_dim</span><span class="p">,</span> <span class="n">block_nonlins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">batch_norm</span><span class="p">)</span>
+<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MLPLayer</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span><span class="w"> </span><span class="n">block_in_dim</span><span class="p">,</span><span class="w"> </span><span class="n">block_nonlins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">batch_norm</span><span class="p">)</span>
 
-        <span class="c1"># Create blocks</span>
+<span class="w">        </span><span class="c1"># Create blocks</span>
 
-        <span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">        </span><span class="n">layers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
 
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_blocks</span><span class="p">):</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="n">n_blocks</span><span class="p">):</span>
 
-            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MlpBlock</span><span class="p">(</span><span class="n">block_in_dim</span><span class="p">,</span> <span class="n">block_dims</span><span class="p">,</span> <span class="n">block_nonlins</span><span class="p">,</span> <span class="n">batch_norm</span><span class="p">))</span>
+<span class="w">            </span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MlpBlock</span><span class="p">(</span><span class="n">block_in_dim</span><span class="p">,</span><span class="w"> </span><span class="n">block_dims</span><span class="p">,</span><span class="w"> </span><span class="n">block_nonlins</span><span class="p">,</span><span class="w"> </span><span class="n">batch_norm</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
 
-        <span class="c1"># Create output layer</span>
+<span class="w">        </span><span class="c1"># Create output layer</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">block_dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">out_dim</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">block_dims</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">out_dim</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_make_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_make_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">act</span><span class="p">:</span><span class="w"> </span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">])</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">act</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">act</span><span class="p">,</span><span class="w"> </span><span class="nb">str</span><span class="p">):</span>
 
-            <span class="k">return</span> <span class="n">ACTIVATIONS</span><span class="p">[</span><span class="n">act</span><span class="p">](</span><span class="o">**</span><span class="n">ACTIVATION_DEFAULT_KWARGS</span><span class="p">[</span><span class="n">act</span><span class="p">])</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">ACTIVATIONS</span><span class="p">[</span><span class="n">act</span><span class="p">](</span><span class="o">**</span><span class="n">ACTIVATION_DEFAULT_KWARGS</span><span class="p">[</span><span class="n">act</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">act</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">act</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">Tensor</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
+<span class="s2">            x: An input tensor, of shape (N, D) containing N samples with D features.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
+<span class="s2">            An output tensor of shape (N, D_out) where D_out is the output dim.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">block</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
 
-            <span class="n">out</span> <span class="o">=</span> <span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">            </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">out</span>
+<span class="w">            </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">out</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 </code></pre></div>
 
 </details>
@@ -5785,7 +5785,8 @@ the keys of :attr:<code>state_dict</code> must exactly match the keys returned
 by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 <p>.. warning::
     If :attr:<code>assign</code> is <code>True</code> the optimizer must be created after
-    the call to :attr:<code>load_state_dict</code>.</p>
+    the call to :attr:<code>load_state_dict</code> unless
+    :func:<code>~torch.__future__.get_swap_module_params_on_conversion</code> is <code>True</code>.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -5812,7 +5813,7 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 <tr>
 <td>assign</td>
 <td>bool</td>
-<td>whether to assign items in the state<br>dictionary to their corresponding keys in the module instead<br>of copying them inplace into the module's current parameters and buffers.<br>When <code>False</code>, the properties of the tensors in the current<br>module are preserved while when <code>True</code>, the properties of the<br>Tensors in the state dict are preserved.<br>Default: <code>False</code></td>
+<td>When <code>False</code>, the properties of the tensors<br>in the current module are preserved while when <code>True</code>, the<br>properties of the Tensors in the state dict are preserved. The only<br>exception is the <code>requires_grad</code> field of :class:<code>~torch.nn.Parameter</code>s<br>for which the value from the module is preserved.<br>Default: <code>False</code></td>
 <td>None</td>
 </tr>
 </tbody>
@@ -5850,7 +5851,9 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s2">            If :attr:`assign` is ``True`` the optimizer must be created after</span>
 
-<span class="s2">            the call to :attr:`load_state_dict`.</span>
+<span class="s2">            the call to :attr:`load_state_dict` unless</span>
+
+<span class="s2">            :func:`~torch.__future__.get_swap_module_params_on_conversion` is ``True``.</span>
 
 <span class="s2">        Args:</span>
 
@@ -5864,17 +5867,15 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s2">                :meth:`~torch.nn.Module.state_dict` function. Default: ``True``</span>
 
-<span class="s2">            assign (bool, optional): whether to assign items in the state</span>
+<span class="s2">            assign (bool, optional): When ``False``, the properties of the tensors</span>
 
-<span class="s2">                dictionary to their corresponding keys in the module instead</span>
+<span class="s2">                in the current module are preserved while when ``True``, the</span>
 
-<span class="s2">                of copying them inplace into the module&#39;s current parameters and buffers.</span>
+<span class="s2">                properties of the Tensors in the state dict are preserved. The only</span>
 
-<span class="s2">                When ``False``, the properties of the tensors in the current</span>
+<span class="s2">                exception is the ``requires_grad`` field of :class:`~torch.nn.Parameter`s</span>
 
-<span class="s2">                module are preserved while when ``True``, the properties of the</span>
-
-<span class="s2">                Tensors in the state dict are preserved.</span>
+<span class="s2">                for which the value from the module is preserved.</span>
 
 <span class="s2">                Default: ``False``</span>
 
@@ -5938,7 +5939,7 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s s-Atom">                    child_state_dict = {k: v for k, v in local_state_dict.items() if k.startswith(child_prefix)}</span>
 
-<span class="s s-Atom">                    load(child, child_state_dict, child_prefix)</span>
+<span class="s s-Atom">                    load(child, child_state_dict, child_prefix)  # noqa: F821</span>
 
 <span class="s s-Atom">            # Note that the hook can modify missing_keys and unexpected_keys.</span>
 
@@ -7693,30 +7694,30 @@ clearing out both missing and unexpected keys will avoid an error.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<p>Register a pre-hook for the :meth:<code>~torch.nn.Module.load_state_dict</code> method.</p>
+<p>Register a pre-hook for the :meth:<code>~torch.nn.Module.state_dict</code> method.</p>
 <p>These hooks will be called with arguments: <code>self</code>, <code>prefix</code>,
 and <code>keep_vars</code> before calling <code>state_dict</code> on <code>self</code>. The registered
 hooks can be used to perform pre-processing before the <code>state_dict</code>
 call is made.</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register_state_dict_pre_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">hook</span><span class="p">):</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register_state_dict_pre_hook</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">hook</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Register a pre-hook for the :meth:`~torch.nn.Module.load_state_dict` method.</span>
+<span class="w">        </span><span class="n">r</span><span class="s2">&quot;</span><span class="se">&quot;&quot;</span><span class="s2">Register a pre-hook for the :meth:`~torch.nn.Module.state_dict` method.</span>
 
-<span class="sd">        These hooks will be called with arguments: ``self``, ``prefix``,</span>
+<span class="s2">        These hooks will be called with arguments: ``self``, ``prefix``,</span>
 
-<span class="sd">        and ``keep_vars`` before calling ``state_dict`` on ``self``. The registered</span>
+<span class="s2">        and ``keep_vars`` before calling ``state_dict`` on ``self``. The registered</span>
 
-<span class="sd">        hooks can be used to perform pre-processing before the ``state_dict``</span>
+<span class="s2">        hooks can be used to perform pre-processing before the ``state_dict``</span>
 
-<span class="sd">        call is made.</span>
+<span class="s2">        call is made.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        </span><span class="se">&quot;&quot;</span><span class="s2">&quot;</span>
 
-<span class="w">        </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hooks</span><span class="o">.</span><span class="n">RemovableHandle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">)</span>
+<span class="w">        </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hooks</span><span class="p">.</span><span class="n">RemovableHandle</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">)</span>
 
-<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">[</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hook</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_state_dict_pre_hooks</span><span class="err">[</span><span class="n">handle</span><span class="p">.</span><span class="n">id</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hook</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">handle</span>
 </code></pre></div>
@@ -7812,7 +7813,7 @@ or training parts of a model individually (e.g., GAN training).</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_extra_state</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">Any</span>
-<span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
 <p>Set extra state contained in the loaded <code>state_dict</code>.</p>
@@ -7820,7 +7821,7 @@ or training parts of a model individually (e.g., GAN training).</p>
 found within the <code>state_dict</code>. Implement this function and a corresponding</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">set</span><span class="n">_extra_state</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="o">:</span><span class="w"> </span><span class="k">Any</span><span class="p">)</span><span class="o">:</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">set</span><span class="n">_extra_state</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="o">:</span><span class="w"> </span><span class="k">Any</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="o">:</span>
 
 <span class="w">        </span><span class="s2">&quot;</span><span class="se">&quot;&quot;</span><span class="s2">Set extra state contained in the loaded `state_dict`.</span>
 
@@ -8321,13 +8322,47 @@ pinned memory to CUDA devices.</p>
 
 <span class="w">        </span><span class="n">def</span><span class="w"> </span><span class="k">convert</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">convert_to_format</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="o">:</span>
+<span class="w">            </span><span class="n">try</span><span class="o">:</span>
 
-<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">convert_to_format</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">                            </span><span class="n">non_blocking</span><span class="p">,</span><span class="w"> </span><span class="n">memory_format</span><span class="o">=</span><span class="n">convert_to_format</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span>
 
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">non_blocking</span><span class="p">)</span>
+<span class="w">                        </span><span class="n">device</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">non_blocking</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">memory_format</span><span class="o">=</span><span class="n">convert_to_format</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="p">)</span>
+
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span>
+
+<span class="w">                    </span><span class="n">device</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="n">non_blocking</span><span class="p">,</span>
+
+<span class="w">                </span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">except</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">e</span><span class="o">:</span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;Cannot copy out of meta tensor; no data!&quot;</span><span class="o">:</span>
+
+<span class="w">                    </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span>
+
+<span class="w">                        </span><span class="n">f</span><span class="s2">&quot;{e} Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() &quot;</span>
+
+<span class="w">                        </span><span class="n">f</span><span class="s2">&quot;when moving module from meta to a different device.&quot;</span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">None</span>
+
+<span class="w">                </span><span class="k">else</span><span class="o">:</span>
+
+<span class="w">                    </span><span class="n">raise</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_apply</span><span class="p">(</span><span class="k">convert</span><span class="p">)</span>
 </code></pre></div>
@@ -10241,7 +10276,8 @@ the keys of :attr:<code>state_dict</code> must exactly match the keys returned
 by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 <p>.. warning::
     If :attr:<code>assign</code> is <code>True</code> the optimizer must be created after
-    the call to :attr:<code>load_state_dict</code>.</p>
+    the call to :attr:<code>load_state_dict</code> unless
+    :func:<code>~torch.__future__.get_swap_module_params_on_conversion</code> is <code>True</code>.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -10268,7 +10304,7 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 <tr>
 <td>assign</td>
 <td>bool</td>
-<td>whether to assign items in the state<br>dictionary to their corresponding keys in the module instead<br>of copying them inplace into the module's current parameters and buffers.<br>When <code>False</code>, the properties of the tensors in the current<br>module are preserved while when <code>True</code>, the properties of the<br>Tensors in the state dict are preserved.<br>Default: <code>False</code></td>
+<td>When <code>False</code>, the properties of the tensors<br>in the current module are preserved while when <code>True</code>, the<br>properties of the Tensors in the state dict are preserved. The only<br>exception is the <code>requires_grad</code> field of :class:<code>~torch.nn.Parameter</code>s<br>for which the value from the module is preserved.<br>Default: <code>False</code></td>
 <td>None</td>
 </tr>
 </tbody>
@@ -10306,7 +10342,9 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s2">            If :attr:`assign` is ``True`` the optimizer must be created after</span>
 
-<span class="s2">            the call to :attr:`load_state_dict`.</span>
+<span class="s2">            the call to :attr:`load_state_dict` unless</span>
+
+<span class="s2">            :func:`~torch.__future__.get_swap_module_params_on_conversion` is ``True``.</span>
 
 <span class="s2">        Args:</span>
 
@@ -10320,17 +10358,15 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s2">                :meth:`~torch.nn.Module.state_dict` function. Default: ``True``</span>
 
-<span class="s2">            assign (bool, optional): whether to assign items in the state</span>
+<span class="s2">            assign (bool, optional): When ``False``, the properties of the tensors</span>
 
-<span class="s2">                dictionary to their corresponding keys in the module instead</span>
+<span class="s2">                in the current module are preserved while when ``True``, the</span>
 
-<span class="s2">                of copying them inplace into the module&#39;s current parameters and buffers.</span>
+<span class="s2">                properties of the Tensors in the state dict are preserved. The only</span>
 
-<span class="s2">                When ``False``, the properties of the tensors in the current</span>
+<span class="s2">                exception is the ``requires_grad`` field of :class:`~torch.nn.Parameter`s</span>
 
-<span class="s2">                module are preserved while when ``True``, the properties of the</span>
-
-<span class="s2">                Tensors in the state dict are preserved.</span>
+<span class="s2">                for which the value from the module is preserved.</span>
 
 <span class="s2">                Default: ``False``</span>
 
@@ -10394,7 +10430,7 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s s-Atom">                    child_state_dict = {k: v for k, v in local_state_dict.items() if k.startswith(child_prefix)}</span>
 
-<span class="s s-Atom">                    load(child, child_state_dict, child_prefix)</span>
+<span class="s s-Atom">                    load(child, child_state_dict, child_prefix)  # noqa: F821</span>
 
 <span class="s s-Atom">            # Note that the hook can modify missing_keys and unexpected_keys.</span>
 
@@ -12149,30 +12185,30 @@ clearing out both missing and unexpected keys will avoid an error.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<p>Register a pre-hook for the :meth:<code>~torch.nn.Module.load_state_dict</code> method.</p>
+<p>Register a pre-hook for the :meth:<code>~torch.nn.Module.state_dict</code> method.</p>
 <p>These hooks will be called with arguments: <code>self</code>, <code>prefix</code>,
 and <code>keep_vars</code> before calling <code>state_dict</code> on <code>self</code>. The registered
 hooks can be used to perform pre-processing before the <code>state_dict</code>
 call is made.</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register_state_dict_pre_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">hook</span><span class="p">):</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register_state_dict_pre_hook</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">hook</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Register a pre-hook for the :meth:`~torch.nn.Module.load_state_dict` method.</span>
+<span class="w">        </span><span class="n">r</span><span class="s2">&quot;</span><span class="se">&quot;&quot;</span><span class="s2">Register a pre-hook for the :meth:`~torch.nn.Module.state_dict` method.</span>
 
-<span class="sd">        These hooks will be called with arguments: ``self``, ``prefix``,</span>
+<span class="s2">        These hooks will be called with arguments: ``self``, ``prefix``,</span>
 
-<span class="sd">        and ``keep_vars`` before calling ``state_dict`` on ``self``. The registered</span>
+<span class="s2">        and ``keep_vars`` before calling ``state_dict`` on ``self``. The registered</span>
 
-<span class="sd">        hooks can be used to perform pre-processing before the ``state_dict``</span>
+<span class="s2">        hooks can be used to perform pre-processing before the ``state_dict``</span>
 
-<span class="sd">        call is made.</span>
+<span class="s2">        call is made.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        </span><span class="se">&quot;&quot;</span><span class="s2">&quot;</span>
 
-<span class="w">        </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hooks</span><span class="o">.</span><span class="n">RemovableHandle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">)</span>
+<span class="w">        </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hooks</span><span class="p">.</span><span class="n">RemovableHandle</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">)</span>
 
-<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">[</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hook</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_state_dict_pre_hooks</span><span class="err">[</span><span class="n">handle</span><span class="p">.</span><span class="n">id</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hook</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">handle</span>
 </code></pre></div>
@@ -12268,7 +12304,7 @@ or training parts of a model individually (e.g., GAN training).</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_extra_state</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">Any</span>
-<span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
 <p>Set extra state contained in the loaded <code>state_dict</code>.</p>
@@ -12276,7 +12312,7 @@ or training parts of a model individually (e.g., GAN training).</p>
 found within the <code>state_dict</code>. Implement this function and a corresponding</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">set</span><span class="n">_extra_state</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="o">:</span><span class="w"> </span><span class="k">Any</span><span class="p">)</span><span class="o">:</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">set</span><span class="n">_extra_state</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="o">:</span><span class="w"> </span><span class="k">Any</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="o">:</span>
 
 <span class="w">        </span><span class="s2">&quot;</span><span class="se">&quot;&quot;</span><span class="s2">Set extra state contained in the loaded `state_dict`.</span>
 
@@ -12777,13 +12813,47 @@ pinned memory to CUDA devices.</p>
 
 <span class="w">        </span><span class="n">def</span><span class="w"> </span><span class="k">convert</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">convert_to_format</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="o">:</span>
+<span class="w">            </span><span class="n">try</span><span class="o">:</span>
 
-<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">convert_to_format</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">                            </span><span class="n">non_blocking</span><span class="p">,</span><span class="w"> </span><span class="n">memory_format</span><span class="o">=</span><span class="n">convert_to_format</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span>
 
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">non_blocking</span><span class="p">)</span>
+<span class="w">                        </span><span class="n">device</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">non_blocking</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">memory_format</span><span class="o">=</span><span class="n">convert_to_format</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="p">)</span>
+
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span>
+
+<span class="w">                    </span><span class="n">device</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="n">non_blocking</span><span class="p">,</span>
+
+<span class="w">                </span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">except</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">e</span><span class="o">:</span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;Cannot copy out of meta tensor; no data!&quot;</span><span class="o">:</span>
+
+<span class="w">                    </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span>
+
+<span class="w">                        </span><span class="n">f</span><span class="s2">&quot;{e} Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() &quot;</span>
+
+<span class="w">                        </span><span class="n">f</span><span class="s2">&quot;when moving module from meta to a different device.&quot;</span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">None</span>
+
+<span class="w">                </span><span class="k">else</span><span class="o">:</span>
+
+<span class="w">                    </span><span class="n">raise</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_apply</span><span class="p">(</span><span class="k">convert</span><span class="p">)</span>
 </code></pre></div>
@@ -13192,18 +13262,18 @@ live on XPU while being optimized.</p>
 <p>Your models should also subclass this class.</p>
 <p>Modules can also contain other Modules, allowing to nest them in
 a tree structure. You can assign the submodules as regular attributes::</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
-<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.nn.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
 
-<span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Model</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">):</span>
+<span class="w">        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
 </code></pre></div>
 
 <p>Submodules assigned in this way will be registered, and will have their
@@ -14693,7 +14763,8 @@ the keys of :attr:<code>state_dict</code> must exactly match the keys returned
 by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 <p>.. warning::
     If :attr:<code>assign</code> is <code>True</code> the optimizer must be created after
-    the call to :attr:<code>load_state_dict</code>.</p>
+    the call to :attr:<code>load_state_dict</code> unless
+    :func:<code>~torch.__future__.get_swap_module_params_on_conversion</code> is <code>True</code>.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -14720,7 +14791,7 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 <tr>
 <td>assign</td>
 <td>bool</td>
-<td>whether to assign items in the state<br>dictionary to their corresponding keys in the module instead<br>of copying them inplace into the module's current parameters and buffers.<br>When <code>False</code>, the properties of the tensors in the current<br>module are preserved while when <code>True</code>, the properties of the<br>Tensors in the state dict are preserved.<br>Default: <code>False</code></td>
+<td>When <code>False</code>, the properties of the tensors<br>in the current module are preserved while when <code>True</code>, the<br>properties of the Tensors in the state dict are preserved. The only<br>exception is the <code>requires_grad</code> field of :class:<code>~torch.nn.Parameter</code>s<br>for which the value from the module is preserved.<br>Default: <code>False</code></td>
 <td>None</td>
 </tr>
 </tbody>
@@ -14758,7 +14829,9 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s2">            If :attr:`assign` is ``True`` the optimizer must be created after</span>
 
-<span class="s2">            the call to :attr:`load_state_dict`.</span>
+<span class="s2">            the call to :attr:`load_state_dict` unless</span>
+
+<span class="s2">            :func:`~torch.__future__.get_swap_module_params_on_conversion` is ``True``.</span>
 
 <span class="s2">        Args:</span>
 
@@ -14772,17 +14845,15 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s2">                :meth:`~torch.nn.Module.state_dict` function. Default: ``True``</span>
 
-<span class="s2">            assign (bool, optional): whether to assign items in the state</span>
+<span class="s2">            assign (bool, optional): When ``False``, the properties of the tensors</span>
 
-<span class="s2">                dictionary to their corresponding keys in the module instead</span>
+<span class="s2">                in the current module are preserved while when ``True``, the</span>
 
-<span class="s2">                of copying them inplace into the module&#39;s current parameters and buffers.</span>
+<span class="s2">                properties of the Tensors in the state dict are preserved. The only</span>
 
-<span class="s2">                When ``False``, the properties of the tensors in the current</span>
+<span class="s2">                exception is the ``requires_grad`` field of :class:`~torch.nn.Parameter`s</span>
 
-<span class="s2">                module are preserved while when ``True``, the properties of the</span>
-
-<span class="s2">                Tensors in the state dict are preserved.</span>
+<span class="s2">                for which the value from the module is preserved.</span>
 
 <span class="s2">                Default: ``False``</span>
 
@@ -14846,7 +14917,7 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s s-Atom">                    child_state_dict = {k: v for k, v in local_state_dict.items() if k.startswith(child_prefix)}</span>
 
-<span class="s s-Atom">                    load(child, child_state_dict, child_prefix)</span>
+<span class="s s-Atom">                    load(child, child_state_dict, child_prefix)  # noqa: F821</span>
 
 <span class="s s-Atom">            # Note that the hook can modify missing_keys and unexpected_keys.</span>
 
@@ -16601,30 +16672,30 @@ clearing out both missing and unexpected keys will avoid an error.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<p>Register a pre-hook for the :meth:<code>~torch.nn.Module.load_state_dict</code> method.</p>
+<p>Register a pre-hook for the :meth:<code>~torch.nn.Module.state_dict</code> method.</p>
 <p>These hooks will be called with arguments: <code>self</code>, <code>prefix</code>,
 and <code>keep_vars</code> before calling <code>state_dict</code> on <code>self</code>. The registered
 hooks can be used to perform pre-processing before the <code>state_dict</code>
 call is made.</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register_state_dict_pre_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">hook</span><span class="p">):</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register_state_dict_pre_hook</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">hook</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Register a pre-hook for the :meth:`~torch.nn.Module.load_state_dict` method.</span>
+<span class="w">        </span><span class="n">r</span><span class="s2">&quot;</span><span class="se">&quot;&quot;</span><span class="s2">Register a pre-hook for the :meth:`~torch.nn.Module.state_dict` method.</span>
 
-<span class="sd">        These hooks will be called with arguments: ``self``, ``prefix``,</span>
+<span class="s2">        These hooks will be called with arguments: ``self``, ``prefix``,</span>
 
-<span class="sd">        and ``keep_vars`` before calling ``state_dict`` on ``self``. The registered</span>
+<span class="s2">        and ``keep_vars`` before calling ``state_dict`` on ``self``. The registered</span>
 
-<span class="sd">        hooks can be used to perform pre-processing before the ``state_dict``</span>
+<span class="s2">        hooks can be used to perform pre-processing before the ``state_dict``</span>
 
-<span class="sd">        call is made.</span>
+<span class="s2">        call is made.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        </span><span class="se">&quot;&quot;</span><span class="s2">&quot;</span>
 
-<span class="w">        </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hooks</span><span class="o">.</span><span class="n">RemovableHandle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">)</span>
+<span class="w">        </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hooks</span><span class="p">.</span><span class="n">RemovableHandle</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">)</span>
 
-<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">[</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hook</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_state_dict_pre_hooks</span><span class="err">[</span><span class="n">handle</span><span class="p">.</span><span class="n">id</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hook</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">handle</span>
 </code></pre></div>
@@ -16720,7 +16791,7 @@ or training parts of a model individually (e.g., GAN training).</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_extra_state</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">Any</span>
-<span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
 <p>Set extra state contained in the loaded <code>state_dict</code>.</p>
@@ -16728,7 +16799,7 @@ or training parts of a model individually (e.g., GAN training).</p>
 found within the <code>state_dict</code>. Implement this function and a corresponding</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">set</span><span class="n">_extra_state</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="o">:</span><span class="w"> </span><span class="k">Any</span><span class="p">)</span><span class="o">:</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">set</span><span class="n">_extra_state</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="o">:</span><span class="w"> </span><span class="k">Any</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="o">:</span>
 
 <span class="w">        </span><span class="s2">&quot;</span><span class="se">&quot;&quot;</span><span class="s2">Set extra state contained in the loaded `state_dict`.</span>
 
@@ -17229,13 +17300,47 @@ pinned memory to CUDA devices.</p>
 
 <span class="w">        </span><span class="n">def</span><span class="w"> </span><span class="k">convert</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">convert_to_format</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="o">:</span>
+<span class="w">            </span><span class="n">try</span><span class="o">:</span>
 
-<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">convert_to_format</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">                            </span><span class="n">non_blocking</span><span class="p">,</span><span class="w"> </span><span class="n">memory_format</span><span class="o">=</span><span class="n">convert_to_format</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span>
 
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">non_blocking</span><span class="p">)</span>
+<span class="w">                        </span><span class="n">device</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">non_blocking</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">memory_format</span><span class="o">=</span><span class="n">convert_to_format</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="p">)</span>
+
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span>
+
+<span class="w">                    </span><span class="n">device</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="n">non_blocking</span><span class="p">,</span>
+
+<span class="w">                </span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">except</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">e</span><span class="o">:</span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;Cannot copy out of meta tensor; no data!&quot;</span><span class="o">:</span>
+
+<span class="w">                    </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span>
+
+<span class="w">                        </span><span class="n">f</span><span class="s2">&quot;{e} Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() &quot;</span>
+
+<span class="w">                        </span><span class="n">f</span><span class="s2">&quot;when moving module from meta to a different device.&quot;</span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">None</span>
+
+<span class="w">                </span><span class="k">else</span><span class="o">:</span>
+
+<span class="w">                    </span><span class="n">raise</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_apply</span><span class="p">(</span><span class="k">convert</span><span class="p">)</span>
 </code></pre></div>
@@ -19050,7 +19155,8 @@ the keys of :attr:<code>state_dict</code> must exactly match the keys returned
 by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 <p>.. warning::
     If :attr:<code>assign</code> is <code>True</code> the optimizer must be created after
-    the call to :attr:<code>load_state_dict</code>.</p>
+    the call to :attr:<code>load_state_dict</code> unless
+    :func:<code>~torch.__future__.get_swap_module_params_on_conversion</code> is <code>True</code>.</p>
 <p><strong>Parameters:</strong></p>
 <table>
 <thead>
@@ -19077,7 +19183,7 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 <tr>
 <td>assign</td>
 <td>bool</td>
-<td>whether to assign items in the state<br>dictionary to their corresponding keys in the module instead<br>of copying them inplace into the module's current parameters and buffers.<br>When <code>False</code>, the properties of the tensors in the current<br>module are preserved while when <code>True</code>, the properties of the<br>Tensors in the state dict are preserved.<br>Default: <code>False</code></td>
+<td>When <code>False</code>, the properties of the tensors<br>in the current module are preserved while when <code>True</code>, the<br>properties of the Tensors in the state dict are preserved. The only<br>exception is the <code>requires_grad</code> field of :class:<code>~torch.nn.Parameter</code>s<br>for which the value from the module is preserved.<br>Default: <code>False</code></td>
 <td>None</td>
 </tr>
 </tbody>
@@ -19115,7 +19221,9 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s2">            If :attr:`assign` is ``True`` the optimizer must be created after</span>
 
-<span class="s2">            the call to :attr:`load_state_dict`.</span>
+<span class="s2">            the call to :attr:`load_state_dict` unless</span>
+
+<span class="s2">            :func:`~torch.__future__.get_swap_module_params_on_conversion` is ``True``.</span>
 
 <span class="s2">        Args:</span>
 
@@ -19129,17 +19237,15 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s2">                :meth:`~torch.nn.Module.state_dict` function. Default: ``True``</span>
 
-<span class="s2">            assign (bool, optional): whether to assign items in the state</span>
+<span class="s2">            assign (bool, optional): When ``False``, the properties of the tensors</span>
 
-<span class="s2">                dictionary to their corresponding keys in the module instead</span>
+<span class="s2">                in the current module are preserved while when ``True``, the</span>
 
-<span class="s2">                of copying them inplace into the module&#39;s current parameters and buffers.</span>
+<span class="s2">                properties of the Tensors in the state dict are preserved. The only</span>
 
-<span class="s2">                When ``False``, the properties of the tensors in the current</span>
+<span class="s2">                exception is the ``requires_grad`` field of :class:`~torch.nn.Parameter`s</span>
 
-<span class="s2">                module are preserved while when ``True``, the properties of the</span>
-
-<span class="s2">                Tensors in the state dict are preserved.</span>
+<span class="s2">                for which the value from the module is preserved.</span>
 
 <span class="s2">                Default: ``False``</span>
 
@@ -19203,7 +19309,7 @@ by this module's :meth:<code>~torch.nn.Module.state_dict</code> function.</p>
 
 <span class="s s-Atom">                    child_state_dict = {k: v for k, v in local_state_dict.items() if k.startswith(child_prefix)}</span>
 
-<span class="s s-Atom">                    load(child, child_state_dict, child_prefix)</span>
+<span class="s s-Atom">                    load(child, child_state_dict, child_prefix)  # noqa: F821</span>
 
 <span class="s s-Atom">            # Note that the hook can modify missing_keys and unexpected_keys.</span>
 
@@ -20958,30 +21064,30 @@ clearing out both missing and unexpected keys will avoid an error.</p>
 <span class="p">)</span>
 </code></pre></div>
 
-<p>Register a pre-hook for the :meth:<code>~torch.nn.Module.load_state_dict</code> method.</p>
+<p>Register a pre-hook for the :meth:<code>~torch.nn.Module.state_dict</code> method.</p>
 <p>These hooks will be called with arguments: <code>self</code>, <code>prefix</code>,
 and <code>keep_vars</code> before calling <code>state_dict</code> on <code>self</code>. The registered
 hooks can be used to perform pre-processing before the <code>state_dict</code>
 call is made.</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register_state_dict_pre_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">hook</span><span class="p">):</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">register_state_dict_pre_hook</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">hook</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Register a pre-hook for the :meth:`~torch.nn.Module.load_state_dict` method.</span>
+<span class="w">        </span><span class="n">r</span><span class="s2">&quot;</span><span class="se">&quot;&quot;</span><span class="s2">Register a pre-hook for the :meth:`~torch.nn.Module.state_dict` method.</span>
 
-<span class="sd">        These hooks will be called with arguments: ``self``, ``prefix``,</span>
+<span class="s2">        These hooks will be called with arguments: ``self``, ``prefix``,</span>
 
-<span class="sd">        and ``keep_vars`` before calling ``state_dict`` on ``self``. The registered</span>
+<span class="s2">        and ``keep_vars`` before calling ``state_dict`` on ``self``. The registered</span>
 
-<span class="sd">        hooks can be used to perform pre-processing before the ``state_dict``</span>
+<span class="s2">        hooks can be used to perform pre-processing before the ``state_dict``</span>
 
-<span class="sd">        call is made.</span>
+<span class="s2">        call is made.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        </span><span class="se">&quot;&quot;</span><span class="s2">&quot;</span>
 
-<span class="w">        </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hooks</span><span class="o">.</span><span class="n">RemovableHandle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">)</span>
+<span class="w">        </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hooks</span><span class="p">.</span><span class="n">RemovableHandle</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">)</span>
 
-<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_state_dict_pre_hooks</span><span class="p">[</span><span class="n">handle</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hook</span>
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_state_dict_pre_hooks</span><span class="err">[</span><span class="n">handle</span><span class="p">.</span><span class="n">id</span><span class="err">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hook</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">handle</span>
 </code></pre></div>
@@ -21077,7 +21183,7 @@ or training parts of a model individually (e.g., GAN training).</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_extra_state</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">Any</span>
-<span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
 <p>Set extra state contained in the loaded <code>state_dict</code>.</p>
@@ -21085,7 +21191,7 @@ or training parts of a model individually (e.g., GAN training).</p>
 found within the <code>state_dict</code>. Implement this function and a corresponding</p>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">set</span><span class="n">_extra_state</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="o">:</span><span class="w"> </span><span class="k">Any</span><span class="p">)</span><span class="o">:</span>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">set</span><span class="n">_extra_state</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">state</span><span class="o">:</span><span class="w"> </span><span class="k">Any</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="k">None</span><span class="o">:</span>
 
 <span class="w">        </span><span class="s2">&quot;</span><span class="se">&quot;&quot;</span><span class="s2">Set extra state contained in the loaded `state_dict`.</span>
 
@@ -21586,13 +21692,47 @@ pinned memory to CUDA devices.</p>
 
 <span class="w">        </span><span class="n">def</span><span class="w"> </span><span class="k">convert</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">convert_to_format</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="o">:</span>
+<span class="w">            </span><span class="n">try</span><span class="o">:</span>
 
-<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">convert_to_format</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">None</span><span class="w"> </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">dim</span><span class="p">()</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">)</span><span class="o">:</span>
 
-<span class="w">                            </span><span class="n">non_blocking</span><span class="p">,</span><span class="w"> </span><span class="n">memory_format</span><span class="o">=</span><span class="n">convert_to_format</span><span class="p">)</span>
+<span class="w">                    </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span>
 
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="n">non_blocking</span><span class="p">)</span>
+<span class="w">                        </span><span class="n">device</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">non_blocking</span><span class="p">,</span>
+
+<span class="w">                        </span><span class="n">memory_format</span><span class="o">=</span><span class="n">convert_to_format</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="p">)</span>
+
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="k">to</span><span class="p">(</span>
+
+<span class="w">                    </span><span class="n">device</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="n">dtype</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_floating_point</span><span class="p">()</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">is_complex</span><span class="p">()</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">None</span><span class="p">,</span>
+
+<span class="w">                    </span><span class="n">non_blocking</span><span class="p">,</span>
+
+<span class="w">                </span><span class="p">)</span>
+
+<span class="w">            </span><span class="k">except</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">e</span><span class="o">:</span>
+
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;Cannot copy out of meta tensor; no data!&quot;</span><span class="o">:</span>
+
+<span class="w">                    </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">(</span>
+
+<span class="w">                        </span><span class="n">f</span><span class="s2">&quot;{e} Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() &quot;</span>
+
+<span class="w">                        </span><span class="n">f</span><span class="s2">&quot;when moving module from meta to a different device.&quot;</span>
+
+<span class="w">                    </span><span class="p">)</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="k">None</span>
+
+<span class="w">                </span><span class="k">else</span><span class="o">:</span>
+
+<span class="w">                    </span><span class="n">raise</span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_apply</span><span class="p">(</span><span class="k">convert</span><span class="p">)</span>
 </code></pre></div>

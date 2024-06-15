@@ -1225,253 +1225,261 @@
 <h1 id="module-wtrackerdatasetbox_calculator">Module wtracker.dataset.box_calculator</h1>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cv</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Collection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">Collection</span>
 
-<span class="kn">from</span> <span class="nn">tqdm.auto</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.auto</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">tqdm.contrib</span> <span class="kn">import</span> <span class="n">concurrent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.contrib</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">concurrent</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.frame_reader</span> <span class="kn">import</span> <span class="n">FrameReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.frame_reader</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">FrameReader</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.dataset.bg_extractor</span> <span class="kn">import</span> <span class="n">BGExtractor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.threading_utils</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">adjust_num_workers</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.threading_utils</span> <span class="kn">import</span> <span class="n">adjust_num_workers</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoxCalculator</span><span class="p">:</span>
 
-<span class="k">class</span> <span class="nc">BoxCalculator</span><span class="p">:</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="s2">    A class for calculating bounding boxes around an object for a sequence of frames.</span>
 
-<span class="sd">    A class for calculating bounding boxes around an object for a sequence of frames.</span>
+<span class="s2">    The bounding boxes are calculated by comparing the frames to a background image.</span>
 
-<span class="sd">    The bounding boxes are calculated by comparing the frames to a background image.</span>
+<span class="s2">    The largest contour in the difference image between the frame and the background is used to calculate the bounding box.</span>
 
-<span class="sd">    The largest contour in the difference image between the frame and the background is used to calculate the bounding box.</span>
+<span class="s2">    Args:</span>
 
-<span class="sd">    Args:</span>
+<span class="s2">        frame_reader (FrameReader): The frame reader object holing the relevant frames.</span>
 
-<span class="sd">        frame_reader (FrameReader): The frame reader object holing the relevant frames.</span>
+<span class="s2">        background (np.ndarray): The background image of the frames in the `frame_reader` argument.</span>
 
-<span class="sd">        background (np.ndarray): The background image of the frames in the `frame_reader` argument.</span>
+<span class="s2">        diff_thresh (int, optional): Threshold value for the detecting foreground objects.</span>
 
-<span class="sd">        diff_thresh (int, optional): Threshold value for the detecting foreground objects.</span>
+<span class="s2">            Pixels with difference value greater than this threshold are considered as foreground.</span>
 
-<span class="sd">            Pixels with difference value greater than this threshold are considered as foreground.</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="n">frame_reader</span><span class="p">:</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">,</span>
 
-        <span class="n">frame_reader</span><span class="p">:</span> <span class="n">FrameReader</span><span class="p">,</span>
+<span class="w">        </span><span class="n">background</span><span class="p">:</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 
-        <span class="n">background</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+<span class="w">        </span><span class="n">diff_thresh</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
 
-        <span class="n">diff_thresh</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="n">diff_thresh</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Difference threshold must be greater than 0.&quot;</span>
 
-        <span class="k">assert</span> <span class="n">diff_thresh</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Difference threshold must be greater than 0.&quot;</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="n">frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">background</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Background shape must match frame shape.&quot;</span>
 
-        <span class="k">assert</span> <span class="n">frame_reader</span><span class="o">.</span><span class="n">frame_shape</span> <span class="o">==</span> <span class="n">background</span><span class="o">.</span><span class="kp">shape</span><span class="p">,</span> <span class="s2">&quot;Background shape must match frame shape.&quot;</span>
+<span class="w">        </span><span class="c1"># convert background to grayscale if needed</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span> <span class="o">=</span> <span class="n">frame_reader</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">background</span><span class="o">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">background</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_background</span> <span class="o">=</span> <span class="n">background</span>
+<span class="w">            </span><span class="n">background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">background</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_diff_thresh</span> <span class="o">=</span> <span class="n">diff_thresh</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">background</span><span class="o">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_reader</span><span class="p">),</span> <span class="mi">4</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="w">            </span><span class="k">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="s2">&quot;background must be either a gray or a color image.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">all_bboxes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame_reader</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span>
 
-<span class="sd">        Returns all bounding boxes for all the frames.</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_diff_thresh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff_thresh</span>
 
-<span class="sd">        Note that if a bounding box has not been calculated for some frame, then the matching entry will be (-1, -1, -1, -1).</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_reader</span><span class="p">),</span><span class="w"> </span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
-<span class="sd">        Returns:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">all_bboxes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="sd">            np.ndarray: Array of bounding boxes, in shape (N, 4), where N is the number of frames.</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">            The bounding boxes are stored in the format (x, y, w, h).</span>
+<span class="s2">        Returns all bounding boxes for all the frames.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        Note that if a bounding box has not been calculated for some frame, then the matching entry will be (-1, -1, -1, -1).</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span>
+<span class="s2">        Returns:</span>
 
-    <span class="k">def</span> <span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="s2">            np.ndarray: Array of bounding boxes, in shape (N, 4), where N is the number of frames.</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="s2">            The bounding boxes are stored in the format (x, y, w, h).</span>
 
-<span class="sd">        Returns the bounding box for a given frame index.</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-<span class="sd">        Args:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span>
 
-<span class="sd">            frame_idx (int): The index of the frame from which to extract the bounding box.</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">get_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">frame_idx</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="sd">        Returns:</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">            np.ndarray: The bounding box coordinates as a numpy array, in format (x, y, w, h).</span>
+<span class="s2">        Returns the bounding box for a given frame index.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        Args:</span>
 
-        <span class="n">bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span>
+<span class="s2">            frame_idx (int): The index of the frame from which to extract the bounding box.</span>
 
-        <span class="k">if</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+<span class="s2">        Returns:</span>
 
-            <span class="c1"># calculate bbox since it wasn&#39;t calculated before</span>
+<span class="s2">            np.ndarray: The bounding box coordinates as a numpy array, in format (x, y, w, h).</span>
 
-            <span class="n">bbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_bounding_box</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">bbox</span>
+<span class="w">        </span><span class="n">bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="n">bbox</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
 
-    <span class="c1"># TODO: I DONT THINK IT WORKS ON BGR IMAGES.</span>
+<span class="w">            </span><span class="c1"># calculate bbox since it wasn&#39;t calculated before</span>
 
-    <span class="c1"># PROBABLY NEED TO CHECK WHETHER IMAGES ARE GRAYSCALE OR NOT, AND CONVERT TO GRAYSCALE IF NEEDED.</span>
+<span class="w">            </span><span class="n">bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_calc_bounding_box</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span>
 
-    <span class="c1"># SIMILAR TO WHAT WE&#39;RE DOING IN THE ErrorCalculator.calc_precise_error</span>
+<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbox</span>
 
-    <span class="k">def</span> <span class="nf">_calc_bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bbox</span>
 
-        <span class="c1"># get mask according to the threshold value</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_calc_bounding_box</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">frame_idx</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span>
+<span class="w">        </span><span class="c1"># get mask according to the threshold value</span>
 
-        <span class="kp">diff</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_background</span><span class="p">)</span>
+<span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span>
 
-        <span class="n">_</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="kp">diff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diff_thresh</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
+<span class="w">        </span><span class="c1"># convert to grayscale if needed</span>
 
-        <span class="c1"># apply morphological ops to the mask</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">frame</span><span class="o">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">frame</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span>
 
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">MORPH_OPEN</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="kp">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+<span class="w">            </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
 
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="kp">ones</span><span class="p">((</span><span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+<span class="w">        </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_background</span><span class="p">)</span>
 
-        <span class="c1"># extract contours and bbox</span>
+<span class="w">        </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">threshold</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_diff_thresh</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">THRESH_BINARY</span><span class="p">)</span>
 
-        <span class="n">contours</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">CHAIN_APPROX_NONE</span><span class="p">)</span>
+<span class="w">        </span><span class="c1"># apply morphological ops to the mask</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">contours</span><span class="p">:</span>
+<span class="w">        </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">morphologyEx</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">MORPH_OPEN</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">),</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
 
-            <span class="n">zero_bbox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="w">        </span><span class="n">mask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">dilate</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="p">),</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">zero_bbox</span>
+<span class="w">        </span><span class="c1"># extract contours and bbox</span>
 
-            <span class="k">return</span> <span class="n">zero_bbox</span>
+<span class="w">        </span><span class="n">contours</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">findContours</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">RETR_EXTERNAL</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">CHAIN_APPROX_NONE</span><span class="p">)</span>
 
-        <span class="n">largest_contour</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">contourArea</span><span class="p">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">contours</span><span class="p">:</span>
 
-        <span class="n">largest_bbox</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(</span><span class="n">largest_contour</span><span class="p">)</span>
+<span class="w">            </span><span class="n">zero_bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="n">largest_bbox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">asanyarray</span><span class="p">(</span><span class="n">largest_bbox</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zero_bbox</span>
 
-        <span class="k">return</span> <span class="n">largest_bbox</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">zero_bbox</span>
 
-    <span class="k">def</span> <span class="nf">calc_specified_boxes</span><span class="p">(</span>
+<span class="w">        </span><span class="n">largest_contour</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span><span class="w"> </span><span class="n">key</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">contourArea</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="n">largest_bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(</span><span class="n">largest_contour</span><span class="p">)</span>
 
-        <span class="n">frame_indices</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+<span class="w">        </span><span class="n">largest_bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">largest_bbox</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
-        <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">largest_bbox</span>
 
-        <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">calc_specified_boxes</span><span class="p">(</span>
 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">frame_indices</span><span class="p">:</span><span class="w"> </span><span class="n">Collection</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 
-<span class="sd">        Calculate bounding boxes for the specified frame indices.</span>
+<span class="w">        </span><span class="n">num_workers</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">None</span><span class="p">,</span>
 
-<span class="sd">        Args:</span>
+<span class="w">        </span><span class="n">chunk_size</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
 
-<span class="sd">            frame_indices (Iterable[int]): The indices of the frames for which to calculate the bboxes.</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="sd">            num_workers (int, optional): Number of workers for parallel processing.</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">            If None is provided then number of workers is determined automatically.</span>
+<span class="s2">        Calculate bounding boxes for the specified frame indices.</span>
 
-<span class="sd">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">            frame_indices (Iterable[int]): The indices of the frames for which to calculate the bboxes.</span>
 
-<span class="sd">            np.ndarray: The calculated boxes for the specified frames.</span>
+<span class="s2">            num_workers (int, optional): Number of workers for parallel processing.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">            If None is provided then number of workers is determined automatically.</span>
 
-        <span class="n">num_workers</span> <span class="o">=</span> <span class="n">adjust_num_workers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span> <span class="n">chunk_size</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">)</span>
+<span class="s2">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
 
-        <span class="k">if</span> <span class="n">num_workers</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="s2">        Returns:</span>
 
-            <span class="n">bbox_list</span> <span class="o">=</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">process_map</span><span class="p">(</span>
+<span class="s2">            np.ndarray: The calculated boxes for the specified frames.</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">,</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-                <span class="n">frame_indices</span><span class="p">,</span>
+<span class="w">        </span><span class="n">num_workers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">adjust_num_workers</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">),</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">,</span><span class="w"> </span><span class="n">num_workers</span><span class="p">)</span>
 
-                <span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">num_workers</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
 
-                <span class="n">chunksize</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
+<span class="w">            </span><span class="n">bbox_list</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">concurrent</span><span class="o">.</span><span class="n">process_map</span><span class="p">(</span>
 
-                <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Extracting bboxes&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">,</span>
 
-                <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">frame_indices</span><span class="p">,</span>
 
-            <span class="p">)</span>
+<span class="w">                </span><span class="n">max_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
 
-            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">bbox</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">,</span> <span class="n">bbox_list</span><span class="p">):</span>
+<span class="w">                </span><span class="n">chunksize</span><span class="o">=</span><span class="n">chunk_size</span><span class="p">,</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">bbox</span>
+<span class="w">                </span><span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Extracting bboxes&quot;</span><span class="p">,</span>
 
-        <span class="k">else</span><span class="p">:</span>
+<span class="w">                </span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="p">,</span>
 
-            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Extracting bboxes&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="p">):</span>
+<span class="w">            </span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="n">bbox</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">zip</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">,</span><span class="w"> </span><span class="n">bbox_list</span><span class="p">):</span>
 
-        <span class="n">bboxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">frame_indices</span><span class="p">,</span> <span class="p">:]</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbox</span>
 
-        <span class="k">return</span> <span class="n">bboxes</span>
+<span class="w">        </span><span class="k">else</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">calc_all_boxes</span><span class="p">(</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tqdm</span><span class="p">(</span><span class="n">frame_indices</span><span class="p">,</span><span class="w"> </span><span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Extracting bboxes&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;fr&quot;</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">get_bbox</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
 
-        <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="n">bboxes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_all_bboxes</span><span class="p">[</span><span class="n">frame_indices</span><span class="p">,</span><span class="w"> </span><span class="p">:]</span>
 
-        <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bboxes</span>
 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">calc_all_boxes</span><span class="p">(</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-<span class="sd">        Calculate bounding boxes for all frames.</span>
+<span class="w">        </span><span class="n">num_workers</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">None</span><span class="p">,</span>
 
-<span class="sd">        Args:</span>
+<span class="w">        </span><span class="n">chunk_size</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
 
-<span class="sd">            num_workers (int, optional): Number of workers for parallel processing.</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="sd">                If None is provided then number of workers is determined automatically.</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
+<span class="s2">        Calculate bounding boxes for all frames.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            np.ndarray: Array of bounding boxes for all frames.</span>
+<span class="s2">            num_workers (int, optional): Number of workers for parallel processing.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">                If None is provided then number of workers is determined automatically.</span>
 
-        <span class="kp">indices</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">))</span>
+<span class="s2">            chunk_size (int, optional): Size of each chunk for parallel processing.</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_specified_boxes</span><span class="p">(</span><span class="kp">indices</span><span class="p">,</span> <span class="n">num_workers</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">)</span>
+<span class="s2">        Returns:</span>
+
+<span class="s2">            np.ndarray: Array of bounding boxes for all frames.</span>
+
+<span class="s2">        &quot;&quot;&quot;</span>
+
+<span class="w">        </span><span class="n">indices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">))</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">calc_specified_boxes</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span><span class="w"> </span><span class="n">num_workers</span><span class="p">,</span><span class="w"> </span><span class="n">chunk_size</span><span class="p">)</span>
 </code></pre></div>
 
 </details>
@@ -1558,6 +1566,16 @@ The largest contour in the difference image between the frame and the background
 
 <span class="w">        </span><span class="n">assert</span><span class="w"> </span><span class="n">frame_reader</span><span class="p">.</span><span class="n">frame_shape</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">background</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="ss">&quot;Background shape must match frame shape.&quot;</span>
 
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nf">convert</span><span class="w"> </span><span class="n">background</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">grayscale</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">needed</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">background</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">background</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">2</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="err">:</span>
+
+<span class="w">            </span><span class="n">background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">background</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">background</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">2</span><span class="err">:</span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="ss">&quot;background must be either a gray or a color image.&quot;</span><span class="p">)</span>
+
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame_reader</span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">_background</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">background</span>
@@ -1604,25 +1622,25 @@ The largest contour in the difference image between the frame and the background
 
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">bbox</span><span class="o">[</span><span class="n">0</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="err">:</span>
 
-<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">bbox</span><span class="w"> </span><span class="n">since</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">wasn</span><span class="s1">&#39;t calculated before</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">bbox</span><span class="w"> </span><span class="n">since</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="n">wasn</span><span class="err">&#39;</span><span class="n">t</span><span class="w"> </span><span class="n">calculated</span><span class="w"> </span><span class="k">before</span>
 
-<span class="s1">            bbox = self._calc_bounding_box(frame_idx)</span>
+<span class="w">            </span><span class="n">bbox</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_calc_bounding_box</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span>
 
-<span class="s1">            self._all_bboxes[frame_idx] = bbox</span>
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">_all_bboxes</span><span class="o">[</span><span class="n">frame_idx</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bbox</span>
 
-<span class="s1">        return bbox</span>
-
-<span class="s1">    # TODO: I DONT THINK IT WORKS ON BGR IMAGES.</span>
-
-<span class="s1">    # PROBABLY NEED TO CHECK WHETHER IMAGES ARE GRAYSCALE OR NOT, AND CONVERT TO GRAYSCALE IF NEEDED.</span>
-
-<span class="s1">    # SIMILAR TO WHAT WE&#39;</span><span class="n">RE</span><span class="w"> </span><span class="n">DOING</span><span class="w"> </span><span class="ow">IN</span><span class="w"> </span><span class="n">THE</span><span class="w"> </span><span class="n">ErrorCalculator</span><span class="p">.</span><span class="n">calc_precise_error</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bbox</span>
 
 <span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">_calc_bounding_box</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="nl">frame_idx</span><span class="p">:</span><span class="w"> </span><span class="nc">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nl">ndarray</span><span class="p">:</span>
 
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">get</span><span class="w"> </span><span class="n">mask</span><span class="w"> </span><span class="n">according</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">threshold</span><span class="w"> </span><span class="k">value</span>
 
 <span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="o">[</span><span class="n">frame_idx</span><span class="o">]</span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nf">convert</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">grayscale</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">needed</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">ndim</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">frame</span><span class="p">.</span><span class="n">shape</span><span class="o">[</span><span class="n">2</span><span class="o">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">3</span><span class="err">:</span>
+
+<span class="w">            </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
 
 <span class="w">        </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">absdiff</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_background</span><span class="p">)</span>
 

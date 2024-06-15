@@ -1337,349 +1337,349 @@
 <h1 id="module-wtrackersimview_controller">Module wtracker.sim.view_controller</h1>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cv</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.frame_reader</span> <span class="kn">import</span> <span class="n">FrameReader</span><span class="p">,</span> <span class="n">FrameStream</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.frame_reader</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">,</span><span class="w"> </span><span class="n">FrameStream</span>
 
-<span class="k">class</span> <span class="nc">ViewController</span><span class="p">(</span><span class="n">FrameStream</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ViewController</span><span class="p">(</span><span class="n">FrameStream</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    A class representing a view controller for a frame stream.</span>
+<span class="s2">    A class representing a view controller for a frame stream.</span>
 
-<span class="sd">    This class allows for easy manipulation of the camera and microscope positions,</span>
+<span class="s2">    This class allows for easy manipulation of the camera and microscope positions,</span>
 
-<span class="sd">    and provides their corresponding views.</span>
+<span class="s2">    and provides their corresponding views.</span>
 
-<span class="sd">    Args:</span>
+<span class="s2">    Args:</span>
 
-<span class="sd">        frame_reader (FrameReader): The frame reader object.</span>
+<span class="s2">        frame_reader (FrameReader): The frame reader object.</span>
 
-<span class="sd">        camera_size (tuple[int, int], optional): The size of the camera frame.</span>
+<span class="s2">        camera_size (tuple[int, int], optional): The size of the camera frame.</span>
 
-<span class="sd">        micro_size (tuple[int, int], optional): The size of the micro frame.</span>
+<span class="s2">        micro_size (tuple[int, int], optional): The size of the micro frame.</span>
 
-<span class="sd">        init_position (tuple[int, int], optional): The initial position of the view.</span>
+<span class="s2">        init_position (tuple[int, int], optional): The initial position of the view.</span>
 
-<span class="sd">    Attributes:</span>
+<span class="s2">    Attributes:</span>
 
-<span class="sd">        frame_reader (FrameReader): The frame reader object.</span>
+<span class="s2">        frame_reader (FrameReader): The frame reader object.</span>
 
-<span class="sd">        camera_size (tuple[int, int]): The size of the camera view (width, height).</span>
+<span class="s2">        camera_size (tuple[int, int]): The size of the camera view (w, h).</span>
 
-<span class="sd">        micro_size (tuple[int, int]): The size of the micro view (width, height).</span>
+<span class="s2">        micro_size (tuple[int, int]): The size of the micro view (w, h).</span>
 
-<span class="sd">        position (tuple[int, int]): The current position of the center of the view (x, y).</span>
+<span class="s2">        position (tuple[int, int]): The current position of the center of the view (x, y).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="n">frame_reader</span><span class="p">:</span> <span class="n">FrameReader</span><span class="p">,</span>
+<span class="w">        </span><span class="n">frame_reader</span><span class="p">:</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">,</span>
 
-        <span class="n">camera_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">251</span><span class="p">,</span> <span class="mi">251</span><span class="p">),</span>
+<span class="w">        </span><span class="n">camera_size</span><span class="p">:</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">251</span><span class="p">,</span><span class="w"> </span><span class="mi">251</span><span class="p">),</span>
 
-        <span class="n">micro_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="mi">45</span><span class="p">),</span>
+<span class="w">        </span><span class="n">micro_size</span><span class="p">:</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">45</span><span class="p">,</span><span class="w"> </span><span class="mi">45</span><span class="p">),</span>
 
-        <span class="n">init_position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+<span class="w">        </span><span class="n">init_position</span><span class="p">:</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span>
 
-    <span class="p">):</span>
+<span class="w">    </span><span class="p">):</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frame_reader</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">frame_reader</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">camera_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">micro_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="n">camera_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">micro_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="k">assert</span> <span class="n">camera_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">micro_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="n">camera_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">micro_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">camera_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">:</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">camera_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">camera_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_camera_size</span> <span class="o">=</span> <span class="n">camera_size</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">camera_size</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_micro_size</span> <span class="o">=</span> <span class="n">micro_size</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_micro_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">micro_size</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="n">init_position</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">init_position</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="o">*</span><span class="n">init_position</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="o">*</span><span class="n">init_position</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Read a frame from the frame reader and apply padding.</span>
+<span class="s2">        Read a frame from the frame reader and apply padding.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            np.ndarray: The padded frame.</span>
+<span class="s2">            np.ndarray: The padded frame.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">copyMakeBorder</span><span class="p">(</span>
+<span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">copyMakeBorder</span><span class="p">(</span>
 
-            <span class="n">src</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span>
+<span class="w">            </span><span class="n">src</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span>
 
-            <span class="n">left</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="w">            </span><span class="n">left</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
 
-            <span class="n">right</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+<span class="w">            </span><span class="n">right</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
 
-            <span class="n">top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="w">            </span><span class="n">top</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
 
-            <span class="n">bottom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+<span class="w">            </span><span class="n">bottom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
 
-            <span class="n">borderType</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REPLICATE</span><span class="p">,</span>
+<span class="w">            </span><span class="n">borderType</span><span class="o">=</span><span class="n">cv</span><span class="o">.</span><span class="n">BORDER_REPLICATE</span><span class="p">,</span>
 
-        <span class="p">)</span>
+<span class="w">        </span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">frame</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">frame</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the current position of the view controller.</span>
+<span class="s2">        Get the current position of the view controller.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int]: The current position (x, y).</span>
+<span class="s2">            tuple[int, int]: The current position (x, y).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">camera_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">camera_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the size of the camera view.</span>
+<span class="s2">        Get the size of the camera view.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int]: The size of the camera view (w, h).</span>
+<span class="s2">            tuple[int, int]: The size of the camera view (w, h).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camera_size</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_camera_size</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">micro_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">micro_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the size of the micro view.</span>
+<span class="s2">        Get the size of the micro view.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int]: The size of the micro view (w, h).</span>
+<span class="s2">            tuple[int, int]: The size of the micro view (w, h).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_micro_size</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_micro_size</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">camera_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">camera_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the position of the camera view.</span>
+<span class="s2">        Get the position of the camera view.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int, int, int]: The position of the camera view (x, y, w, h).</span>
+<span class="s2">            tuple[int, int, int, int]: The position of the camera view (x, y, w, h).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">camera_size</span>
+<span class="w">        </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">camera_size</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">//</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">//</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">micro_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">micro_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the position of the micro view.</span>
+<span class="s2">        Get the position of the micro view.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int, int, int]: The position of the micro view (x, y, w, h).</span>
+<span class="s2">            tuple[int, int, int, int]: The position of the micro view (x, y, w, h).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">micro_size</span>
+<span class="w">        </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">micro_size</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">//</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">//</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span>
 
-    <span class="k">def</span> <span class="nf">set_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">set_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Set the position of the view controller.</span>
+<span class="s2">        Set the position of the view controller.</span>
 
-<span class="sd">        Note, that the position is clamped to the frame size.</span>
+<span class="s2">        Note, that the position is clamped to the frame size.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            x (int): The x-coordinate of the position.</span>
+<span class="s2">            x (int): The x-coordinate of the position.</span>
 
-<span class="sd">            y (int): The y-coordinate of the position.</span>
+<span class="s2">            y (int): The y-coordinate of the position.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">clip</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">move_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dy</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">move_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">dx</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="n">dy</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Move the position of the view controller by dx and dy.</span>
+<span class="s2">        Move the position of the view controller by dx and dy.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            dx (int): The amount to move in the x-direction.</span>
+<span class="s2">            dx (int): The amount to move in the x-direction.</span>
 
-<span class="sd">            dy (int): The amount to move in the y-direction.</span>
+<span class="s2">            dy (int): The amount to move in the y-direction.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">dy</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">dy</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_calc_view_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_calc_view_bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Calculate the bbox of the view, while taking padding into account.</span>
+<span class="s2">        Calculate the bbox of the view, while taking padding into account.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            w (int): The width of the view.</span>
+<span class="s2">            w (int): The width of the view.</span>
 
-<span class="sd">            h (int): The height of the view.</span>
+<span class="s2">            h (int): The height of the view.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int, int, int]: The bounding box of the view (x, y, w, h).</span>
+<span class="s2">            tuple[int, int, int, int]: The bounding box of the view (x, y, w, h).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">w</span> <span class="o">//</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">h</span> <span class="o">//</span> <span class="mi">2</span>
+<span class="w">        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_padding_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span>
 
-        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span>
 
-    <span class="k">def</span> <span class="nf">_custom_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_custom_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get a custom view of the frame.</span>
+<span class="s2">        Get a custom view of the frame.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            w (int): The width of the view.</span>
+<span class="s2">            w (int): The width of the view.</span>
 
-<span class="sd">            h (int): The height of the view.</span>
+<span class="s2">            h (int): The height of the view.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            np.ndarray: The custom view of the frame.</span>
+<span class="s2">            np.ndarray: The custom view of the frame.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_view_bbox</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_calc_view_bbox</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">)</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
-        <span class="nb">slice</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">y</span> <span class="p">:</span> <span class="n">y</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">h</span><span class="p">]</span>
+<span class="w">        </span><span class="nb">slice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame</span><span class="p">[</span><span class="n">y</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">h</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="nb">slice</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">slice</span>
 
-    <span class="k">def</span> <span class="nf">camera_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">camera_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the camera view.</span>
+<span class="s2">        Get the camera view.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            np.ndarray: The camera view.</span>
+<span class="s2">            np.ndarray: The camera view.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_view</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">camera_size</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_custom_view</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">camera_size</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">micro_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">micro_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the micro view.</span>
+<span class="s2">        Get the micro view.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            np.ndarray: The micro view.</span>
+<span class="s2">            np.ndarray: The micro view.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_view</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">micro_size</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_custom_view</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">micro_size</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">visualize_world</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">visualize_world</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">line_width</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">timeout</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Visualize the world view with bounding boxes.</span>
+<span class="s2">        Visualize the world view with bounding boxes.</span>
 
-<span class="sd">        Both the camera and micro views are visualized, along with the center point.</span>
+<span class="s2">        Both the camera and micro views are visualized, along with the center point.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            line_width (int): The width of the bounding box lines.</span>
+<span class="s2">            line_width (int): The width of the bounding box lines.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">x_mid</span><span class="p">,</span> <span class="n">y_mid</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_view_bbox</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x_mid</span><span class="p">,</span><span class="w"> </span><span class="n">y_mid</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_calc_view_bbox</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">x_cam</span><span class="p">,</span> <span class="n">y_cam</span><span class="p">,</span> <span class="n">w_cam</span><span class="p">,</span> <span class="n">h_cam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_view_bbox</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">camera_size</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x_cam</span><span class="p">,</span><span class="w"> </span><span class="n">y_cam</span><span class="p">,</span><span class="w"> </span><span class="n">w_cam</span><span class="p">,</span><span class="w"> </span><span class="n">h_cam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_calc_view_bbox</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">camera_size</span><span class="p">)</span>
 
-        <span class="n">x_mic</span><span class="p">,</span> <span class="n">y_mic</span><span class="p">,</span> <span class="n">w_mic</span><span class="p">,</span> <span class="n">h_mic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calc_view_bbox</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">micro_size</span><span class="p">)</span>
+<span class="w">        </span><span class="n">x_mic</span><span class="p">,</span><span class="w"> </span><span class="n">y_mic</span><span class="p">,</span><span class="w"> </span><span class="n">w_mic</span><span class="p">,</span><span class="w"> </span><span class="n">h_mic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_calc_view_bbox</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">micro_size</span><span class="p">)</span>
 
-        <span class="n">world</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="w">        </span><span class="n">world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
 
-            <span class="n">world</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
+<span class="w">            </span><span class="n">world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
 
-        <span class="n">cv</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="p">(</span><span class="n">x_cam</span><span class="p">,</span> <span class="n">y_cam</span><span class="p">),</span> <span class="p">(</span><span class="n">x_cam</span> <span class="o">+</span> <span class="n">w_cam</span><span class="p">,</span> <span class="n">y_cam</span> <span class="o">+</span> <span class="n">h_cam</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">line_width</span><span class="p">)</span>
+<span class="w">        </span><span class="n">cv</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">x_cam</span><span class="p">,</span><span class="w"> </span><span class="n">y_cam</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">x_cam</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w_cam</span><span class="p">,</span><span class="w"> </span><span class="n">y_cam</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">h_cam</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">),</span><span class="w"> </span><span class="n">line_width</span><span class="p">)</span>
 
-        <span class="n">cv</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="p">(</span><span class="n">x_mic</span><span class="p">,</span> <span class="n">y_mic</span><span class="p">),</span> <span class="p">(</span><span class="n">x_mic</span> <span class="o">+</span> <span class="n">w_mic</span><span class="p">,</span> <span class="n">y_mic</span> <span class="o">+</span> <span class="n">h_mic</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">line_width</span><span class="p">)</span>
+<span class="w">        </span><span class="n">cv</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">x_mic</span><span class="p">,</span><span class="w"> </span><span class="n">y_mic</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">x_mic</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">w_mic</span><span class="p">,</span><span class="w"> </span><span class="n">y_mic</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">h_mic</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">line_width</span><span class="p">)</span>
 
-        <span class="n">cv</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="p">(</span><span class="n">x_mid</span><span class="p">,</span> <span class="n">y_mid</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">line_width</span><span class="p">)</span>
+<span class="w">        </span><span class="n">cv</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">x_mid</span><span class="p">,</span><span class="w"> </span><span class="n">y_mid</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">line_width</span><span class="p">)</span>
 
-        <span class="n">cv</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s2">&quot;World View&quot;</span><span class="p">,</span> <span class="n">world</span><span class="p">)</span>
+<span class="w">        </span><span class="n">cv</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="s2">&quot;World View&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">world</span><span class="p">)</span>
 
-        <span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+<span class="w">        </span><span class="n">cv</span><span class="o">.</span><span class="n">waitKey</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
 </code></pre></div>
 
 </details>
@@ -1740,13 +1740,13 @@ and provides their corresponding views.</p>
 <tr>
 <td>camera_size</td>
 <td>tuple[int, int]</td>
-<td>The size of the camera view (width, height).</td>
+<td>The size of the camera view (w, h).</td>
 <td>None</td>
 </tr>
 <tr>
 <td>micro_size</td>
 <td>tuple[int, int]</td>
-<td>The size of the micro view (width, height).</td>
+<td>The size of the micro view (w, h).</td>
 <td>None</td>
 </tr>
 <tr>
@@ -1783,9 +1783,9 @@ and provides their corresponding views.</p>
 
 <span class="w">        </span><span class="n">frame_reader</span><span class="w"> </span><span class="p">(</span><span class="n">FrameReader</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">frame</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="n">object</span><span class="p">.</span>
 
-<span class="w">        </span><span class="n">camera_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">camera</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">).</span>
+<span class="w">        </span><span class="n">camera_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">camera</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
 
-<span class="w">        </span><span class="n">micro_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">micro</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="p">(</span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">).</span>
+<span class="w">        </span><span class="n">micro_size</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">micro</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">).</span>
 
 <span class="w">        </span><span class="n">position</span><span class="w"> </span><span class="p">(</span><span class="n">tuple</span><span class="p">[</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">])</span><span class="o">:</span><span class="w"> </span><span class="n">The</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">center</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">view</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">).</span>
 
@@ -2083,7 +2083,7 @@ and provides their corresponding views.</p>
 
 <span class="w">        </span><span class="n">world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="p">.</span><span class="n">frame_shape</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="nb">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="p">.</span><span class="n">frame_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="o">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="n">_frame_reader</span><span class="p">.</span><span class="n">frame_shape</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="o">:</span>
 
 <span class="w">            </span><span class="n">world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="p">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
 
@@ -2603,7 +2603,7 @@ and provides their corresponding views.</p>
 
 <span class="w">        </span><span class="n">world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="n">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="n">or</span><span class="w"> </span><span class="n">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="err">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">len</span><span class="p">(</span><span class="n">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="o">.</span><span class="n">frame_shape</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="err">:</span>
 
 <span class="w">            </span><span class="n">world</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">COLOR_GRAY2BGR</span><span class="p">)</span>
 

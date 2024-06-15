@@ -1475,457 +1475,457 @@
 <h1 id="module-wtrackersimsimulator">Module wtracker.sim.simulator</h1>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">abc</span>
 
-<span class="kn">from</span> <span class="nn">tqdm.auto</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.auto</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">tqdm</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.sim.view_controller</span> <span class="kn">import</span> <span class="n">ViewController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.sim.view_controller</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">ViewController</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.sim.config</span> <span class="kn">import</span> <span class="n">TimingConfig</span><span class="p">,</span> <span class="n">ExperimentConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.sim.config</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">,</span><span class="w"> </span><span class="n">ExperimentConfig</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.sim.motor_controllers</span> <span class="kn">import</span> <span class="n">MotorController</span><span class="p">,</span> <span class="n">SineMotorController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.sim.motor_controllers</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">MotorController</span><span class="p">,</span><span class="w"> </span><span class="n">SineMotorController</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.frame_reader</span> <span class="kn">import</span> <span class="n">FrameReader</span><span class="p">,</span> <span class="n">DummyReader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.frame_reader</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">,</span><span class="w"> </span><span class="n">DummyReader</span>
 
-<span class="k">class</span> <span class="nc">Simulator</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Simulator</span><span class="p">:</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    A class representing a simulator for a biological experiment.</span>
+<span class="s2">    A class representing a simulator for a biological experiment.</span>
 
-<span class="sd">    Args:</span>
+<span class="s2">    Args:</span>
 
-<span class="sd">        timing_config (TimingConfig): The timing configuration for the experiment.</span>
+<span class="s2">        timing_config (TimingConfig): The timing configuration for the experiment.</span>
 
-<span class="sd">        experiment_config (ExperimentConfig): The experiment configuration.</span>
+<span class="s2">        experiment_config (ExperimentConfig): The experiment configuration.</span>
 
-<span class="sd">        sim_controller (SimController): The simulation controller.</span>
+<span class="s2">        sim_controller (SimController): The simulation controller.</span>
 
-<span class="sd">        reader (FrameReader, optional): The frame reader.</span>
+<span class="s2">        reader (FrameReader, optional): The frame reader.</span>
 
-<span class="sd">        motor_controller (MotorController, optional): The motor controller.</span>
+<span class="s2">        motor_controller (MotorController, optional): The motor controller.</span>
 
-<span class="sd">    Attributes:</span>
+<span class="s2">    Attributes:</span>
 
-<span class="sd">        timing_config (TimingConfig): The timing configuration for the experiment.</span>
+<span class="s2">        timing_config (TimingConfig): The timing configuration for the experiment.</span>
 
-<span class="sd">        experiment_config (ExperimentConfig): The experiment configuration.</span>
+<span class="s2">        experiment_config (ExperimentConfig): The experiment configuration.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">,</span>
+<span class="w">        </span><span class="n">timing_config</span><span class="p">:</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">,</span>
 
-        <span class="n">experiment_config</span><span class="p">:</span> <span class="n">ExperimentConfig</span><span class="p">,</span>
+<span class="w">        </span><span class="n">experiment_config</span><span class="p">:</span><span class="w"> </span><span class="n">ExperimentConfig</span><span class="p">,</span>
 
-        <span class="n">sim_controller</span><span class="p">:</span> <span class="n">SimController</span><span class="p">,</span>
+<span class="w">        </span><span class="n">sim_controller</span><span class="p">:</span><span class="w"> </span><span class="n">SimController</span><span class="p">,</span>
 
-        <span class="n">reader</span><span class="p">:</span> <span class="n">FrameReader</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="n">reader</span><span class="p">:</span><span class="w"> </span><span class="n">FrameReader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">None</span><span class="p">,</span>
 
-        <span class="n">motor_controller</span><span class="p">:</span> <span class="n">MotorController</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="w">        </span><span class="n">motor_controller</span><span class="p">:</span><span class="w"> </span><span class="n">MotorController</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">None</span><span class="p">,</span>
 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span> <span class="o">=</span> <span class="n">timing_config</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timing_config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">experiment_config</span> <span class="o">=</span> <span class="n">experiment_config</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">experiment_config</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span> <span class="o">=</span> <span class="n">sim_controller</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sim_controller</span>
 
-        <span class="k">if</span> <span class="n">reader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-            <span class="n">num_frames</span> <span class="o">=</span> <span class="n">experiment_config</span><span class="o">.</span><span class="n">num_frames</span>
+<span class="w">            </span><span class="n">num_frames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">experiment_config</span><span class="o">.</span><span class="n">num_frames</span>
 
-            <span class="n">padding_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">timing_config</span><span class="o">.</span><span class="n">camera_size_px</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">timing_config</span><span class="o">.</span><span class="n">camera_size_px</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+<span class="w">            </span><span class="n">padding_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">timing_config</span><span class="o">.</span><span class="n">camera_size_px</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">timing_config</span><span class="o">.</span><span class="n">camera_size_px</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
 
-            <span class="n">resolution</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">orig_resolution</span><span class="p">,</span> <span class="n">padding_size</span><span class="p">)])</span>
+<span class="w">            </span><span class="n">resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">tuple</span><span class="p">([</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">zip</span><span class="p">(</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">orig_resolution</span><span class="p">,</span><span class="w"> </span><span class="n">padding_size</span><span class="p">)])</span>
 
-            <span class="n">reader</span> <span class="o">=</span> <span class="n">DummyReader</span><span class="p">(</span><span class="n">num_frames</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">colored</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="w">            </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DummyReader</span><span class="p">(</span><span class="n">num_frames</span><span class="p">,</span><span class="w"> </span><span class="n">resolution</span><span class="p">,</span><span class="w"> </span><span class="n">colored</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">motor_controller</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">motor_controller</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-            <span class="n">motor_controller</span> <span class="o">=</span> <span class="n">SineMotorController</span><span class="p">(</span><span class="n">timing_config</span><span class="p">)</span>
+<span class="w">            </span><span class="n">motor_controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SineMotorController</span><span class="p">(</span><span class="n">timing_config</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_motor_controller</span> <span class="o">=</span> <span class="n">motor_controller</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_motor_controller</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">motor_controller</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_view</span> <span class="o">=</span> <span class="n">ViewController</span><span class="p">(</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ViewController</span><span class="p">(</span>
 
-            <span class="n">frame_reader</span><span class="o">=</span><span class="n">reader</span><span class="p">,</span>
+<span class="w">            </span><span class="n">frame_reader</span><span class="o">=</span><span class="n">reader</span><span class="p">,</span>
 
-            <span class="n">camera_size</span><span class="o">=</span><span class="n">timing_config</span><span class="o">.</span><span class="n">camera_size_px</span><span class="p">,</span>
+<span class="w">            </span><span class="n">camera_size</span><span class="o">=</span><span class="n">timing_config</span><span class="o">.</span><span class="n">camera_size_px</span><span class="p">,</span>
 
-            <span class="n">micro_size</span><span class="o">=</span><span class="n">timing_config</span><span class="o">.</span><span class="n">micro_size_px</span><span class="p">,</span>
+<span class="w">            </span><span class="n">micro_size</span><span class="o">=</span><span class="n">timing_config</span><span class="o">.</span><span class="n">micro_size_px</span><span class="p">,</span>
 
-            <span class="n">init_position</span><span class="o">=</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">init_position</span><span class="p">,</span>
+<span class="w">            </span><span class="n">init_position</span><span class="o">=</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">init_position</span><span class="p">,</span>
 
-        <span class="p">)</span>
+<span class="w">        </span><span class="p">)</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ViewController</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ViewController</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the view controller.</span>
+<span class="s2">        Get the view controller.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            ViewController: The view controller.</span>
+<span class="s2">            ViewController: The view controller.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the current position.</span>
+<span class="s2">        Get the current position.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int]: The current position.</span>
+<span class="s2">            tuple[int, int]: The current position.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">position</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">position</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">cycle_number</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">cycle_number</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the current cycle number.</span>
+<span class="s2">        Get the current cycle number.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            int: The current cycle number.</span>
+<span class="s2">            int: The current cycle number.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">frame_number</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">frame_number</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the current frame number.</span>
+<span class="s2">        Get the current frame number.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            int: The current frame number.</span>
+<span class="s2">            int: The current frame number.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">cycle_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">cycle_step</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the current cycle step.</span>
+<span class="s2">        Get the current cycle step.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            int: The current cycle step.</span>
+<span class="s2">            int: The current cycle step.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">index</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
 
-    <span class="k">def</span> <span class="nf">camera_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">camera_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the view that the camera sees.</span>
+<span class="s2">        Get the view that the camera sees.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            np.ndarray: The camera view.</span>
+<span class="s2">            np.ndarray: The camera view.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">camera_view</span><span class="p">()</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">camera_view</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">micro_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">micro_view</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Get the view that the microscope sees.</span>
+<span class="s2">        Get the view that the microscope sees.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            np.ndarray: The micro view.</span>
+<span class="s2">            np.ndarray: The micro view.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">micro_view</span><span class="p">()</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">micro_view</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Reset the simulator.</span>
+<span class="s2">        Reset the simulator.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="kp">view</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">init_position</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_config</span><span class="o">.</span><span class="n">init_position</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visualize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">wait_key</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">visualize</span><span class="p">:</span><span class="w"> </span><span class="nb">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">False</span><span class="p">,</span><span class="w"> </span><span class="n">wait_key</span><span class="p">:</span><span class="w"> </span><span class="nb">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">False</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Run the simulation.</span>
+<span class="s2">        Run the simulation.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            visualize (bool, optional): Whether to visualize the simulation.</span>
+<span class="s2">            visualize (bool, optional): Whether to visualize the simulation.</span>
 
-<span class="sd">            wait_key (bool, optional): Whether to wait for a key press to advance the simulation during visualization.</span>
+<span class="s2">            wait_key (bool, optional): Whether to wait for a key press to advance the simulation during visualization.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span>
+<span class="w">        </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span>
 
-        <span class="n">total_cycles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">)</span> <span class="o">//</span> <span class="n">config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
+<span class="w">        </span><span class="n">total_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="p">)</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">cycle_frame_num</span>
 
-        <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">total_cycles</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Simulation Progress&quot;</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;cycle&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">pbar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">total_cycles</span><span class="p">,</span><span class="w"> </span><span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Simulation Progress&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;cycle&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_sim_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_sim_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">progress</span><span class="p">():</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">progress</span><span class="p">():</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
 
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_number</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_number</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
 
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_movement_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                    </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_movement_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_cycle_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                    </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_cycle_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_cycle_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_cycle_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_camera_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_camera_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_imaging_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_imaging_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span> <span class="o">&lt;</span> <span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span><span class="p">:</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_micro_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_micro_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span> <span class="o">==</span> <span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span> <span class="o">-</span> <span class="n">config</span><span class="o">.</span><span class="n">pred_frame_num</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">pred_frame_num</span><span class="p">:</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">begin_movement_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">begin_movement_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span> <span class="o">==</span> <span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span><span class="p">:</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_imaging_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_imaging_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-                <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                </span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">dy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_movement_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_movement_start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_motor_controller</span><span class="o">.</span><span class="n">register_move</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_motor_controller</span><span class="o">.</span><span class="n">register_move</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">dy</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span> <span class="o">&lt;</span> <span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span> <span class="o">+</span> <span class="n">config</span><span class="o">.</span><span class="n">moving_frame_num</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">imaging_frame_num</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">moving_frame_num</span><span class="p">:</span>
 
-                <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_motor_controller</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="w">                </span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">dy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_motor_controller</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">move_position</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">move_position</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span><span class="w"> </span><span class="n">dy</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span> <span class="o">==</span> <span class="n">config</span><span class="o">.</span><span class="n">cycle_frame_num</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">cycle_step</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">cycle_frame_num</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span>
 
-                <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                </span><span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">visualize</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">visualize</span><span class="p">:</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">visualize_world</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">0</span> <span class="k">if</span> <span class="n">wait_key</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
+<span class="w">                </span><span class="bp">self</span><span class="o">.</span><span class="n">_view</span><span class="o">.</span><span class="n">visualize_world</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">wait_key</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_sim_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_sim_controller</span><span class="o">.</span><span class="n">on_sim_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="n">pbar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="w">        </span><span class="n">pbar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="k">class</span> <span class="nc">SimController</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimController</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    Abstract base class for simulator controllers.</span>
+<span class="s2">    Abstract base class for simulator controllers.</span>
 
-<span class="sd">    Attributes:</span>
+<span class="s2">    Attributes:</span>
 
-<span class="sd">        timing_config (TimingConfig): The timing configuration for the simulator.</span>
+<span class="s2">        timing_config (TimingConfig): The timing configuration for the simulator.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timing_config</span><span class="p">:</span> <span class="n">TimingConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">timing_config</span><span class="p">:</span><span class="w"> </span><span class="n">TimingConfig</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span> <span class="o">=</span> <span class="n">timing_config</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">timing_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timing_config</span>
 
-    <span class="k">def</span> <span class="nf">on_sim_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_sim_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when the simulation starts.</span>
+<span class="s2">        Called when the simulation starts.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_sim_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_sim_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when the simulation ends.</span>
+<span class="s2">        Called when the simulation ends.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_cycle_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_cycle_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when a new cycle starts.</span>
+<span class="s2">        Called when a new cycle starts.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_cycle_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_cycle_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when a cycle ends.</span>
+<span class="s2">        Called when a cycle ends.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_camera_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_camera_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when a camera frame is captured. Happens every frame.</span>
+<span class="s2">        Called when a camera frame is captured. Happens every frame.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_imaging_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_imaging_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when imaging phase starts.</span>
+<span class="s2">        Called when imaging phase starts.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_micro_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_micro_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when a micro frame is captured. Happens for every during the imaging phase.</span>
+<span class="s2">        Called when a micro frame is captured. Happens for every during the imaging phase.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_imaging_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_imaging_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when imaging phase ends.</span>
+<span class="s2">        Called when imaging phase ends.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_movement_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_movement_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when movement phase starts.</span>
+<span class="s2">        Called when movement phase starts.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">on_movement_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">on_movement_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when movement phase ends.</span>
+<span class="s2">        Called when movement phase ends.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">pass</span>
+<span class="w">        </span><span class="k">pass</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<span class="w">    </span><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 
-    <span class="k">def</span> <span class="nf">begin_movement_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">begin_movement_prediction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Called when the movement prediction begins.</span>
+<span class="s2">        Called when the movement prediction begins.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+<span class="w">        </span><span class="k">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">()</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<span class="w">    </span><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 
-    <span class="k">def</span> <span class="nf">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">provide_movement_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Provides the movement vector for the simulator. The platform is moved by the provided vector.</span>
+<span class="s2">        Provides the movement vector for the simulator. The platform is moved by the provided vector.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int]: The movement vector in format (dx, dy).</span>
+<span class="s2">            tuple[int, int]: The movement vector in format (dx, dy).</span>
 
-<span class="sd">                The platform will be moved by dx pixels in the x-direction and dy pixels in the y-direction.</span>
+<span class="s2">                The platform will be moved by dx pixels in the x-direction and dy pixels in the y-direction.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+<span class="w">        </span><span class="k">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">()</span>
 
-    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+<span class="w">    </span><span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
 
-    <span class="k">def</span> <span class="nf">_cycle_predict_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">:</span> <span class="n">Simulator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_cycle_predict_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">sim</span><span class="p">:</span><span class="w"> </span><span class="n">Simulator</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Returns a list of bbox predictions of the worm, for each frame of the current cycle.</span>
+<span class="s2">        Returns a list of bbox predictions of the worm, for each frame of the current cycle.</span>
 
-<span class="sd">        If a prediction is not available, return None for that frame.</span>
+<span class="s2">        If a prediction is not available, return None for that frame.</span>
 
-<span class="sd">        Used internally for logging.</span>
+<span class="s2">        Used internally for logging.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+<span class="w">        </span><span class="k">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="p">()</span>
 </code></pre></div>
 
 </details>

@@ -1543,431 +1543,431 @@
 <h1 id="module-wtrackerutilsframe_reader">Module wtracker.utils.frame_reader</h1>
 <details class="example">
 <summary>View Source</summary>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cv</span>
 
-<span class="kn">from</span> <span class="nn">wtracker.utils.path_utils</span> <span class="kn">import</span> <span class="n">join_paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">wtracker.utils.path_utils</span><span class="w"> </span><span class="kn">import</span><span class="w"> </span><span class="n">join_paths</span>
 
-<span class="k">class</span> <span class="nc">FrameReader</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FrameReader</span><span class="p">:</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    An class for reading frames from a directory of frame files.</span>
+<span class="s2">    An class for reading frames from a directory of frame files.</span>
 
-<span class="sd">    Args:</span>
+<span class="s2">    Args:</span>
 
-<span class="sd">        root_folder (str): The root folder path where the frame files are located.</span>
+<span class="s2">        root_folder (str): The root folder path where the frame files are located.</span>
 
-<span class="sd">        frame_files (list[str]): A list of frame file names.</span>
+<span class="s2">        frame_files (list[str]): A list of frame file names.</span>
 
-<span class="sd">        read_format (int, optional): The format in which the frames should be read.</span>
+<span class="s2">        read_format (int, optional): The format in which the frames should be read.</span>
 
-<span class="sd">    Attributes:</span>
+<span class="s2">    Attributes:</span>
 
-<span class="sd">        root_folder (str): The root folder path where the frame files are located.</span>
+<span class="s2">        root_folder (str): The root folder path where the frame files are located.</span>
 
-<span class="sd">        frame_shape (tuple[int, ...]): The shape of the frame.</span>
+<span class="s2">        frame_shape (tuple[int, ...]): The shape of the frame.</span>
 
-<span class="sd">        frame_size (tuple[int, int]): The size of the frame.</span>
+<span class="s2">        frame_size (tuple[int, int]): The size of the frame.</span>
 
-<span class="sd">        files (list[str]): The list of file paths.</span>
+<span class="s2">        files (list[str]): The list of file paths.</span>
 
-<span class="sd">        read_format (int): The read format of the frame reader.</span>
+<span class="s2">        read_format (int): The read format of the frame reader.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 
-        <span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
 
-        <span class="n">root_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="w">        </span><span class="n">root_folder</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span><span class="p">,</span>
 
-        <span class="n">frame_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="w">        </span><span class="n">frame_files</span><span class="p">:</span><span class="w"> </span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 
-        <span class="n">read_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">IMREAD_GRAYSCALE</span><span class="p">,</span>
+<span class="w">        </span><span class="n">read_format</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">IMREAD_GRAYSCALE</span><span class="p">,</span>
 
-    <span class="p">):</span>
+<span class="w">    </span><span class="p">):</span>
 
-        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">root_folder</span><span class="p">)</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">root_folder</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="w">        </span><span class="k">assert</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">frame_files</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_root_folder</span> <span class="o">=</span> <span class="n">root_folder</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_root_folder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root_folder</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_files</span> <span class="o">=</span> <span class="n">frame_files</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame_files</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_read_format</span> <span class="o">=</span> <span class="n">read_format</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_read_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_format</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_frame_shape</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_extract_frame_shape</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_extract_frame_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">]:</span>
 
-        <span class="n">path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="w">        </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_format</span><span class="p">)</span>
+<span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_read_format</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="kp">shape</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">frame</span><span class="o">.</span><span class="n">shape</span>
 
-    <span class="nd">@staticmethod</span>
+<span class="w">    </span><span class="nd">@staticmethod</span>
 
-    <span class="k">def</span> <span class="nf">create_from_template</span><span class="p">(</span><span class="n">root_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">read_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">IMREAD_GRAYSCALE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrameReader</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">create_from_template</span><span class="p">(</span><span class="n">root_folder</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">name_format</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">read_format</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">IMREAD_GRAYSCALE</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Creates a FrameReader object from a file name template.</span>
+<span class="s2">        Creates a FrameReader object from a file name template.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            root_folder (str): The root folder where the frame files are located.</span>
+<span class="s2">            root_folder (str): The root folder where the frame files are located.</span>
 
-<span class="sd">            name_format (str): The format of the frame file names.</span>
+<span class="s2">            name_format (str): The format of the frame file names.</span>
 
-<span class="sd">            read_format (int, optional): The format in which the frames should be read.</span>
+<span class="s2">            read_format (int, optional): The format in which the frames should be read.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            FrameReader: The created FrameReader object.</span>
+<span class="s2">            FrameReader: The created FrameReader object.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># get all files matching name format</span>
+<span class="w">        </span><span class="c1"># get all files matching name format</span>
 
-        <span class="n">fmt</span> <span class="o">=</span> <span class="n">name_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;[0-9]*&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="n">fmt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name_format</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;[0-9]*&quot;</span><span class="p">)</span>
 
-        <span class="n">frame_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="n">root_folder</span><span class="p">)</span>
+<span class="w">        </span><span class="n">frame_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span><span class="w"> </span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_folder</span><span class="p">)</span>
 
-        <span class="n">frame_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frame_paths</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">join_paths</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span>
+<span class="w">        </span><span class="n">frame_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">f</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frame_paths</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">join_paths</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">))]</span>
 
-        <span class="n">frame_paths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">frame_paths</span><span class="p">)</span>
+<span class="w">        </span><span class="n">frame_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sorted</span><span class="p">(</span><span class="n">frame_paths</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">FrameReader</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span> <span class="n">frame_paths</span><span class="p">,</span> <span class="n">read_format</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">frame_paths</span><span class="p">,</span><span class="w"> </span><span class="n">read_format</span><span class="p">)</span>
 
-    <span class="nd">@staticmethod</span>
+<span class="w">    </span><span class="nd">@staticmethod</span>
 
-    <span class="k">def</span> <span class="nf">create_from_directory</span><span class="p">(</span><span class="n">root_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">read_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">IMREAD_GRAYSCALE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrameReader</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">create_from_directory</span><span class="p">(</span><span class="n">root_folder</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span><span class="p">,</span><span class="w"> </span><span class="n">read_format</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">IMREAD_GRAYSCALE</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Creates a FrameReader object from a directory.</span>
+<span class="s2">        Creates a FrameReader object from a directory.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            root_folder (str): The root folder containing the frame files.</span>
+<span class="s2">            root_folder (str): The root folder containing the frame files.</span>
 
-<span class="sd">            read_format (int, optional): The format in which the frames should be read.</span>
+<span class="s2">            read_format (int, optional): The format in which the frames should be read.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            FrameReader: The created FrameReader object.</span>
+<span class="s2">            FrameReader: The created FrameReader object.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># get all files in root</span>
+<span class="w">        </span><span class="c1"># get all files in root</span>
 
-        <span class="n">frame_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.*&quot;</span><span class="p">,</span> <span class="n">root_dir</span><span class="o">=</span><span class="n">root_folder</span><span class="p">)</span>
+<span class="w">        </span><span class="n">frame_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.*&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">root_dir</span><span class="o">=</span><span class="n">root_folder</span><span class="p">)</span>
 
-        <span class="n">frame_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frame_paths</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">join_paths</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span>
+<span class="w">        </span><span class="n">frame_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">f</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">frame_paths</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">join_paths</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">f</span><span class="p">))]</span>
 
-        <span class="n">frame_paths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">frame_paths</span><span class="p">)</span>
+<span class="w">        </span><span class="n">frame_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">sorted</span><span class="p">(</span><span class="n">frame_paths</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">FrameReader</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span> <span class="n">frame_paths</span><span class="p">,</span> <span class="n">read_format</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">(</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="n">frame_paths</span><span class="p">,</span><span class="w"> </span><span class="n">read_format</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">root_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">root_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">str</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Returns the root folder path.</span>
+<span class="s2">        Returns the root folder path.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            str: The root folder path.</span>
+<span class="s2">            str: The root folder path.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_root_folder</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_root_folder</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">frame_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">frame_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Returns the shape of the frame.</span>
+<span class="s2">        Returns the shape of the frame.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, ...]: The shape of the frame, in format (h, w, ...).</span>
+<span class="s2">            tuple[int, ...]: The shape of the frame, in format (h, w, ...).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_shape</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_shape</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">frame_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">frame_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Returns the size of the frame.</span>
+<span class="s2">        Returns the size of the frame.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            tuple[int, int]: The shape of the frame, in format (h, w).</span>
+<span class="s2">            tuple[int, int]: The shape of the frame, in format (h, w).</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">files</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Returns the list of files associated with the FrameReader object.</span>
+<span class="s2">        Returns the list of files associated with the FrameReader object.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            list[str]: The list of file paths.</span>
+<span class="s2">            list[str]: The list of file paths.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_files</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">read_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">read_format</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Returns the read format of the frame reader.</span>
+<span class="s2">        Returns the read format of the frame reader.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            int: The read format.</span>
+<span class="s2">            int: The read format.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_format</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_read_format</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">:</span>
 
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-        <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">):</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_files</span><span class="p">):</span>
 
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;index out of bounds&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">raise</span><span class="w"> </span><span class="n">IndexError</span><span class="p">(</span><span class="s2">&quot;index out of bounds&quot;</span><span class="p">)</span>
 
-        <span class="n">path</span> <span class="o">=</span> <span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+<span class="w">        </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">join_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_folder</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_format</span><span class="p">)</span>
+<span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_read_format</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span> <span class="kp">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">frame</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span><span class="w"> </span><span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="n">FrameStream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">FrameStream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">make_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">make_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Creates and returns a FrameStream object using the current instance of FrameReader.</span>
+<span class="s2">        Creates and returns a FrameStream object using the current instance of FrameReader.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            FrameStream: A FrameStream object.</span>
+<span class="s2">            FrameStream: A FrameStream object.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="n">FrameStream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">FrameStream</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">FrameStream</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FrameStream</span><span class="p">:</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    A class for streaming frames from a FrameReader object.</span>
+<span class="s2">    A class for streaming frames from a FrameReader object.</span>
 
-<span class="sd">    This class serves as an iterator for the FrameReader object.</span>
+<span class="s2">    This class serves as an iterator for the FrameReader object.</span>
 
-<span class="sd">    Args:</span>
+<span class="s2">    Args:</span>
 
-<span class="sd">        frame_reader (FrameReader): The frame reader object.</span>
+<span class="s2">        frame_reader (FrameReader): The frame reader object.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_reader</span><span class="p">:</span> <span class="n">FrameReader</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">frame_reader</span><span class="p">:</span><span class="w"> </span><span class="n">FrameReader</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span> <span class="o">=</span> <span class="n">frame_reader</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">frame_reader</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">None</span>
 
-    <span class="nd">@property</span>
+<span class="w">    </span><span class="nd">@property</span>
 
-    <span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">int</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        The index of the current frame.</span>
+<span class="s2">        The index of the current frame.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="bp">self</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span>
 
-    <span class="k">def</span> <span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">progress</span><span class="p">()</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">progress</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_read</span><span class="p">():</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">can_read</span><span class="p">():</span>
 
-            <span class="k">raise</span> <span class="ne">StopIteration</span><span class="p">()</span>
+<span class="w">            </span><span class="k">raise</span><span class="w"> </span><span class="n">StopIteration</span><span class="p">()</span>
 
-        <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="w">        </span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="n">frame</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">frame</span>
 
-    <span class="k">def</span> <span class="nf">can_read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">can_read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">bool</span><span class="p">:</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">seek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">seek</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">bool</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Move the index to the specified position.</span>
+<span class="s2">        Move the index to the specified position.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            idx (int): The index to seek to.</span>
+<span class="s2">            idx (int): The index to seek to.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            bool: True if the index is within the valid range, False otherwise.</span>
+<span class="s2">            bool: True if the index is within the valid range, False otherwise.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">=</span> <span class="n">idx</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">idx</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">None</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_read</span><span class="p">()</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">can_read</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Read and return the frame at the current index.</span>
+<span class="s2">        Read and return the frame at the current index.</span>
 
-<span class="sd">        Raises:</span>
+<span class="s2">        Raises:</span>
 
-<span class="sd">            IndexError: If the index is out of bounds.</span>
+<span class="s2">            IndexError: If the index is out of bounds.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            np.ndarray: The frame at the current index.</span>
+<span class="s2">            np.ndarray: The frame at the current index.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">can_read</span><span class="p">():</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">can_read</span><span class="p">():</span>
 
-            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;index out of bounds&quot;</span><span class="p">)</span>
+<span class="w">            </span><span class="k">raise</span><span class="w"> </span><span class="n">IndexError</span><span class="p">(</span><span class="s2">&quot;index out of bounds&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="kc">None</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span><span class="p">]</span>
+<span class="w">            </span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame_reader</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span><span class="p">]</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span>
 
-    <span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">bool</span><span class="p">:</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Moves the current index forward by the specified number of steps.</span>
+<span class="s2">        Moves the current index forward by the specified number of steps.</span>
 
-<span class="sd">        Args:</span>
+<span class="s2">        Args:</span>
 
-<span class="sd">            n (int): The number of steps to move forward.</span>
+<span class="s2">            n (int): The number of steps to move forward.</span>
 
-<span class="sd">        Returns:</span>
+<span class="s2">        Returns:</span>
 
-<span class="sd">            bool: True if the index was successfully moved forward, False otherwise.</span>
+<span class="s2">            bool: True if the index was successfully moved forward, False otherwise.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span> <span class="o">+</span> <span class="n">n</span><span class="p">)</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">        Resets the frame reader to the beginning of the steam.</span>
+<span class="s2">        Resets the frame reader to the beginning of the steam.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">DummyReader</span><span class="p">(</span><span class="n">FrameReader</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DummyReader</span><span class="p">(</span><span class="n">FrameReader</span><span class="p">):</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
 
-<span class="sd">    A dummy frame reader that generates empty frames of a specified resolution.</span>
+<span class="s2">    A dummy frame reader that generates empty frames of a specified resolution.</span>
 
-<span class="sd">    Args:</span>
+<span class="s2">    Args:</span>
 
-<span class="sd">        num_frames (int): The number of frames to generate.</span>
+<span class="s2">        num_frames (int): The number of frames to generate.</span>
 
-<span class="sd">        resolution (tuple[int, int]): The resolution of the frames, in format (h, w).</span>
+<span class="s2">        resolution (tuple[int, int]): The resolution of the frames, in format (h, w).</span>
 
-<span class="sd">        colored (bool, optional): Whether the frames are colored or grayscale.</span>
+<span class="s2">        colored (bool, optional): Whether the frames are colored or grayscale.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_frames</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">resolution</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">colored</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">num_frames</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="n">resolution</span><span class="p">:</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="nb">int</span><span class="p">],</span><span class="w"> </span><span class="n">colored</span><span class="p">:</span><span class="w"> </span><span class="nb">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">True</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">colored</span> <span class="o">=</span> <span class="n">colored</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">colored</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">colored</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span> <span class="o">=</span> <span class="n">resolution</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">resolution</span>
 
-        <span class="kp">shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">resolution</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="k">if</span> <span class="n">colored</span> <span class="k">else</span> <span class="n">resolution</span>
+<span class="w">        </span><span class="n">shape</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">resolution</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">colored</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">resolution</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="kp">shape</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span> <span class="kp">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="w"> </span><span class="n">fill_value</span><span class="o">=</span><span class="mi">255</span><span class="p">,</span><span class="w"> </span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 
-        <span class="n">frames</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)]</span>
+<span class="w">        </span><span class="n">frames</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="n">num_frames</span><span class="p">)]</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">frame_files</span><span class="o">=</span><span class="n">frames</span><span class="p">)</span>
+<span class="w">        </span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">frame_files</span><span class="o">=</span><span class="n">frames</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">:</span><span class="w"> </span><span class="nb">int</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="kp">copy</span><span class="p">()</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_frame</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_extract_frame_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">]:</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">colored</span><span class="p">:</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">colored</span><span class="p">:</span>
 
-            <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span>
 </code></pre></div>
 
 </details>
