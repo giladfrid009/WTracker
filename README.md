@@ -4,13 +4,17 @@
 
 This library provides tools for worm detection and movement prediction, training predictors, and analyzing the results. It includes support for YOLO-based prediction and various simulation controllers.
 
-Official Documentation can be found [here](https://giladfrid009.github.io/Bio-Proj/).
-
 ## Features
 
 - Real-time Worm detection and movement prediction
 - Logging and analysis tools
 - CSV, logging, and YOLO controllers
+
+## Documentation
+
+* There is an [Official Documentation](giladfrid009.github.io/WTracker/) website availabe of the entire API.
+* The library is fully documented within the code base.
+* Workflow files have elaborate documentation for usage.
 
 ## Installation
 
@@ -66,8 +70,6 @@ The extensions needed are:
 - [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
 
 \* Some extensions may be already installed by default.
-
-
 
 
 ## Usage
