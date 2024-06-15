@@ -28,7 +28,7 @@ the initialization process, the simulation produces a log, which would be later 
 **`analysis.ipynb`** - This notebook is used to analyze the performance of a control algorithm (controller). A log which was produced by running
 simulate is read and analyzed, and different plots and statistics are presented. In addition, there is an option to calculate segmentation
 evaluation-error, by counting how many pixels of the worm are outside of the microscope view. To this end, we use the background and worm
-images which were extracted during the run of intialize_experiment notebook for this experiment.
+images which were extracted during the run of `initialize_experiment` notebook for this experiment.
 
 **`visualize.ipynb`** - Given a system log which was produced by simulate, this notebook is able to visually recreate the simulator’s behavior. At
 each frame, the position of worm’s head is drawn, the position of the microscope FOV, and also the camera FOV. This notebook is used to
@@ -41,15 +41,6 @@ NN from experiment log files, which were produced by either running initialize o
 is an algorithm that uses polynomial-fitting to predict worm’s future position. A polynomial is fitted from past observations at previous time
 stamps, and afterwards sampled in the future time to predict worm’s position. This notebook is used to determine the optimal degree of the
 fitted polynomial, and to find the optimal weight of each past sample for the fitting process.
-
-## Workflow Files Dependency Graph
-
-<p>
-    <img src="../images/work-flowchart.png">
-    <em>
-    Workflow outline and the dependencies between each notebook files. Blue color (rectangles) denotes an interactive notebook file, green color (diamond) denotes intermediate outputs between different files, and the global input is in yellow color (circle). 
-Dotted line denote optional dependencies.</em>
-</p>
 
 
 ## Complete Workflows    
@@ -69,7 +60,7 @@ Here we explain how to properly capture the footage of an experiment for the sim
     
 2. The camera should be completely stationary from which the entire arena is visible.
 
-3. The footage should be captured as distinct images for each frame, not as a continious video. We recommend to use *"bmp"* image format, which is lossless, and is able to save single channel if the image is grayscale.
+3. The footage should be captured as distinct images for each frame, not as a continuous video. We recommend to use *"bmp"* image format, which is lossless, and is able to save single channel if the image is grayscale.
 
 4. Make sure that the distinct frames are saved as images with the frame number appearing in their name, such that it's possible to read them in-order.
 
