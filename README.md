@@ -76,9 +76,9 @@ Refer to the variouse '\.ipynb' files for usage for each workflow.
 
 ## License
 
-GPL v3.0 License
+The code is licensed under the **GPL v3.0 License**.
 
-**_TL;DR_*** Here's what the license entails:
+**_TL;DR_** Here's what the license entails:
 
 ```markdown
 1. Anyone can copy, modify and distribute this software.
@@ -92,7 +92,7 @@ GPL v3.0 License
 9. The software author or license can not be held liable for any damages inflicted by the software.
 ```
 
-For more details see the [license](LICENSE) file
+For more details see the [license](LICENSE) file.
 
 ## Contact
 
