@@ -1,11 +1,4 @@
 *.npy
-*.avi
-*.png
-*.jpg
-*.bmp
-*.Bmp
-videos
-images
 rois
 samples
 samples_all
