@@ -8,6 +8,7 @@ from wtracker.utils.io_utils import ImageSaver, FrameSaver
 from wtracker.utils.log_utils import CSVLogger
 from wtracker.utils.config_base import ConfigBase
 from wtracker.utils.path_utils import join_paths, create_parent_directory
+from wtracker.utils.bbox_utils import BoxUtils, BoxFormat
 
 
 @dataclass
@@ -146,53 +147,38 @@ class LoggingController(SimController):
         frame_offset = cycle_number * self.timing_config.cycle_frame_num
 
         worm_bboxes = self.sim_controller._cycle_predict_all(sim)
+        cam_bboxes = np.asanyarray(list(self._camera_bboxes))
+
+        # make worm bboxes coordinate absolute
+        worm_bboxes[:, 0] += cam_bboxes[:, 0]
+        worm_bboxes[:, 1] += cam_bboxes[:, 1]
+
+        # calc the crop dims to get the worm view from the original frame
+        (H, W) = sim.experiment_config.orig_resolution
+        crop_dims, is_crop_legal = BoxUtils.discretize(worm_bboxes, (H, W), BoxFormat.XYWH)
 
         for i, worm_bbox in enumerate(worm_bboxes):
+            frame_number = frame_offset + i
+
+            # if no prediction and we're saving error frames
+            if not np.isfinite(worm_bbox).all() and self.log_config.save_err_view:
+                err_view = self._camera_frames[i]
+                path = self.log_config.err_file_path.format(frame_number)
+                self._image_saver.schedule_save(img=err_view, img_name=path)
+
+            # save cropped worm view if crop is legal
+            if self.log_config.save_wrm_view and is_crop_legal[i]:
+                crop_dim = crop_dims[i]
+                path = self.log_config.wrm_file_path.format(frame_number)
+                self._frame_saver.schedule_save(img_index=frame_number, crop_dims=crop_dim, img_name=path)
+
             csv_row = {}
             csv_row["plt_x"], csv_row["plt_y"] = self._platform_positions[i]
             csv_row["cam_x"], csv_row["cam_y"], csv_row["cam_w"], csv_row["cam_h"] = self._camera_bboxes[i]
             csv_row["mic_x"], csv_row["mic_y"], csv_row["mic_w"], csv_row["mic_h"] = self._micro_bboxes[i]
-
-            frame_number = frame_offset + i
-            phase = "imaging" if i < self.timing_config.imaging_frame_num else "moving"
-
             csv_row["cycle"] = cycle_number
             csv_row["frame"] = frame_number
-            csv_row["phase"] = phase
-
-            # if no prediction
-            if not np.isfinite(worm_bbox).all():
-                if self.log_config.save_err_view:
-                    # save prediction error
-                    err_view = self._camera_frames[i]
-                    path = self.log_config.err_file_path.format(frame_number)
-                    self._image_saver.schedule_save(err_view, path)
-
-                if self.log_config.save_wrm_view:
-                    # save worm view
-                    path = self.log_config.wrm_file_path.format(frame_number)
-                    self._frame_saver.schedule_save(0, (0, 0, 20, 20), path)
-
-            else:
-                # format bbox to have absolute position
-                cam_bbox = self._camera_bboxes[i]
-                worm_bbox = (
-                    worm_bbox[0] + cam_bbox[0],
-                    worm_bbox[1] + cam_bbox[1],
-                    worm_bbox[2],
-                    worm_bbox[3],
-                )
-
-                if self.log_config.save_wrm_view:
-                    # save worm view
-                    path = self.log_config.wrm_file_path.format(frame_number)
-                    self._frame_saver.schedule_save(
-                        img_index=frame_number,
-                        crop_dims=worm_bbox,
-                        img_name=path,
-                    )
-
-            # log current cycle
+            csv_row["phase"] = "imaging" if i < self.timing_config.imaging_frame_num else "moving"
             csv_row["wrm_x"], csv_row["wrm_y"], csv_row["wrm_w"], csv_row["wrm_h"] = worm_bbox
             self._bbox_logger.write(csv_row)
 

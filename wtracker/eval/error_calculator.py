@@ -27,7 +27,7 @@ class ErrorCalculator:
         Calculates the segmentation error between a view and background image.
 
         Args:
-            bbox (np.ndarray): The bounding box of the image, in the format (x, y, x, y).
+            bbox (np.ndarray): The bounding box of the image, in the format (x, y, w, h).
             image (np.ndarray): The image to calculate segmentation from.
             background (np.ndarray): The background image.
             diff_thresh (float): The difference threshold to distinguish foreground and background objects from.
@@ -39,12 +39,11 @@ class ErrorCalculator:
             ValueError: If the image is not grayscale or color.
         """
 
-        x1, y1, x2, y2 = bbox
+        x, y, w, h = bbox
 
-        assert image.shape[0] == y2 - y1
-        assert image.shape[1] == x2 - x1
+        assert image.shape[:2] == (h, w)
 
-        bg_view = background[y1:y2, x1:x2]
+        bg_view = background[y : y + h, x : x + w]
         diff = np.abs(image.astype(np.int32) - bg_view.astype(np.int32)).astype(np.uint8)
 
         # if images are color, convert to grayscale
@@ -58,6 +57,9 @@ class ErrorCalculator:
 
         return mask_wrm
 
+    # TODO: VERY FAST FOR ME, INVESTIGATE WHY IT'S SLOW IN THE LAB
+    # TODO: swap the FrameReader to another type. The only requirement is that accessing frame index returns the correct frame.
+    # we should probably use something like ImageLoader, which is implemented in the analysis_experimental.
     @staticmethod
     def calculate_precise(
         background: np.ndarray,
@@ -93,38 +95,28 @@ class ErrorCalculator:
         assert len(frame_nums) == worm_bboxes.shape[0] == mic_bboxes.shape[0]
 
         errors = np.zeros(len(frame_nums), dtype=float)
+        bounds = background.shape[:2]
 
-        has_preds = np.isfinite(worm_bboxes).all(axis=1)
-        errors[~has_preds] = 1.0
+        worm_bboxes, is_legal = BoxUtils.discretize(worm_bboxes, bounds=bounds, box_format=BoxFormat.XYWH)
+        mic_bboxes, _ = BoxUtils.discretize(mic_bboxes, bounds=bounds, box_format=BoxFormat.XYWH)
 
-        # filter out frames with no predictions
-        worm_bboxes = worm_bboxes[has_preds]
-        mic_bboxes = mic_bboxes[has_preds]
-        frame_nums = frame_nums[has_preds]
+        # filter out illegal bboxes, indicting no prediction or bad prediction.
+        errors[~is_legal] = np.nan
+        worm_bboxes = worm_bboxes[is_legal]
+        mic_bboxes = mic_bboxes[is_legal]
+        frame_nums = frame_nums[is_legal]
 
+        # convert to xyxy format for intersection calculation
         worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
         mic_bboxes = BoxConverter.change_format(mic_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
-
-        worm_bboxes = BoxUtils.round(worm_bboxes, BoxFormat.XYXY)
-        mic_bboxes = BoxUtils.round(mic_bboxes, BoxFormat.XYXY)
-
         wrm_left, wrm_top, wrm_right, wrm_bottom = BoxUtils.unpack(worm_bboxes)
         mic_left, mic_top, mic_right, mic_bottom = BoxUtils.unpack(mic_bboxes)
 
-        # clip worm bounding boxes to the frame size
-        H, W = background.shape[:2]
-        wrm_left = np.clip(wrm_left, a_min=0, a_max=W)
-        wrm_top = np.clip(wrm_top, a_min=0, a_max=H)
-        wrm_right = np.clip(wrm_right, a_min=0, a_max=W)
-        wrm_bottom = np.clip(wrm_bottom, a_min=0, a_max=H)
-
-        worm_bboxes = BoxUtils.pack(wrm_left, wrm_top, wrm_right, wrm_bottom)
-
         # calculate intersection of worm and microscope bounding boxes
-        int_left = np.clip(wrm_left, a_min=mic_left, a_max=mic_right)
-        int_top = np.clip(wrm_top, a_min=mic_top, a_max=mic_bottom)
-        int_right = np.clip(wrm_right, a_min=mic_left, a_max=mic_right)
-        int_bottom = np.clip(wrm_bottom, a_min=mic_top, a_max=mic_bottom)
+        int_left = np.maximum(wrm_left, mic_left)
+        int_top = np.maximum(wrm_top, mic_top)
+        int_right = np.minimum(wrm_right, mic_right)
+        int_bottom = np.minimum(wrm_bottom, mic_bottom)
 
         int_width = np.maximum(0, int_right - int_left)
         int_height = np.maximum(0, int_bottom - int_top)
@@ -133,8 +125,10 @@ class ErrorCalculator:
         int_left -= wrm_left
         int_top -= wrm_top
 
+        # pack the intersection bounding boxes and convert to xywh format
         int_bboxes = BoxUtils.pack(int_left, int_top, int_width, int_height)
-        int_bboxes = BoxConverter.change_format(int_bboxes, BoxFormat.XYWH, BoxFormat.XYXY)
+        worm_bboxes = BoxConverter.change_format(worm_bboxes, BoxFormat.XYXY, BoxFormat.XYWH)
+        mic_bboxes = BoxConverter.change_format(mic_bboxes, BoxFormat.XYXY, BoxFormat.XYWH)
 
         for i, frame_num in tqdm(enumerate(frame_nums), total=len(frame_nums), desc="Calculating Error", unit="fr"):
             wrm_bbox = worm_bboxes[i]
@@ -153,7 +147,7 @@ class ErrorCalculator:
                 ErrorCalculator.probe_hook(worm_view, mask_wrm)
 
             mask_mic = np.zeros_like(mask_wrm, dtype=bool)
-            mask_mic[int_bbox[1] : int_bbox[3], int_bbox[0] : int_bbox[2]] = True
+            mask_mic[int_bbox[1] : int_bbox[1] + int_bbox[3], int_bbox[0] : int_bbox[0] + int_bbox[2]] = True
 
             total = mask_wrm.sum()
             if total == 0:

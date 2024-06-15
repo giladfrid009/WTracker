@@ -103,7 +103,7 @@ class DataAnalyzer:
         mic_bboxes = data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
         bbox_error = ErrorCalculator.calculate_bbox_error(wrm_bboxes, mic_bboxes)
         data["bbox_error"] = bbox_error
-        data["precise_error"] = 1.0
+        data["precise_error"] = np.nan
         return data
 
     def remove_cycle(self, cycles: int | list[int]):
@@ -213,6 +213,8 @@ class DataAnalyzer:
         self.data = data
 
     # TODO: TEST
+    # TODO: MAYBE REMOVE, THE non-multithreaded version works very fast for me for some reason
+    # perhaps SSD is required for fast analysis.
     def calc_precise_error_experimental(
         self,
         worm_reader: FrameReader,
@@ -305,8 +307,6 @@ class DataAnalyzer:
         frames = self._orig_data["frame"].to_numpy().astype(np.int32, copy=False)
         wrm_bboxes = self._orig_data[["wrm_x", "wrm_y", "wrm_w", "wrm_h"]].to_numpy()
         mic_bboxes = self._orig_data[["mic_x", "mic_y", "mic_w", "mic_h"]].to_numpy()
-
-        indices = list(range(len(frames)))
 
         errors = ErrorCalculator.calculate_precise(
             background=background,

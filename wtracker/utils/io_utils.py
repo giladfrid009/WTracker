@@ -47,27 +47,12 @@ class FrameSaver(TaskScheduler):
 
     def _save_frame(self, params: tuple[int, tuple[float, float, float, float], str]):
         img_index, crop_dims, img_name = params
-        x, y, w, h = crop_dims
+
         save_path = join_paths(self._root_path, img_name)
-
         img = self._frame_reader[img_index]
-        H, W = img.shape[:2]
+        x, y, w, h = crop_dims
 
-        x_min, y_min, x_max, y_max = x, y, x + w, y + h
-        x_min, y_min = math.floor(x_min), math.floor(y_min)
-        x_max, y_max = math.ceil(x_max), math.ceil(y_max)
-
-        x_min = np.clip(x_min, a_min=0, a_max=W)
-        x_max = np.clip(x_max, a_min=0, a_max=W)
-        y_min = np.clip(y_min, a_min=0, a_max=H)
-        y_max = np.clip(y_max, a_min=0, a_max=H)
-
-        x_min = int(x_min)
-        x_max = int(x_max)
-        y_min = int(y_min)
-        y_max = int(y_max)
-
-        img = img[y_min:y_max, x_min:x_max]
+        img = img[y : y + h, x : x + w]
         success = cv.imwrite(save_path, img)
 
         if not success:

@@ -115,6 +115,57 @@ class BoxUtils:
 
         return BoxConverter.change_format(bboxes, BoxFormat.XYXY, box_format)
 
+    @staticmethod
+    def discretize(
+        bboxes: np.ndarray,
+        bounds: tuple[int, int],
+        box_format: BoxFormat,
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """
+        Converts bounding boxes into integer format and clamps them to the specified bounds. All illegal bounding boxes are zeroed out.
+        This function is especially useful for discretizing the bboxes for image slicing at bbox coordinates.
+
+        Args:
+            bboxes (np.ndarray): The bounding box coordinates to convert.
+            bounds (tuple[int, int]): The bounds to clamp the bounding boxes to, in the format (h, w).
+            box_format (BoxFormat): The format of the input bounding boxes.
+
+        Returns:
+            tuple[np.ndarray, np.ndarray]: The discretized bounding boxes and a boolean mask indicating which bounding boxes are legal.
+                The first element are bounding boxes discretized to 'np.int32' format. All illegal bounding boxes are zeroed out.
+                The second element is a boolean mask indicating which input bounding boxes are legal.
+        """
+
+        # zero out all non-finite bounding boxes
+        is_legal = np.isfinite(bboxes).all(axis=1)
+        bboxes[~is_legal] = 0
+
+        bboxes = BoxConverter.change_format(bboxes, box_format, BoxFormat.XYXY)
+        bboxes = BoxUtils.round(bboxes, BoxFormat.XYXY)
+        x1, y1, x2, y2 = BoxUtils.unpack(bboxes)
+
+        # clip worm bounding boxes to the size
+        H, W = bounds
+        x1 = np.clip(x1, a_min=0, a_max=W)
+        y1 = np.clip(y1, a_min=0, a_max=H)
+        x2 = np.clip(x2, a_min=0, a_max=W)
+        y2 = np.clip(y2, a_min=0, a_max=H)
+
+        bboxes = BoxUtils.pack(x1, y1, x2, y2)
+        bboxes = BoxConverter.change_format(bboxes, BoxFormat.XYXY, box_format)
+
+        # zero out all bounding boxes with 0 dimension
+        w = x2 - x1
+        h = y2 - y1
+        is_legal = (w > 0.0) & (h > 0.0)
+
+        # zero out all illegal bounding boxes and make sure return types are correct
+        bboxes[~is_legal] = 0
+        bboxes = bboxes.astype(np.int32, copy=False)
+        is_legal = is_legal.astype(bool, copy=False)
+
+        return bboxes, is_legal
+
 
 class BoxConverter:
     """

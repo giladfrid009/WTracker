@@ -18,8 +18,8 @@ class ViewController(FrameStream):
 
     Attributes:
         frame_reader (FrameReader): The frame reader object.
-        camera_size (tuple[int, int]): The size of the camera view (width, height).
-        micro_size (tuple[int, int]): The size of the micro view (width, height).
+        camera_size (tuple[int, int]): The size of the camera view (w, h).
+        micro_size (tuple[int, int]): The size of the micro view (w, h).
         position (tuple[int, int]): The current position of the center of the view (x, y).
     """
 

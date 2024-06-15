@@ -27,7 +27,7 @@ class SampleExtractor:
 
         Args:
             bboxes (np.ndarray): The bounding boxes to be moved.
-            frame_size (tuple[int, int]): The size of the frame in the format (width, height).
+            frame_size (tuple[int, int]): The size of the frame in the format (w, h).
 
         Returns:
             np.ndarray: The updated bounding boxes.
@@ -71,7 +71,7 @@ class SampleExtractor:
 
         Args:
             frame_indices (Collection[int]): The indices of the frames to extract samples from.
-            target_size (tuple[int, int]): The target size of the samples in the format (width, height).
+            target_size (tuple[int, int]): The target size of the samples in the format (w, h).
             save_folder (str): The folder path to save the samples.
             name_format (str, optional): The format of the sample names.
             num_workers (int, optional): The number of workers to use for parallel processing.
@@ -115,7 +115,7 @@ class SampleExtractor:
 
         Args:
             count (int): The number of samples to create.
-            target_size (tuple[int, int]): The target size of the samples in the format (width, height).
+            target_size (tuple[int, int]): The target size of the samples in the format (w, h).
             save_folder (str): The folder path to save the samples.
             name_format (str, optional): The format of the sample names.
             num_workers (int, optional): The number of workers to use for parallel processing.
@@ -141,7 +141,7 @@ class SampleExtractor:
         Creates samples for all frames.
 
         Args:
-            target_size (tuple[int, int]): The target size of the samples in the format (width, height).
+            target_size (tuple[int, int]): The target size of the samples in the format (w, h).
             save_folder (str): The folder path to save the samples.
             name_format (str, optional): The format of the sample names.
             num_workers (int, optional): The number of workers to use for parallel processing.
