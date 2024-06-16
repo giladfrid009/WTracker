@@ -68,22 +68,19 @@ class UserPrompt:
 
         file_types += [("all files", "*.*")]
 
-        with FocusedWindow() as root:
-            if multiple:
-                path = filedialog.askopenfilenames(
-                    parent=root,
-                    title=title,
-                    filetypes=file_types,
-                    **kwargs,
-                )
-                return list(path)
-            else:
-                return filedialog.askopenfilename(
-                    parent=root,
-                    title=title,
-                    filetypes=file_types,
-                    **kwargs,
-                )
+        if multiple:
+            path = filedialog.askopenfilenames(
+                title=title,
+                filetypes=file_types,
+                **kwargs,
+            )
+            return list(path)
+        else:
+            return filedialog.askopenfilename(
+                title=title,
+                filetypes=file_types,
+                **kwargs,
+            )
 
     @staticmethod
     def save_file(title: str = None, file_types: list[tuple[str, str]] = None, **kwargs) -> str:
@@ -105,14 +102,12 @@ class UserPrompt:
 
         file_types += [("all files", "*.*")]
 
-        with FocusedWindow() as root:
-            return filedialog.asksaveasfilename(
-                parent=root,
-                title=title,
-                filetypes=file_types,
-                confirmoverwrite=True,
-                **kwargs,
-            )
+        return filedialog.asksaveasfilename(
+            title=title,
+            filetypes=file_types,
+            confirmoverwrite=True,
+            **kwargs,
+        )
 
     @staticmethod
     def open_directory(title: str = None, **kwargs) -> str:
@@ -127,10 +122,8 @@ class UserPrompt:
             str: The path of the selected directory.
 
         """
-        with FocusedWindow() as root:
-            return filedialog.askdirectory(
-                parent=root,
-                title=title,
-                mustexist=False,
-                **kwargs,
-            )
+        return filedialog.askdirectory(
+            title=title,
+            mustexist=False,
+            **kwargs,
+        )
