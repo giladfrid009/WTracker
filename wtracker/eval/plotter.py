@@ -306,7 +306,7 @@ class Plotter:
         palette = self.palette if hue_col is not None else None
 
         plot = sns.displot(
-            data=data.dropna(),
+            data=data,
             x=x_col,
             y=y_col,
             hue=hue_col,
@@ -381,7 +381,7 @@ class Plotter:
         palette = self.palette if hue_col is not None else None
 
         plot = sns.catplot(
-            data=data.dropna(),
+            data=data,
             x=x_col,
             y=y_col,
             hue=hue_col,
@@ -454,7 +454,7 @@ class Plotter:
         palette = self.palette if hue_col is not None else None
 
         plot = sns.jointplot(
-            data=data.dropna(),
+            data=data,
             x=x_col,
             y=y_col,
             hue=hue_col,
