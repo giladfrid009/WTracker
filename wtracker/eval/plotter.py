@@ -40,6 +40,35 @@ class Plotter:
         else:
             raise ValueError(f"Invalid error kind: {error_kind}")
 
+    def _clean_data(self, data: pd.DataFrame, *col_names: str) -> pd.DataFrame:
+        """
+        Takes a subset of the data at the provided columns, and afterwards removes all rows which contain nan values within them.
+        The purpose of this function is to clean the data for plotting.
+
+        Args:
+            data (pd.DataFrame): The input data
+            *col_names (str): The columns of the data to extract and clean
+
+        Returns:
+            pd.DataFrame: The input data only at the specified columns, after removing all rows which contain nan.
+        """
+
+        col_names = [col for col in col_names if col is not None and col != ""]
+
+        if len(col_names) == 0:
+            raise RuntimeError("No valid columns were passed")
+        
+        if len(data) == 0:
+            raise RuntimeError("The input data was empty")
+
+        data = data[col_names]
+        data = data.dropna()
+
+        if len(data) == 0:
+            raise RuntimeError("There are no valid rows within the data. Perhaps one of the columns contains only np.nan values")
+
+        return data
+
     def plot_speed(
         self,
         log_wise: bool = False,
@@ -303,6 +332,8 @@ class Plotter:
         if condition is not None:
             data = data[condition(data)]
 
+        data = self._clean_data(data, x_col, y_col, hue_col, "log_num")
+
         palette = self.palette if hue_col is not None else None
 
         plot = sns.displot(
@@ -378,6 +409,8 @@ class Plotter:
         if condition is not None:
             data = data[condition(data)]
 
+        data = self._clean_data(data, x_col, y_col, hue_col, "log_num")
+
         palette = self.palette if hue_col is not None else None
 
         plot = sns.catplot(
@@ -450,6 +483,8 @@ class Plotter:
 
         if condition is not None:
             data = data[condition(data)]
+
+        data = self._clean_data(data, x_col, y_col, hue_col)
 
         palette = self.palette if hue_col is not None else None
 
