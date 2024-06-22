@@ -21,9 +21,13 @@ class Plotter:
         data_list: list[pd.DataFrame],
         plot_height: int = 7,
         palette: str = "viridis",
+        title_size: int = 16,
+        label_size: int = 13,
     ) -> None:
         self.plot_height = plot_height
         self.palette = palette
+        self.title_size = title_size
+        self.label_size = label_size
 
         for i, data in enumerate(data_list):
             data["log_num"] = i
@@ -57,7 +61,7 @@ class Plotter:
 
         if len(col_names) == 0:
             raise RuntimeError("No valid columns were passed")
-        
+
         if len(data) == 0:
             raise RuntimeError("The input data was empty")
 
@@ -65,7 +69,9 @@ class Plotter:
         data = data.dropna()
 
         if len(data) == 0:
-            raise RuntimeError("There are no valid rows within the data. Perhaps one of the columns contains only np.nan values")
+            raise RuntimeError(
+                "There are no valid rows within the data. Perhaps one of the columns contains only np.nan values"
+            )
 
         return data
 
@@ -348,15 +354,16 @@ class Plotter:
             **kwargs,
         )
 
-        plot.set_xlabels(x_label.capitalize())
-        plot.set_ylabels(y_label.capitalize())
+        plot.set_xlabels(x_label.capitalize(), fontsize=self.label_size, fontweight="semibold")
+        plot.set_ylabels(y_label.capitalize(), fontsize=self.label_size, fontweight="semibold")
+        plot.tick_params(axis="both", labelsize=self.label_size)
 
         if title is not None:
             if log_wise:
                 title = f"Log {{col_name}} :: {title.title()}"
-                plot.set_titles(title)
+                plot.set_titles(title, size=self.title_size, fontweight="bold")
             else:
-                plot.figure.suptitle(title.title())
+                plot.figure.suptitle(title.title(), fontsize=self.title_size, fontweight="bold")
 
         plot.tight_layout()
 
@@ -425,15 +432,16 @@ class Plotter:
             **kwargs,
         )
 
-        plot.set_xlabels(x_label.capitalize())
-        plot.set_ylabels(y_label.capitalize())
+        plot.set_xlabels(x_label.capitalize(), fontsize=self.label_size, fontweight="semibold")
+        plot.set_ylabels(y_label.capitalize(), fontsize=self.label_size, fontweight="semibold")
+        plot.tick_params(axis="both", labelsize=self.label_size)
 
         if title is not None:
             if log_wise:
                 title = f"Log {{col_name}} :: {title.title()}"
-                plot.set_titles(title)
+                plot.set_titles(title, size=self.title_size, fontweight="bold")
             else:
-                plot.figure.suptitle(title.title())
+                plot.figure.suptitle(title.title(), fontsize=self.title_size, fontweight="bold")
 
         plot.tight_layout()
 
@@ -500,8 +508,11 @@ class Plotter:
             **kwargs,
         )
 
-        plot.set_axis_labels(x_label.capitalize(), y_label.capitalize())
-        plot.figure.suptitle(title.title())
+        plot.set_axis_labels(
+            x_label.capitalize(), y_label.capitalize(), fontsize=self.label_size, fontweight="semibold"
+        )
+        plot.figure.suptitle(title.title(), fontsize=self.title_size, fontweight="bold")
+        plot.ax_joint.tick_params(axis="both", labelsize=self.label_size)
         plot.figure.tight_layout()
 
         return plot
