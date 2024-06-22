@@ -1,5 +1,6 @@
 from __future__ import annotations
 import pandas as pd
+import numpy as np
 import seaborn as sns
 from typing import Callable
 
@@ -16,6 +17,7 @@ class Plotter:
         palette (str, optional): The color palette to use for the plots.
         title_size (int, optional): The size of the title text.
         label_size (int, optional): The size of the axis labels and values.
+        units (tuple[str, str], optional): The units of the data in format (time, dist). If None, the units are automatically detected.
     """
 
     def __init__(
@@ -25,6 +27,7 @@ class Plotter:
         palette: str = "viridis",
         title_size: int = 16,
         label_size: int = 13,
+        units: tuple[str, str] = None,
     ) -> None:
         self.plot_height = plot_height
         self.palette = palette
@@ -36,6 +39,27 @@ class Plotter:
 
         self.data = pd.concat([d for d in data_list], ignore_index=True)
 
+        if units is None:
+            units = self._detect_units()
+
+        self.time_unit, self.dist_unit = units
+
+    def _detect_units(self) -> tuple[str, str]:
+        """
+        Detect the time and distance units of the data.
+
+        Returns:
+            tuple[str, str]: The units of the data.
+        """
+
+        data = self.data.iloc[:5]
+
+        if np.array_equal(data["frame"].round(3), data["time"].round(3)):
+            return ("fr", "px")
+
+        else:
+            return ("sec", "μm")
+
     def _get_error_column(self, error_kind: str) -> str:
         if error_kind == "bbox":
             return "bbox_error"
@@ -43,6 +67,14 @@ class Plotter:
             return "worm_deviation"
         elif error_kind == "precise":
             return "precise_error"
+        else:
+            raise ValueError(f"Invalid error kind: {error_kind}")
+
+    def _get_error_label(self, error_kind: str) -> str:
+        if error_kind == "dist":
+            return f"{error_kind} error ({self.dist_unit})"
+        elif error_kind in ["bbox", "precise"]:
+            return f"{error_kind} error (% outside)"
         else:
             raise ValueError(f"Invalid error kind: {error_kind}")
 
@@ -96,7 +128,7 @@ class Plotter:
 
         return self.create_distplot(
             x_col="wrm_speed",
-            x_label="speed",
+            x_label=f"speed ({self.dist_unit}/{self.time_unit})",
             title="Worm Speed Distribution",
             plot_kind=plot_kind,
             log_wise=log_wise,
@@ -120,7 +152,7 @@ class Plotter:
         Args:
             error_kind (str, optional): The kind of error to plot. Can be "bbox", "dist", or "precise".
             log_wise (bool, optional): Whether to plot each log separately.
-            cycle_wise (bool, optional): Whether to plot each cycle separately.
+            cycle_wise (bool, optional): Whether to calculate single value per cycle.
             condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
             plot_kind (str, optional): The kind of plot to create. Can be "hist", "kde", or "ecdf".
             **kwargs: Additional keyword arguments to pass the `Plotter.create_distplot` function.
@@ -137,7 +169,7 @@ class Plotter:
 
         return self.create_distplot(
             x_col=error_col,
-            x_label=f"{error_kind} error",
+            x_label=self._get_error_label(error_kind),
             title=f"{error_kind} Error Distribution",
             plot_kind=plot_kind,
             log_wise=log_wise,
@@ -168,13 +200,11 @@ class Plotter:
             sns.JointGrid: The plot object.
         """
 
-        error_col = self._get_error_column(error_kind)
-
         return self.create_catplot(
             x_col="cycle_step",
-            y_col=error_col,
-            x_label="cycle step",
-            y_label=f"{error_kind} error",
+            y_col=self._get_error_column(error_kind),
+            x_label="cycle step (fr)",
+            y_label=self._get_error_label(error_kind),
             title=f"{error_kind} error as function of cycle step",
             plot_kind=plot_kind,
             log_wise=log_wise,
@@ -195,7 +225,7 @@ class Plotter:
 
         Args:
             error_kind (str, optional): The kind of error to plot. Can be "bbox", "dist", or "precise".
-            cycle_wise (bool, optional): Whether to plot each cycle separately.
+            cycle_wise (bool, optional): Whether to calculate single value per cycle.
             condition (Callable[[pd.DataFrame], pd.DataFrame], optional): A function to filter the data.
             kind (str, optional): The kind of plot to create. Can be "scatter", "kde", "hist", "hex", "reg", or "resid".
             **kwargs: Additional keyword arguments to pass the `Plotter.create_jointplot` function.
@@ -218,8 +248,8 @@ class Plotter:
             x_col="wrm_speed",
             y_col=error_col,
             plot_kind=kind,
-            x_label="speed",
-            y_label=f"{error_kind} error",
+            x_label=f"speed ({self.dist_unit}/{self.time_unit})",
+            y_label=self._get_error_label(error_kind),
             title=f"Speed vs {error_kind} Error",
             condition=condition,
             data=data,
@@ -247,9 +277,9 @@ class Plotter:
         plot = self.create_jointplot(
             x_col="wrm_center_x",
             y_col="wrm_center_y",
-            x_label="X",
-            y_label="Y",
-            title="Worm Trajectory",
+            x_label=f"X ({self.dist_unit})",
+            y_label=f"Y" f" ({self.dist_unit})",
+            title=f"Worm Trajectory",
             hue_col=hue_col,
             plot_kind="scatter",
             alpha=1,
@@ -285,8 +315,8 @@ class Plotter:
         return self.create_jointplot(
             x_col="wrm_w",
             y_col="wrm_h",
-            x_label="width",
-            y_label="height",
+            x_label=f"width ({self.dist_unit})",
+            y_label=f"height ({self.dist_unit})",
             title="Worm Head Size",
             plot_kind=plot_kind,
             condition=condition,
