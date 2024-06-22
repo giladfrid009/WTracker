@@ -14,6 +14,8 @@ class Plotter:
         data_list (list[pd.DataFrame]): A list of dataframes, each holding the data of a single experiment log.
         plot_height (int, optional): The height of the plot.
         palette (str, optional): The color palette to use for the plots.
+        title_size (int, optional): The size of the title text.
+        label_size (int, optional): The size of the axis labels and values.
     """
 
     def __init__(
