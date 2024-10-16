@@ -1,5 +1,7 @@
 # WTracker
 
+Full Report available [HERE](https://github.com/giladfrid009/WTracker/blob/with-report/Bio_Informatics_Project.pdf)
+
 ## Description
 
 This library provides tools for worm detection and movement prediction, training predictors, and analyzing the results. It includes support for YOLO-based prediction and various simulation controllers.
